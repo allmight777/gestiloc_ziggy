@@ -1,0 +1,452 @@
+@extends('layouts.co-owner')
+
+@section('title', 'Modifier le préavis - Co-propriétaire')
+
+@section('content')
+<div class="content-container">
+    <div class="content-card">
+        <div class="content-body">
+            @if ($errors->any())
+                <div class="alert-box alert-error">
+                    <i data-lucide="alert-circle" style="width: 20px; height: 20px; flex-shrink: 0;"></i>
+                    <div>
+                        <strong>Erreurs de validation</strong>
+                        <ul style="margin-top: 8px; padding-left: 1rem; font-weight: 650; font-size: 1.05rem;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Informations non modifiables -->
+            <div class="notice-info">
+                <h3><i data-lucide="info" style="width: 16px; height: 16px;"></i> Informations du préavis</h3>
+                <div class="notice-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Bien</div>
+                        <div class="detail-value">{{ $notice->property->address ?? 'Non spécifié' }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Locataire</div>
+                        <div class="detail-value">
+                            {{ trim(($notice->tenant->first_name ?? '') . ' ' . ($notice->tenant->last_name ?? '')) ?: 'Non spécifié' }}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Statut</div>
+                        <div class="detail-value">
+                            @if ($notice->status == 'pending')
+                                <span style="color: #92400e;"><i data-lucide="clock" style="width: 14px; height: 14px;"></i>
+                                    En attente</span>
+                            @elseif($notice->status == 'confirmed')
+                                <span style="color: #166534;"><i data-lucide="check-circle"
+                                        style="width: 14px; height: 14px;"></i> Confirmé</span>
+                            @else
+                                <span style="color: #475569;"><i data-lucide="x-circle"
+                                        style="width: 14px; height: 14px;"></i> Annulé</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('co-owner.notices.update', $notice) }}" class="form-card">
+                @csrf
+                @method('PUT')
+
+                <!-- Type de préavis -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i data-lucide="user" style="width: 16px; height: 16px;"></i> Type de préavis *
+                    </label>
+                    <select name="type" class="form-control form-select" required>
+                        <option value="landlord" {{ old('type', $notice->type) == 'landlord' ? 'selected' : '' }}>
+                            Préavis bailleur</option>
+                        <option value="tenant" {{ old('type', $notice->type) == 'tenant' ? 'selected' : '' }}>Préavis
+                            locataire</option>
+                    </select>
+                </div>
+
+                <!-- Dates -->
+                <div class="form-group">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div>
+                            <label class="form-label">
+                                <i data-lucide="calendar" style="width: 16px; height: 16px;"></i> Date du préavis *
+                            </label>
+                            <input type="date" name="notice_date" class="form-control"
+                                value="{{ old('notice_date', $notice->notice_date->format('Y-m-d')) }}" required>
+                        </div>
+                        <div>
+                            <label class="form-label">
+                                <i data-lucide="calendar" style="width: 16px; height: 16px;"></i> Date de fin *
+                            </label>
+                            <input type="date" name="end_date" class="form-control"
+                                value="{{ old('end_date', $notice->end_date->format('Y-m-d')) }}" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Motif -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i data-lucide="message-square" style="width: 16px; height: 16px;"></i> Motif *
+                    </label>
+                    <textarea name="reason" class="form-control form-textarea" placeholder="Détaillez le motif du préavis..." required>{{ old('reason', $notice->reason) }}</textarea>
+                </div>
+
+                <!-- Notes -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i data-lucide="file-text" style="width: 16px; height: 16px;"></i> Notes additionnelles
+                    </label>
+                    <textarea name="notes" class="form-control form-textarea" placeholder="Informations complémentaires...">{{ old('notes', $notice->notes) }}</textarea>
+                </div>
+
+                <!-- Boutons -->
+                <div class="form-group"
+                    style="display: flex !important;
+            flex-direction: row !important;
+            justify-content: flex-end !important;
+            align-items: center !important;
+            flex-wrap: nowrap !important;
+            gap: 1rem !important;
+            width: 100% !important;
+            margin-top: 2rem !important;">
+
+                    <button type="submit" class="button button-primary"
+                        style="width: auto !important; flex: 0 0 auto !important; display: inline-flex !important; align-items: center; gap: 6px;">
+                        <i data-lucide="save" style="width:16px;height:16px;"></i>
+                        Enregistrer les modifications
+                    </button>
+
+                    <a href="{{ route('co-owner.notices.show', $notice) }}" class="button button-secondary"
+                        style="width: auto !important; flex: 0 0 auto !important; display: inline-flex !important; align-items: center; gap: 6px;">
+                        <i data-lucide="x" style="width:16px;height:16px;"></i>
+                        Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --gradA: #667eea;
+        --gradB: #764ba2;
+        --indigo: #4f46e5;
+        --violet: #7c3aed;
+        --emerald: #10b981;
+        --yellow: #f59e0b;
+        --red: #ef4444;
+        --ink: #0f172a;
+        --muted: #64748b;
+        --muted2: #94a3b8;
+        --line: rgba(15, 23, 42, .10);
+        --line2: rgba(15, 23, 42, .08);
+        --shadow: 0 22px 70px rgba(0, 0, 0, .18);
+    }
+
+    .content-container {
+        min-height: 100vh;
+        background: #ffffff;
+        padding: 3rem;
+        position: relative;
+    }
+
+    .content-container::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(900px 520px at 12% -8%, rgba(102, 126, 234, .16) 0%, rgba(102, 126, 234, 0) 62%),
+            radial-gradient(900px 520px at 92% 8%, rgba(118, 75, 162, .14) 0%, rgba(118, 75, 162, 0) 64%),
+            radial-gradient(700px 420px at 40% 110%, rgba(16, 185, 129, .10) 0%, rgba(16, 185, 129, 0) 60%);
+        pointer-events: none;
+        z-index: -2;
+    }
+
+    .content-card {
+        max-width: 1500px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, .92);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        border: 1px solid rgba(102, 126, 234, .18);
+        position: relative;
+        backdrop-filter: blur(10px);
+    }
+
+    .content-body {
+        padding: 3.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .alert-box {
+        border-radius: 14px;
+        padding: 1.25rem;
+        margin-bottom: 2.2rem;
+        border: 1px solid;
+        font-weight: 850;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .alert-error {
+        background: rgba(254, 242, 242, .92);
+        border-color: rgba(248, 113, 113, .30);
+        color: #991b1b;
+    }
+
+    .button {
+        padding: 0.9rem 1.35rem;
+        border-radius: 14px;
+        font-weight: 950;
+        font-size: 1.05rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: inherit;
+        white-space: nowrap;
+        text-decoration: none;
+    }
+
+    .button-primary {
+        background: #70AE48;
+        color: #fff;
+        box-shadow: 0 14px 30px rgba(112, 174, 72, 0.22);
+    }
+
+    .button-primary:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 18px 34px rgba(112, 174, 72, 0.28);
+    }
+
+    .button-secondary {
+        background: rgba(255, 255, 255, .92);
+        color: #000000;
+        border: 2px solid rgba(112, 174, 72, 0.20);
+    }
+
+    .button-secondary:hover {
+        background: rgba(112, 174, 72, 0.06);
+        color: #70AE48;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 18px;
+        padding: 3rem;
+        border: 2px solid rgba(102, 126, 234, .15);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, .08);
+    }
+
+    .form-group {
+        margin-bottom: 2.2rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 1.05rem;
+        font-weight: 950;
+        color: var(--ink);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1.2rem 1.4rem;
+        border-radius: 12px;
+        border: 2px solid rgba(148, 163, 184, .25);
+        font-size: 1.1rem;
+        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, .92);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #70AE48;
+        box-shadow: 0 0 0 3px rgba(112, 174, 72, 0.15);
+    }
+
+    .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 16px;
+        padding-right: 2.5rem;
+    }
+
+    .form-textarea {
+        min-height: 160px;
+        resize: vertical;
+    }
+
+    .notice-info {
+        background: rgba(112, 174, 72, 0.08);
+        border-radius: 14px;
+        padding: 1.25rem;
+        margin-bottom: 2.2rem;
+        border: 2px solid rgba(112, 174, 72, 0.20);
+    }
+
+    .notice-info h3 {
+        font-size: 1rem;
+        font-weight: 950;
+        color: #70AE48;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .notice-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 0.75rem;
+    }
+
+    .detail-item {
+        font-size: 1.05rem;
+    }
+
+    .detail-label {
+        font-weight: 850;
+        color: var(--muted);
+    }
+
+    .detail-value {
+        color: var(--ink);
+        font-weight: 700;
+    }
+
+    .input-error {
+        border-color: rgba(239,68,68,.72) !important;
+        box-shadow: 0 0 0 3px rgba(239,68,68,.15) !important;
+    }
+
+    /* Augmenter l'espacement général */
+    .form-group {
+        margin-bottom: 2.5rem !important;
+    }
+
+    /* Plus d'espacement pour les labels */
+    .form-label {
+        margin-bottom: 0.85rem !important;
+        font-size: 1.1rem !important;
+    }
+
+    /* Inputs plus grands */
+    .form-control {
+        padding: 1.3rem 1.5rem !important;
+        font-size: 1.15rem !important;
+        border-radius: 14px !important;
+    }
+
+    /* Textarea plus grande */
+    .form-textarea {
+        min-height: 180px !important;
+        padding: 1.2rem !important;
+    }
+
+    /* Espacement des détails du préavis */
+    .notice-details {
+        gap: 1.5rem !important;
+        margin-top: 1.2rem !important;
+    }
+
+    .notice-info {
+        padding: 1.8rem !important;
+        margin-bottom: 2.5rem !important;
+    }
+
+    /* Taille de police des valeurs de détail */
+    .detail-value {
+        font-size: 1.05rem !important;
+        margin-top: 0.3rem !important;
+    }
+
+    .detail-label {
+        font-size: 0.95rem !important;
+    }
+
+    /* Plus d'espacement pour les boutons */
+    .form-group[style*="flex-direction: row"] {
+        gap: 1.5rem !important;
+        margin-top: 3rem !important;
+    }
+
+    /* Boutons plus grands */
+    .button {
+        padding: 1.1rem 1.8rem !important;
+        font-size: 1.05rem !important;
+        border-radius: 16px !important;
+    }
+
+    /* Titre de section préavis plus grand */
+    .notice-info h3 {
+        font-size: 1.2rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* Espacement du conteneur principal */
+    .content-body {
+        padding: 3.5rem !important;
+    }
+
+    .form-card {
+        padding: 3rem !important;
+    }
+
+    /* Alertes plus grandes */
+    .alert-box {
+        padding: 1.5rem !important;
+        margin-bottom: 2rem !important;
+        font-size: 1rem !important;
+    }
+
+    /* Gap dans le grid des dates */
+    .form-group > div[style*="grid-template-columns"] {
+        gap: 2rem !important;
+    }
+
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialiser les icônes Lucide
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+
+        // Validation des dates
+        const noticeDateInput = document.querySelector('input[name="notice_date"]');
+        const endDateInput = document.querySelector('input[name="end_date"]');
+
+        if (noticeDateInput && endDateInput) {
+            endDateInput.addEventListener('change', function() {
+                const noticeDate = new Date(noticeDateInput.value);
+                const endDate = new Date(this.value);
+
+                if (endDate <= noticeDate) {
+                    this.classList.add('input-error');
+                    alert('La date de fin doit être après la date du préavis.');
+                } else {
+                    this.classList.remove('input-error');
+                }
+            });
+        }
+    });
+</script>
+@endsection

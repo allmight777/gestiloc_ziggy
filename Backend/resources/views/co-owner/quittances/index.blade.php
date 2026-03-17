@@ -1,0 +1,426 @@
+@extends('layouts.co-owner')
+
+@section('title', 'Quittances de loyers')
+
+@section('content')
+<div style="min-height: 100vh; background: #F8F9FA; padding: 3rem;">
+    <div style="max-width: 1400px; margin: 0 auto;">
+
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3rem; flex-wrap: wrap; gap: 1.5rem;">
+            <div>
+                <h1 style="font-size: 2.4rem; font-weight: 700; color: #1F2937; margin: 0 0 1rem 0;">
+                    Quittances de loyers
+                </h1>
+                <p style="color: #6B7280; font-size: 1.15rem; margin: 0; max-width: 600px; line-height: 1.6;">
+                    Créez et générez vos quittances de loyer après réception des paiements.<br>
+                    Envoyez automatiquement les quittances à vos locataires.
+                </p>
+            </div>
+
+            <a href="{{ route('co-owner.quittances.create') }}"
+               class="btn-create"
+               style="display: inline-flex; align-items: center; gap: 12px; padding: 16px 32px; background: #70AE48; color: white; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 1.05rem; box-shadow: 0 4px 12px rgba(112, 174, 72, 0.3); transition: all 0.2s ease;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Créer une quittance de loyer</span>
+            </a>
+        </div>
+
+        <!-- Statistiques -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-bottom: 3rem;">
+            <div style="background: white; border-radius: 16px; padding: 2rem; border: 1px solid #E5E7EB; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                <div style="color: #9CA3AF; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
+                    QUITTANCES ÉMISES
+                </div>
+                <div style="font-size: 2.6rem; font-weight: 700; color: #1F2937;">
+                    {{ $totalReceipts }}
+                </div>
+            </div>
+
+            <div style="background: white; border-radius: 16px; padding: 2rem; border: 1px solid #E5E7EB; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                <div style="color: #9CA3AF; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
+                    CE MOIS-CI
+                </div>
+                <div style="font-size: 2.6rem; font-weight: 700; color: #70AE48;">
+                    {{ $thisMonthReceipts }}
+                </div>
+            </div>
+
+            <div style="background: white; border-radius: 16px; padding: 2rem; border: 1px solid #E5E7EB; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                <div style="color: #9CA3AF; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
+                    EN ATTENTE D'ENVOI
+                </div>
+                <div style="font-size: 2.6rem; font-weight: 700; color: #F59E0B;">
+                    {{ $pendingReceipts }}
+                </div>
+            </div>
+
+            <div style="background: white; border-radius: 16px; padding: 2rem; border: 1px solid #E5E7EB; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                <div style="color: #9CA3AF; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
+                    TOTAL ENCAISSÉ
+                </div>
+                <div style="font-size: 2.6rem; font-weight: 700; color: #70AE48;">
+                    {{ number_format($totalCollected * 655, 0, ',', ' ') }} FCFA
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire de filtres -->
+        <form method="GET" action="{{ route('co-owner.quittances.index') }}" id="filter-form">
+            <!-- Filtres statut -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 2.5rem; flex-wrap: wrap;">
+                <button type="submit" name="status" value="all"
+                        class="filter-btn {{ $statusFilter === 'all' ? 'active' : '' }}"
+                        style="padding: 14px 28px; border: none; border-radius: 30px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; background: {{ $statusFilter === 'all' ? '#70AE48' : '#E5E7EB' }}; color: {{ $statusFilter === 'all' ? 'white' : '#6B7280' }};">
+                    Tous
+                </button>
+                <button type="submit" name="status" value="sent"
+                        class="filter-btn {{ $statusFilter === 'sent' ? 'active' : '' }}"
+                        style="padding: 14px 28px; border: none; border-radius: 30px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; background: {{ $statusFilter === 'sent' ? '#70AE48' : '#E5E7EB' }}; color: {{ $statusFilter === 'sent' ? 'white' : '#6B7280' }};">
+                    Envoyées
+                </button>
+                <button type="submit" name="status" value="pending"
+                        class="filter-btn {{ $statusFilter === 'pending' ? 'active' : '' }}"
+                        style="padding: 14px 28px; border: none; border-radius: 30px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; background: {{ $statusFilter === 'pending' ? '#70AE48' : '#E5E7EB' }}; color: {{ $statusFilter === 'pending' ? 'white' : '#6B7280' }};">
+                    En attente
+                </button>
+                <button type="submit" name="status" value="year"
+                        class="filter-btn {{ $statusFilter === 'year' ? 'active' : '' }}"
+                        style="padding: 14px 28px; border: none; border-radius: 30px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; background: {{ $statusFilter === 'year' ? '#70AE48' : '#E5E7EB' }}; color: {{ $statusFilter === 'year' ? 'white' : '#6B7280' }};">
+                    Par année
+                </button>
+            </div>
+
+            <!-- Zone de recherche et filtre -->
+            <div style="background: white; border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; border: 1px solid #E5E7EB;">
+                <div style="display: flex; gap: 1.5rem; align-items: flex-end; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 280px;">
+                        <label style="display: block; font-size: 0.9rem; font-weight: 600; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
+                            FILTRER PAR BIEN
+                        </label>
+                        <select name="property_id" onchange="document.getElementById('filter-form').submit()"
+                                style="width: 100%; padding: 16px 20px; border: 1px solid #E5E7EB; border-radius: 12px; font-size: 1rem; color: #1F2937; background: white; cursor: pointer; transition: all 0.2s;"
+                                onfocus="this.style.borderColor='#70AE48'; this.style.boxShadow='0 0 0 3px rgba(112, 174, 72, 0.1)'"
+                                onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                            <option value="">Tous les biens</option>
+                            @foreach($properties as $property)
+                                <option value="{{ $property->id }}" {{ $propertyFilter == $property->id ? 'selected' : '' }}>
+                                    {{ $property->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div style="flex: 1; min-width: 280px;">
+                        <label style="display: block; font-size: 0.9rem; font-weight: 600; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
+                            RECHERCHER
+                        </label>
+                        <div style="position: relative;">
+                            <svg style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #9CA3AF; width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                            <input type="text" name="search" value="{{ $searchTerm }}" placeholder="Locataire, bien, mois..."
+                                   style="width: 100%; padding: 16px 20px 16px 50px; border: 1px solid #E5E7EB; border-radius: 12px; font-size: 1rem; color: #1F2937; transition: all 0.2s;"
+                                   onfocus="this.style.borderColor='#70AE48'; this.style.boxShadow='0 0 0 3px rgba(112, 174, 72, 0.1)'"
+                                   onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                        </div>
+                    </div>
+
+                    <div style="flex: 0 0 auto;">
+                        <button type="submit"
+                                style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; background: #70AE48; color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(112, 174, 72, 0.2);"
+                                onmouseover="this.style.background='#5d8f3a'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(112, 174, 72, 0.3)'"
+                                onmouseout="this.style.background='#70AE48'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(112, 174, 72, 0.2)'">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                            Rechercher
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        @if(session('success'))
+            <div style="background: rgba(112, 174, 72, 0.1); border: 1px solid #70AE48; border-radius: 16px; padding: 1.25rem 1.75rem; margin-bottom: 2.5rem; display: flex; align-items: start; gap: 14px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#70AE48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <div>
+                    <strong style="color: #2e5e1e; font-weight: 600; display: block; margin-bottom: 6px; font-size: 1.05rem;">Succès !</strong>
+                    <p style="color: #3d7526; margin: 0; font-size: 1rem; line-height: 1.5;">{{ session('success') }}</p>
+                </div>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div style="background: #FEE2E2; border: 1px solid #EF4444; border-radius: 16px; padding: 1.25rem 1.75rem; margin-bottom: 2.5rem; display: flex; align-items: start; gap: 14px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <div>
+                    <strong style="color: #991B1B; font-weight: 600; display: block; margin-bottom: 6px; font-size: 1.05rem;">Erreur !</strong>
+                    <p style="color: #DC2626; margin: 0; font-size: 1rem; line-height: 1.5;">{{ session('error') }}</p>
+                </div>
+            </div>
+        @endif
+
+        <!-- Grille des quittances -->
+        @if($receipts->isEmpty())
+            <div style="text-align: center; padding: 5rem 2rem; background: white; border-radius: 20px; border: 2px dashed #E5E7EB;">
+                <svg style="width: 80px; height: 80px; color: #D1D5DB; margin: 0 auto 1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <h3 style="font-size: 1.5rem; font-weight: 700; color: #6B7280; margin: 0 0 0.75rem 0;">
+                    Aucune quittance trouvée
+                </h3>
+                <p style="color: #9CA3AF; margin: 0 0 2rem 0; font-size: 1.1rem; line-height: 1.6;">
+                    @if($searchTerm || $propertyFilter || $statusFilter !== 'all')
+                        Aucune quittance ne correspond à vos critères de recherche.
+                    @else
+                        Commencez par créer votre première quittance.
+                    @endif
+                </p>
+                @if(!$searchTerm && !$propertyFilter && $statusFilter === 'all')
+                    <a href="{{ route('co-owner.quittances.create') }}"
+                       style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; background: #70AE48; color: white; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 1.05rem; box-shadow: 0 4px 12px rgba(112, 174, 72, 0.3); transition: all 0.2s;"
+                       onmouseover="this.style.background='#5d8f3a'; this.style.transform='translateY(-1px)'"
+                       onmouseout="this.style.background='#70AE48'; this.style.transform='translateY(0)'">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Créer une quittance
+                    </a>
+                @else
+                    <a href="{{ route('co-owner.quittances.index') }}"
+                       style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; background: #6B7280; color: white; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 1.05rem; transition: all 0.2s;"
+                       onmouseover="this.style.background='#4B5563'"
+                       onmouseout="this.style.background='#6B7280'">
+                        Réinitialiser les filtres
+                    </a>
+                @endif
+            </div>
+        @else
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 2rem;">
+                @foreach($receipts as $receipt)
+                    <div style="background: white; border-radius: 20px; padding: 2rem; border: 1px solid #E5E7EB; transition: all 0.3s ease; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.02);"
+                         onmouseover="this.style.boxShadow='0 8px 24px rgba(112, 174, 72, 0.15)'; this.style.transform='translateY(-2px)'; this.style.borderColor='#70AE48'"
+                         onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.02)'; this.style.transform='translateY(0)'; this.style.borderColor='#E5E7EB'">
+
+                        <!-- Header de la carte -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                @if($receipt->status == 'issued')
+                                    <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(112, 174, 72, 0.1); border-radius: 30px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#70AE48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        <span style="color: #70AE48; font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Envoyée</span>
+                                    </div>
+                                @elseif($receipt->status == 'pending')
+                                    <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(245, 158, 11, 0.1); border-radius: 30px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        <span style="color: #F59E0B; font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">En attente</span>
+                                    </div>
+                                @endif
+                            </div>
+                            <span style="color: #9CA3AF; font-size: 0.85rem; font-weight: 500;">
+                                {{ \Carbon\Carbon::parse($receipt->created_at)->format('d/m/Y') }}
+                            </span>
+                        </div>
+
+                        <!-- Titre et locataire -->
+                        <h3 style="font-size: 1.4rem; font-weight: 700; color: #1F2937; margin: 0 0 1rem 0;">
+                            Quittance {{ \Carbon\Carbon::parse($receipt->paid_month . '-01')->locale('fr')->translatedFormat('F Y') }}
+                        </h3>
+
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 2rem;">
+                            <div style="width: 40px; height: 40px; background: rgba(112, 174, 72, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#70AE48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: #1F2937; font-size: 1.05rem;">{{ $receipt->tenant->first_name ?? '' }} {{ $receipt->tenant->last_name ?? '' }}</div>
+                                <div style="color: #9CA3AF; font-size: 0.95rem;">{{ $receipt->property->city ?? '' }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Détails financiers -->
+                        <div style="background: #F9FAFB; border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <span style="color: #6B7280; font-size: 0.95rem;">Loyer</span>
+                                <span style="font-weight: 600; color: #1F2937; font-size: 1rem;">{{ number_format(($receipt->amount_paid - ($receipt->lease->charges_amount ?? 0)) * 655, 0, ',', ' ') }} FCFA</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <span style="color: #6B7280; font-size: 0.95rem;">Charges</span>
+                                <span style="font-weight: 600; color: #1F2937; font-size: 1rem;">{{ number_format(($receipt->lease->charges_amount ?? 0) * 655, 0, ',', ' ') }} FCFA</span>
+                            </div>
+                            <div style="height: 1px; background: #E5E7EB; margin: 1rem 0;"></div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #6B7280; font-size: 0.95rem; font-weight: 600;">Total payé</span>
+                                <span style="font-size: 1.4rem; font-weight: 700; color: #70AE48;">{{ number_format($receipt->amount_paid * 655, 0, ',', ' ') }} FCFA</span>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div style="display: flex; gap: 0.75rem;">
+                            <a href="{{ route('co-owner.quittances.download', $receipt->id) }}"
+                               style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; background: white; color: #6B7280; border: 1px solid #E5E7EB; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s;"
+                               onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='#70AE48'; this.style.color='#70AE48'"
+                               onmouseout="this.style.background='white'; this.style.borderColor='#E5E7EB'; this.style.color='#6B7280'">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                Télécharger
+                            </a>
+
+                            <form action="{{ route('co-owner.quittances.send-email', $receipt->id) }}" method="POST" style="flex: 1;">
+                                @csrf
+                                <button type="submit"
+                                        style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; background: white; color: #6B7280; border: 1px solid #E5E7EB; border-radius: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;"
+                                        onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='#70AE48'; this.style.color='#70AE48'"
+                                        onmouseout="this.style.background='white'; this.style.borderColor='#E5E7EB'; this.style.color='#6B7280'">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                        <polyline points="22,6 12,13 2,6"></polyline>
+                                    </svg>
+                                    Envoyer
+                                </button>
+                            </form>
+
+                            <form action="{{ route('co-owner.quittances.destroy', $receipt->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette quittance ?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; background: white; color: #EF4444; border: 1px solid #FCA5A5; border-radius: 12px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;"
+                                        onmouseover="this.style.background='#FEF2F2'; this.style.borderColor='#EF4444'"
+                                        onmouseout="this.style.background='white'; this.style.borderColor='#FCA5A5'">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 6h18"></path>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0h10"></path>
+                                        <path d="M10 11v5"></path>
+                                        <path d="M14 11v5"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Pagination -->
+            @if($receipts->hasPages())
+                <div style="margin-top: 3.5rem; display: flex; justify-content: center;">
+                    {{ $receipts->appends(request()->query())->links() }}
+                </div>
+            @endif
+        @endif
+    </div>
+</div>
+
+<style>
+    /* Styles pour la pagination */
+    .pagination {
+        display: flex;
+        gap: 0.75rem;
+        list-style: none;
+        padding: 0;
+    }
+
+    .pagination li {
+        display: inline-block;
+    }
+
+    .pagination li a, .pagination li span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        height: 44px;
+        padding: 0 0.75rem;
+        background: white;
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        color: #6B7280;
+        font-weight: 500;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .pagination li.active span {
+        background: #70AE48;
+        border-color: #70AE48;
+        color: white;
+    }
+
+    .pagination li a:hover {
+        background: #F9FAFB;
+        border-color: #70AE48;
+        color: #70AE48;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser les icônes Lucide si disponible
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+
+    // Hover effect for create button
+    const createBtn = document.querySelector('.btn-create');
+    if (createBtn) {
+        createBtn.addEventListener('mouseover', function() {
+            this.style.background = '#5d8f3a';
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 8px 16px rgba(112, 174, 72, 0.4)';
+        });
+        createBtn.addEventListener('mouseout', function() {
+            this.style.background = '#70AE48';
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 4px 12px rgba(112, 174, 72, 0.3)';
+        });
+    }
+
+    // Hover effect for filter buttons
+    const filterBtns = document.querySelectorAll('.filter-btn:not(.active)');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('mouseover', function() {
+            this.style.background = '#D1D5DB';
+            this.style.transform = 'translateY(-1px)';
+        });
+        btn.addEventListener('mouseout', function() {
+            this.style.background = '#E5E7EB';
+            this.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Animation de spin pour le loader (si besoin)
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
+@endsection
