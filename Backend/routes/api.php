@@ -121,6 +121,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 /* =========================
 |  PROTECTED (auth:sanctum)
 |========================= */
+
+
 Route::middleware(['auth:sanctum'])->group(function () {
 
     // Notices

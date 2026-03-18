@@ -12,19 +12,28 @@ class FedapayClient
     public function __construct()
     {
         $env = config('fedapay.env', 'sandbox');
-        $this->baseUrl = $env === 'live'
-            ? 'https://api.fedapay.com/v1'
-            : 'https://sandbox-api.fedapay.com/v1';
+
+        // ✅ Priorité à FEDAPAY_BASE_URL, sinon on déduit depuis FEDAPAY_ENV
+        $this->baseUrl = rtrim(
+            config('fedapay.base_url')
+                ?: ($env === 'live'
+                    ? 'https://api.fedapay.com/v1'
+                    : 'https://sandbox-api.fedapay.com/v1'),
+            '/'
+        );
 
         $this->apiKey = (string) config('fedapay.api_key');
     }
 
     public function post(string $path, array $payload = []): array
     {
+        $url = $this->baseUrl . $path;
+
         $res = Http::withToken($this->apiKey)
             ->acceptJson()
             ->asJson()
-            ->post($this->baseUrl . $path, $payload);
+            ->timeout(30)
+            ->post($url, $payload);
 
         if (!$res->successful()) {
             throw new \RuntimeException("FedaPay POST {$path} failed: " . $res->body());
@@ -35,9 +44,12 @@ class FedapayClient
 
     public function get(string $path): array
     {
+        $url = $this->baseUrl . $path;
+
         $res = Http::withToken($this->apiKey)
             ->acceptJson()
-            ->get($this->baseUrl . $path);
+            ->timeout(30)
+            ->get($url);
 
         if (!$res->successful()) {
             throw new \RuntimeException("FedaPay GET {$path} failed: " . $res->body());

@@ -27,33 +27,26 @@ class FedapayPayments
             'currency'     => $currencyIso,
         ]);
 
-        // Phone must be E.164 usually (+229..., +33...)
-        $rawPhone = (string) Arr::get($customer, 'phone', '');
+        $rawPhone  = (string) Arr::get($customer, 'phone', '');
         $phoneE164 = $this->normalizeE164($rawPhone);
 
-        // ✅ BACKEND base URL (NE PAS mettre ça dans l'array)
         $back = rtrim((string) config('fedapay.back_url', config('app.url')), '/');
 
         $payload = [
-            "description" => "Paiement loyer - " . ($invoice->invoice_number ?? "FACTURE"),
-            "amount" => (int) round((float) $invoice->amount_total), // FedaPay veut un entier
-            "currency" => ["iso" => $currencyIso],
-
-            // ✅ IMPORTANT: retour vers le BACKEND (pas le front)
+            "description"  => "Paiement loyer - " . ($invoice->invoice_number ?? "FACTURE"),
+            "amount"       => (int) round((float) $invoice->amount_total),
+            "currency"     => ["iso" => $currencyIso],
             "callback_url" => $back . "/api/fedapay/return?status=success&payment_id=" . $payment->id,
-            "cancel_url"   => $back . "/api/fedapay/return?status=cancel&payment_id=" . $payment->id,
-
-            "customer" => [
-                "firstname" => Arr::get($customer, 'firstname'),
-                "lastname"  => Arr::get($customer, 'lastname'),
-                "email"     => Arr::get($customer, 'email'),
+            "cancel_url"   => $back . "/api/fedapay/return?status=cancel&payment_id="  . $payment->id,
+            "customer"     => [
+                "firstname"    => Arr::get($customer, 'firstname'),
+                "lastname"     => Arr::get($customer, 'lastname'),
+                "email"        => Arr::get($customer, 'email'),
                 "phone_number" => [
-                    "number"  => $phoneE164, // ex: +22997808080
-                    "country" => "BJ",       // à rendre dynamique si tu veux
+                    "number"  => $phoneE164,
+                    "country" => "BJ",
                 ],
             ],
-
-            // ✅ metadata: clef pour retrouver Payment/Invoice dans webhook
             "metadata" => [
                 "payment_id" => $payment->id,
                 "invoice_id" => $invoice->id,
@@ -66,6 +59,8 @@ class FedapayPayments
             "amount"         => (float) $invoice->amount_total,
             "currency"       => $currencyIso,
             "back_url"       => $back,
+            "phone_raw"      => $rawPhone,        // 🐛 pour debug
+            "phone_e164"     => $phoneE164,        // 🐛 pour debug
             "has_phone"      => (bool) $phoneE164,
             "has_email"      => (bool) Arr::get($customer, 'email'),
         ]);
@@ -82,20 +77,18 @@ class FedapayPayments
             throw new \RuntimeException("Transaction introuvable (réponse FedaPay inattendue).");
         }
 
-        $txId = (string) $tx['id'];
-        $reference = (string) ($tx['reference'] ?? '');
-        $paymentToken = (string) ($tx['payment_token'] ?? '');
-        $paymentUrl = (string) ($tx['payment_url'] ?? '');
+        $txId        = (string) $tx['id'];
+        $reference   = (string) ($tx['reference']     ?? '');
+        $paymentToken= (string) ($tx['payment_token'] ?? '');
+        $paymentUrl  = (string) ($tx['payment_url']   ?? '');
         $checkoutUrl = $paymentUrl ?: null;
 
         $payment->update([
-            'fedapay_transaction_id' => $txId ?: null,
-            'fedapay_reference'      => $reference ?: null,
-            'checkout_token'         => $paymentToken ?: null,
+            'fedapay_transaction_id' => $txId        ?: null,
+            'fedapay_reference'      => $reference   ?: null,
+            'checkout_token'         => $paymentToken?: null,
             'checkout_url'           => $checkoutUrl,
-            'provider_payload'       => [
-                'create_response' => $res,
-            ],
+            'provider_payload'       => ['create_response' => $res],
         ]);
 
         return [
@@ -106,25 +99,50 @@ class FedapayPayments
         ];
     }
 
-    // ✅ VERIFY API
     public function getTransaction(string $txId): array
     {
         return $this->client->get('/transactions/' . $txId);
     }
 
+    /**
+     * Normalise n'importe quel numéro vers E.164 Bénin (+229XXXXXXXX).
+     *
+     * Cas gérés :
+     *  - "97808080"           → +22997808080   (8 chiffres locaux)
+     *  - "22997808080"        → +22997808080   (indicatif sans +)
+     *  - "+22997808080"       → +22997808080   (déjà bon)
+     *  - "948499585899"       → +22985899  NON → on prend les 8 derniers → +22985899 (si 8 chiffres)
+     *  - Numéro trop long     → on garde les 8 derniers chiffres + 229
+     */
     private function normalizeE164(string $phone): ?string
     {
-        $p = trim($phone);
-        if ($p === '') return null;
+        if (trim($phone) === '') return null;
 
-        $p = preg_replace('/[^\d\+]/', '', $p) ?? $p;
+        // 1. Garder uniquement chiffres et +
+        $p = preg_replace('/[^\d+]/', '', $phone);
 
-        if (preg_match('/^\+\d{8,15}$/', $p)) return $p;
+        // 2. Retirer le + initial pour travailler sur les chiffres seuls
+        $digits = ltrim($p, '+');
 
-        if (preg_match('/^\d{8,15}$/', $p)) {
-            return '+' . $p;
+        // 3. Si commence par 229, retirer l'indicatif
+        if (str_starts_with($digits, '229')) {
+            $digits = substr($digits, 3);
         }
 
-        return null;
+        // 4. Garder les 8 derniers chiffres (numéro local béninois)
+        if (strlen($digits) > 8) {
+            $digits = substr($digits, -8);
+        }
+
+        // 5. Doit faire exactement 8 chiffres
+        if (strlen($digits) !== 8 || !ctype_digit($digits)) {
+            Log::warning("FedaPay normalizeE164: numéro invalide ignoré", [
+                'raw'    => $phone,
+                'digits' => $digits,
+            ]);
+            return null;
+        }
+
+        return '+229' . $digits;
     }
 }
