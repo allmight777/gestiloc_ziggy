@@ -93,6 +93,30 @@ Route::middleware(['auth:sanctum', 'role:landlord'])->prefix('landlord')->group(
 
 
 /* =========================
+|  PAYMENT METHODS (pour tous les utilisateurs authentifiés)
+|========================= */
+Route::middleware(['auth:sanctum'])->prefix('payment-methods')->group(function () {
+    Route::get('/', [App\Http\Controllers\Api\PaymentMethodController::class, 'index']);
+    Route::get('/{id}', [App\Http\Controllers\Api\PaymentMethodController::class, 'show']);
+    Route::post('/', [App\Http\Controllers\Api\PaymentMethodController::class, 'store']);
+    Route::put('/{id}', [App\Http\Controllers\Api\PaymentMethodController::class, 'update']);
+    Route::delete('/{id}', [App\Http\Controllers\Api\PaymentMethodController::class, 'destroy']);
+    Route::post('/{id}/set-default', [App\Http\Controllers\Api\PaymentMethodController::class, 'setDefault']);
+});
+
+
+// Routes pour les quittances (à ajouter dans la section protégée)
+Route::middleware(['auth:sanctum'])->group(function () {
+    // ... vos routes existantes
+
+    Route::put('landlord/settings/profile', [SettingsController::class, 'updateProfile']);
+
+    // Routes pour les quittances
+    Route::get('/quittances/{id}', [App\Http\Controllers\Api\QuittanceController::class, 'show']);
+    Route::get('/quittances/{id}/pdf', [App\Http\Controllers\Api\QuittanceController::class, 'downloadPdf']);
+    Route::post('/quittances/{id}/send-email', [App\Http\Controllers\Api\QuittanceController::class, 'sendEmail']);
+});
+/* =========================
 |  PROTECTED (auth:sanctum)
 |========================= */
 Route::middleware(['auth:sanctum'])->group(function () {

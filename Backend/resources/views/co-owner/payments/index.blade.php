@@ -11,20 +11,20 @@
         </div>
 
         <!-- Tabs -->
-        <div class="tabs-container">
+       {{--  <div class="tabs-container">
             <div class="tabs">
                 <button class="tab {{ request('status') != 'archived' ? 'active' : '' }}" onclick="switchTab('active')">
                     <span class="check-icon"><i class="fas fa-check"></i></span>
                     Actifs
                     <span class="badge green">{{ $activeCount }}</span>
                 </button>
-                <button class="tab {{ request('status') == 'archived' ? 'active' : '' }}" onclick="switchTab('archived')">
+              <button class="tab {{ request('status') == 'archived' ? 'active' : '' }}" onclick="switchTab('archived')">
                     <span class="folder-icon"><i class="fas fa-folder"></i></span>
                     Archives
                     <span class="badge gray">{{ $archivedCount }}</span>
                 </button>
             </div>
-        </div>
+        </div>   --}}
 
         <!-- Filters Section -->
         <div class="filters-card">
@@ -116,14 +116,14 @@
 
         <!-- Action Buttons -->
         <div class="actions-bar">
-            <a href="{{ route('co-owner.payments.create') }}" class="btn-primary" style="background-color: #70AE48;">
+            <a href="{{ route('co-owner.payments.create') }}" class="btn-primary">
                 <span class="plus-icon"><i class="fas fa-plus"></i></span>
                 Enregistrer un paiement
             </a>
-            <a href="{{ route('co-owner.payments.reminders') }}" class="btn-secondary">
+         {{--    <a href="{{ route('co-owner.payments.reminders') }}" class="btn-secondary">
                 <span class="bell-icon"><i class="fas fa-bell"></i></span>
                 Rappels
-            </a>
+            </a>  --}}
             <button class="btn-secondary" onclick="showExportModal()">
                 <span class="export-icon"><i class="fas fa-file-export"></i></span>
                 Exporter
@@ -217,10 +217,10 @@
                             </td>
                             <td>
                                 <div class="action-buttons">
-                                    <a href="{{ route('co-owner.payments.show', $payment->id) }}" class="btn-action view"
+                                  {{--   <a href="{{ route('co-owner.payments.show', $payment->id) }}" class="btn-action view"
                                         title="Voir les détails">
                                         <i class="fas fa-eye"></i>
-                                    </a>
+                                    </a>    --}}
                                     @if ($payment->status === 'approved')
                                         <a href="{{ route('co-owner.payments.receipt', $payment->id) }}"
                                             class="btn-action pdf" title="Télécharger la quittance" target="_blank">
@@ -242,8 +242,7 @@
                                     <span class="empty-icon"><i class="fas fa-wallet"></i></span>
                                     <h3>Aucun paiement trouvé</h3>
                                     <p>Aucun paiement ne correspond à vos critères de recherche.</p>
-                                    <a href="{{ route('co-owner.payments.create') }}" class="btn-primary"
-                                        style="background-color: #0b7dda; margin-top: 1rem; display: inline-flex;">
+                                    <a href="{{ route('co-owner.payments.create') }}" class="btn-primary" style="margin-top: 1rem; display: inline-flex;">
                                         <span class="plus-icon"><i class="fas fa-plus"></i></span>
                                         Enregistrer un paiement
                                     </a>
@@ -364,6 +363,12 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #70AE48;
+            --primary-dark: #5a8f3a;
+            --primary-light: #f0f7eb;
+        }
+
         .payment-management {
             padding: 2rem;
             max-width: 1400px;
@@ -410,7 +415,7 @@
         }
 
         .tab.active {
-            color: #70AE48;
+            color: var(--primary);
             font-weight: 600;
         }
 
@@ -421,7 +426,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: #70AE48;
+            background: var(--primary);
         }
 
         .badge {
@@ -432,7 +437,7 @@
         }
 
         .badge.green {
-            background: #70AE48;
+            background: var(--primary);
             color: white;
         }
 
@@ -474,7 +479,7 @@
         .filter-group select {
             width: 100%;
             padding: 0.75rem;
-            border: 1px solid #70AE48;
+            border: 1px solid var(--primary);
             border-radius: 8px;
             background: white;
             font-size: 1.05rem;
@@ -484,8 +489,8 @@
         }
 
         .filter-group select:focus {
-            border-color: #70AE48;
-            box-shadow: 0 0 0 3px rgba(11, 125, 218, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(112, 174, 72, 0.1);
         }
 
         /* Search */
@@ -506,7 +511,7 @@
             align-items: center;
             gap: 0.75rem;
             background: #f5f5f5;
-            border: 1px solid #70AE48;
+            border: 1px solid var(--primary);
             border-radius: 8px;
             padding: 0.75rem 1rem;
             max-width: 600px;
@@ -525,7 +530,7 @@
             align-items: center;
             gap: 0.75rem;
             padding: 0.875rem 1.75rem;
-            border: 1px solid #70AE48;
+            border: 1px solid var(--primary);
             border-radius: 8px;
             background: white;
             color: #000000;
@@ -535,8 +540,9 @@
         }
 
         .btn-display:hover {
-            background: #0b7dda;
+            background: var(--primary);
             color: white;
+            border-color: var(--primary);
         }
 
         /* Stats Grid */
@@ -557,11 +563,11 @@
         }
 
         .green-border {
-            border-left-color: #4CAF50;
+            border-left-color: var(--primary);
         }
 
         .blue-border {
-            border-left-color: #0b7dda;
+            border-left-color: var(--primary);
         }
 
         .red-border {
@@ -602,7 +608,7 @@
         }
 
         .trend-up {
-            color: #4CAF50;
+            color: var(--primary);
         }
 
         /* Actions Bar */
@@ -617,7 +623,7 @@
             align-items: center;
             gap: 0.75rem;
             padding: 1rem 1.75rem;
-            background: #70AE48;
+            background: var(--primary);
             color: white;
             border: none;
             border-radius: 8px;
@@ -628,9 +634,9 @@
         }
 
         .btn-primary:hover {
-            background: #70AE48;
+            background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(11, 125, 218, 0.3);
+            box-shadow: 0 4px 12px rgba(112, 174, 72, 0.3);
         }
 
         .btn-secondary {
@@ -639,8 +645,8 @@
             gap: 0.75rem;
             padding: 1rem 1.75rem;
             background: white;
-            color: #0b7dda;
-            border: 1px solid #0b7dda;
+            color: var(--primary);
+            border: 1px solid var(--primary);
             border-radius: 8px;
             font-weight: 500;
             cursor: pointer;
@@ -649,9 +655,9 @@
         }
 
         .btn-secondary:hover {
-            background: #e6f0fa;
+            background: var(--primary-light);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(11, 125, 218, 0.1);
+            box-shadow: 0 4px 12px rgba(112, 174, 72, 0.1);
         }
 
         /* Table */
@@ -691,14 +697,14 @@
         }
 
         .tenant-link {
-            color: #0b7dda;
+            color: var(--primary);
             font-weight: 600;
             text-decoration: none;
             transition: color 0.3s;
         }
 
         .tenant-link:hover {
-            color: #0a6ab8;
+            color: var(--primary-dark);
             text-decoration: underline;
         }
 
@@ -730,7 +736,7 @@
         }
 
         .status-paid {
-            background: #4CAF50;
+            background: var(--primary);
             color: white;
         }
 
@@ -745,7 +751,7 @@
         }
 
         .payment-mode {
-            color: #0b7dda;
+            color: var(--primary);
             font-weight: 500;
         }
 
@@ -773,14 +779,14 @@
 
         .btn-action:hover {
             background: #f5f5f5;
-            border-color: #0b7dda;
-            color: #0b7dda;
+            border-color: var(--primary);
+            color: var(--primary);
             transform: translateY(-2px);
         }
 
         .btn-action.view:hover {
-            background: #e3f2fd;
-            border-color: #0b7dda;
+            background: var(--primary-light);
+            border-color: var(--primary);
         }
 
         .btn-action.pdf:hover {
@@ -790,9 +796,9 @@
         }
 
         .btn-action.email:hover {
-            background: #e8f5e9;
-            border-color: #4CAF50;
-            color: #4CAF50;
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
         }
 
         /* Empty State */
@@ -842,21 +848,21 @@
             padding: 0.75rem 1.25rem;
             border: 1px solid #e0e0e0;
             border-radius: 6px;
-            color: #0b7dda;
+            color: var(--primary);
             text-decoration: none;
             transition: all 0.3s;
         }
 
         .pagination-container .page-link:hover {
-            background: #0b7dda;
+            background: var(--primary);
             color: white;
-            border-color: #0b7dda;
+            border-color: var(--primary);
         }
 
         .pagination-container .page-item.active .page-link {
-            background: #0b7dda;
+            background: var(--primary);
             color: white;
-            border-color: #0b7dda;
+            border-color: var(--primary);
         }
 
         .pagination-container .page-item.disabled .page-link {
@@ -966,13 +972,13 @@
         }
 
         .modal-icon.email-icon {
-            background: #e3f2fd;
-            color: #0b7dda;
+            background: var(--primary-light);
+            color: var(--primary);
         }
 
         .modal-icon.export-icon {
-            background: #e8f5e9;
-            color: #4CAF50;
+            background: var(--primary-light);
+            color: var(--primary);
         }
 
         .modal-header h2 {
@@ -1079,13 +1085,13 @@
         }
 
         .export-option:hover {
-            border-color: #0b7dda;
-            background: #f0f7ff;
+            border-color: var(--primary);
+            background: var(--primary-light);
         }
 
         .export-option.selected {
-            border-color: #0b7dda;
-            background: #f0f7ff;
+            border-color: var(--primary);
+            background: var(--primary-light);
         }
 
         .option-radio {
@@ -1101,14 +1107,14 @@
         }
 
         .export-option.selected .option-radio {
-            border-color: #0b7dda;
+            border-color: var(--primary);
         }
 
         .radio-inner {
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: #0b7dda;
+            background: var(--primary);
             opacity: 0;
             transition: opacity 0.2s;
         }
@@ -1126,6 +1132,7 @@
 
         .option-icon {
             font-size: 24px;
+            color: var(--primary);
         }
 
         .option-text {
@@ -1172,7 +1179,7 @@
             align-items: center;
             gap: 0.75rem;
             padding: 0.875rem 1.75rem;
-            background: #0b7dda;
+            background: var(--primary);
             border: none;
             border-radius: 8px;
             color: white;
@@ -1182,9 +1189,9 @@
         }
 
         .btn-confirm:hover {
-            background: #0a6ab8;
+            background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(11, 125, 218, 0.3);
+            box-shadow: 0 4px 12px rgba(112, 174, 72, 0.3);
         }
 
         .btn-icon {
@@ -1210,7 +1217,7 @@
         }
 
         .toast.success {
-            border-left-color: #4CAF50;
+            border-left-color: var(--primary);
         }
 
         .toast.error {
@@ -1222,7 +1229,7 @@
         }
 
         .toast.info {
-            border-left-color: #0b7dda;
+            border-left-color: var(--primary);
         }
 
         .toast-icon {
@@ -1232,6 +1239,7 @@
             align-items: center;
             justify-content: center;
             font-size: 1.8rem;
+            color: var(--primary);
         }
 
         .toast-content {
@@ -1320,6 +1328,11 @@
             color: inherit;
         }
 
+        .stat-icon .fa-money-bill-wave { color: var(--primary); }
+        .stat-icon .fa-check-circle { color: var(--primary); }
+        .stat-icon .fa-exclamation-triangle { color: #f44336; }
+        .stat-icon .fa-chart-bar { color: #FF9800; }
+
         .status-badge .fas {
             font-size: 0.85em;
         }
@@ -1330,11 +1343,12 @@
 
         .empty-icon .fas {
             font-size: 3rem;
-            color: #70AE48;
+            color: var(--primary);
         }
 
         .modal-icon .fas {
             font-size: 1.5rem;
+            color: var(--primary);
         }
 
         .toast-icon .fas {
@@ -1344,12 +1358,6 @@
         .btn-icon .fas {
             font-size: 1.1rem;
         }
-
-        /* Couleurs des icônes */
-        .stat-icon .fa-money-bill-wave { color: #4CAF50; }
-        .stat-icon .fa-check-circle { color: #0b7dda; }
-        .stat-icon .fa-exclamation-triangle { color: #f44336; }
-        .stat-icon .fa-chart-bar { color: #FF9800; }
 
         .status-paid .fa-check { color: white; }
         .status-pending .fa-clock { color: white; }
@@ -1374,16 +1382,24 @@
             const propertyId = document.getElementById('property-filter').value;
             const perPage = document.getElementById('per-page').value;
             const search = document.getElementById('search-input').value;
-            const status = document.querySelector('.tab.active')?.getAttribute('onclick')?.match(/'([^']<i class="fas fa-plus"></i>)'/)?.[1] ||
-                'active';
+
+            // Déterminer l'onglet actif
+            let status = 'active';
+            const activeTab = document.querySelector('.tab.active');
+            if (activeTab) {
+                const onclickAttr = activeTab.getAttribute('onclick');
+                if (onclickAttr && onclickAttr.includes('archived')) {
+                    status = 'archived';
+                }
+            }
 
             const params = new URLSearchParams();
-            if (propertyId !== 'all') params.append('property_id', propertyId);
+            if (propertyId && propertyId !== 'all') params.append('property_id', propertyId);
             if (perPage) params.append('per_page', perPage);
             if (search) params.append('search', search);
             if (status) params.append('status', status);
 
-            window.location.href = '{{ route('co-owner.payments.index') }}?' <i class="fas fa-plus"></i> params.toString();
+            window.location.href = '{{ route('co-owner.payments.index') }}?' + params.toString();
         }
 
         function resetFilters() {
@@ -1393,7 +1409,7 @@
         function switchTab(tab) {
             const params = new URLSearchParams(window.location.search);
             params.set('status', tab);
-            window.location.href = window.location.pathname <i class="fas fa-plus"></i> '?' <i class="fas fa-plus"></i> params.toString();
+            window.location.href = window.location.pathname + '?' + params.toString();
         }
 
         // FONCTIONS DE MODALE
@@ -1447,8 +1463,8 @@
         function confirmExport() {
             const format = document.getElementById('selected-format').value;
             closeModal('exportModal');
-            showToast('info', 'Export en cours', 'Génération du fichier ' <i class="fas fa-plus"></i> format.toUpperCase() <i class="fas fa-plus"></i> '...');
-            window.location.href = '{{ route('co-owner.payments.export') }}?format=' <i class="fas fa-plus"></i> format;
+            showToast('info', 'Export en cours', 'Génération du fichier ' + format.toUpperCase() + '...');
+            window.location.href = '{{ route('co-owner.payments.export') }}?format=' + format;
         }
 
         // FONCTION D'ENVOI DE QUITTANCE
@@ -1499,7 +1515,7 @@
 
             const toast = document.getElementById('toast');
 
-            toast.className = 'toast ' <i class="fas fa-plus"></i> type;
+            toast.className = 'toast ' + type;
             document.getElementById('toast-title').textContent = title;
             document.getElementById('toast-message').textContent = message;
 
@@ -1509,7 +1525,7 @@
                 warning: '<i class="fas fa-exclamation-triangle"></i>',
                 info: '<i class="fas fa-info-circle"></i>'
             };
-            document.getElementById('toast-icon').textContent = iconMap[type] || '<i class="fas fa-check-circle"></i>';
+            document.getElementById('toast-icon').innerHTML = iconMap[type] || '<i class="fas fa-check-circle"></i>';
 
             toast.style.display = 'flex';
 

@@ -105,6 +105,22 @@ Route::middleware([\App\Http\Middleware\AuthenticateWithToken::class])->group(fu
     |--------------------------------------------------------------------------
     */
 
+    /*
+|--------------------------------------------------------------------------
+| ROUTES MÉTHODES DE PAIEMENT (COMMUNES)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('payment-methods')->name('payment-methods.')->group(function () {
+    Route::get('/', [App\Http\Controllers\PaymentMethodController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\PaymentMethodController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\PaymentMethodController::class, 'store'])->name('store');
+    Route::get('/{id}', [App\Http\Controllers\PaymentMethodController::class, 'show'])->name('show'); // AJOUTEZ CETTE LIGNE
+    Route::put('/{id}', [App\Http\Controllers\PaymentMethodController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\PaymentMethodController::class, 'destroy'])->name('destroy');
+    Route::post('/{id}/set-default', [App\Http\Controllers\PaymentMethodController::class, 'setDefault'])->name('set-default');
+    Route::post('/{id}/toggle-active', [App\Http\Controllers\PaymentMethodController::class, 'toggleActive'])->name('toggle-active');
+});
+
     // Route pour récupérer les baux d'une propriété (AJAX)
 Route::get('/coproprietaire/etats-des-lieux/get-leases/{propertyId}', [CoOwnerConditionReportController::class, 'getLeases'])
     ->name('co-owner.condition-reports.get-leases');

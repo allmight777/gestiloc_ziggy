@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Loader2, FileText } from 'lucide-react';
+import { Plus, Search, Loader2, FileText, Download, Eye, Calendar, Building, Home, FileSignature, FileCheck } from 'lucide-react';
 import { documentArchiveService } from '@/services/api';
 
 interface ArchiveDoc {
@@ -13,28 +13,33 @@ interface ArchiveDoc {
     champ3Label: string; champ3Value: string;
     champ4Label: string; champ4Value: string;
     dateBas: string;
+    file_size?: number;
+    type?: string;
 }
-
-// Les données seront chargées depuis l'API
-const TYPE_CONFIG: Record<string, { label: string, color: string }> = {
-    'lease': { label: 'BAIL TERMINÉ', color: '#f59e0b' },
-    'condition_report': { label: 'EDL ARCHIVÉ', color: '#ef4444' },
-    'receipt': { label: 'QUITTANCE', color: '#83C757' },
-    'other': { label: 'DOCUMENT', color: '#3b82f6' },
-};
 
 interface ArchiveDocsProps {
     notify: (msg: string, type: 'success' | 'info' | 'error') => void;
 }
 
 const ArchivageDocs: React.FC<ArchiveDocsProps> = ({ notify }) => {
-    const [activeFilter, setActiveFilter] = useState('Tous');
+    const [activeFilter, setActiveFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [archiveList, setArchiveList] = useState<ArchiveDoc[]>([]);
     const [loading, setLoading] = useState(true);
-    const [kpis, setKpis] = useState({ totalDoc: 0, bauxTermines: 0, edlArchived: 0, storageUsed: '0 MB' });
+    const [kpis, setKpis] = useState({ 
+        totalDoc: 0, 
+        bauxTermines: 0, 
+        edlArchived: 0, 
+        storageUsed: '0 MB' 
+    });
 
-    const filters = ['Tous', 'Contrat de bails', 'Etats des lieux', 'Quittances', 'Autres documents'];
+    const filters = [
+        { id: 'all', label: 'Tout' },
+        { id: 'lease', label: 'Baux' },
+        { id: 'inventory', label: 'EDL' },
+        { id: 'receipt', label: 'Quittances' },
+        { id: 'other', label: 'Autres' }
+    ];
 
     const fetchData = async () => {
         try {
@@ -45,25 +50,38 @@ const ArchivageDocs: React.FC<ArchiveDocsProps> = ({ notify }) => {
             ]);
 
             const mapped = (docs || []).map((d: any) => {
-                // Le backend fournit déjà typeBadge et typeBadgeColor dans l'index des archives
-                const label = d.typeBadge || d.type?.toUpperCase() || 'DOCUMENT';
-                const color = d.typeBadgeColor || '#6b7280';
+                const type = d.type || 'other';
+                let typeBadge = 'DOCUMENT';
+                let typeBadgeColor = '#6b7280';
+                
+                if (type === 'lease' || d.typeBadge?.includes('BAIL')) {
+                    typeBadge = 'Bail';
+                    typeBadgeColor = '#77B84D';
+                } else if (type === 'condition_report' || type === 'inventory' || d.typeBadge?.includes('EDL')) {
+                    typeBadge = 'EDL';
+                    typeBadgeColor = '#f59e0b';
+                } else if (type === 'receipt' || d.typeBadge?.includes('QUITTANCE')) {
+                    typeBadge = 'Quittance';
+                    typeBadgeColor = '#77B84D';
+                }
 
                 return {
                     id: String(d.id),
-                    typeBadge: label,
-                    typeBadgeColor: color,
+                    typeBadge: d.typeBadge || typeBadge,
+                    typeBadgeColor: d.typeBadgeColor || typeBadgeColor,
+                    type: type,
                     titre: d.titre || d.title || 'Sans titre',
                     bien: d.bien || (d.property?.name || d.property?.address || 'Bien inconnu'),
-                    champ1Label: d.champ1Label || 'DÉPOSÉ LE',
+                    champ1Label: d.champ1Label || 'Déposé le',
                     champ1Value: d.champ1Value || new Date(d.created_at || d.date_archive).toLocaleDateString('fr-FR'),
-                    champ2Label: d.champ2Label || 'TYPE',
+                    champ2Label: d.champ2Label || 'Type',
                     champ2Value: d.champ2Value || d.category || 'Archive',
-                    champ3Label: d.champ3Label || 'MÉTA',
+                    champ3Label: d.champ3Label || 'Méta',
                     champ3Value: d.champ3Value || d.metadata || '—',
-                    champ4Label: d.champ4Label || 'TAILLE',
+                    champ4Label: d.champ4Label || 'Taille',
                     champ4Value: d.champ4Value || (d.file_size ? `${(d.file_size / 1024).toFixed(1)} KB` : '—'),
-                    dateBas: d.dateBas || `Archivé le ${new Date(d.created_at || d.date_archive).toLocaleDateString('fr-FR')}`
+                    dateBas: d.dateBas || `Archivé le ${new Date(d.created_at || d.date_archive).toLocaleDateString('fr-FR')}`,
+                    file_size: d.file_size || 0
                 };
             });
 
@@ -89,109 +107,241 @@ const ArchivageDocs: React.FC<ArchiveDocsProps> = ({ notify }) => {
         fetchData();
     }, []);
 
-    const filtered = archiveList.filter(d =>
-        d.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        d.bien.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = archiveList.filter(d => {
+        const matchesSearch = d.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            d.bien.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        const matchesFilter = activeFilter === 'all' || 
+            (activeFilter === 'lease' && (d.type === 'lease' || d.typeBadge === 'Bail')) ||
+            (activeFilter === 'inventory' && (d.type === 'condition_report' || d.type === 'inventory' || d.typeBadge === 'EDL')) ||
+            (activeFilter === 'receipt' && (d.type === 'receipt' || d.typeBadge === 'Quittance')) ||
+            (activeFilter === 'other' && d.type === 'other');
+        
+        return matchesSearch && matchesFilter;
+    });
 
-    const stats = [
-        { label: 'DOCUMENTS ARCHIVÉS', value: String(kpis.totalDoc), color: '#1a1a1a' },
-        { label: 'BAUX TERMINÉS', value: String(kpis.bauxTermines), color: '#1a1a1a' },
-        { label: 'EDL ARCHIVÉS', value: String(kpis.edlArchived), color: '#1a1a1a' },
-        { label: 'ESPACE UTILISÉ', value: kpis.storageUsed, color: '#1a1a1a' },
-    ];
+    const handleDownload = (doc: ArchiveDoc) => {
+        notify('Téléchargement en cours...', 'info');
+    };
 
     return (
-        <>
-            <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Manrope:wght@400;500;600;700;800&display=swap');
-        .ar-page { padding: 1.5rem 1rem 3rem; font-family: 'Manrope', sans-serif; color: #1a1a1a; width: 100%; box-sizing: border-box; }
-        .ar-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; }
-        .ar-title { font-family: 'Merriweather', serif; font-size: 1.55rem; font-weight: 900; margin: 0 0 6px 0; }
-        .ar-subtitle { font-size: 0.82rem; font-weight: 500; color: #6b7280; margin: 0; font-style: italic; max-width: 550px; }
-        .ar-add-btn { display: inline-flex; align-items: center; gap: 6px; background: #83C757; color: #fff; border: none; border-radius: 12px; padding: 10px 22px; font-family: 'Manrope', sans-serif; font-size: 0.85rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
-        .ar-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.25rem; }
-        .ar-stat { background: #fff; border: 1.5px solid #e5e7eb; border-radius: 14px; padding: 1rem 1.2rem; }
-        .ar-stat-label { font-size: 0.62rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 4px 0; }
-        .ar-stat-value { font-size: 1.15rem; font-weight: 800; margin: 0; }
-        .ar-filters { display: flex; gap: 10px; margin-bottom: 1.25rem; flex-wrap: wrap; }
-        .ar-filter-btn { padding: 8px 22px; border-radius: 20px; border: none; font-family: 'Manrope', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
-        .ar-filter-btn.active { background: #83C757; color: #fff; }
-        .ar-filter-btn:not(.active) { background: #f3f4f6; color: #374151; }
-        .ar-card { background: #fff; border: 1.5px solid #d6e4d6; border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
-        .ar-filter-ttl { font-size: 0.72rem; font-weight: 800; color: #4b5563; letter-spacing: 0.06em; margin: 0 0 14px 0; }
-        .ar-filter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 14px; }
-        .ar-select { width: 100%; padding: 0.6rem 0.85rem; border: 1.5px solid #d1d5db; border-radius: 10px; font-size: 0.82rem; font-family: 'Manrope', sans-serif; font-weight: 500; color: #6b7280; background: #fff; outline: none; appearance: none; box-sizing: border-box; }
-        .ar-search-wrap { position: relative; }
-        .ar-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #83C757; pointer-events: none; }
-        .ar-search-input { width: 100%; padding: 0.65rem 0.85rem 0.65rem 2.6rem; border: 1.5px solid #83C757; border-radius: 10px; font-size: 0.85rem; font-family: 'Manrope', sans-serif; font-weight: 500; color: #83C757; background: #fff; outline: none; box-sizing: border-box; }
-        .ar-search-input::placeholder { color: #83C757; font-weight: 600; }
-        .ar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-        .ar-item { background: #fff; border: 1.5px solid #e5e7eb; border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; }
-        .ar-item-top { padding: 1.1rem 1.3rem 0.7rem; }
-        .ar-badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 0.60rem; font-weight: 800; letter-spacing: 0.04em; margin-bottom: 10px; }
-        .ar-item-titre { font-size: 0.92rem; font-weight: 800; color: #1a1a1a; margin: 0 0 4px 0; }
-        .ar-item-bien { font-size: 0.75rem; color: #ef4444; font-weight: 500; margin: 0 0 14px 0; }
-        .ar-detail-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
-        .ar-detail-label { font-size: 0.60rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 2px 0; }
-        .ar-detail-value { font-size: 0.78rem; font-weight: 700; color: #1a1a1a; margin: 0; }
-        .ar-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 1.3rem; border-top: 1px solid #f3f4f6; margin-top: auto; }
-        .ar-footer-date { font-size: 0.72rem; color: #9ca3af; font-weight: 500; }
-        .ar-footer-actions { display: flex; gap: 6px; }
-        .ar-icon-btn { background: none; border: none; cursor: pointer; padding: 4px; font-size: 0.85rem; }
-        @media (max-width: 1400px) { .ar-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 1024px) { .ar-grid { grid-template-columns: repeat(2, 1fr); } .ar-stats { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 640px) { .ar-grid { grid-template-columns: 1fr; } .ar-stats { grid-template-columns: 1fr; } .ar-filter-row { grid-template-columns: 1fr; } .ar-header { flex-direction: column; gap: 12px; } }
-        @media (max-width: 480px) { .ar-page { padding: 1rem 0.5rem 2rem; } .ar-title { font-size: 1.3rem; } .ar-filters { gap: 6px; } .ar-filter-btn { padding: 6px 14px; font-size: 0.75rem; } }
-      `}</style>
-            <div className="ar-page">
-                <div className="ar-header">
-                    <div>
-                        <h1 className="ar-title">Archivage de documents</h1>
-                        <p className="ar-subtitle">Retrouvez tous vos documents archivés : anciens baux, états des lieux terminés, quittances passées. Gardez un historique complet de votre gestion locative.</p>
+        <div className="space-y-6 py-4" style={{ fontFamily: "'Merriweather', serif" }}>
+            {/* Header - Compact */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div className="space-y-1">
+                    <h1 className="text-2xl md:text-3xl font-black text-gray-900 font-merriweather tracking-tight">
+                        Archivage de documents
+                    </h1>
+                    <p className="text-gray-400 font-manrope font-medium text-sm max-w-xl">
+                        Retrouvez tous vos documents archivés : anciens baux, états des lieux terminés, quittances passées.
+                    </p>
+                </div>
+                <button 
+                    onClick={() => notify('Ajout document à venir', 'info')}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-[#77B84D] text-white rounded-2xl font-bold text-xs uppercase tracking-wider hover:bg-[#6a9e42] transition-all shadow-lg"
+                >
+                    <Plus size={16} />
+                    Ajouter
+                </button>
+            </div>
+
+            {/* Stats Section - Fond noir avec #77B84D */}
+            <div className="p-2 rounded-3xl bg-gray-900 shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-48 h-48 bg-[#77B84D]/10 rounded-full -mr-24 -mt-24 blur-3xl opacity-50" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#77B84D]/5 rounded-full -ml-24 -mb-24 blur-3xl opacity-30" />
+
+                <div className="relative grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-800/50">
+                    <div className="p-4 md:p-6 space-y-1 text-center md:text-left">
+                        <p className="text-[9px] font-black text-[#77B84D] uppercase tracking-[0.15em] font-manrope">
+                            Documents archivés
+                        </p>
+                        <div className="flex items-center justify-center md:justify-start gap-2">
+                            <FileSignature className="w-4 h-4 text-gray-500" />
+                            <p className="text-2xl font-black text-white font-merriweather">{kpis.totalDoc}</p>
+                        </div>
                     </div>
-                    <button className="ar-add-btn" onClick={() => notify('Ajout document à venir', 'info')}><Plus size={15} /> Ajouter un document</button>
-                </div>
-                <div className="ar-stats">{stats.map(s => (<div className="ar-stat" key={s.label}><p className="ar-stat-label">{s.label}</p><p className="ar-stat-value" style={{ color: s.color }}>{s.value}</p></div>))}</div>
-                <div className="ar-filters">{filters.map(f => (<button key={f} className={`ar-filter-btn ${activeFilter === f ? 'active' : ''}`} onClick={() => setActiveFilter(f)}>{f}</button>))}</div>
-                <div className="ar-card">
-                    <p className="ar-filter-ttl">FILTRE</p>
-                    <div className="ar-filter-row"><select className="ar-select"><option>Tous les biens</option></select><select className="ar-select"><option>Toutes les années</option></select></div>
-                    <div className="ar-search-wrap"><Search size={16} className="ar-search-icon" /><input className="ar-search-input" placeholder="Rechercher" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} /></div>
-                </div>
-                <div className="ar-grid">
-                    {loading ? (
-                        <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '3rem' }}>
-                            <Loader2 className="animate-spin" size={32} color="#83C757" />
-                            <p style={{ marginTop: '1rem', color: '#6b7280', fontWeight: 600 }}>Chargement des archives...</p>
+
+                    <div className="p-4 md:p-6 space-y-1 text-center md:text-left">
+                        <p className="text-[9px] font-black text-[#77B84D] uppercase tracking-[0.15em] font-manrope">
+                            Baux terminés
+                        </p>
+                        <div className="flex items-center justify-center md:justify-start gap-2">
+                            <FileCheck className="w-4 h-4 text-gray-500" />
+                            <p className="text-2xl font-black text-white font-merriweather">{kpis.bauxTermines}</p>
                         </div>
-                    ) : filtered.length > 0 ? (
-                        filtered.map(d => (
-                            <div className="ar-item" key={d.id}>
-                                <div className="ar-item-top">
-                                    <span className="ar-badge" style={{ background: d.typeBadgeColor + '20', color: d.typeBadgeColor }}>{d.typeBadge}</span>
-                                    <p className="ar-item-titre">{d.titre}</p>
-                                    <p className="ar-item-bien">📍 {d.bien}</p>
-                                    <div className="ar-detail-row"><div><p className="ar-detail-label">{d.champ1Label}</p><p className="ar-detail-value">{d.champ1Value}</p></div><div><p className="ar-detail-label">{d.champ2Label}</p><p className="ar-detail-value">{d.champ2Value}</p></div></div>
-                                    <div className="ar-detail-row"><div><p className="ar-detail-label">{d.champ3Label}</p><p className="ar-detail-value">{d.champ3Value}</p></div>{d.champ4Label && <div><p className="ar-detail-label">{d.champ4Label}</p><p className="ar-detail-value">{d.champ4Value}</p></div>}</div>
-                                </div>
-                                <div className="ar-footer"><span className="ar-footer-date">{d.dateBas}</span><div className="ar-footer-actions"><button className="ar-icon-btn">👁️</button><button className="ar-icon-btn" style={{ color: '#83C757' }}>📥</button><button className="ar-icon-btn" style={{ color: '#f59e0b' }}>✏️</button></div></div>
-                            </div>
-                        ))
-                    ) : (
-                        <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem 2rem', background: '#fff', borderRadius: '18px', border: '2px dashed #e5e7eb' }}>
-                            <div style={{ width: '64px', height: '64px', background: '#f0f9eb', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
-                                <FileText size={32} color="#83C757" />
-                            </div>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '0.5rem' }}>Aucun document archivé</h3>
-                            <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
-                                Votre dossier d'archives est actuellement vide.
-                            </p>
+                    </div>
+
+                    <div className="p-4 md:p-6 space-y-1 text-center md:text-left">
+                        <p className="text-[9px] font-black text-[#77B84D] uppercase tracking-[0.15em] font-manrope">
+                            EDL archivés
+                        </p>
+                        <div className="flex items-center justify-center md:justify-start gap-2">
+                            <Building className="w-4 h-4 text-gray-500" />
+                            <p className="text-2xl font-black text-white font-merriweather">{kpis.edlArchived}</p>
                         </div>
-                    )}
+                    </div>
+
+                    <div className="p-4 md:p-6 space-y-1 text-center md:text-left">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.15em] font-manrope">
+                            Espace utilisé
+                        </p>
+                        <div className="flex items-center justify-center md:justify-start gap-2">
+                            <Home className="w-4 h-4 text-gray-500" />
+                            <p className="text-2xl font-black text-white font-merriweather text-nowrap">{kpis.storageUsed}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </>
+
+            {/* Filters Section - Compact */}
+            <div className="p-6 rounded-3xl border border-gray-100 shadow-lg bg-white space-y-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#77B84D]/10 rounded-full -mr-12 -mt-12 blur-2xl" />
+
+                {/* Type Tabs */}
+                <div className="flex flex-wrap gap-3 relative z-10">
+                    {filters.map((filter) => (
+                        <button
+                            key={filter.id}
+                            onClick={() => setActiveFilter(filter.id)}
+                            className={`px-6 py-3 rounded-2xl font-bold text-[10px] uppercase tracking-wider transition-all ${
+                                activeFilter === filter.id
+                                    ? 'bg-[#77B84D] text-white shadow-lg scale-105'
+                                    : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                            } font-manrope`}
+                        >
+                            {filter.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Search */}
+                <div className="relative z-10">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#77B84D] w-4 h-4" />
+                    <input
+                        type="text"
+                        placeholder="Rechercher..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-10 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-[#77B84D]/20 transition-all font-manrope placeholder:text-gray-300"
+                    />
+                </div>
+            </div>
+
+            {/* Documents Grid - 2 par ligne */}
+            {loading ? (
+                <div className="flex flex-col items-center justify-center py-16">
+                    <Loader2 className="w-8 h-8 animate-spin text-[#77B84D]" />
+                    <p className="mt-4 text-gray-400 text-sm font-medium">Chargement des archives...</p>
+                </div>
+            ) : filtered.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {filtered.map((doc) => (
+                        <div 
+                            key={doc.id} 
+                            className="overflow-hidden rounded-2xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 bg-white group flex flex-col h-full relative border-t-4 border-t-[#77B84D]/20"
+                        >
+                            <div className="absolute top-0 right-0 w-20 h-20 bg-[#77B84D]/10 opacity-20 group-hover:opacity-100 rounded-full -mr-10 -mt-10 blur-xl transition-all" />
+
+                            <div className="p-6 flex-grow relative">
+                                {/* Badge & Action */}
+                                <div className="mb-4 flex justify-between items-start">
+                                    <div className="space-y-2">
+                                        <span 
+                                            className="px-3 py-1 rounded-xl text-[8px] font-black uppercase tracking-wider border font-manrope"
+                                            style={{ 
+                                                background: doc.typeBadgeColor + '20', 
+                                                color: doc.typeBadgeColor,
+                                                borderColor: doc.typeBadgeColor + '30'
+                                            }}
+                                        >
+                                            {doc.typeBadge}
+                                        </span>
+                                        <p className="text-[9px] font-black text-gray-300 uppercase tracking-wider">
+                                            Ref. #{doc.id}
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        onClick={() => handleDownload(doc)}
+                                        className="p-3 rounded-xl bg-gray-900 text-white hover:bg-[#77B84D] transition-all shadow-lg group-hover:scale-105"
+                                    >
+                                        <Download className="w-4 h-4" />
+                                    </button>
+                                </div>
+
+                                {/* Title */}
+                                <h3 className="text-base font-black text-gray-900 mb-4 font-merriweather leading-snug group-hover:text-[#77B84D] transition-colors line-clamp-2">
+                                    {doc.titre}
+                                </h3>
+
+                                {/* Property */}
+                                <div className="flex items-center gap-2 text-xs font-bold text-gray-700 mb-4 font-manrope bg-[#77B84D]/5 p-3 rounded-xl border border-[#77B84D]/10">
+                                    <Building className="w-4 h-4 text-[#77B84D]" />
+                                    <span className="truncate">{doc.bien}</span>
+                                </div>
+
+                                {/* Details Grid */}
+                                <div className="space-y-3 pt-4 border-t border-gray-100">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-0.5">
+                                            <p className="text-[8px] font-black text-gray-400 uppercase">{doc.champ1Label}</p>
+                                            <p className="text-[10px] font-bold text-gray-600">{doc.champ1Value}</p>
+                                        </div>
+                                        <div className="space-y-0.5">
+                                            <p className="text-[8px] font-black text-gray-400 uppercase">{doc.champ2Label}</p>
+                                            <p className="text-[10px] font-bold text-gray-600">{doc.champ2Value}</p>
+                                        </div>
+                                    </div>
+                                    {(doc.champ3Value !== '—' || doc.champ4Value !== '—') && (
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-0.5">
+                                                <p className="text-[8px] font-black text-gray-400 uppercase">{doc.champ3Label}</p>
+                                                <p className="text-[10px] font-bold text-gray-600">{doc.champ3Value}</p>
+                                            </div>
+                                            {doc.champ4Value !== '—' && (
+                                                <div className="space-y-0.5">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase">{doc.champ4Label}</p>
+                                                    <p className="text-[10px] font-bold text-gray-600">{doc.champ4Value}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="px-6 py-4 bg-gray-50/50 flex items-center justify-between border-t border-gray-100 group-hover:bg-[#77B84D] transition-all duration-300">
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="w-4 h-4 text-gray-400 group-hover:text-white/70 transition-colors" />
+                                    <span className="text-[10px] font-bold text-gray-600 group-hover:text-white transition-colors">
+                                        {doc.dateBas}
+                                    </span>
+                                </div>
+                                <button className="text-[10px] font-black text-[#77B84D] group-hover:text-white uppercase tracking-wider flex items-center gap-1">
+                                    <span>Voir</span>
+                                    <Eye className="w-3 h-3" />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="p-16 text-center rounded-3xl border border-gray-100 shadow-inner bg-gray-50/20 border-dashed">
+                    <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                        <FileText className="w-10 h-10 text-[#77B84D]/30" />
+                    </div>
+                    <h3 className="text-xl font-black text-gray-900 mb-3 font-merriweather">
+                        Aucun document archivé
+                    </h3>
+                    <p className="text-gray-400 font-manrope max-w-sm mx-auto text-sm">
+                        {searchTerm
+                            ? `Aucun résultat pour "${searchTerm}"`
+                            : 'Votre dossier d\'archives est actuellement vide.'
+                        }
+                    </p>
+                </div>
+            )}
+        </div>
     );
 };
 

@@ -11,10 +11,20 @@ import {
     Home,
     ChevronDown,
     Search,
-    FileText
+    FileText,
+    CreditCard,
+    Smartphone,
+    Edit3,
+    Trash2,
+    Star,
+    Loader,
+    AlertCircle,
+    Landmark,
+    Wallet
 } from 'lucide-react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarController, BarElement, DoughnutController, ArcElement, Tooltip, Legend } from 'chart.js';
 import { accountingService, propertyService } from '@/services/api';
+import paymentMethodService, { PaymentMethod } from '@/services/paymentMethodService';
 
 ChartJS.register(CategoryScale, LinearScale, BarController, BarElement, DoughnutController, ArcElement, Tooltip, Legend);
 
@@ -32,6 +42,7 @@ interface Transaction {
     category: string;
     amount: number;
     currency?: string;
+    payment_method_id?: number;
 }
 
 interface Property {
@@ -64,6 +75,692 @@ interface ChartDataPoint {
     average: number;
 }
 
+interface PaymentMethodModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    methodId?: number | null;
+    onSave: () => void;
+    notify?: (msg: string, type: 'success' | 'info' | 'error') => void;
+}
+
+const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({ isOpen, onClose, methodId, onSave, notify }) => {
+    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        type: '',
+        beneficiary_name: '',
+        country: 'CI',
+        currency: 'XOF',
+        is_default: false,
+        mobile_operator: '',
+        mobile_number: '',
+        card_brand: '',
+        card_last4: '',
+        bank_name: '',
+        bank_account_number: '',
+        bank_iban: '',
+        bank_swift: '',
+    });
+
+    useEffect(() => {
+        if (methodId) {
+            loadPaymentMethod();
+        } else {
+            resetForm();
+        }
+    }, [methodId]);
+
+    const loadPaymentMethod = async () => {
+        if (!methodId) return;
+        
+        setLoading(true);
+        try {
+            const method = await paymentMethodService.getById(methodId);
+            setFormData({
+                type: method.type || '',
+                beneficiary_name: method.beneficiary_name || '',
+                country: method.country || 'CI',
+                currency: method.currency || 'XOF',
+                is_default: method.is_default || false,
+                mobile_operator: method.mobile_operator || '',
+                mobile_number: method.mobile_number || '',
+                card_brand: method.card_brand || '',
+                card_last4: method.card_last4 || '',
+                bank_name: method.bank_name || '',
+                bank_account_number: method.bank_account_number || '',
+                bank_iban: method.bank_iban || '',
+                bank_swift: method.bank_swift || '',
+            });
+        } catch (error) {
+            console.error('Erreur chargement:', error);
+            notify?.('Erreur lors du chargement de la méthode de paiement', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const resetForm = () => {
+        setFormData({
+            type: '',
+            beneficiary_name: '',
+            country: 'CI',
+            currency: 'XOF',
+            is_default: false,
+            mobile_operator: '',
+            mobile_number: '',
+            card_brand: '',
+            card_last4: '',
+            bank_name: '',
+            bank_account_number: '',
+            bank_iban: '',
+            bank_swift: '',
+        });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            if (methodId) {
+                await paymentMethodService.update(methodId, formData);
+                notify?.('Méthode de paiement modifiée avec succès', 'success');
+            } else {
+                await paymentMethodService.create(formData);
+                notify?.('Méthode de paiement ajoutée avec succès', 'success');
+            }
+            onSave();
+            onClose();
+        } catch (error) {
+            console.error('Erreur sauvegarde:', error);
+            notify?.('Erreur lors de l\'enregistrement', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const togglePaymentFields = () => {
+        // Logique pour afficher/masquer les champs selon le type
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+        }}>
+            <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: 'rgba(0, 0, 0, 0.5)',
+                backdropFilter: 'blur(4px)',
+                zIndex: 1001
+            }} onClick={onClose} />
+            
+            <div style={{
+                position: 'relative',
+                background: 'white',
+                borderRadius: '20px',
+                width: '90%',
+                maxWidth: '700px',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                zIndex: 1002,
+                animation: 'modalSlideIn 0.3s ease-out'
+            }}>
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '1.5rem 2rem',
+                    borderBottom: '1px solid #e2e8f0'
+                }}>
+                    <h3 style={{
+                        fontSize: '1.4rem',
+                        fontWeight: 600,
+                        color: '#1e293b',
+                        margin: 0
+                    }}>
+                        {methodId ? 'Modifier le mode de paiement' : 'Ajouter un mode de paiement'}
+                    </h3>
+                    <button
+                        onClick={onClose}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '0.5rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#64748b',
+                            borderRadius: '8px',
+                            transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#f1f5f9';
+                            e.currentTarget.style.color = '#1e293b';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'none';
+                            e.currentTarget.style.color = '#64748b';
+                        }}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+
+                <div style={{ padding: '2rem' }}>
+                    <form onSubmit={handleSubmit}>
+                        <input type="hidden" name="id" value={methodId || ''} />
+                        
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <label style={{
+                                display: 'block',
+                                fontSize: '0.95rem',
+                                fontWeight: 600,
+                                color: '#1e293b',
+                                marginBottom: '0.5rem'
+                            }}>
+                                Type de paiement
+                            </label>
+                            <select
+                                value={formData.type}
+                                onChange={(e) => setFormData({...formData, type: e.target.value})}
+                                required
+                                style={{
+                                    width: '100%',
+                                    padding: '0.875rem 1rem',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '10px',
+                                    fontSize: '1rem',
+                                    transition: 'all 0.2s',
+                                    outline: 'none'
+                                }}
+                                onFocus={(e) => {
+                                    e.currentTarget.style.borderColor = '#70AE48';
+                                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(112,174,72,0.1)';
+                                }}
+                                onBlur={(e) => {
+                                    e.currentTarget.style.borderColor = '#d1d5db';
+                                    e.currentTarget.style.boxShadow = 'none';
+                                }}
+                            >
+                                <option value="">Sélectionnez un type</option>
+                                <option value="mobile_money">Mobile Money</option>
+                                <option value="card">Carte bancaire</option>
+                                <option value="bank_transfer">Virement bancaire</option>
+                                <option value="cash">Espèces</option>
+                            </select>
+                        </div>
+
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <label style={{
+                                display: 'block',
+                                fontSize: '0.95rem',
+                                fontWeight: 600,
+                                color: '#1e293b',
+                                marginBottom: '0.5rem'
+                            }}>
+                                Nom du bénéficiaire
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.beneficiary_name}
+                                onChange={(e) => setFormData({...formData, beneficiary_name: e.target.value})}
+                                required
+                                style={{
+                                    width: '100%',
+                                    padding: '0.875rem 1rem',
+                                    border: '1px solid #d1d5db',
+                                    borderRadius: '10px',
+                                    fontSize: '1rem',
+                                    transition: 'all 0.2s',
+                                    outline: 'none'
+                                }}
+                                onFocus={(e) => {
+                                    e.currentTarget.style.borderColor = '#70AE48';
+                                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(112,174,72,0.1)';
+                                }}
+                                onBlur={(e) => {
+                                    e.currentTarget.style.borderColor = '#d1d5db';
+                                    e.currentTarget.style.boxShadow = 'none';
+                                }}
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                            <div style={{ flex: 1 }}>
+                                <label style={{
+                                    display: 'block',
+                                    fontSize: '0.95rem',
+                                    fontWeight: 600,
+                                    color: '#1e293b',
+                                    marginBottom: '0.5rem'
+                                }}>
+                                    Pays
+                                </label>
+                                <select
+                                    value={formData.country}
+                                    onChange={(e) => setFormData({...formData, country: e.target.value})}
+                                    required
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.875rem 1rem',
+                                        border: '1px solid #d1d5db',
+                                        borderRadius: '10px',
+                                        fontSize: '1rem',
+                                        transition: 'all 0.2s',
+                                        outline: 'none'
+                                    }}
+                                >
+                                    <option value="CI">Côte d'Ivoire</option>
+                                    <option value="BF">Burkina Faso</option>
+                                    <option value="SN">Sénégal</option>
+                                    <option value="ML">Mali</option>
+                                    <option value="GN">Guinée</option>
+                                    <option value="CM">Cameroun</option>
+                                    <option value="BJ">Bénin</option>
+                                    <option value="TG">Togo</option>
+                                </select>
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <label style={{
+                                    display: 'block',
+                                    fontSize: '0.95rem',
+                                    fontWeight: 600,
+                                    color: '#1e293b',
+                                    marginBottom: '0.5rem'
+                                }}>
+                                    Devise
+                                </label>
+                                <select
+                                    value={formData.currency}
+                                    onChange={(e) => setFormData({...formData, currency: e.target.value})}
+                                    required
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.875rem 1rem',
+                                        border: '1px solid #d1d5db',
+                                        borderRadius: '10px',
+                                        fontSize: '1rem',
+                                        transition: 'all 0.2s',
+                                        outline: 'none'
+                                    }}
+                                >
+                                    <option value="XOF">FCFA (UEMOA)</option>
+                                    <option value="XAF">FCFA (CEMAC)</option>
+                                    <option value="EUR">Euro</option>
+                                    <option value="USD">Dollar</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Champs Mobile Money */}
+                        {formData.type === 'mobile_money' && (
+                            <div style={{
+                                background: '#f8fafc',
+                                borderRadius: '12px',
+                                padding: '1.5rem',
+                                marginTop: '1rem',
+                                border: '1px solid #e2e8f0'
+                            }}>
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <label style={{
+                                        display: 'block',
+                                        fontSize: '0.95rem',
+                                        fontWeight: 600,
+                                        color: '#1e293b',
+                                        marginBottom: '0.5rem'
+                                    }}>
+                                        Opérateur
+                                    </label>
+                                    <select
+                                        value={formData.mobile_operator}
+                                        onChange={(e) => setFormData({...formData, mobile_operator: e.target.value})}
+                                        required
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.875rem 1rem',
+                                            border: '1px solid #d1d5db',
+                                            borderRadius: '10px',
+                                            fontSize: '1rem',
+                                            transition: 'all 0.2s',
+                                            outline: 'none'
+                                        }}
+                                    >
+                                        <option value="">Sélectionnez un opérateur</option>
+                                        <option value="MTN">MTN</option>
+                                        <option value="MOOV">MOOV</option>
+                                        <option value="CELTIS">CELTIS</option>
+                                        <option value="ORANGE">Orange</option>
+                                        <option value="WAVE">Wave</option>
+                                    </select>
+                                </div>
+                                <div style={{ marginBottom: '0' }}>
+                                    <label style={{
+                                        display: 'block',
+                                        fontSize: '0.95rem',
+                                        fontWeight: 600,
+                                        color: '#1e293b',
+                                        marginBottom: '0.5rem'
+                                    }}>
+                                        Numéro de téléphone
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        value={formData.mobile_number}
+                                        onChange={(e) => setFormData({...formData, mobile_number: e.target.value})}
+                                        required
+                                        placeholder="Ex: 0708091011"
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.875rem 1rem',
+                                            border: '1px solid #d1d5db',
+                                            borderRadius: '10px',
+                                            fontSize: '1rem',
+                                            transition: 'all 0.2s',
+                                            outline: 'none'
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Champs Carte bancaire */}
+                        {formData.type === 'card' && (
+                            <div style={{
+                                background: '#f8fafc',
+                                borderRadius: '12px',
+                                padding: '1.5rem',
+                                marginTop: '1rem',
+                                border: '1px solid #e2e8f0'
+                            }}>
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <label style={{
+                                        display: 'block',
+                                        fontSize: '0.95rem',
+                                        fontWeight: 600,
+                                        color: '#1e293b',
+                                        marginBottom: '0.5rem'
+                                    }}>
+                                        Type de carte
+                                    </label>
+                                    <select
+                                        value={formData.card_brand}
+                                        onChange={(e) => setFormData({...formData, card_brand: e.target.value})}
+                                        required
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.875rem 1rem',
+                                            border: '1px solid #d1d5db',
+                                            borderRadius: '10px',
+                                            fontSize: '1rem',
+                                            transition: 'all 0.2s',
+                                            outline: 'none'
+                                        }}
+                                    >
+                                        <option value="">Sélectionnez un type</option>
+                                        <option value="Visa">Visa</option>
+                                        <option value="Mastercard">Mastercard</option>
+                                        <option value="American Express">American Express</option>
+                                    </select>
+                                </div>
+                                <div style={{ marginBottom: '0' }}>
+                                    <label style={{
+                                        display: 'block',
+                                        fontSize: '0.95rem',
+                                        fontWeight: 600,
+                                        color: '#1e293b',
+                                        marginBottom: '0.5rem'
+                                    }}>
+                                        4 derniers chiffres
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.card_last4}
+                                        onChange={(e) => setFormData({...formData, card_last4: e.target.value})}
+                                        required
+                                        maxLength={4}
+                                        placeholder="1234"
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.875rem 1rem',
+                                            border: '1px solid #d1d5db',
+                                            borderRadius: '10px',
+                                            fontSize: '1rem',
+                                            transition: 'all 0.2s',
+                                            outline: 'none'
+                                        }}
+                                    />
+                                </div>
+                                <input type="hidden" name="card_token" value={`tok_${Math.random().toString(36).substr(2, 9)}`} />
+                            </div>
+                        )}
+
+                        {/* Champs Virement bancaire */}
+                        {formData.type === 'bank_transfer' && (
+                            <div style={{
+                                background: '#f8fafc',
+                                borderRadius: '12px',
+                                padding: '1.5rem',
+                                marginTop: '1rem',
+                                border: '1px solid #e2e8f0'
+                            }}>
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <label style={{
+                                        display: 'block',
+                                        fontSize: '0.95rem',
+                                        fontWeight: 600,
+                                        color: '#1e293b',
+                                        marginBottom: '0.5rem'
+                                    }}>
+                                        Nom de la banque
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.bank_name}
+                                        onChange={(e) => setFormData({...formData, bank_name: e.target.value})}
+                                        required
+                                        placeholder="Ex: Société Générale"
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.875rem 1rem',
+                                            border: '1px solid #d1d5db',
+                                            borderRadius: '10px',
+                                            fontSize: '1rem',
+                                            transition: 'all 0.2s',
+                                            outline: 'none'
+                                        }}
+                                    />
+                                </div>
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <label style={{
+                                        display: 'block',
+                                        fontSize: '0.95rem',
+                                        fontWeight: 600,
+                                        color: '#1e293b',
+                                        marginBottom: '0.5rem'
+                                    }}>
+                                        Numéro de compte
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.bank_account_number}
+                                        onChange={(e) => setFormData({...formData, bank_account_number: e.target.value})}
+                                        required
+                                        placeholder="Ex: 12345678901"
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.875rem 1rem',
+                                            border: '1px solid #d1d5db',
+                                            borderRadius: '10px',
+                                            fontSize: '1rem',
+                                            transition: 'all 0.2s',
+                                            outline: 'none'
+                                        }}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', gap: '1rem' }}>
+                                    <div style={{ flex: 1 }}>
+                                        <label style={{
+                                            display: 'block',
+                                            fontSize: '0.95rem',
+                                            fontWeight: 600,
+                                            color: '#1e293b',
+                                            marginBottom: '0.5rem'
+                                        }}>
+                                            IBAN
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.bank_iban}
+                                            onChange={(e) => setFormData({...formData, bank_iban: e.target.value})}
+                                            placeholder="Ex: FR76 1234 5678 9012"
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.875rem 1rem',
+                                                border: '1px solid #d1d5db',
+                                                borderRadius: '10px',
+                                                fontSize: '1rem',
+                                                transition: 'all 0.2s',
+                                                outline: 'none'
+                                            }}
+                                        />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <label style={{
+                                            display: 'block',
+                                            fontSize: '0.95rem',
+                                            fontWeight: 600,
+                                            color: '#1e293b',
+                                            marginBottom: '0.5rem'
+                                        }}>
+                                            SWIFT/BIC
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.bank_swift}
+                                            onChange={(e) => setFormData({...formData, bank_swift: e.target.value})}
+                                            placeholder="Ex: SOGEFRPP"
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.875rem 1rem',
+                                                border: '1px solid #d1d5db',
+                                                borderRadius: '10px',
+                                                fontSize: '1rem',
+                                                transition: 'all 0.2s',
+                                                outline: 'none'
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+                            <label style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.75rem',
+                                cursor: 'pointer',
+                                fontSize: '1rem'
+                            }}>
+                                <input
+                                    type="checkbox"
+                                    checked={formData.is_default}
+                                    onChange={(e) => setFormData({...formData, is_default: e.target.checked})}
+                                    style={{
+                                        width: '20px',
+                                        height: '20px',
+                                        cursor: 'pointer'
+                                    }}
+                                />
+                                <span style={{ color: '#374151' }}>Définir comme méthode de paiement par défaut</span>
+                            </label>
+                        </div>
+
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            gap: '1rem',
+                            marginTop: '2rem',
+                            paddingTop: '1rem',
+                            borderTop: '1px solid #e2e8f0'
+                        }}>
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                style={{
+                                    padding: '0.875rem 1.5rem',
+                                    background: '#e2e8f0',
+                                    color: '#475569',
+                                    border: 'none',
+                                    borderRadius: '10px',
+                                    fontWeight: 600,
+                                    fontSize: '1rem',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = '#cbd5e1'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = '#e2e8f0'}
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                style={{
+                                    padding: '0.875rem 2rem',
+                                    background: '#70AE48',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '10px',
+                                    fontWeight: 600,
+                                    fontSize: '1rem',
+                                    cursor: loading ? 'not-allowed' : 'pointer',
+                                    opacity: loading ? 0.7 : 1,
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (!loading) {
+                                        e.currentTarget.style.background = '#5d8f3a';
+                                        e.currentTarget.style.transform = 'translateY(-1px)';
+                                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(112,174,72,0.3)';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    if (!loading) {
+                                        e.currentTarget.style.background = '#70AE48';
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                        e.currentTarget.style.boxShadow = 'none';
+                                    }
+                                }}
+                            >
+                                {loading ? 'Enregistrement...' : 'Enregistrer'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const ComptabilitePage: React.FC<ComptaProps> = ({ notify }) => {
     const navigate = useNavigate();
     const revenueChartRef = useRef<HTMLCanvasElement>(null);
@@ -73,6 +770,7 @@ const ComptabilitePage: React.FC<ComptaProps> = ({ notify }) => {
 
     // États
     const [loading, setLoading] = useState(true);
+    const [loadingPaymentMethods, setLoadingPaymentMethods] = useState(true);
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [availableYears, setAvailableYears] = useState<number[]>([new Date().getFullYear()]);
     const [stats, setStats] = useState<Stats>({
@@ -96,12 +794,17 @@ const ComptabilitePage: React.FC<ComptaProps> = ({ notify }) => {
     const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
     const [properties, setProperties] = useState<Property[]>([]);
     const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+    const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
 
     // États des filtres
     const [activeFilter, setActiveFilter] = useState<string>('all');
     const [propertyFilter, setPropertyFilter] = useState<string>('all');
     const [categoryFilter, setCategoryFilter] = useState<string>('all');
     const [searchQuery, setSearchQuery] = useState<string>('');
+
+    // État du modal
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedMethodId, setSelectedMethodId] = useState<number | null>(null);
 
     // Charger les données
     useEffect(() => {
@@ -126,6 +829,9 @@ const ComptabilitePage: React.FC<ComptaProps> = ({ notify }) => {
 
             // Charger les données des graphiques
             const chartResponse = await accountingService.getChartData(currentYear);
+
+            // Charger les méthodes de paiement
+            await fetchPaymentMethods();
 
             // Mettre à jour les stats
             if (statsResponse) {
@@ -177,6 +883,18 @@ const ComptabilitePage: React.FC<ComptaProps> = ({ notify }) => {
         }
     };
 
+    const fetchPaymentMethods = async () => {
+        setLoadingPaymentMethods(true);
+        try {
+            const methods = await paymentMethodService.getAll();
+            setPaymentMethods(methods);
+        } catch (error) {
+            console.error('Erreur chargement méthodes de paiement:', error);
+        } finally {
+            setLoadingPaymentMethods(false);
+        }
+    };
+
     const formatNumber = (num: number): string => {
         return new Intl.NumberFormat('fr-FR').format(num);
     };
@@ -188,6 +906,58 @@ const ComptabilitePage: React.FC<ComptaProps> = ({ notify }) => {
     const formatDate = (dateStr: string): string => {
         const date = new Date(dateStr);
         return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '');
+    };
+
+    const maskNumber = (number: string): string => {
+        if (!number) return '';
+        if (number.length <= 4) return number;
+        const visible = number.slice(-4);
+        const masked = '*'.repeat(4);
+        return masked + visible;
+    };
+
+    const getCountryName = (code: string): string => {
+        const countries: Record<string, string> = {
+            'CI': 'Côte d\'Ivoire',
+            'BF': 'Burkina Faso',
+            'SN': 'Sénégal',
+            'ML': 'Mali',
+            'GN': 'Guinée',
+            'CM': 'Cameroun',
+            'BJ': 'Bénin',
+            'TG': 'Togo'
+        };
+        return countries[code] || code;
+    };
+
+    const getIcon = (type: string) => {
+        switch(type) {
+            case 'mobile_money': return Smartphone;
+            case 'card': return CreditCard;
+            case 'bank_transfer': return Landmark;
+            case 'cash': return Wallet;
+            default: return CreditCard;
+        }
+    };
+
+    const getColor = (type: string): string => {
+        const colors = {
+            'mobile_money': '#70AE48',
+            'card': '#FF9800',
+            'bank_transfer': '#2196F3',
+            'cash': '#4CAF50'
+        };
+        return colors[type as keyof typeof colors] || '#9E9E9E';
+    };
+
+    const getTypeLabel = (type: string): string => {
+        const labels = {
+            'mobile_money': 'Mobile Money',
+            'card': 'Carte bancaire',
+            'bank_transfer': 'Virement bancaire',
+            'cash': 'Espèces'
+        };
+        return labels[type as keyof typeof labels] || 'Autre';
     };
 
     // Graphique des revenus
@@ -307,6 +1077,12 @@ const ComptabilitePage: React.FC<ComptaProps> = ({ notify }) => {
             filtered = filtered.filter(t => t.type === 'REVENU');
         } else if (activeFilter === 'charge') {
             filtered = filtered.filter(t => t.type === 'CHARGE');
+        } else if (activeFilter === 'jan' || activeFilter === 'fev') {
+            const month = activeFilter === 'jan' ? 0 : 1;
+            filtered = filtered.filter(t => {
+                const date = new Date(t.date);
+                return date.getMonth() === month && date.getFullYear() === currentYear;
+            });
         }
 
         // Filtre par propriété
@@ -358,6 +1134,46 @@ const ComptabilitePage: React.FC<ComptaProps> = ({ notify }) => {
         notify?.('Export réussi', 'success');
     };
 
+    const handleOpenModal = (methodId?: number) => {
+        setSelectedMethodId(methodId || null);
+        setModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setModalOpen(false);
+        setSelectedMethodId(null);
+    };
+
+    const handleSaveMethod = () => {
+        fetchPaymentMethods();
+    };
+
+    const handleDeleteMethod = async (id: number) => {
+        if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette méthode de paiement ?')) {
+            return;
+        }
+
+        try {
+            await paymentMethodService.delete(id);
+            notify?.('Méthode de paiement supprimée avec succès', 'success');
+            fetchPaymentMethods();
+        } catch (error) {
+            console.error('Erreur suppression:', error);
+            notify?.('Erreur lors de la suppression', 'error');
+        }
+    };
+
+    const handleSetDefault = async (id: number) => {
+        try {
+            await paymentMethodService.setDefault(id);
+            notify?.('Méthode par défaut mise à jour', 'success');
+            fetchPaymentMethods();
+        } catch (error) {
+            console.error('Erreur:', error);
+            notify?.('Erreur lors de la mise à jour', 'error');
+        }
+    };
+
     const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
 
     if (loading) {
@@ -396,7 +1212,26 @@ const ComptabilitePage: React.FC<ComptaProps> = ({ notify }) => {
         }}>
             <style>{`
                 @keyframes spin { to { transform: rotate(360deg); } }
+                @keyframes modalSlideIn {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-30px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
             `}</style>
+
+            {/* Modal */}
+            <PaymentMethodModal
+                isOpen={modalOpen}
+                onClose={handleCloseModal}
+                methodId={selectedMethodId}
+                onSave={handleSaveMethod}
+                notify={notify}
+            />
 
             {/* Header */}
             <div style={{
@@ -431,6 +1266,29 @@ const ComptabilitePage: React.FC<ComptaProps> = ({ notify }) => {
                     flexDirection: 'column',
                     gap: '0.75rem'
                 }}>
+                    <button
+                        onClick={() => handleOpenModal()}
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem',
+                            padding: '0.6rem 1.2rem',
+                            background: '#3b82f6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '50px',
+                            fontWeight: 600,
+                            fontSize: '0.8rem',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = '#2563eb'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = '#3b82f6'}
+                    >
+                        <CreditCard size={16} />
+                        Mode de paiement
+                    </button>
                     <button
                         onClick={handleExport}
                         style={{
@@ -979,6 +1837,505 @@ const ComptabilitePage: React.FC<ComptaProps> = ({ notify }) => {
                 </div>
             </div>
 
+            {/* Section Méthodes de paiement - EXACTEMENT COMME DANS LA VERSION BLADE */}
+
+{/* Section Méthodes de paiement - Version avec hauteur réduite */}
+<div style={{
+    marginBottom: '2rem'
+}}>
+    <h3 style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.75rem',
+        fontSize: '1.5rem',
+        fontWeight: 600,
+        color: '#1e293b',
+        marginBottom: '1.5rem'
+    }}>
+        <CreditCard size={24} color="#70AE48" />
+        Mes méthodes de paiement
+    </h3>
+    
+    {loadingPaymentMethods ? (
+        <div style={{
+            textAlign: 'center',
+            padding: '2rem',
+            color: '#64748b',
+            fontSize: '1rem'
+        }}>
+            <div style={{
+                width: '30px',
+                height: '30px',
+                border: '2px solid #e2e8f0',
+                borderTopColor: '#70AE48',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 0.5rem'
+            }}></div>
+            <p>Chargement des méthodes de paiement...</p>
+        </div>
+    ) : paymentMethods.length === 0 ? (
+        <div style={{
+            textAlign: 'center',
+            padding: '2rem',
+            background: 'white',
+            borderRadius: '12px',
+            border: '1px dashed #e2e8f0'
+        }}>
+            <CreditCard size={48} color="#94a3b8" style={{ marginBottom: '0.75rem' }} />
+            <p style={{
+                fontSize: '1rem',
+                fontWeight: 600,
+                color: '#1e293b',
+                marginBottom: '0.25rem'
+            }}>
+                Aucune méthode de paiement
+            </p>
+            <p style={{
+                fontSize: '0.85rem',
+                color: '#64748b'
+            }}>
+                Ajoutez votre première méthode de paiement
+            </p>
+        </div>
+    ) : (
+        <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)', // 2 colonnes exactement
+            gap: '1rem'
+        }}>
+            {paymentMethods.map((method) => {
+                const Icon = getIcon(method.type);
+                const color = getColor(method.type);
+                const typeLabel = getTypeLabel(method.type);
+                
+                return (
+                    <div
+                        key={method.id}
+                        onClick={() => handleOpenModal(method.id)}
+                        style={{
+                            background: 'white',
+                            borderRadius: '12px',
+                            border: '1px solid #e2e8f0',
+                            padding: '1rem',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.75rem',
+                            height: 'auto',
+                            minHeight: '200px', // Hauteur minimale réduite
+                            ...(method.is_default ? {
+                                borderLeft: '3px solid #70AE48',
+                                background: 'linear-gradient(to right, #ffffff, #f8fafc)'
+                            } : {})
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                            e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+                            e.currentTarget.style.borderColor = '#70AE48';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = 'none';
+                            e.currentTarget.style.borderColor = '#e2e8f0';
+                        }}
+                    >
+                        {/* En-tête avec icône et type */}
+                        <div style={{
+                            display: 'flex',
+                            gap: '0.75rem',
+                            alignItems: 'center'
+                        }}>
+                            <div style={{
+                                width: '36px',
+                                height: '36px',
+                                borderRadius: '50%',
+                                background: `${color}20`,
+                                color: color,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0
+                            }}>
+                                <Icon size={18} />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    flexWrap: 'wrap',
+                                    marginBottom: '0.1rem'
+                                }}>
+                                    <span style={{
+                                        fontSize: '0.95rem',
+                                        fontWeight: 600,
+                                        color: '#1e293b'
+                                    }}>
+                                        {paymentMethodService.getDisplayName(method)}
+                                    </span>
+                                    {method.is_default && (
+                                        <span style={{
+                                            background: '#70AE48',
+                                            color: 'white',
+                                            fontSize: '0.7rem',
+                                            padding: '0.15rem 0.5rem',
+                                            borderRadius: '20px',
+                                            fontWeight: 500
+                                        }}>
+                                            Par défaut
+                                        </span>
+                                    )}
+                                </div>
+                                <div style={{
+                                    fontSize: '0.8rem',
+                                    color: '#64748b'
+                                }}>
+                                    {typeLabel}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Détails - Version compacte */}
+                        <div style={{
+                            background: '#f8fafc',
+                            borderRadius: '8px',
+                            padding: '0.75rem',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.4rem'
+                        }}>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'baseline',
+                                gap: '0.5rem',
+                                fontSize: '0.8rem'
+                            }}>
+                                <span style={{
+                                    fontWeight: 600,
+                                    color: '#1e293b',
+                                    minWidth: '70px',
+                                    fontSize: '0.75rem'
+                                }}>
+                                    Bénéficiaire:
+                                </span>
+                                <span style={{
+                                    color: '#374151',
+                                    fontSize: '0.8rem',
+                                    wordBreak: 'break-word'
+                                }}>
+                                    {method.beneficiary_name.length > 25 
+                                        ? method.beneficiary_name.substring(0, 25) + '...' 
+                                        : method.beneficiary_name}
+                                </span>
+                            </div>
+
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'baseline',
+                                gap: '0.5rem',
+                                fontSize: '0.8rem'
+                            }}>
+                                <span style={{
+                                    fontWeight: 600,
+                                    color: '#1e293b',
+                                    minWidth: '70px',
+                                    fontSize: '0.75rem'
+                                }}>
+                                    Pays:
+                                </span>
+                                <span style={{
+                                    color: '#374151',
+                                    fontSize: '0.8rem'
+                                }}>
+                                    {paymentMethodService.getCountryName(method.country)}
+                                </span>
+                            </div>
+
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'baseline',
+                                gap: '0.5rem',
+                                fontSize: '0.8rem'
+                            }}>
+                                <span style={{
+                                    fontWeight: 600,
+                                    color: '#1e293b',
+                                    minWidth: '70px',
+                                    fontSize: '0.75rem'
+                                }}>
+                                    Devise:
+                                </span>
+                                <span style={{
+                                    color: '#374151',
+                                    fontSize: '0.8rem'
+                                }}>
+                                    {method.currency}
+                                </span>
+                            </div>
+
+                            {method.bank_name && (
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'baseline',
+                                    gap: '0.5rem',
+                                    fontSize: '0.8rem'
+                                }}>
+                                    <span style={{
+                                        fontWeight: 600,
+                                        color: '#1e293b',
+                                        minWidth: '70px',
+                                        fontSize: '0.75rem'
+                                    }}>
+                                        Banque:
+                                    </span>
+                                    <span style={{
+                                        color: '#374151',
+                                        fontSize: '0.8rem'
+                                    }}>
+                                        {method.bank_name.length > 20 
+                                            ? method.bank_name.substring(0, 20) + '...' 
+                                            : method.bank_name}
+                                    </span>
+                                </div>
+                            )}
+
+                            {method.bank_account_number && (
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'baseline',
+                                    gap: '0.5rem',
+                                    fontSize: '0.8rem'
+                                }}>
+                                    <span style={{
+                                        fontWeight: 600,
+                                        color: '#1e293b',
+                                        minWidth: '70px',
+                                        fontSize: '0.75rem'
+                                    }}>
+                                        Compte:
+                                    </span>
+                                    <span style={{
+                                        color: '#374151',
+                                        fontSize: '0.8rem'
+                                    }}>
+                                        {paymentMethodService.maskNumber(method.bank_account_number)}
+                                    </span>
+                                </div>
+                            )}
+
+                            {method.bank_iban && (
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'baseline',
+                                    gap: '0.5rem',
+                                    fontSize: '0.8rem'
+                                }}>
+                                    <span style={{
+                                        fontWeight: 600,
+                                        color: '#1e293b',
+                                        minWidth: '70px',
+                                        fontSize: '0.75rem'
+                                    }}>
+                                        IBAN:
+                                    </span>
+                                    <span style={{
+                                        color: '#374151',
+                                        fontSize: '0.8rem'
+                                    }}>
+                                        {paymentMethodService.maskNumber(method.bank_iban)}
+                                    </span>
+                                </div>
+                            )}
+
+                            {method.mobile_operator && (
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'baseline',
+                                    gap: '0.5rem',
+                                    fontSize: '0.8rem'
+                                }}>
+                                    <span style={{
+                                        fontWeight: 600,
+                                        color: '#1e293b',
+                                        minWidth: '70px',
+                                        fontSize: '0.75rem'
+                                    }}>
+                                        Opérateur:
+                                    </span>
+                                    <span style={{
+                                        color: '#374151',
+                                        fontSize: '0.8rem'
+                                    }}>
+                                        {method.mobile_operator}
+                                    </span>
+                                </div>
+                            )}
+
+                            {method.mobile_number && (
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'baseline',
+                                    gap: '0.5rem',
+                                    fontSize: '0.8rem'
+                                }}>
+                                    <span style={{
+                                        fontWeight: 600,
+                                        color: '#1e293b',
+                                        minWidth: '70px',
+                                        fontSize: '0.75rem'
+                                    }}>
+                                        Téléphone:
+                                    </span>
+                                    <span style={{
+                                        color: '#374151',
+                                        fontSize: '0.8rem'
+                                    }}>
+                                        {paymentMethodService.maskNumber(method.mobile_number)}
+                                    </span>
+                                </div>
+                            )}
+
+                            {method.card_brand && method.card_last4 && (
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'baseline',
+                                    gap: '0.5rem',
+                                    fontSize: '0.8rem'
+                                }}>
+                                    <span style={{
+                                        fontWeight: 600,
+                                        color: '#1e293b',
+                                        minWidth: '70px',
+                                        fontSize: '0.75rem'
+                                    }}>
+                                        Carte:
+                                    </span>
+                                    <span style={{
+                                        color: '#374151',
+                                        fontSize: '0.8rem'
+                                    }}>
+                                        {method.card_brand} •••• {method.card_last4}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Actions - Boutons plus petits */}
+                        <div style={{
+                            display: 'flex',
+                            gap: '0.5rem',
+                            marginTop: '0.25rem',
+                            flexWrap: 'wrap'
+                        }}>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOpenModal(method.id);
+                                }}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.3rem',
+                                    padding: '0.35rem 0.8rem',
+                                    background: 'white',
+                                    color: '#1e293b',
+                                    border: '1px solid #e2e8f0',
+                                    borderRadius: '6px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 500,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = '#f1f5f9';
+                                    e.currentTarget.style.borderColor = '#cbd5e1';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = 'white';
+                                    e.currentTarget.style.borderColor = '#e2e8f0';
+                                }}
+                            >
+                                <Edit3 size={12} />
+                                Modifier
+                            </button>
+                            
+                            {!method.is_default && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleSetDefault(method.id);
+                                    }}
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '0.3rem',
+                                        padding: '0.35rem 0.8rem',
+                                        background: 'white',
+                                        color: '#1e293b',
+                                        border: '1px solid #e2e8f0',
+                                        borderRadius: '6px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 500,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.background = '#f1f5f9';
+                                        e.currentTarget.style.borderColor = '#cbd5e1';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.background = 'white';
+                                        e.currentTarget.style.borderColor = '#e2e8f0';
+                                    }}
+                                >
+                                    <Star size={12} />
+                                    Défaut
+                                </button>
+                            )}
+                            
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteMethod(method.id);
+                                }}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.3rem',
+                                    padding: '0.35rem 0.8rem',
+                                    background: 'white',
+                                    color: '#1e293b',
+                                    border: '1px solid #e2e8f0',
+                                    borderRadius: '6px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 500,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = '#fee2e2';
+                                    e.currentTarget.style.color = '#dc2626';
+                                    e.currentTarget.style.borderColor = '#fecaca';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = 'white';
+                                    e.currentTarget.style.color = '#1e293b';
+                                    e.currentTarget.style.borderColor = '#e2e8f0';
+                                }}
+                            >
+                                <Trash2 size={12} />
+                                Supprimer
+                            </button>
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    )}
+</div>
+
             {/* Filter Pills */}
             <div style={{
                 display: 'flex',
@@ -1281,6 +2638,7 @@ const ComptabilitePage: React.FC<ComptaProps> = ({ notify }) => {
                                 }}>
                                     MONTANT
                                 </th>
+                            
                             </tr>
                         </thead>
                         <tbody>
@@ -1362,12 +2720,13 @@ const ComptabilitePage: React.FC<ComptaProps> = ({ notify }) => {
                                             }}>
                                                 {isRevenu ? '+' : '-'} {formatCurrency(transaction.amount, transaction.currency || 'FCFA')}
                                             </td>
+                                     
                                         </tr>
                                     );
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={6} style={{
+                                    <td colSpan={7} style={{
                                         textAlign: 'center',
                                         padding: '3rem',
                                         color: '#94a3b8'

@@ -118,7 +118,7 @@ export const CoOwnerDocuments: React.FC<DocumentsProps> = ({ onNavigate, notify 
           tenant: inventory.tenant,
           metadata: {
             visitDate: inventory.date,
-            generalState: inventory.general_state,
+            general_state: inventory.general_state,
             deposit: inventory.deposit_amount || 0
           }
         })),
@@ -228,103 +228,101 @@ export const CoOwnerDocuments: React.FC<DocumentsProps> = ({ onNavigate, notify 
 
   if (loading) {
     return (
-      <div className="space-y-8 py-4" style={{ fontFamily: "'Merriweather', serif" }}>
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div className="space-y-6 py-4" style={{ fontFamily: "'Merriweather', serif" }}>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-2">
-            <div className="h-10 w-48 bg-gray-100 rounded-2xl animate-pulse" />
-            <div className="h-4 w-64 bg-gray-50 rounded-lg animate-pulse" />
+            <div className="h-8 w-40 bg-gray-100 rounded-2xl animate-pulse" />
+            <div className="h-3 w-52 bg-gray-50 rounded-lg animate-pulse" />
           </div>
-          <div className="h-14 w-40 bg-gray-100 rounded-2xl animate-pulse" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="p-8 rounded-[2rem] border-gray-100 shadow-xl shadow-green-900/5 bg-white relative overflow-hidden">
-              <div className="h-4 w-24 bg-gray-100 rounded-lg animate-pulse mb-3" />
-              <div className="h-8 w-16 bg-gray-50 rounded-lg animate-pulse" />
+            <Card key={i} className="p-6 rounded-3xl border-gray-100 shadow-lg bg-white relative overflow-hidden">
+              <div className="h-3 w-20 bg-gray-100 rounded-lg animate-pulse mb-2" />
+              <div className="h-6 w-12 bg-gray-50 rounded-lg animate-pulse" />
             </Card>
           ))}
         </div>
 
-        <div className="h-40 w-full bg-gray-100/50 rounded-[3rem] animate-pulse" />
+        <div className="h-32 w-full bg-gray-100/50 rounded-3xl animate-pulse" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-10 py-4" style={{ fontFamily: "'Merriweather', serif" }}>
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-2">
-          <h1 className="text-4xl md:text-5xl font-black text-gray-900 font-merriweather tracking-tight">
+    <div className="space-y-6 py-4" style={{ fontFamily: "'Merriweather', serif" }}>
+      {/* Header Section - Réduit */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900 font-merriweather tracking-tight">
             Documents Archivés
           </h1>
-          <p className="text-gray-400 font-manrope font-medium text-lg max-w-2xl">
+          <p className="text-gray-400 font-manrope font-medium text-sm max-w-xl">
             Retrouvez l'historique complet de vos baux, états des lieux et quittances passées.
           </p>
         </div>
       </div>
 
-      {/* Stats Section */}
-      <Card className="p-2 rounded-[3.5rem] bg-gray-900 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] border-none relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/10 rounded-full -mr-32 -mt-32 blur-3xl opacity-50" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-green-400/5 rounded-full -ml-32 -mb-32 blur-3xl opacity-30" />
+      {/* Stats Section - Fond noir comme demandé avec #77B84D */}
+      <Card className="p-2 rounded-3xl bg-gray-900 shadow-xl border-none relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-[#77B84D]/10 rounded-full -mr-24 -mt-24 blur-3xl opacity-50" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#77B84D]/5 rounded-full -ml-24 -mb-24 blur-3xl opacity-30" />
 
-        <div className="relative grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-800/50">
-          <div className="p-8 md:p-10 space-y-2 text-center md:text-left">
-            <p className="text-[10px] font-black text-green-500 uppercase tracking-[0.2em] font-manrope">Total archivé</p>
-            <div className="flex items-center justify-center md:justify-start gap-3">
-              <FileSignature className="w-6 h-6 text-gray-500" />
-              <p className="text-4xl font-black text-white font-merriweather">{stats.total}</p>
+        <div className="relative grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-800/50">
+          <div className="p-4 md:p-6 space-y-1 text-center md:text-left">
+            <p className="text-[9px] font-black text-[#77B84D] uppercase tracking-[0.15em] font-manrope">Total archivé</p>
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <FileSignature className="w-4 h-4 text-gray-500" />
+              <p className="text-2xl font-black text-white font-merriweather">{stats.total}</p>
             </div>
           </div>
 
-          <div className="p-8 md:p-10 space-y-2 text-center md:text-left">
-            <p className="text-[10px] font-black text-green-400 uppercase tracking-[0.2em] font-manrope">Baux terminés</p>
-            <div className="flex items-center justify-center md:justify-start gap-3">
-              <FileCheck className="w-6 h-6 text-gray-500" />
-              <p className="text-4xl font-black text-white font-merriweather">{stats.leases}</p>
+          <div className="p-4 md:p-6 space-y-1 text-center md:text-left">
+            <p className="text-[9px] font-black text-[#77B84D] uppercase tracking-[0.15em] font-manrope">Baux terminés</p>
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <FileCheck className="w-4 h-4 text-gray-500" />
+              <p className="text-2xl font-black text-white font-merriweather">{stats.leases}</p>
             </div>
           </div>
 
-          <div className="p-8 md:p-10 space-y-2 text-center md:text-left">
-            <p className="text-[10px] font-black text-yellow-400 uppercase tracking-[0.2em] font-manrope">EDL archivés</p>
-            <div className="flex items-center justify-center md:justify-start gap-3">
-              <Building className="w-6 h-6 text-gray-500" />
-              <p className="text-4xl font-black text-white font-merriweather">{stats.inventories}</p>
+          <div className="p-4 md:p-6 space-y-1 text-center md:text-left">
+            <p className="text-[9px] font-black text-[#77B84D] uppercase tracking-[0.15em] font-manrope">EDL archivés</p>
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <Building className="w-4 h-4 text-gray-500" />
+              <p className="text-2xl font-black text-white font-merriweather">{stats.inventories}</p>
             </div>
           </div>
 
-          <div className="p-8 md:p-10 space-y-2 text-center md:text-left">
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] font-manrope">Espace utilisé</p>
-            <div className="flex items-center justify-center md:justify-start gap-3">
-              <Home className="w-6 h-6 text-gray-500" />
-              <p className="text-4xl font-black text-white font-merriweather text-nowrap">{stats.usedSpace}</p>
+          <div className="p-4 md:p-6 space-y-1 text-center md:text-left">
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.15em] font-manrope">Espace utilisé</p>
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <Home className="w-4 h-4 text-gray-500" />
+              <p className="text-2xl font-black text-white font-merriweather text-nowrap">{stats.usedSpace}</p>
             </div>
           </div>
         </div>
       </Card>
 
-      {/* Extended Filters Section */}
-      <Card className="p-10 rounded-[4rem] border-gray-100 shadow-2xl shadow-green-900/5 bg-white space-y-10 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-green-50/50 rounded-full -mr-16 -mt-16 blur-2xl" />
+      {/* Extended Filters Section - Réduit */}
+      <Card className="p-6 rounded-3xl border-gray-100 shadow-lg bg-white space-y-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-[#77B84D]/10 rounded-full -mr-12 -mt-12 blur-2xl" />
 
-        {/* Type Tabs */}
-        <div className="flex flex-wrap gap-4 relative z-10 transition-all">
+        {/* Type Tabs - Textes raccourcis */}
+        <div className="flex flex-wrap gap-3 relative z-10">
           {[
-            { id: 'all', label: 'Tout explorer' },
-            { id: 'lease', label: 'Baux Historiques' },
-            { id: 'inventory', label: 'États des Lieux' },
+            { id: 'all', label: 'Tout' },
+            { id: 'lease', label: 'Baux' },
+            { id: 'inventory', label: 'EDL' },
             { id: 'receipt', label: 'Quittances' },
-            { id: 'other', label: 'Autres Documents' }
+            { id: 'other', label: 'Autres' }
           ].map((type) => (
             <button
               key={type.id}
               onClick={() => setTypeFilter(type.id as any)}
-              className={`px-10 py-5 rounded-[2rem] font-black text-xs uppercase tracking-widest transition-all ${typeFilter === type.id
-                ? 'bg-green-600 text-white shadow-[0_15px_40px_-5px_rgba(22,163,74,0.3)] scale-105'
-                : 'bg-gray-50 text-gray-400 hover:bg-gray-100 active:scale-95'
+              className={`px-6 py-3 rounded-2xl font-bold text-[10px] uppercase tracking-wider transition-all ${typeFilter === type.id
+                ? 'bg-[#77B84D] text-white shadow-lg scale-105'
+                : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
                 } font-manrope`}
             >
               {type.label}
@@ -332,25 +330,25 @@ export const CoOwnerDocuments: React.FC<DocumentsProps> = ({ onNavigate, notify 
           ))}
         </div>
 
-        {/* Search & Property/Year Selects */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
+        {/* Search & Property/Year Selects - Compacts */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 relative z-10">
           <div className="relative group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-green-600 w-6 h-6 transition-transform group-focus-within:scale-110" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#77B84D] w-4 h-4" />
             <input
               type="text"
-              placeholder="Rechercher un fichier..."
+              placeholder="Rechercher..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-16 pr-8 py-6 bg-white border border-gray-100 rounded-[2.5rem] text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-green-500/10 transition-all font-manrope placeholder:text-gray-300 appearance-none shadow-sm"
+              className="w-full pl-10 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-[#77B84D]/20 transition-all font-manrope placeholder:text-gray-300"
             />
           </div>
 
           <div className="relative group">
-            <Building className="absolute left-6 top-1/2 -translate-y-1/2 text-green-600 w-5 h-5 pointer-events-none" />
+            <Building className="absolute left-4 top-1/2 -translate-y-1/2 text-[#77B84D] w-4 h-4 pointer-events-none" />
             <select
               value={propertyFilter}
               onChange={(e) => setPropertyFilter(e.target.value)}
-              className="w-full pl-16 pr-8 py-6 bg-white border border-gray-100 rounded-[2.5rem] text-sm font-bold text-gray-900 outline-none cursor-pointer font-manrope appearance-none shadow-sm"
+              className="w-full pl-10 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-sm font-semibold text-gray-900 outline-none cursor-pointer font-manrope appearance-none"
             >
               <option value="all">Toutes les Propriétés</option>
               {availableProperties.map(prop => (
@@ -360,11 +358,11 @@ export const CoOwnerDocuments: React.FC<DocumentsProps> = ({ onNavigate, notify 
           </div>
 
           <div className="relative group">
-            <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 text-green-600 w-5 h-5 pointer-events-none" />
+            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-[#77B84D] w-4 h-4 pointer-events-none" />
             <select
               value={yearFilter}
               onChange={(e) => setYearFilter(e.target.value)}
-              className="w-full pl-16 pr-8 py-6 bg-white border border-gray-100 rounded-[2.5rem] text-sm font-bold text-gray-900 outline-none cursor-pointer font-manrope appearance-none shadow-sm"
+              className="w-full pl-10 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-sm font-semibold text-gray-900 outline-none cursor-pointer font-manrope appearance-none"
             >
               <option value="all">Toutes les Années</option>
               {availableYears.map(year => (
@@ -375,124 +373,119 @@ export const CoOwnerDocuments: React.FC<DocumentsProps> = ({ onNavigate, notify 
         </div>
       </Card>
 
-      {/* Documents Grid */}
+      {/* Documents Grid - 2 par ligne, plus compact */}
       {filteredDocuments.length === 0 ? (
-        <Card className="p-24 text-center rounded-[5rem] border-gray-100 shadow-inner bg-gray-50/20 border-dashed">
-          <div className="w-40 h-40 bg-white rounded-[3.5rem] flex items-center justify-center mx-auto mb-10 shadow-3xl shadow-gray-200/50 relative overflow-hidden">
-            <div className="absolute inset-0 bg-green-50 rounded-full animate-pulse opacity-50" />
-            <FileText className="w-16 h-16 text-green-100 relative z-10" />
+        <Card className="p-16 text-center rounded-3xl border-gray-100 shadow-inner bg-gray-50/20 border-dashed">
+          <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <FileText className="w-10 h-10 text-[#77B84D]/30" />
           </div>
-          <h3 className="text-4xl font-black text-gray-900 mb-6 font-merriweather tracking-tight">
+          <h3 className="text-xl font-black text-gray-900 mb-3 font-merriweather">
             Coffre-fort vide
           </h3>
-          <p className="text-gray-400 font-manrope max-w-sm mx-auto mb-12 text-lg font-medium leading-relaxed">
+          <p className="text-gray-400 font-manrope max-w-sm mx-auto text-sm">
             {searchTerm
-              ? `Nous n'avons rien trouvé pour "${searchTerm}".`
-              : 'Aucun document archivé n\'est disponible pour le moment.'
+              ? `Aucun résultat pour "${searchTerm}"`
+              : 'Aucun document archivé disponible.'
             }
           </p>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredDocuments.map((document) => {
             const isLease = document.type === 'lease';
             const isReceipt = document.type === 'receipt';
             const isInventory = document.type === 'inventory';
 
             return (
-              <Card key={document.uniqueKey} className="overflow-hidden rounded-[3.5rem] border-gray-100 shadow-xl shadow-green-900/5 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 bg-white group flex flex-col h-full relative border-t-8 border-t-green-600/10">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-green-50 opacity-20 group-hover:opacity-100 rounded-full -mr-16 -mt-16 blur-2xl transition-all" />
+              <Card key={document.uniqueKey} className="overflow-hidden rounded-2xl border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 bg-white group flex flex-col h-full relative border-t-4 border-t-[#77B84D]/20">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-[#77B84D]/10 opacity-20 group-hover:opacity-100 rounded-full -mr-10 -mt-10 blur-xl transition-all" />
 
-                <div className="p-10 flex-grow relative">
+                <div className="p-6 flex-grow relative">
                   {/* Badge & Action */}
-                  <div className="mb-8 flex justify-between items-start">
-                    <div className="space-y-4">
+                  <div className="mb-4 flex justify-between items-start">
+                    <div className="space-y-2">
                       {isLease && (
-                        <span className="px-5 py-2 rounded-2xl text-[9px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600/70 border border-emerald-100 font-manrope">Bail Passé</span>
+                        <span className="px-3 py-1 rounded-xl text-[8px] font-black uppercase tracking-wider bg-[#77B84D]/10 text-[#77B84D] border border-[#77B84D]/20 font-manrope">Bail</span>
                       )}
                       {isInventory && (
-                        <span className="px-5 py-2 rounded-2xl text-[9px] font-black uppercase tracking-widest bg-yellow-50 text-yellow-600/70 border border-yellow-100 font-manrope">État des Lieux</span>
+                        <span className="px-3 py-1 rounded-xl text-[8px] font-black uppercase tracking-wider bg-yellow-50 text-yellow-600 border border-yellow-100 font-manrope">EDL</span>
                       )}
                       {isReceipt && (
-                        <span className="px-5 py-2 rounded-2xl text-[9px] font-black uppercase tracking-widest bg-green-50 text-green-600/70 border border-green-100 font-manrope">Quittance Archivée</span>
+                        <span className="px-3 py-1 rounded-xl text-[8px] font-black uppercase tracking-wider bg-[#77B84D]/10 text-[#77B84D] border border-[#77B84D]/20 font-manrope">Quittance</span>
                       )}
                       {(!isLease && !isInventory && !isReceipt) && (
-                        <span className="px-5 py-2 rounded-2xl text-[9px] font-black uppercase tracking-widest bg-gray-50 text-gray-400 border border-gray-100 font-manrope">Archive Web</span>
+                        <span className="px-3 py-1 rounded-xl text-[8px] font-black uppercase tracking-wider bg-gray-50 text-gray-400 border border-gray-100 font-manrope">Archive</span>
                       )}
-                      <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Doc Ref. #{document.id}</p>
+                      <p className="text-[9px] font-black text-gray-300 uppercase tracking-wider">Ref. #{document.id}</p>
                     </div>
 
                     <button
                       onClick={() => handleDownload(document)}
-                      className="p-5 rounded-[1.5rem] bg-gray-900 text-white hover:bg-green-600 transition-all shadow-xl shadow-gray-900/10 group-hover:scale-110 active:scale-90"
+                      className="p-3 rounded-xl bg-gray-900 text-white hover:bg-[#77B84D] transition-all shadow-lg group-hover:scale-105"
                     >
-                      <Download className="w-6 h-6" />
+                      <Download className="w-4 h-4" />
                     </button>
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-xl font-black text-gray-900 mb-6 font-merriweather leading-snug group-hover:text-green-700 transition-colors">
+                  <h3 className="text-base font-black text-gray-900 mb-4 font-merriweather leading-snug group-hover:text-[#77B84D] transition-colors line-clamp-2">
                     {document.name}
                   </h3>
 
                   {/* Context */}
                   {document.property && (
-                    <div className="flex items-center gap-4 text-sm font-black text-gray-900 mb-8 font-manrope bg-green-50/50 p-4 rounded-2xl border border-green-100/50">
-                      <MapPin className="w-5 h-5 text-green-600" />
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-700 mb-4 font-manrope bg-[#77B84D]/5 p-3 rounded-xl border border-[#77B84D]/10">
+                      <MapPin className="w-4 h-4 text-[#77B84D]" />
                       <span className="truncate">{document.property.name}</span>
                     </div>
                   )}
 
-                  {/* Detailed Table-like Grid */}
-                  <div className="space-y-6 pt-6 border-t border-gray-50/50">
+                  {/* Detailed Info */}
+                  <div className="space-y-3 pt-4 border-t border-gray-100">
                     {isLease && document.metadata && (
-                      <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-1">
-                          <p className="text-[9px] font-black text-gray-300 uppercase tracking-tighter">Période de Validité</p>
-                          <p className="text-xs font-bold text-gray-600">{formatDate(document.metadata.startDate)} — {formatDate(document.metadata.endDate)}</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-0.5">
+                          <p className="text-[8px] font-black text-gray-400 uppercase">Période</p>
+                          <p className="text-[10px] font-bold text-gray-600">{formatDate(document.metadata.startDate)} — {formatDate(document.metadata.endDate)}</p>
                         </div>
-                        <div className="space-y-1">
-                          <p className="text-[9px] font-black text-gray-300 uppercase tracking-tighter">Loyer à l'époque</p>
-                          <p className="text-xs font-black text-green-600">{formatCurrency(document.metadata.monthlyRent)}</p>
+                        <div className="space-y-0.5">
+                          <p className="text-[8px] font-black text-gray-400 uppercase">Loyer</p>
+                          <p className="text-[10px] font-black text-[#77B84D]">{formatCurrency(document.metadata.monthlyRent)}</p>
                         </div>
                       </div>
                     )}
 
                     {isInventory && document.metadata && (
-                      <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-1">
-                          <p className="text-[9px] font-black text-gray-300 uppercase tracking-tighter">Date de Visite</p>
-                          <p className="text-xs font-bold text-gray-600">{formatDate(document.metadata.visitDate)}</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-0.5">
+                          <p className="text-[8px] font-black text-gray-400 uppercase">Date</p>
+                          <p className="text-[10px] font-bold text-gray-600">{formatDate(document.metadata.visitDate)}</p>
                         </div>
-                        <div className="space-y-1">
-                          <p className="text-[9px] font-black text-gray-300 uppercase tracking-tighter">Dépôt de Garantie</p>
-                          <p className="text-xs font-black text-gray-900">{formatCurrency(document.metadata.deposit)}</p>
+                        <div className="space-y-0.5">
+                          <p className="text-[8px] font-black text-gray-400 uppercase">Caution</p>
+                          <p className="text-[10px] font-black text-gray-900">{formatCurrency(document.metadata.deposit)}</p>
                         </div>
                       </div>
                     )}
 
                     {!isLease && !isInventory && (
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        <span className="text-[10px] font-black text-gray-400 font-manrope uppercase">Document édité le {formatDate(document.created_at)}</span>
+                        <Calendar className="w-3 h-3 text-gray-400" />
+                        <span className="text-[9px] font-bold text-gray-400 font-manrope uppercase">{formatDate(document.created_at)}</span>
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Footer file info */}
-                <div className="p-10 bg-gray-50/50 backdrop-blur-sm flex items-center justify-between border-t border-white/50 group-hover:bg-green-600 transition-all duration-500 overflow-hidden relative">
-                  <div className="absolute inset-0 bg-green-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-0" />
-                  <div className="relative z-10 flex items-center gap-3">
-                    <FileSignature className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
-                    <div className="space-y-0.5">
-                      <p className="text-[9px] font-black text-gray-400 group-hover:text-green-200 uppercase transition-colors">Taille Digitale</p>
-                      <p className="text-xs font-black text-gray-900 group-hover:text-white transition-colors">{(Number(document.file_size) / (1024 * 1024)).toFixed(2)} MB</p>
-                    </div>
+                {/* Footer */}
+                <div className="px-6 py-4 bg-gray-50/50 flex items-center justify-between border-t border-gray-100 group-hover:bg-[#77B84D] transition-all duration-300">
+                  <div className="flex items-center gap-2">
+                    <FileSignature className="w-4 h-4 text-gray-400 group-hover:text-white/70 transition-colors" />
+                    <span className="text-[10px] font-bold text-gray-600 group-hover:text-white transition-colors">{(Number(document.file_size) / (1024 * 1024)).toFixed(2)} MB</span>
                   </div>
-                  <button className="relative z-10 text-[10px] font-black text-green-600 group-hover:text-white uppercase tracking-widest flex items-center gap-2 group/btn">
-                    <span>Consulter</span>
-                    <Eye className="w-4 h-4 group-hover/btn:scale-125 transition-transform" />
+                  <button className="text-[10px] font-black text-[#77B84D] group-hover:text-white uppercase tracking-wider flex items-center gap-1">
+                    <span>Voir</span>
+                    <Eye className="w-3 h-3" />
                   </button>
                 </div>
               </Card>

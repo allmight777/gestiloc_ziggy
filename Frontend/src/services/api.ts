@@ -238,6 +238,8 @@ api.interceptors.response.use(
   }
 );
 
+
+
 // ================= AUTH SERVICE =================
 
 export const authService = {
@@ -1197,13 +1199,6 @@ export const rentReceiptService = {
     return response.data;
   },
 
-  downloadPdf: async (id: number): Promise<Blob> => {
-    await initializeCsrfToken();
-    const response = await api.get(`/quittance-independent/${id}`, {
-      responseType: "blob",
-    });
-    return new Blob([response.data], { type: "application/pdf" });
-  },
 
   getLeasesForForm: async (): Promise<any[]> => {
     const response = await api.get('/rent-receipts/leases-form');
@@ -1221,7 +1216,22 @@ export const rentReceiptService = {
   },
 
   sendByEmail: async (id: number): Promise<any> => {
-    const response = await api.post(`/rent-receipts/${id}/send-email`);
+    await initializeCsrfToken();
+    const response = await api.post(`/quittances/${id}/send-email`);
+    return response.data;
+  },
+  
+  downloadPdf: async (id: number): Promise<Blob> => {
+    await initializeCsrfToken();
+    const response = await api.get(`/quittances/${id}/pdf`, {
+      responseType: 'blob'
+    });
+    return response.data;
+  },
+  
+  getQuittance: async (id: number): Promise<any> => {
+    await initializeCsrfToken();
+    const response = await api.get(`/quittances/${id}`);
     return response.data;
   }
 };
