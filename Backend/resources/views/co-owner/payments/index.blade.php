@@ -14,12 +14,12 @@
         <div class="tabs-container">
             <div class="tabs">
                 <button class="tab {{ request('status') != 'archived' ? 'active' : '' }}" onclick="switchTab('active')">
-                    <span class="check-icon">✓</span>
+                    <span class="check-icon"><i class="fas fa-check"></i></span>
                     Actifs
                     <span class="badge green">{{ $activeCount }}</span>
                 </button>
                 <button class="tab {{ request('status') == 'archived' ? 'active' : '' }}" onclick="switchTab('archived')">
-                    <span class="folder-icon">📁</span>
+                    <span class="folder-icon"><i class="fas fa-folder"></i></span>
                     Archives
                     <span class="badge gray">{{ $archivedCount }}</span>
                 </button>
@@ -58,12 +58,12 @@
         <!-- Search & Display -->
         <div class="search-card">
             <div class="search-box">
-                <span class="search-icon">🔍</span>
+                <span class="search-icon"><i class="fas fa-search"></i></span>
                 <input type="text" id="search-input" placeholder="Rechercher par locataire, email, bien..."
                     value="{{ request('search') }}" onkeyup="debounceSearch()">
             </div>
             <button class="btn-display" onclick="resetFilters()">
-                <span class="gear-icon">⟲</span>
+                <span class="gear-icon"><i class="fas fa-redo"></i></span>
                 Réinitialiser
             </button>
         </div>
@@ -74,7 +74,7 @@
             <div class="stat-card green-border">
                 <div class="stat-header">
                     <span class="stat-title">Loyers attendus</span>
-                    <span class="stat-icon money">💵</span>
+                    <span class="stat-icon money"><i class="fas fa-money-bill-wave"></i></span>
                 </div>
                 <div class="stat-amount">{{ number_format($stats['expected_rent'], 0, ',', ' ') }} FCFA</div>
                 <div class="stat-meta">{{ $stats['total_payments'] }} paiements ce mois</div>
@@ -84,7 +84,7 @@
             <div class="stat-card blue-border">
                 <div class="stat-header">
                     <span class="stat-title">Loyers reçus</span>
-                    <span class="stat-icon check">✅</span>
+                    <span class="stat-icon check"><i class="fas fa-check-circle"></i></span>
                 </div>
                 <div class="stat-amount">{{ number_format($stats['received_rent'], 0, ',', ' ') }} FCFA</div>
                 <div class="stat-meta">{{ $stats['paid_count'] }} paiements ce mois</div>
@@ -94,7 +94,7 @@
             <div class="stat-card red-border">
                 <div class="stat-header">
                     <span class="stat-title">En retard</span>
-                    <span class="stat-icon warning">⚠️</span>
+                    <span class="stat-icon warning"><i class="fas fa-exclamation-triangle"></i></span>
                 </div>
                 <div class="stat-amount">{{ number_format($stats['late_amount'], 0, ',', ' ') }} FCFA</div>
                 <div class="stat-meta">
@@ -107,7 +107,7 @@
             <div class="stat-card orange-border">
                 <div class="stat-header">
                     <span class="stat-title">Taux de recouvrement</span>
-                    <span class="stat-icon chart">📊</span>
+                    <span class="stat-icon chart"><i class="fas fa-chart-bar"></i></span>
                 </div>
                 <div class="stat-amount">{{ $stats['recovery_rate'] }}%</div>
                 <div class="stat-meta trend-up">Mois en cours</div>
@@ -117,15 +117,15 @@
         <!-- Action Buttons -->
         <div class="actions-bar">
             <a href="{{ route('co-owner.payments.create') }}" class="btn-primary" style="background-color: #70AE48;">
-                <span class="plus-icon">+</span>
+                <span class="plus-icon"><i class="fas fa-plus"></i></span>
                 Enregistrer un paiement
             </a>
             <a href="{{ route('co-owner.payments.reminders') }}" class="btn-secondary">
-                <span class="bell-icon">🔔</span>
+                <span class="bell-icon"><i class="fas fa-bell"></i></span>
                 Rappels
             </a>
             <button class="btn-secondary" onclick="showExportModal()">
-                <span class="export-icon">📤</span>
+                <span class="export-icon"><i class="fas fa-file-export"></i></span>
                 Exporter
             </button>
         </div>
@@ -186,11 +186,11 @@
                                 @endphp
                                 <span class="status-badge {{ $statusClass }}">
                                     @if ($payment->status === 'approved')
-                                        <span class="status-icon">✓</span>
+                                        <span class="status-icon"><i class="fas fa-check"></i></span>
                                     @elseif(in_array($payment->status, ['pending', 'initiated']))
-                                        <span class="status-icon">⏳</span>
+                                        <span class="status-icon"><i class="fas fa-clock"></i></span>
                                     @else
-                                        <span class="status-icon">⚠</span>
+                                        <span class="status-icon"><i class="fas fa-exclamation-circle"></i></span>
                                     @endif
                                     {{ $statusLabel }}
                                 </span>
@@ -219,17 +219,17 @@
                                 <div class="action-buttons">
                                     <a href="{{ route('co-owner.payments.show', $payment->id) }}" class="btn-action view"
                                         title="Voir les détails">
-                                        👁️
+                                        <i class="fas fa-eye"></i>
                                     </a>
                                     @if ($payment->status === 'approved')
                                         <a href="{{ route('co-owner.payments.receipt', $payment->id) }}"
                                             class="btn-action pdf" title="Télécharger la quittance" target="_blank">
-                                            📄
+                                            <i class="fas fa-file-pdf"></i>
                                         </a>
                                         <button
                                             onclick="showSendReceiptModal({{ $payment->id }}, '{{ $payment->lease->tenant->user->full_name ?? ($payment->lease->tenant->user->name ?? 'Locataire') }}', '{{ $payment->lease->tenant->user->email ?? '' }}')"
                                             class="btn-action email" title="Envoyer la quittance par email">
-                                            ✉️
+                                            <i class="fas fa-envelope"></i>
                                         </button>
                                     @endif
                                 </div>
@@ -239,12 +239,12 @@
                         <tr>
                             <td colspan="8" class="empty-state">
                                 <div class="empty-state-content">
-                                    <span class="empty-icon">💰</span>
+                                    <span class="empty-icon"><i class="fas fa-wallet"></i></span>
                                     <h3>Aucun paiement trouvé</h3>
                                     <p>Aucun paiement ne correspond à vos critères de recherche.</p>
                                     <a href="{{ route('co-owner.payments.create') }}" class="btn-primary"
                                         style="background-color: #0b7dda; margin-top: 1rem; display: inline-flex;">
-                                        <span class="plus-icon">+</span>
+                                        <span class="plus-icon"><i class="fas fa-plus"></i></span>
                                         Enregistrer un paiement
                                     </a>
                                 </div>
@@ -267,7 +267,7 @@
     <div id="sendReceiptModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-icon email-icon">✉️</div>
+                <div class="modal-icon email-icon"><i class="fas fa-envelope"></i></div>
                 <h2>Envoyer la quittance</h2>
                 <button class="modal-close" onclick="closeModal('sendReceiptModal')">&times;</button>
             </div>
@@ -294,7 +294,7 @@
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal('sendReceiptModal')">Annuler</button>
                 <button class="btn-confirm" id="confirmSendReceiptBtn" onclick="confirmSendReceipt()">
-                    <span class="btn-icon">✉️</span>
+                    <span class="btn-icon"><i class="fas fa-envelope"></i></span>
                     Envoyer la quittance
                 </button>
             </div>
@@ -305,7 +305,7 @@
     <div id="exportModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-icon export-icon">📤</div>
+                <div class="modal-icon export-icon"><i class="fas fa-file-export"></i></div>
                 <h2>Exporter les paiements</h2>
                 <button class="modal-close" onclick="closeModal('exportModal')">&times;</button>
             </div>
@@ -317,7 +317,7 @@
                             <div class="radio-inner"></div>
                         </div>
                         <div class="option-content">
-                            <span class="option-icon">📊</span>
+                            <span class="option-icon"><i class="fas fa-chart-bar"></i></span>
                             <div class="option-text">
                                 <strong>CSV</strong>
                                 <span>Format tableur (Excel, LibreOffice)</span>
@@ -329,7 +329,7 @@
                             <div class="radio-inner"></div>
                         </div>
                         <div class="option-content">
-                            <span class="option-icon">📄</span>
+                            <span class="option-icon"><i class="fas fa-file-pdf"></i></span>
                             <div class="option-text">
                                 <strong>PDF</strong>
                                 <span>Format document (lecture seule)</span>
@@ -342,7 +342,7 @@
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal('exportModal')">Annuler</button>
                 <button class="btn-confirm" onclick="confirmExport()">
-                    <span class="btn-icon">📥</span>
+                    <span class="btn-icon"><i class="fas fa-download"></i></span>
                     Exporter
                 </button>
             </div>
@@ -351,7 +351,7 @@
 
     <!-- TOAST NOTIFICATION -->
     <div id="toast" class="toast">
-        <div class="toast-icon" id="toast-icon">✅</div>
+        <div class="toast-icon" id="toast-icon"><i class="fas fa-check-circle"></i></div>
         <div class="toast-content">
             <div class="toast-title" id="toast-title">Succès</div>
             <div class="toast-message" id="toast-message">Action effectuée avec succès</div>
@@ -362,6 +362,7 @@
     <!-- OVERLAY -->
     <div id="overlay" class="overlay" onclick="closeAllModals()"></div>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .payment-management {
             padding: 2rem;
@@ -371,38 +372,38 @@
         }
 
         .page-header h1 {
-            font-size: 2rem;
+            font-size: 2.4rem;
             font-weight: 700;
             color: #1a1a1a;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
 
         .subtitle {
             color: #666;
-            font-size: 1rem;
-            margin-bottom: 2rem;
+            font-size: 1.15rem;
+            margin-bottom: 2.5rem;
         }
 
         /* Tabs */
         .tabs-container {
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             border-bottom: 2px solid #e0e0e0;
         }
 
         .tabs {
             display: flex;
-            gap: 2rem;
+            gap: 2.5rem;
         }
 
         .tab {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
             padding: 1rem 0;
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 1.15rem;
             color: #666;
             position: relative;
             transition: color 0.3s;
@@ -426,7 +427,7 @@
         .badge {
             padding: 0.2rem 0.6rem;
             border-radius: 12px;
-            font-size: 0.75rem;
+            font-size: 0.9rem;
             font-weight: 600;
         }
 
@@ -445,27 +446,27 @@
             background: white;
             border: 1px solid #e0e0e0;
             border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
         }
 
         .filters-card h3 {
-            font-size: 0.875rem;
+            font-size: 1.15rem;
             font-weight: 600;
             color: #333;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             text-transform: uppercase;
         }
 
         .filters-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 2rem;
+            gap: 2.5rem;
         }
 
         .filter-group label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             font-weight: 500;
             color: #333;
         }
@@ -476,7 +477,7 @@
             border: 1px solid #70AE48;
             border-radius: 8px;
             background: white;
-            font-size: 0.9rem;
+            font-size: 1.05rem;
             color: #333;
             cursor: pointer;
             outline: none;
@@ -492,8 +493,8 @@
             background: white;
             border: 1px solid #e0e0e0;
             border-radius: 12px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem;
+            padding: 1.25rem 2rem;
+            margin-bottom: 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -515,15 +516,15 @@
             flex: 1;
             border: none;
             background: transparent;
-            font-size: 0.95rem;
+            font-size: 1.1rem;
             outline: none;
         }
 
         .btn-display {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
+            gap: 0.75rem;
+            padding: 0.875rem 1.75rem;
             border: 1px solid #70AE48;
             border-radius: 8px;
             background: white;
@@ -542,14 +543,14 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            gap: 2.5rem;
+            margin-bottom: 2.5rem;
         }
 
         .stat-card {
             background: #f8f9fa;
             border-radius: 16px;
-            padding: 1.5rem;
+            padding: 2rem;
             position: relative;
             overflow: hidden;
             border-left: 4px solid;
@@ -575,28 +576,28 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .stat-title {
-            font-size: 0.9rem;
+            font-size: 1.05rem;
             color: #666;
             font-weight: 500;
         }
 
         .stat-icon {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
         }
 
         .stat-amount {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 700;
             color: #1a1a1a;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
 
         .stat-meta {
-            font-size: 0.8rem;
+            font-size: 0.95rem;
             color: #999;
         }
 
@@ -607,15 +608,15 @@
         /* Actions Bar */
         .actions-bar {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
         }
 
         .btn-primary {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.875rem 1.5rem;
+            gap: 0.75rem;
+            padding: 1rem 1.75rem;
             background: #70AE48;
             color: white;
             border: none;
@@ -635,8 +636,8 @@
         .btn-secondary {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.875rem 1.5rem;
+            gap: 0.75rem;
+            padding: 1rem 1.75rem;
             background: white;
             color: #0b7dda;
             border: 1px solid #0b7dda;
@@ -659,7 +660,7 @@
             border: 1px solid #e0e0e0;
             border-radius: 12px;
             overflow-x: auto;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
 
         .payments-table {
@@ -670,15 +671,15 @@
 
         .payments-table th {
             text-align: left;
-            padding: 1rem;
+            padding: 1.25rem;
             font-weight: 600;
             color: #333;
             border-bottom: 2px solid #e0e0e0;
-            font-size: 0.9rem;
+            font-size: 1.05rem;
         }
 
         .payments-table td {
-            padding: 1rem;
+            padding: 1.25rem;
             border-bottom: 1px solid #f0f0f0;
             vertical-align: middle;
         }
@@ -709,7 +710,7 @@
         .tenant-info small,
         .property-info small {
             color: #999;
-            font-size: 0.8rem;
+            font-size: 0.95rem;
         }
 
         .amount {
@@ -722,9 +723,9 @@
             display: inline-flex;
             align-items: center;
             gap: 0.25rem;
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.25rem;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 1rem;
             font-weight: 600;
         }
 
@@ -751,7 +752,7 @@
         /* Action Buttons */
         .action-buttons {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
 
         .btn-action {
@@ -767,7 +768,7 @@
             color: #666;
             text-decoration: none;
             transition: all 0.3s;
-            font-size: 1rem;
+            font-size: 1.15rem;
         }
 
         .btn-action:hover {
@@ -804,23 +805,23 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
 
         .empty-icon {
             font-size: 3rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .empty-state h3 {
-            font-size: 1.2rem;
+            font-size: 1.45rem;
             color: #333;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
 
         .empty-state p {
             color: #999;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
 
         /* Pagination */
@@ -832,13 +833,13 @@
 
         .pagination-container .pagination {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.75rem;
             list-style: none;
             padding: 0;
         }
 
         .pagination-container .page-link {
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.25rem;
             border: 1px solid #e0e0e0;
             border-radius: 6px;
             color: #0b7dda;
@@ -873,7 +874,7 @@
 
         @media (max-width: 768px) {
             .payment-management {
-                padding: 1rem;
+                padding: 1.25rem;
             }
 
             .stats-grid {
@@ -882,7 +883,7 @@
 
             .filters-grid {
                 grid-template-columns: 1fr;
-                gap: 1rem;
+                gap: 1.25rem;
             }
 
             .actions-bar {
@@ -898,7 +899,7 @@
 
             .search-card {
                 flex-direction: column;
-                gap: 1rem;
+                gap: 1.25rem;
             }
 
             .search-box {
@@ -948,7 +949,7 @@
         .modal-header {
             display: flex;
             align-items: center;
-            padding: 1.5rem;
+            padding: 2rem;
             border-bottom: 1px solid #e0e0e0;
             position: relative;
         }
@@ -975,7 +976,7 @@
         }
 
         .modal-header h2 {
-            font-size: 1.25rem;
+            font-size: 1.8rem;
             font-weight: 600;
             color: #333;
             margin: 0;
@@ -987,7 +988,7 @@
             right: 1.5rem;
             background: none;
             border: none;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             color: #999;
             cursor: pointer;
             padding: 0;
@@ -1006,12 +1007,12 @@
         }
 
         .modal-body {
-            padding: 1.5rem;
+            padding: 2rem;
         }
 
         .modal-description {
             color: #666;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             line-height: 1.5;
         }
 
@@ -1034,14 +1035,14 @@
         .info-label {
             width: 100px;
             color: #666;
-            font-size: 0.9rem;
+            font-size: 1.05rem;
         }
 
         .info-value {
             flex: 1;
             color: #333;
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 1.05rem;
         }
 
         .modal-message {
@@ -1050,12 +1051,12 @@
 
         .modal-message p {
             color: #666;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             line-height: 1.5;
         }
 
         .modal-message p.small {
-            font-size: 0.85rem;
+            font-size: 1rem;
             color: #999;
         }
 
@@ -1063,14 +1064,14 @@
         .export-options {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.25rem;
             margin-top: 0.5rem;
         }
 
         .export-option {
             display: flex;
             align-items: center;
-            padding: 1rem;
+            padding: 1.25rem;
             border: 2px solid #e0e0e0;
             border-radius: 12px;
             cursor: pointer;
@@ -1119,7 +1120,7 @@
         .option-content {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 1.25rem;
             flex: 1;
         }
 
@@ -1138,20 +1139,20 @@
         }
 
         .option-text span {
-            font-size: 0.8rem;
+            font-size: 0.95rem;
             color: #999;
         }
 
         .modal-footer {
             display: flex;
             justify-content: flex-end;
-            gap: 1rem;
-            padding: 1.5rem;
+            gap: 1.25rem;
+            padding: 2rem;
             border-top: 1px solid #e0e0e0;
         }
 
         .btn-cancel {
-            padding: 0.75rem 1.5rem;
+            padding: 0.875rem 1.75rem;
             background: white;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
@@ -1169,8 +1170,8 @@
         .btn-confirm {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
+            gap: 0.75rem;
+            padding: 0.875rem 1.75rem;
             background: #0b7dda;
             border: none;
             border-radius: 8px;
@@ -1202,7 +1203,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             padding: 1.25rem;
             align-items: flex-start;
-            gap: 1rem;
+            gap: 1.25rem;
             z-index: 1001;
             animation: slideInRight 0.3s ease;
             border-left: 4px solid;
@@ -1230,7 +1231,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
+            font-size: 1.8rem;
         }
 
         .toast-content {
@@ -1244,7 +1245,7 @@
         }
 
         .toast-message {
-            font-size: 0.9rem;
+            font-size: 1.05rem;
             color: #666;
             line-height: 1.4;
         }
@@ -1254,7 +1255,7 @@
             border: none;
             color: #999;
             cursor: pointer;
-            font-size: 1.25rem;
+            font-size: 1.8rem;
             padding: 0;
             width: 24px;
             height: 24px;
@@ -1304,6 +1305,56 @@
                 transform: translateX(0);
             }
         }
+
+        /* Styles pour les icônes FontAwesome */
+        .fas, .fab, .far {
+            font-size: 1em;
+        }
+
+        .tab .fas {
+            font-size: 0.9em;
+        }
+
+        .stat-icon .fas {
+            font-size: 1.5rem;
+            color: inherit;
+        }
+
+        .status-badge .fas {
+            font-size: 0.85em;
+        }
+
+        .btn-action .fas {
+            font-size: 1.1rem;
+        }
+
+        .empty-icon .fas {
+            font-size: 3rem;
+            color: #70AE48;
+        }
+
+        .modal-icon .fas {
+            font-size: 1.5rem;
+        }
+
+        .toast-icon .fas {
+            font-size: 1.25rem;
+        }
+
+        .btn-icon .fas {
+            font-size: 1.1rem;
+        }
+
+        /* Couleurs des icônes */
+        .stat-icon .fa-money-bill-wave { color: #4CAF50; }
+        .stat-icon .fa-check-circle { color: #0b7dda; }
+        .stat-icon .fa-exclamation-triangle { color: #f44336; }
+        .stat-icon .fa-chart-bar { color: #FF9800; }
+
+        .status-paid .fa-check { color: white; }
+        .status-pending .fa-clock { color: white; }
+        .status-late .fa-exclamation-circle { color: white; }
+
     </style>
 
     <script>
@@ -1323,7 +1374,7 @@
             const propertyId = document.getElementById('property-filter').value;
             const perPage = document.getElementById('per-page').value;
             const search = document.getElementById('search-input').value;
-            const status = document.querySelector('.tab.active')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] ||
+            const status = document.querySelector('.tab.active')?.getAttribute('onclick')?.match(/'([^']<i class="fas fa-plus"></i>)'/)?.[1] ||
                 'active';
 
             const params = new URLSearchParams();
@@ -1332,7 +1383,7 @@
             if (search) params.append('search', search);
             if (status) params.append('status', status);
 
-            window.location.href = '{{ route('co-owner.payments.index') }}?' + params.toString();
+            window.location.href = '{{ route('co-owner.payments.index') }}?' <i class="fas fa-plus"></i> params.toString();
         }
 
         function resetFilters() {
@@ -1342,7 +1393,7 @@
         function switchTab(tab) {
             const params = new URLSearchParams(window.location.search);
             params.set('status', tab);
-            window.location.href = window.location.pathname + '?' + params.toString();
+            window.location.href = window.location.pathname <i class="fas fa-plus"></i> '?' <i class="fas fa-plus"></i> params.toString();
         }
 
         // FONCTIONS DE MODALE
@@ -1396,8 +1447,8 @@
         function confirmExport() {
             const format = document.getElementById('selected-format').value;
             closeModal('exportModal');
-            showToast('info', 'Export en cours', 'Génération du fichier ' + format.toUpperCase() + '...');
-            window.location.href = '{{ route('co-owner.payments.export') }}?format=' + format;
+            showToast('info', 'Export en cours', 'Génération du fichier ' <i class="fas fa-plus"></i> format.toUpperCase() <i class="fas fa-plus"></i> '...');
+            window.location.href = '{{ route('co-owner.payments.export') }}?format=' <i class="fas fa-plus"></i> format;
         }
 
         // FONCTION D'ENVOI DE QUITTANCE
@@ -1408,7 +1459,7 @@
             const originalText = confirmBtn.innerHTML;
 
             confirmBtn.disabled = true;
-            confirmBtn.innerHTML = '<span class="btn-icon">⏳</span> Envoi en cours...';
+            confirmBtn.innerHTML = '<span class="btn-icon"><i class="fas fa-clock"></i></span> Envoi en cours...';
 
             fetch(`/coproprietaire/paiements/${currentPaymentId}/send-receipt`, {
                     method: 'POST',
@@ -1448,17 +1499,17 @@
 
             const toast = document.getElementById('toast');
 
-            toast.className = 'toast ' + type;
+            toast.className = 'toast ' <i class="fas fa-plus"></i> type;
             document.getElementById('toast-title').textContent = title;
             document.getElementById('toast-message').textContent = message;
 
             const iconMap = {
-                success: '✅',
-                error: '❌',
-                warning: '⚠️',
-                info: 'ℹ️'
+                success: '<i class="fas fa-check-circle"></i>',
+                error: '<i class="fas fa-times-circle"></i>',
+                warning: '<i class="fas fa-exclamation-triangle"></i>',
+                info: '<i class="fas fa-info-circle"></i>'
             };
-            document.getElementById('toast-icon').textContent = iconMap[type] || '✅';
+            document.getElementById('toast-icon').textContent = iconMap[type] || '<i class="fas fa-check-circle"></i>';
 
             toast.style.display = 'flex';
 

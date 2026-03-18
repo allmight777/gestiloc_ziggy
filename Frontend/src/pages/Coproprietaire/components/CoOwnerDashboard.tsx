@@ -545,44 +545,7 @@ export const CoOwnerDashboard: React.FC<CoOwnerDashboardProps> = ({ onNavigate, 
         )}
       </div>
 
-      {/* Quick Actions Card */}
-      <div className="bg-gray-900 rounded-[2.5rem] p-8 shadow-2xl shadow-green-900/10 flex flex-col text-white relative group overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/10 rounded-full blur-3xl -mr-32 -mt-32" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-green-500/5 rounded-full blur-2xl -ml-24 -mb-24" />
-        
-        <div className="relative z-10">
-          <p className="text-[10px] font-black text-green-400 uppercase tracking-widest font-manrope mb-6">Actions rapides</p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <button 
-              onClick={() => onNavigate('delegations' as Tab)} 
-              className="flex items-center justify-between p-4 rounded-2xl bg-white/10 hover:bg-white/20 transition-all group/btn"
-            >
-              <span className="text-base font-black font-merriweather">Délégations</span>
-              <div className="w-10 h-10 rounded-xl bg-green-600 flex items-center justify-center group-hover/btn:scale-110 group-hover/btn:bg-green-500 transition-all shadow-lg shadow-green-900/50">
-                <HandshakeIcon className="text-white w-5 h-5" />
-              </div>
-            </button>
-            <button 
-              onClick={() => onNavigate('biens' as Tab)} 
-              className="flex items-center justify-between p-4 rounded-2xl bg-white/10 hover:bg-white/20 transition-all group/btn"
-            >
-              <span className="text-base font-black font-merriweather">Mes biens</span>
-              <div className="w-10 h-10 rounded-xl bg-green-600 flex items-center justify-center group-hover/btn:scale-110 group-hover/btn:bg-green-500 transition-all shadow-lg shadow-green-900/50">
-                <Home className="text-white w-5 h-5" />
-              </div>
-            </button>
-            <button 
-              onClick={() => onNavigate('finances' as Tab)} 
-              className="flex items-center justify-between p-4 rounded-2xl bg-white/10 hover:bg-white/20 transition-all group/btn"
-            >
-              <span className="text-base font-black font-merriweather">Finances</span>
-              <div className="w-10 h-10 rounded-xl bg-green-600 flex items-center justify-center group-hover/btn:scale-110 group-hover/btn:bg-green-500 transition-all shadow-lg shadow-green-900/50">
-                <CreditCard className="text-white w-5 h-5" />
-              </div>
-            </button>
-          </div>
-        </div>
-      </div>
+     
 
       <PropertyModal
         property={selectedProperty}

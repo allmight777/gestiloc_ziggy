@@ -790,7 +790,7 @@ export const leaseService = {
   },
 };
 
-// ================= ETATS DES LIEUX =================
+// ================= ETATS DES LIEUX (CONDITION REPORTS) =================
 
 export type ConditionStatus = 'good' | 'satisfactory' | 'poor' | 'damaged';
 
@@ -843,22 +843,16 @@ export interface CreateConditionReportPayload {
   signed_by?: string;
 }
 
+// ✅ SERVICE COMBINÉ - UNE SEULE DÉFINITION
 export const conditionReportService = {
+  // Méthodes spécifiques aux propriétés (pour les composants existants)
   listForProperty: async (
     propertyId: number | string
   ): Promise<PropertyConditionReport[]> => {
     await initializeCsrfToken();
-
     const response = await api.get<PropertyConditionReport[]>(
       `/properties/${propertyId}/condition-reports`
     );
-
-    return response.data;
-  },
-
-  listAll: async (): Promise<PropertyConditionReport[]> => {
-    await initializeCsrfToken();
-    const response = await api.get<PropertyConditionReport[]>('/condition-reports');
     return response.data;
   },
 
@@ -867,11 +861,9 @@ export const conditionReportService = {
     reportId: number | string
   ): Promise<PropertyConditionReport> => {
     await initializeCsrfToken();
-
     const response = await api.get<PropertyConditionReport>(
       `/properties/${propertyId}/condition-reports/${reportId}`
     );
-
     return response.data;
   },
 
@@ -951,6 +943,61 @@ export const conditionReportService = {
 
     return response.data;
   },
+
+  // ✅ NOUVELLES MÉTHODES POUR LE COMPOSANT CreateEtatDesLieux
+  listAll: async (params?: any): Promise<PropertyConditionReport[]> => {
+    await initializeCsrfToken();
+    const response = await api.get<PropertyConditionReport[]>('/landlord/condition-reports', { params });
+    return response.data;
+  },
+
+  get: async (id: string): Promise<PropertyConditionReport> => {
+    const response = await api.get(`/landlord/condition-reports/${id}`);
+    return response.data;
+  },
+
+  getProperties: async (): Promise<Property[]> => {
+    const response = await api.get('/landlord/condition-reports/properties');
+    return response.data;
+  },
+
+  getLeasesForProperty: async (propertyId: string): Promise<Lease[]> => {
+    const response = await api.get(`/landlord/condition-reports/leases/${propertyId}`);
+    return response.data;
+  },
+
+  create: async (data: FormData): Promise<{ success: boolean; message: string; report_id?: number }> => {
+    const response = await api.post('/landlord/condition-reports', data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  },
+
+  sign: async (id: string, signature: string): Promise<{ success: boolean; message: string; signed_at?: string }> => {
+    const response = await api.post(`/landlord/condition-reports/${id}/sign`, { signature });
+    return response.data;
+  },
+
+  uploadSigned: async (id: string, file: File): Promise<{ success: boolean; message: string }> => {
+    const formData = new FormData();
+    formData.append('signed_file', file);
+    const response = await api.post(`/landlord/condition-reports/${id}/upload-signed`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  },
+
+  downloadPdf: async (id: string): Promise<Blob> => {
+    const response = await api.get(`/landlord/condition-reports/${id}/download`, {
+      responseType: 'blob'
+    });
+    return response.data;
+  },
+
+  delete: async (id: string): Promise<{ success: boolean; message: string }> => {
+    const response = await api.delete(`/landlord/condition-reports/${id}`);
+    return response.data;
+  }
 };
 
 // ================= CONTRACT SERVICE =================

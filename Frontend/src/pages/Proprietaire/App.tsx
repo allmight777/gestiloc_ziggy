@@ -17,16 +17,18 @@ import AjouterLocataire from './components/AjouterLocataire';
 import IncidentDetail from './components/IncidentDetail';
 import NouvelleLocation from './components/NouvelleLocation';
 import CreerQuittance from './components/CreerQuittance';
+import EtatDesLieuxDetail from './components/EtatDesLieuxDetail';
 import { Settings } from './components/Settings';
 import { Lots } from './components/Lots';
 import { Immeubles } from './components/Immeubles';
 import CreerIntervention from './components/CreerIntervention';
 import { TenantsList } from './components/TenantsList';
+import CreateEtatDesLieux from './components/CreateEtatDesLieux';
 import CreatePreavis from './components/CreateNotice'; 
 import { Onboarding } from './components/Onboarding';
 import MesBiens from './components/MesBiens';
 import { Lease } from "./components/Lease";
-import EtatsLieux from './components/EtatsLieux';
+
 import { InviteCoOwner } from './components/InviteCoOwner';
 import { CoOwnersList } from './components/CoOwnersList';
 import {
@@ -258,8 +260,53 @@ const ProprietaireApp: React.FC = () => {
           </Layout>
         } />
 
+{/* Routes pour les états des lieux */}
+<Route path="etats-lieux" element={
+  <Layout
+    activeTab="etats-lieux"
+    onNavigate={handleNavigation}
+    toasts={toasts}
+    removeToast={removeToast}
+    onLogout={handleLogout}
+    isDarkMode={false}
+    toggleTheme={() => { }}
+    notify={notify}
+  >
+    <EtatsDesLieux notify={notify} />
+  </Layout>
+} />
 
+{/* Route pour le détail d'un état des lieux - PLACÉE AVANT la route "nouveau" */}
+<Route path="etats-lieux/:id" element={
+  <Layout
+    activeTab="etats-lieux"
+    onNavigate={handleNavigation}
+    toasts={toasts}
+    removeToast={removeToast}
+    onLogout={handleLogout}
+    isDarkMode={false}
+    toggleTheme={() => { }}
+    notify={notify}
+  >
+    <EtatDesLieuxDetail notify={notify} />
+  </Layout>
+} />
 
+{/* Route pour la création d'un état des lieux */}
+<Route path="etats-lieux/nouveau" element={
+  <Layout
+    activeTab="etats-lieux"
+    onNavigate={handleNavigation}
+    toasts={toasts}
+    removeToast={removeToast}
+    onLogout={handleLogout}
+    isDarkMode={false}
+    toggleTheme={() => { }}
+    notify={notify}
+  >
+    <CreateEtatDesLieux notify={notify} />
+  </Layout>
+} />
 <Route path="preavis/:id" element={
   <Layout
     activeTab="preavis"

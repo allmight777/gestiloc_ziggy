@@ -1,26 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Settings, Loader2, Camera } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Search, Settings, Loader2, Camera, Download, Eye, MoreVertical } from 'lucide-react';
 import { conditionReportService } from '@/services/api';
 
 interface EdlData {
     id: string;
+    type: string;
     typeBadge: string;
     typeBadgeColor: string;
-    titre: string;
-    bien: string;
-    locataire: string;
-    date: string;
-    etatGeneral: string;
-    signe: string;
-    photos: number;
-    creeLe: string;
+    title: string;
+    property_name: string;
+    tenant_name: string;
+    report_date_formatted: string;
+    general_condition: string;
+    is_signed: boolean;
+    photos_count: number;
+    created_at_formatted: string;
 }
 
-// Les données seront chargées depuis l'API
+interface Property {
+    id: number;
+    name: string;
+    address: string;
+}
+
 const TYPE_CONFIG: Record<string, { label: string, color: string }> = {
-    'entry': { label: 'ÉTAT DES LIEUX D\'ENTRÉE', color: '#83C757' },
+    'entry': { label: 'ÉTAT DES LIEUX D\'ENTRÉE', color: '#70AE48' },
     'exit': { label: 'ÉTAT DES LIEUX DE SORTIE', color: '#ef4444' },
-    'intermediate': { label: 'ÉTAT DES LIEUX INTERMÉDIARE', color: '#3b82f6' },
+    'intermediate': { label: 'ÉTAT DES LIEUX INTERMÉDIAIRE', color: '#3b82f6' },
 };
 
 interface EtatsDesLieuxProps {
@@ -28,34 +35,61 @@ interface EtatsDesLieuxProps {
 }
 
 const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
-    const [activeFilter, setActiveFilter] = useState('Tous');
+    const navigate = useNavigate();
+    const [activeFilter, setActiveFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const [propertyFilter, setPropertyFilter] = useState('');
     const [edlList, setEdlList] = useState<EdlData[]>([]);
+    const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
+    const [pagination, setPagination] = useState({
+        current_page: 1,
+        last_page: 1,
+        per_page: 15,
+        total: 0
+    });
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const data = await conditionReportService.listAll();
-            const mapped = (data || []).map((e: any) => {
-                const config = TYPE_CONFIG[e.type] || { label: e.type.toUpperCase(), color: '#6b7280' };
-                const tenantName = e.lease?.tenant ? `${e.lease.tenant.first_name || ''} ${e.lease.tenant.last_name || ''}` : 'Sans locataire';
+            const params: any = {
+                page: pagination.current_page,
+                per_page: pagination.per_page
+            };
+            
+            if (activeFilter !== 'all') params.type = activeFilter;
+            if (propertyFilter) params.property_id = propertyFilter;
+            if (searchTerm) params.search = searchTerm;
 
-                return {
-                    id: String(e.id),
-                    typeBadge: config.label,
-                    typeBadgeColor: config.color,
-                    titre: `EDL - ${tenantName.trim()}`,
-                    bien: e.property?.name || e.property?.address || 'Bien inconnu',
-                    locataire: tenantName.trim(),
-                    date: new Date(e.report_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }),
-                    etatGeneral: e.notes ? (e.notes.length > 20 ? e.notes.substring(0, 20) + '...' : e.notes) : 'Non renseigné',
-                    signe: e.signed_at ? '✓ Oui' : '⏳ En attente',
-                    photos: e.photos_count || (e.photos ? e.photos.length : 0),
-                    creeLe: `Créé le ${new Date(e.created_at).toLocaleDateString('fr-FR')}`,
-                };
-            });
+            const response = await conditionReportService.listAll(params);
+            
+            // La réponse peut être directement un tableau ou un objet avec data
+            const reports = response.data || response || [];
+            
+            const mapped = reports.map((e: any) => ({
+                id: String(e.id),
+                type: e.type,
+                typeBadge: e.type_label || TYPE_CONFIG[e.type]?.label || e.type.toUpperCase(),
+                typeBadgeColor: e.type_color || TYPE_CONFIG[e.type]?.color || '#6b7280',
+                title: e.title || `EDL - ${e.tenant_name || 'Sans locataire'}`,
+                property_name: e.property_name || 'Bien inconnu',
+                tenant_name: e.tenant_name || 'Sans locataire',
+                report_date_formatted: e.report_date_formatted || new Date(e.report_date).toLocaleDateString('fr-FR'),
+                general_condition: e.general_condition || 'Non évalué',
+                is_signed: e.is_signed || false,
+                photos_count: e.photos_count || 0,
+                created_at_formatted: e.created_at_formatted || new Date(e.created_at).toLocaleDateString('fr-FR'),
+            }));
+
             setEdlList(mapped);
+            
+            if (response.pagination) {
+                setPagination(response.pagination);
+            }
+
+            // Charger les propriétés pour le filtre
+            await fetchProperties();
+
         } catch (error) {
             console.error('Erreur EDL:', error);
             notify('Erreur lors du chargement des états des lieux', 'error');
@@ -64,162 +98,624 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
         }
     };
 
+    const fetchProperties = async () => {
+        try {
+            const props = await conditionReportService.getProperties();
+            setProperties(props || []);
+        } catch (error) {
+            console.error('Erreur chargement propriétés:', error);
+        }
+    };
+
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [activeFilter, propertyFilter, searchTerm, pagination.current_page]);
 
-    const filtered = edlList.filter(e => {
-        const matchSearch = e.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            e.bien.toLowerCase().includes(searchTerm.toLowerCase());
-        if (activeFilter === 'Entrée') return matchSearch && e.typeBadge.includes('ENTRÉE');
-        if (activeFilter === 'Sortie') return matchSearch && e.typeBadge.includes('SORTIE');
-        return matchSearch;
-    });
+    const handleFilterChange = (type: string) => {
+        setActiveFilter(type);
+        setPagination(prev => ({ ...prev, current_page: 1 }));
+    };
+
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+        setPagination(prev => ({ ...prev, current_page: 1 }));
+    };
+
+    const handlePropertyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setPropertyFilter(e.target.value);
+        setPagination(prev => ({ ...prev, current_page: 1 }));
+    };
+
+    const handleView = (id: string) => {
+        navigate(`/proprietaire/etats-lieux/${id}`); 
+    };
+
+    const handleDownload = async (id: string) => {
+        try {
+            const blob = await conditionReportService.downloadPdf(id);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `etat-des-lieux-${id}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            notify('PDF téléchargé avec succès', 'success');
+        } catch (error) {
+            console.error('Erreur téléchargement:', error);
+            notify('Erreur lors du téléchargement', 'error');
+        }
+    };
 
     return (
-        <>
+        <div className="condition-reports-container">
             <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Manrope:wght@400;500;600;700;800&display=swap');
-        .edl-page { padding: 1.5rem 1rem 3rem; font-family: 'Manrope', sans-serif; color: #1a1a1a; width: 100%; box-sizing: border-box; }
-        .edl-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; }
-        .edl-title { font-family: 'Merriweather', serif; font-size: 1.55rem; font-weight: 900; margin: 0 0 6px 0; }
-        .edl-subtitle { font-size: 0.82rem; font-weight: 500; color: #6b7280; margin: 0; font-style: italic; }
-        .edl-add-btn { display: inline-flex; align-items: center; gap: 6px; background: #83C757; color: #fff; border: none; border-radius: 12px; padding: 10px 22px; font-family: 'Manrope', sans-serif; font-size: 0.85rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
-        .edl-add-btn:hover { background: #72b44a; }
+                .condition-reports-container {
+                    padding: 2rem;
+                    max-width: 1400px;
+                    margin: 0 auto;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                }
 
-        .edl-filters-bar { display: inline-flex; align-items: center; gap: 6px; background: rgba(243, 243, 243, 1); border-radius: 28px; padding: 5px 8px; margin-bottom: 1.25rem; }
-        .edl-filter-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 22px; border-radius: 20px; border: none; font-family: 'Manrope', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.15s; background: transparent; color: #374151; }
-        .edl-filter-btn.active { background: #83C757; color: #fff; }
-        .edl-filter-icon { width: 22px; height: 22px; object-fit: contain; }
+                .header-section {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    margin-bottom: 2rem;
+                }
 
-        .edl-card { background: #fff; border: 1.5px solid #d6e4d6; border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
-        .edl-filter-title { font-size: 0.72rem; font-weight: 800; color: #4b5563; letter-spacing: 0.06em; margin: 0 0 14px 0; }
-        .edl-select { width: 100%; padding: 0.6rem 2.2rem 0.6rem 0.85rem; border: 1.5px solid #d1d5db; border-radius: 10px; font-size: 0.82rem; font-family: 'Manrope', sans-serif; font-weight: 500; color: #6b7280; background: #fff; outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%239CA3AF' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; cursor: pointer; box-sizing: border-box; }
-        .edl-search-row { display: flex; gap: 12px; align-items: stretch; }
-        .edl-search-wrap { flex: 1; position: relative; }
-        .edl-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #83C757; pointer-events: none; }
-        .edl-search-input { width: 100%; padding: 0.65rem 0.85rem 0.65rem 2.6rem; border: 1.5px solid #83C757; border-radius: 10px; font-size: 0.85rem; font-family: 'Manrope', sans-serif; font-weight: 500; color: #83C757; background: #fff; outline: none; box-sizing: border-box; }
-        .edl-search-input::placeholder { color: #83C757; font-weight: 600; }
-        .edl-btn-display { display: inline-flex; align-items: center; gap: 6px; padding: 0 18px; border-radius: 10px; border: 1.5px solid #d1d5db; background: #fff; font-family: 'Manrope', sans-serif; font-size: 0.82rem; font-weight: 700; color: #374151; cursor: pointer; }
+                .header-content h1 {
+                    font-size: 2rem;
+                    font-weight: 700;
+                    color: #1f2937;
+                    margin: 0 0 0.5rem 0;
+                }
 
-        .edl-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-        .edl-item { background: #fff; border: 1.5px solid #e5e7eb; border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; border-left: 4px solid #e5e7eb; }
-        .edl-item.entree { border-left: 4px solid #83C757; }
-        .edl-item.sortie { border-left: 4px solid #ef4444; }
-        .edl-item-top { padding: 1.1rem 1.3rem 0.7rem; }
-        .edl-type-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 8px; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.04em; margin-bottom: 10px; }
-        .edl-badge-icon { width: 14px; height: 14px; object-fit: contain; }
-        .edl-item-titre { font-size: 0.95rem; font-weight: 800; color: #1a1a1a; margin: 0 0 4px 0; }
-        .edl-item-bien { font-size: 0.75rem; color: #ef4444; font-weight: 500; display: flex; align-items: center; gap: 4px; margin: 0 0 14px 0; }
-        .edl-detail-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
-        .edl-detail-label { font-size: 0.62rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 2px 0; }
-        .edl-detail-value { font-size: 0.82rem; font-weight: 700; color: #1a1a1a; margin: 0; }
-        .edl-photos { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; background: #f3f4f6; font-size: 0.75rem; font-weight: 600; color: #6b7280; margin-top: 6px; }
-        .edl-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 1.3rem; border-top: 1px solid #f3f4f6; margin-top: auto; }
-        .edl-footer-date { font-size: 0.72rem; color: #9ca3af; font-weight: 500; }
-        .edl-footer-actions { display: flex; gap: 8px; align-items: center; }
-        .edl-action-btn { background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
-        .edl-action-btn img { width: 20px; height: 20px; object-fit: contain; }
-        .edl-action-dots { background: none; border: none; cursor: pointer; padding: 4px; font-size: 1.1rem; color: #9ca3af; line-height: 1; }
+                .header-description {
+                    color: #6b7280;
+                    font-size: 1rem;
+                    line-height: 1.5;
+                    margin: 0;
+                }
 
-        @media (max-width: 1400px) { .edl-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 1024px) { .edl-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 640px) { .edl-grid { grid-template-columns: 1fr; } .edl-header { flex-direction: column; gap: 12px; } }
-        @media (max-width: 480px) { .edl-page { padding: 1rem 0.5rem 2rem; } .edl-title { font-size: 1.3rem; } .edl-filters { gap: 6px; } .edl-filter-btn { padding: 6px 14px; font-size: 0.75rem; } }
-      `}</style>
+                .create-btn {
+                    background: #70AE48;
+                    color: white;
+                    padding: 0.875rem 2rem;
+                    border-radius: 2rem;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    border: none;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    text-decoration: none;
+                }
 
-            <div className="edl-page">
-                <div className="edl-header">
-                    <div>
-                        <h1 className="edl-title">Etats des lieux</h1>
-                        <p className="edl-subtitle">Documentez l'état de vos biens avec photos et descriptions détaillées. Générez des PDF professionnels en quelques clics.</p>
+                .create-btn:hover {
+                    background: #5a8f3a;
+                    transform: translateY(-1px);
+                }
+
+                .tabs-container {
+                    background: #f3f4f6;
+                    border-radius: 0.75rem;
+                    padding: 0.375rem;
+                    display: inline-flex;
+                    gap: 0.5rem;
+                    margin-bottom: 2rem;
+                }
+
+                .tab-btn {
+                    padding: 0.75rem 1.5rem;
+                    border-radius: 0.5rem;
+                    border: none;
+                    background: transparent;
+                    color: #6b7280;
+                    font-weight: 600;
+                    font-size: 1rem;
+                    transition: all 0.2s ease;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+
+                .tab-btn.active {
+                    background: #70AE48;
+                    color: white;
+                }
+
+                .tab-btn:not(.active):hover {
+                    color: #70AE48;
+                }
+
+                .filter-section {
+                    background: white;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 1rem;
+                    padding: 1.5rem;
+                    margin-bottom: 2rem;
+                }
+
+                .filter-title {
+                    font-size: 0.875rem;
+                    font-weight: 600;
+                    color: #374151;
+                    margin-bottom: 1rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.025em;
+                }
+
+                .property-select {
+                    width: 100%;
+                    padding: 0.875rem 1rem;
+                    border: 1px solid #70AE48;
+                    border-radius: 0.75rem;
+                    font-size: 0.95rem;
+                    color: #6b7280;
+                    margin-bottom: 1rem;
+                    background: white;
+                    cursor: pointer;
+                    appearance: none;
+                    background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 4.5L6 8L9.5 4.5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+                    background-repeat: no-repeat;
+                    background-position: right 1rem center;
+                }
+
+                .filter-row {
+                    display: flex;
+                    gap: 1rem;
+                    align-items: center;
+                }
+
+                .search-input-wrapper {
+                    position: relative;
+                    flex: 1;
+                }
+
+                .search-input {
+                    width: 100%;
+                    padding: 0.875rem 1rem 0.875rem 2.5rem;
+                    border: 1px solid #70AE48;
+                    border-radius: 0.75rem;
+                    font-size: 0.95rem;
+                    color: #374151;
+                    background: white;
+                }
+
+                .search-input:focus {
+                    outline: none;
+                    border-color: #5a8f3a;
+                }
+
+                .search-icon {
+                    position: absolute;
+                    left: 0.875rem;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #70AE48;
+                    width: 18px;
+                    height: 18px;
+                }
+
+                .display-btn {
+                    padding: 0.875rem 1.25rem;
+                    border: 1px solid #70AE48;
+                    background: white;
+                    color: #374151;
+                    border-radius: 0.75rem;
+                    font-weight: 500;
+                    font-size: 0.95rem;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    white-space: nowrap;
+                }
+
+                .reports-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 1.5rem;
+                }
+
+                .report-card {
+                    background: white;
+                    border-radius: 1rem;
+                    overflow: hidden;
+                    transition: all 0.2s ease;
+                    border: 1px solid #e5e7eb;
+                    border-left: 4px solid transparent;
+                }
+
+                .report-card.entry {
+                    border-left-color: #70AE48;
+                }
+
+                .report-card.exit {
+                    border-left-color: #ef4444;
+                }
+
+                .report-card.intermediate {
+                    border-left-color: #3b82f6;
+                }
+
+                .report-card:hover {
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                }
+
+                .report-header {
+                    padding: 1.5rem;
+                    border-bottom: 1px solid #f3f4f6;
+                }
+
+                .report-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    padding: 0.375rem 0.75rem;
+                    border-radius: 0.375rem;
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.025em;
+                    margin-bottom: 0.75rem;
+                }
+
+                .report-badge.entry {
+                    background: #ecfdf5;
+                    color: #059669;
+                }
+
+                .report-badge.exit {
+                    background: #fef2f2;
+                    color: #dc2626;
+                }
+
+                .report-badge.intermediate {
+                    background: #eff6ff;
+                    color: #2563eb;
+                }
+
+                .report-title {
+                    font-size: 1.25rem;
+                    font-weight: 700;
+                    color: #111827;
+                    margin-bottom: 0.5rem;
+                }
+
+                .report-location {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    color: #70AE48;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                }
+
+                .report-body {
+                    padding: 1.5rem;
+                }
+
+                .report-info-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 1rem 2rem;
+                    margin-bottom: 1rem;
+                }
+
+                .info-item {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.25rem;
+                }
+
+                .info-label {
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                    color: #9ca3af;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                }
+
+                .info-value {
+                    font-size: 1rem;
+                    font-weight: 600;
+                    color: #111827;
+                }
+
+                .photo-count {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    padding: 0.5rem 0.875rem;
+                    background: #f9fafb;
+                    border-radius: 0.5rem;
+                    font-size: 0.9rem;
+                    color: #374151;
+                }
+
+                .report-footer {
+                    padding: 0.875rem 1.5rem;
+                    background: #f9fafb;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-top: 1px solid #f3f4f6;
+                }
+
+                .creation-date {
+                    font-size: 0.85rem;
+                    color: #6b7280;
+                }
+
+                .action-buttons {
+                    display: flex;
+                    gap: 0.5rem;
+                }
+
+                .action-btn {
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 0.5rem;
+                    border: none;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    background: transparent;
+                    color: #6b7280;
+                }
+
+                .action-btn:hover {
+                    background: #e5e7eb;
+                }
+
+                .action-btn.download:hover {
+                    color: #70AE48;
+                }
+
+                .action-btn.view:hover {
+                    color: #3b82f6;
+                }
+
+                .empty-state {
+                    text-align: center;
+                    padding: 4rem 2rem;
+                    background: white;
+                    border-radius: 1rem;
+                    border: 2px dashed #e5e7eb;
+                    grid-column: 1 / -1;
+                }
+
+                .empty-icon {
+                    width: 64px;
+                    height: 64px;
+                    background: #f0f9eb;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 1.5rem;
+                }
+
+                .pagination-container {
+                    margin-top: 2rem;
+                    display: flex;
+                    justify-content: center;
+                    gap: 0.5rem;
+                }
+
+                .pagination-btn {
+                    padding: 0.5rem 1rem;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 0.5rem;
+                    background: white;
+                    color: #6b7280;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+
+                .pagination-btn.active {
+                    background: #70AE48;
+                    color: white;
+                    border-color: #70AE48;
+                }
+
+                @media (max-width: 1024px) {
+                    .reports-grid {
+                        grid-template-columns: 1fr;
+                    }
+                }
+            `}</style>
+
+            {/* Header */}
+            <div className="header-section">
+                <div className="header-content">
+                    <h1>États des lieux</h1>
+                    <p className="header-description">
+                        Documentez l'état de vos biens avec photos et descriptions détaillées.
+                    </p>
+                </div>
+                <button className="create-btn" onClick={() => navigate('/proprietaire/etats-lieux/nouveau')}>
+                    <Plus size={18} />
+                    Créer un état de lieu
+                </button>
+            </div>
+
+            {/* Tabs */}
+            <div className="tabs-container">
+                <button className={`tab-btn ${activeFilter === 'all' ? 'active' : ''}`} onClick={() => handleFilterChange('all')}>
+                    Tous
+                </button>
+                <button className={`tab-btn ${activeFilter === 'entry' ? 'active' : ''}`} onClick={() => handleFilterChange('entry')}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 5v14M5 12l7-7 7 7"/>
+                    </svg>
+                    Entrée
+                </button>
+                <button className={`tab-btn ${activeFilter === 'exit' ? 'active' : ''}`} onClick={() => handleFilterChange('exit')}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 5v14M5 12l7 7 7-7"/>
+                    </svg>
+                    Sortie
+                </button>
+            </div>
+
+            {/* Filters */}
+            <div className="filter-section">
+                <h3 className="filter-title">Filtrer par bien</h3>
+
+                <select className="property-select" value={propertyFilter} onChange={handlePropertyChange}>
+                    <option value="">Tous les biens</option>
+                    {properties.map((prop) => (
+                        <option key={prop.id} value={prop.id}>{prop.name}</option>
+                    ))}
+                </select>
+
+                <div className="filter-row">
+                    <div className="search-input-wrapper">
+                        <Search size={18} className="search-icon" />
+                        <input 
+                            className="search-input" 
+                            placeholder="Rechercher locataire, bien..." 
+                            value={searchTerm} 
+                            onChange={handleSearch}
+                        />
                     </div>
-                    <button className="edl-add-btn" onClick={() => notify('Création état des lieux à venir', 'info')}>
-                        <Plus size={15} /> Créer un nouvel etat de lieu
+                    <button className="display-btn">
+                        <Settings size={16} />
+                        Affichage
                     </button>
-                </div>
-
-                {/* Barre de filtres dans un rectangle gris arrondi */}
-                <div className="edl-filters-bar">
-                    <button className={`edl-filter-btn ${activeFilter === 'Tous' ? 'active' : ''}`} onClick={() => setActiveFilter('Tous')}>
-                        Tous
-                    </button>
-                    <button className={`edl-filter-btn ${activeFilter === 'Entrée' ? 'active' : ''}`} onClick={() => setActiveFilter('Entrée')}>
-                        <img src="/Ressource_gestiloc/entree.png" alt="" className="edl-filter-icon" /> Entrée
-                    </button>
-                    <button className={`edl-filter-btn ${activeFilter === 'Sortie' ? 'active' : ''}`} onClick={() => setActiveFilter('Sortie')}>
-                        <img src="/Ressource_gestiloc/sortie.png" alt="" className="edl-filter-icon" /> Sortie
-                    </button>
-                </div>
-
-                <div className="edl-card">
-                    <p className="edl-filter-title">FILTRER PAR BIEN</p>
-                    <select className="edl-select"><option>Tous les biens</option></select>
-                </div>
-
-                <div className="edl-card">
-                    <div className="edl-search-row">
-                        <div className="edl-search-wrap">
-                            <Search size={16} className="edl-search-icon" />
-                            <input className="edl-search-input" placeholder="Rechercher" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-                        </div>
-                        <button className="edl-btn-display"><Settings size={15} /> Affichage</button>
-                    </div>
-                </div>
-
-                <div className="edl-grid">
-                    {loading ? (
-                        <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '3rem' }}>
-                            <Loader2 className="animate-spin" size={32} color="#83C757" />
-                            <p style={{ marginTop: '1rem', color: '#6b7280', fontWeight: 600 }}>Chargement des états des lieux...</p>
-                        </div>
-                    ) : filtered.length > 0 ? (
-                        filtered.map(e => {
-                            const isEntree = e.typeBadge.includes('ENTRÉE');
-                            return (
-                                <div className={`edl-item ${isEntree ? 'entree' : 'sortie'}`} key={e.id}>
-                                    <div className="edl-item-top">
-                                        <span className="edl-type-badge" style={{ background: e.typeBadgeColor + '20', color: e.typeBadgeColor }}>
-                                            <img src={isEntree ? '/Ressource_gestiloc/entree.png' : '/Ressource_gestiloc/sortie.png'} alt="" className="edl-badge-icon" />
-                                            {e.typeBadge}
-                                        </span>
-                                        <p className="edl-item-titre">{e.titre}</p>
-                                        <p className="edl-item-bien">📍 {e.bien}</p>
-                                        <div className="edl-detail-row">
-                                            <div><p className="edl-detail-label">Locataire</p><p className="edl-detail-value">{e.locataire}</p></div>
-                                            <div><p className="edl-detail-label">Date</p><p className="edl-detail-value">{e.date}</p></div>
-                                        </div>
-                                        <div className="edl-detail-row">
-                                            <div><p className="edl-detail-label">État général</p><p className="edl-detail-value">{e.etatGeneral}</p></div>
-                                            <div><p className="edl-detail-label">Signé</p><p className="edl-detail-value">{e.signe}</p></div>
-                                        </div>
-                                        <div className="edl-photos">📷 {e.photos} photos</div>
-                                    </div>
-                                    <div className="edl-footer">
-                                        <span className="edl-footer-date">{e.creeLe}</span>
-                                        <div className="edl-footer-actions">
-                                            <button className="edl-action-btn" title="Télécharger">📥</button>
-                                            <button className="edl-action-btn" title="Modifier">✏️</button>
-                                            <button className="edl-action-dots" title="Plus">⋮</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })
-                    ) : (
-                        <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem 2rem', background: '#fff', borderRadius: '18px', border: '2px dashed #e5e7eb' }}>
-                            <div style={{ width: '64px', height: '64px', background: '#f0f9eb', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
-                                <Camera size={32} color="#83C757" />
-                            </div>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '0.5rem' }}>Aucun état des lieux</h3>
-                            <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
-                                Vous n'avez pas encore d'états des lieux enregistrés.
-                            </p>
-                        </div>
-                    )}
                 </div>
             </div>
-        </>
+
+            {/* Reports Grid */}
+            {loading ? (
+                <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+                    <Loader2 className="animate-spin" size={40} color="#70AE48" style={{ margin: '0 auto' }} />
+                    <p style={{ marginTop: '1rem', color: '#6b7280' }}>Chargement des états des lieux...</p>
+                </div>
+            ) : edlList.length > 0 ? (
+                <>
+                    <div className="reports-grid">
+                        {edlList.map((report) => (
+                            <div className={`report-card ${report.type}`} key={report.id}>
+                                <div className="report-header">
+                                    <div className={`report-badge ${report.type}`}>
+                                        {report.type === 'entry' ? '→' : report.type === 'exit' ? '←' : '↔'}
+                                        {report.typeBadge}
+                                    </div>
+                                    <h3 className="report-title">{report.title}</h3>
+                                    <div className="report-location">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                            <circle cx="12" cy="10" r="3"/>
+                                        </svg>
+                                        {report.property_name}
+                                    </div>
+                                </div>
+
+                                <div className="report-body">
+                                    <div className="report-info-grid">
+                                        <div className="info-item">
+                                            <span className="info-label">Locataire</span>
+                                            <span className="info-value">{report.tenant_name}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="info-label">Date</span>
+                                            <span className="info-value">{report.report_date_formatted}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="info-label">État</span>
+                                            <span className="info-value">{report.general_condition}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="info-label">Signé</span>
+                                            <span className="info-value">{report.is_signed ? '✓ Oui' : '✗ Non'}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="photo-count">
+                                        <Camera size={16} />
+                                        <span>{report.photos_count} photos</span>
+                                    </div>
+                                </div>
+
+                                <div className="report-footer">
+                                    <span className="creation-date">Créé le {report.created_at_formatted}</span>
+                                    <div className="action-buttons">
+                                        <button 
+                                            className="action-btn download" 
+                                            title="Télécharger PDF"
+                                            onClick={() => handleDownload(report.id)}
+                                        >
+                                            <Download size={16} />
+                                        </button>
+                                        <button 
+                                            className="action-btn view" 
+                                            title="Voir"
+                                            onClick={() => handleView(report.id)}
+                                        >
+                                            <Eye size={16} />
+                                        </button>
+
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Pagination */}
+                    {pagination.last_page > 1 && (
+                        <div className="pagination-container">
+                            <button 
+                                className="pagination-btn"
+                                disabled={pagination.current_page === 1}
+                                onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page - 1 }))}
+                            >
+                                Précédent
+                            </button>
+                            {[...Array(pagination.last_page)].map((_, i) => (
+                                <button
+                                    key={i + 1}
+                                    className={`pagination-btn ${pagination.current_page === i + 1 ? 'active' : ''}`}
+                                    onClick={() => setPagination(prev => ({ ...prev, current_page: i + 1 }))}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                            <button 
+                                className="pagination-btn"
+                                disabled={pagination.current_page === pagination.last_page}
+                                onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page + 1 }))}
+                            >
+                                Suivant
+                            </button>
+                        </div>
+                    )}
+                </>
+            ) : (
+                <div className="empty-state">
+                    <div className="empty-icon">
+                        <Camera size={32} color="#70AE48" />
+                    </div>
+                    <h3 className="empty-title">Aucun état des lieux</h3>
+                    <p className="empty-description">
+                        Vous n'avez pas encore d'états des lieux enregistrés.
+                    </p>
+                    <button className="create-btn" onClick={() => navigate('/proprietaire/etats-des-lieux/nouveau')}>
+                        <Plus size={18} />
+                        Créer un état des lieux
+                    </button>
+                </div>
+            )}
+        </div>
     );
 };
 

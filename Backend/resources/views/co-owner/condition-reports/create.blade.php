@@ -6,9 +6,9 @@
 <style>
     /* Variables et reset */
     .create-container {
-        max-width: 1280px;
+        max-width: 1400px;
         margin: 0 auto;
-        padding: 2rem 1.5rem;
+        padding: 3rem 2rem;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
@@ -16,8 +16,8 @@
     .create-header {
         background: #70AE48;
         border-radius: 24px;
-        padding: 2rem 2.5rem;
-        margin-bottom: 2rem;
+        padding: 2.5rem 3rem;
+        margin-bottom: 2.5rem;
         box-shadow: 0 20px 25px -5px rgba(112, 174, 72, 0.2);
         display: flex;
         align-items: center;
@@ -27,13 +27,13 @@
     .header-left {
         display: flex;
         align-items: center;
-        gap: 1.5rem;
+        gap: 2rem;
     }
 
     .header-icon {
         background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(8px);
-        padding: 1rem;
+        padding: 1.5rem;
         border-radius: 18px;
     }
 
@@ -44,7 +44,7 @@
     }
 
     .header-title h1 {
-        font-size: 2rem;
+        font-size: 2.4rem;
         font-weight: 700;
         color: white;
         margin: 0 0 0.5rem 0;
@@ -54,21 +54,21 @@
     .header-title p {
         color: rgba(255, 255, 255, 0.9);
         margin: 0;
-        font-size: 0.95rem;
+        font-size: 1.15rem;
     }
 
     .btn-back {
         background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(8px);
-        padding: 0.875rem 1.75rem;
+        padding: 1.1rem 2rem;
         border-radius: 14px;
         color: white;
         text-decoration: none;
-        font-size: 0.95rem;
+        font-size: 1.15rem;
         font-weight: 500;
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 1rem;
         transition: all 0.2s;
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
@@ -93,7 +93,7 @@
     }
 
     .form-section {
-        padding: 2rem 2.5rem;
+        padding: 2.5rem 3rem;
         border-bottom: 1px solid #f3f4f6;
     }
 
@@ -104,8 +104,8 @@
     .section-header {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        margin-bottom: 2rem;
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
     }
 
     .section-icon {
@@ -122,7 +122,7 @@
     }
 
     .section-header h2 {
-        font-size: 1.35rem;
+        font-size: 1.6rem;
         font-weight: 600;
         color: #111827;
         margin: 0;
@@ -131,38 +131,38 @@
     .section-header p {
         margin: 0.25rem 0 0 0;
         color: #6b7280;
-        font-size: 0.9rem;
+        font-size: 1.1rem;
     }
 
     /* Grid */
     .form-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
+        gap: 2rem;
     }
 
     .form-grid-3 {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-        margin-top: 1.5rem;
+        gap: 2rem;
+        margin-top: 2rem;
     }
 
     .form-group {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 1rem;
     }
 
     .form-label {
-        font-size: 0.85rem;
+        font-size: 1.2rem;
         font-weight: 600;
         color: #374151;
         text-transform: uppercase;
         letter-spacing: 0.025em;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 1rem;
     }
 
     .form-label svg {
@@ -178,11 +178,11 @@
 
     .form-select, .form-input, .form-textarea {
         width: 100%;
-        padding: 0.875rem 1rem;
+        padding: 1.2rem 1.5rem;
         background: #f9fafb;
         border: 2px solid #e5e7eb;
         border-radius: 14px;
-        font-size: 0.95rem;
+        font-size: 1.15rem;
         color: #1f2937;
         transition: all 0.2s;
         font-family: inherit;
@@ -221,10 +221,10 @@
         border-left: 4px solid #70AE48;
         border-radius: 14px;
         padding: 1rem 1.5rem;
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
         display: flex;
         align-items: flex-start;
-        gap: 1rem;
+        gap: 1.5rem;
     }
 
     .info-banner svg {
@@ -238,7 +238,7 @@
     .info-banner p {
         margin: 0;
         color: #2d6a4f;
-        font-size: 0.95rem;
+        font-size: 1.15rem;
         line-height: 1.5;
     }
 
@@ -253,8 +253,8 @@
         background: white;
         border: 2px solid #e5e7eb;
         border-radius: 16px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
         transition: all 0.2s;
     }
 
@@ -273,7 +273,7 @@
     .photo-title {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 1.25rem;
     }
 
     .photo-icon {
@@ -290,7 +290,7 @@
 
     .photo-title h6 {
         margin: 0;
-        font-size: 1rem;
+        font-size: 1.2rem;
         font-weight: 600;
         color: #111827;
     }
@@ -321,7 +321,7 @@
     .photo-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
+        gap: 1.5rem;
     }
 
     /* File input */
@@ -335,18 +335,18 @@
         background: #f9fafb;
         border: 2px solid #e5e7eb;
         border-radius: 12px;
-        font-size: 0.9rem;
+        font-size: 1.1rem;
         color: #1f2937;
     }
 
     .file-input::file-selector-button {
         margin-right: 1rem;
-        padding: 0.5rem 1rem;
+        padding: 0.75rem 1.25rem;
         background: #f0f9f0;
         border: none;
         border-radius: 8px;
         color: #70AE48;
-        font-size: 0.85rem;
+        font-size: 1.2rem;
         font-weight: 500;
         transition: all 0.2s;
     }
@@ -358,27 +358,27 @@
     /* Statut select */
     .status-select {
         width: 100%;
-        padding: 0.625rem 1rem;
+        padding: 0.875rem 1.25rem;
         background: #f9fafb;
         border: 2px solid #e5e7eb;
         border-radius: 12px;
-        font-size: 0.9rem;
+        font-size: 1.1rem;
         color: #1f2937;
     }
 
     /* Add photo button */
     .btn-add-photo {
-        margin-top: 1.5rem;
+        margin-top: 2rem;
         padding: 1rem 2rem;
         background: #70AE48;
         border: none;
         border-radius: 14px;
         color: white;
-        font-size: 0.95rem;
+        font-size: 1.15rem;
         font-weight: 500;
         display: inline-flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 1.25rem;
         cursor: pointer;
         transition: all 0.2s;
         box-shadow: 0 8px 15px -3px rgba(112, 174, 72, 0.3);
@@ -401,16 +401,16 @@
         background: #f9fafb;
         display: flex;
         justify-content: flex-end;
-        gap: 1rem;
+        gap: 1.5rem;
     }
 
     .btn-cancel {
-        padding: 0.875rem 2rem;
+        padding: 1.1rem 2.25rem;
         background: white;
         border: 2px solid #e5e7eb;
         border-radius: 14px;
         color: #4b5563;
-        font-size: 0.95rem;
+        font-size: 1.15rem;
         font-weight: 500;
         text-decoration: none;
         transition: all 0.2s;
@@ -422,16 +422,16 @@
     }
 
     .btn-submit {
-        padding: 0.875rem 2.5rem;
+        padding: 1.1rem 2.75rem;
         background: #70AE48;
         border: none;
         border-radius: 14px;
         color: white;
-        font-size: 0.95rem;
+        font-size: 1.15rem;
         font-weight: 500;
         display: inline-flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 1.25rem;
         cursor: pointer;
         transition: all 0.2s;
         box-shadow: 0 8px 15px -3px rgba(112, 174, 72, 0.3);
@@ -452,10 +452,10 @@
     .alert {
         padding: 1rem 1.5rem;
         border-radius: 14px;
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 1.25rem;
     }
 
     .alert-success {
@@ -481,8 +481,8 @@
         .create-header {
             flex-direction: column;
             align-items: flex-start;
-            gap: 1rem;
-            padding: 1.5rem;
+            gap: 1.5rem;
+            padding: 2rem;
         }
 
         .form-grid, .form-grid-3, .photo-grid {
@@ -490,7 +490,7 @@
         }
 
         .form-section {
-            padding: 1.5rem;
+            padding: 2rem;
         }
 
         .form-footer {
