@@ -173,10 +173,10 @@
                                         </td>
                                         <td>
                                             <div class="tl-actions">
-                                                <a href="{{ route('co-owner.tenants.show', $tenant) }}" class="tl-btn-action" style="font-size:15.5px;">
+                                               {{--  <a href="{{ route('co-owner.tenants.show', $tenant) }}" class="tl-btn-action" style="font-size:15.5px;">
                                                     <svg width="15.5" height="15.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M22 12c-2.667 4.667-6 7-10 7s-7.333-2.333-10-7c2.667-4.667 6-7 10-7s7.333 2.333 10 7z"/></svg>
                                                     Voir
-                                                </a>
+                                                </a>  --}}
                                                 @if ($status === 'active')
                                                     <button type="button" class="tl-btn-action tl-btn-archive" style="font-size:15.5px;"
                                                         onclick="showArchiveConfirmation('{{ $tenant->id }}', '{{ $tenant->first_name }} {{ $tenant->last_name }}')">
@@ -368,7 +368,7 @@
         document.getElementById('modalDetails').innerHTML = `
             <div style="text-align:left;">
                 <p><strong>Locataire :</strong> ${tenantName}</p>
-           
+
                 <p style="color:#92400E; margin-top:9px;">⚠️ Le locataire sera déplacé vers les archives.</p>
             </div>`;
         const icon = document.getElementById('modalIcon');

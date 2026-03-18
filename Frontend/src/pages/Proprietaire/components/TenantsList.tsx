@@ -499,9 +499,7 @@ export const TenantsList: React.FC<TenantsListProps> = ({ notify }) => {
                             </td>
                             <td>
                               <div className="tl-actions">
-                                <a href={`/coproprietaire/tenants/${tenant.id}`} className="tl-btn-action">
-                                  <Eye size={12} /> Voir
-                                </a>
+                        
                                 {tenant.status !== "archived" ? (
                                   <button 
                                     className="tl-btn-action tl-btn-archive" 
