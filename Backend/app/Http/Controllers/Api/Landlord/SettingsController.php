@@ -52,7 +52,7 @@ class SettingsController extends Controller
             );
 
             $profile = $user->landlord;
-            
+
             return response()->json([
                 'user' => [
                     'id' => $user->id,
@@ -411,64 +411,61 @@ class SettingsController extends Controller
         }
     }
 
-    /**
-     * PUT /api/landlord/settings/profile - Mettre à jour le profil
-     */
-    public function updateProfile(Request $request)
-    {
-        try {
-            $user = $this->getUser();
+public function updateProfile(Request $request)
+{
+    try {
+        $user = $this->getUser();
 
-            if (!$user) {
-                return response()->json(['message' => 'Non authentifié'], 401);
-            }
-
-            $validated = $request->validate([
-                'first_name' => 'sometimes|string|max:255',
-                'last_name' => 'sometimes|string|max:255',
-                'phone' => 'sometimes|string|max:20',
-                'address' => 'sometimes|string|max:255',
-                'company_name' => 'sometimes|string|max:255',
-            ]);
-
-            // Mise à jour User
-            if ($request->has('phone')) {
-                $user->phone = $validated['phone'];
-                $user->save();
-            }
-
-            // Mise à jour profil Landlord
-            if ($user->landlord) {
-                $landlordData = [];
-                if (isset($validated['first_name'])) $landlordData['first_name'] = $validated['first_name'];
-                if (isset($validated['last_name'])) $landlordData['last_name'] = $validated['last_name'];
-                if (isset($validated['address'])) $landlordData['address_billing'] = $validated['address'];
-                if (isset($validated['company_name'])) $landlordData['company_name'] = $validated['company_name'];
-                
-                $user->landlord->update($landlordData);
-            }
-
-            // Recharger l'utilisateur avec ses relations pour renvoyer les données complètes
-            $user->load('landlord');
-
-            return response()->json([
-                'message' => 'Profil mis à jour avec succès',
-                'user' => [
-                    'id' => $user->id,
-                    'email' => $user->email,
-                    'first_name' => $user->landlord->first_name ?? null,
-                    'last_name' => $user->landlord->last_name ?? null,
-                    'phone' => $user->phone,
-                    'address' => $user->landlord->address_billing ?? null,
-                    'company_name' => $user->landlord->company_name ?? null,
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Erreur mise à jour profil landlord: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Erreur lors de la mise à jour du profil'
-            ], 500);
+        if (!$user) {
+            return response()->json(['message' => 'Non authentifié'], 401);
         }
+
+        $validated = $request->validate([
+            'first_name' => 'sometimes|string|max:255',
+            'last_name' => 'sometimes|string|max:255',
+            'phone' => 'sometimes|string|max:20',
+            'address' => 'sometimes|nullable|string|max:255', // Ajout de nullable
+            'company_name' => 'sometimes|nullable|string|max:255', // Ajout de nullable
+        ]);
+
+        // Mise à jour User
+        if ($request->has('phone')) {
+            $user->phone = $validated['phone'];
+            $user->save();
+        }
+
+        // Mise à jour profil Landlord
+        if ($user->landlord) {
+            $landlordData = [];
+            if (isset($validated['first_name'])) $landlordData['first_name'] = $validated['first_name'];
+            if (isset($validated['last_name'])) $landlordData['last_name'] = $validated['last_name'];
+            if (array_key_exists('address', $validated)) $landlordData['address_billing'] = $validated['address']; // Peut être null
+            if (array_key_exists('company_name', $validated)) $landlordData['company_name'] = $validated['company_name']; // Peut être null
+
+            $user->landlord->update($landlordData);
+        }
+
+        // Recharger l'utilisateur avec ses relations pour renvoyer les données complètes
+        $user->load('landlord');
+
+        return response()->json([
+            'message' => 'Profil mis à jour avec succès',
+            'user' => [
+                'id' => $user->id,
+                'email' => $user->email,
+                'first_name' => $user->landlord->first_name ?? null,
+                'last_name' => $user->landlord->last_name ?? null,
+                'phone' => $user->phone,
+                'address' => $user->landlord->address_billing ?? null,
+                'company_name' => $user->landlord->company_name ?? null,
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Erreur mise à jour profil landlord: ' . $e->getMessage());
+        return response()->json([
+            'message' => 'Erreur lors de la mise à jour du profil'
+        ], 500);
     }
+}
 }

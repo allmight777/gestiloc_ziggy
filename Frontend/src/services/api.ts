@@ -1424,6 +1424,163 @@ export const documentArchiveService = {
   }
 };
 
+// ================= DOCUMENTS SERVICE (UNIFIÉ) =================
+
+export const documentsService = {
+    // Récupérer tous les baux
+    getLeases: async (): Promise<any[]> => {
+        const response = await api.get('/leases');
+        return response.data.data || response.data;
+    },
+
+    // Récupérer tous les états des lieux
+    getConditionReports: async (): Promise<any[]> => {
+        const response = await api.get('/condition-reports');
+        return response.data.data || response.data;
+    },
+
+    // Récupérer toutes les quittances
+    getRentReceipts: async (): Promise<any[]> => {
+        const response = await api.get('/rent-receipts');
+        return response.data.data || response.data;
+    },
+
+    // Récupérer tous les paiements
+    getPayments: async (): Promise<any[]> => {
+        const response = await api.get('/transactions');
+        return response.data.data || response.data;
+    },
+
+    // Récupérer tous les documents en une seule fois
+    getAllDocuments: async (): Promise<any[]> => {
+        try {
+            const [leases, conditionReports, rentReceipts, payments] = await Promise.all([
+                documentsService.getLeases().catch(() => []),
+                documentsService.getConditionReports().catch(() => []),
+                documentsService.getRentReceipts().catch(() => []),
+                documentsService.getPayments().catch(() => [])
+            ]);
+
+            // Transformer les baux
+            const leaseDocs = (leases || []).map((lease: any) => ({
+                id: `lease-${lease.id}`,
+                type: 'lease',
+                typeBadge: 'Bail',
+                typeBadgeColor: '#77B84D',
+                titre: `Bail - ${lease.property?.name || 'Bien'} - ${lease.tenant?.first_name || ''} ${lease.tenant?.last_name || ''}`,
+                bien: lease.property?.name || lease.property?.address || 'Bien inconnu',
+                date: lease.created_at,
+                reference: lease.reference || lease.uuid || `BAIL-${lease.id}`,
+                property_id: lease.property_id,
+                tenant_id: lease.tenant_id,
+                status: lease.status,
+                start_date: lease.start_date,
+                end_date: lease.end_date
+            }));
+
+            // Transformer les états des lieux
+            const conditionDocs = (conditionReports || []).map((report: any) => ({
+                id: `condition-${report.id}`,
+                type: 'inventory',
+                typeBadge: 'EDL',
+                typeBadgeColor: '#f59e0b',
+                titre: `État des lieux ${report.type === 'entry' ? "d'entrée" : 'de sortie'}`,
+                bien: report.property?.name || report.property?.address || 'Bien inconnu',
+                date: report.report_date || report.created_at,
+                reference: report.reference || `EDL-${report.id}`,
+                property_id: report.property_id,
+                lease_id: report.lease_id,
+                report_type: report.type
+            }));
+
+            // Transformer les quittances
+            const receiptDocs = (rentReceipts || []).map((receipt: any) => ({
+                id: `receipt-${receipt.id}`,
+                type: 'receipt',
+                typeBadge: 'Quittance',
+                typeBadgeColor: '#77B84D',
+                titre: `Quittance - ${receipt.paid_month || 'Mois inconnu'}`,
+                bien: receipt.property?.name || receipt.property?.address || 'Bien inconnu',
+                date: receipt.issued_date || receipt.created_at,
+                reference: receipt.reference || `QUIT-${receipt.id}`,
+                amount: receipt.amount_paid,
+                month: receipt.paid_month,
+                property_id: receipt.property_id,
+                tenant_id: receipt.tenant_id
+            }));
+
+            // Transformer les paiements
+            const paymentDocs = (payments || []).map((payment: any) => ({
+                id: `payment-${payment.id}`,
+                type: 'payment',
+                typeBadge: 'Paiement',
+                typeBadgeColor: '#3b82f6',
+                titre: `Paiement - ${payment.description || 'Loyer'}`,
+                bien: payment.property_name || payment.property?.name || 'Bien inconnu',
+                date: payment.date || payment.created_at,
+                reference: payment.reference || `PAY-${payment.id}`,
+                amount: payment.amount,
+                status: payment.status,
+                property_id: payment.property_id
+            }));
+
+            // Combiner tous les documents
+            const allDocs = [
+                ...leaseDocs,
+                ...conditionDocs,
+                ...receiptDocs,
+                ...paymentDocs
+            ];
+
+            // Trier par date (du plus récent au plus ancien)
+            return allDocs.sort((a, b) => 
+                new Date(b.date).getTime() - new Date(a.date).getTime()
+            );
+
+        } catch (error) {
+            console.error('Erreur lors de la récupération des documents:', error);
+            return [];
+        }
+    },
+
+    // Obtenir des statistiques sur les documents
+    getDocumentsStats: async (): Promise<any> => {
+        try {
+            const [leases, conditionReports, rentReceipts, payments] = await Promise.all([
+                documentsService.getLeases().catch(() => []),
+                documentsService.getConditionReports().catch(() => []),
+                documentsService.getRentReceipts().catch(() => []),
+                documentsService.getPayments().catch(() => [])
+            ]);
+
+            // Calculer la taille totale approximative (si disponible)
+            const totalSize = 0; // À implémenter si vos documents ont une taille
+
+            return {
+                total_documents: (leases?.length || 0) + 
+                                 (conditionReports?.length || 0) + 
+                                 (rentReceipts?.length || 0) + 
+                                 (payments?.length || 0),
+                baux_termines: (leases || []).filter((l: any) => l.status === 'terminated').length,
+                edl_archives: conditionReports?.length || 0,
+                quittances_archives: rentReceipts?.length || 0,
+                total_size: totalSize,
+                total_size_human: totalSize > 0 ? `${(totalSize / (1024 * 1024)).toFixed(1)} MB` : '0 MB'
+            };
+        } catch (error) {
+            console.error('Erreur stats documents:', error);
+            return {
+                total_documents: 0,
+                baux_termines: 0,
+                edl_archives: 0,
+                quittances_archives: 0,
+                total_size: 0,
+                total_size_human: '0 MB'
+            };
+        }
+    }
+};
+
 // ================= ACCOUNTING SERVICE =================
 
 export const accountingService = {
@@ -1499,7 +1656,20 @@ export const accountingService = {
 
 // ================= LANDLORD SERVICE =================
 
+// ================= LANDLORD SERVICE =================
+
 export const landlordService = {
+  getSettings: async () => {
+    try {
+      // Enlever '/landlord' du chemin
+      const response = await api.get('/settings');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching landlord settings:', error);
+      throw error;
+    }
+  },
+
   updateProfile: async (userData: {
     first_name?: string;
     last_name?: string;
@@ -1508,7 +1678,8 @@ export const landlordService = {
     company_name?: string;
   }) => {
     try {
-      const response = await api.put('/landlord/settings/profile', userData);
+      // Enlever '/landlord' du chemin
+      const response = await api.put('/settings/profile', userData);
 
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
       const updatedUser = { ...currentUser, ...response.data.user };
@@ -1517,16 +1688,6 @@ export const landlordService = {
       return response.data;
     } catch (error) {
       console.error('Error updating landlord profile:', error);
-      throw error;
-    }
-  },
-
-  getSettings: async () => {
-    try {
-      const response = await api.get('/landlord/settings');
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching landlord settings:', error);
       throw error;
     }
   },

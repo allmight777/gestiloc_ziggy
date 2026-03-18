@@ -569,7 +569,7 @@
                 </svg>
                 <span>← Retour au tableau de bord</span>
             </a>
-            
+
             <h1 class="page-title">Nouveau contrat de location</h1>
             <p class="page-subtitle">Créez un nouveau contrat entre un bien et un locataire</p>
         </div>
@@ -1000,7 +1000,7 @@
     </form>
 </div>
 
-@push('scripts')
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Éléments du formulaire
@@ -1118,5 +1118,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-@endpush
+
 @endsection

@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Loader2, FileText, Download, Eye, Calendar, Building, Home, FileSignature, FileCheck } from 'lucide-react';
-import { documentArchiveService } from '@/services/api';
+import { Search, Loader2, FileText, Calendar, Building, Home, FileSignature, FileCheck } from 'lucide-react';
+import { documentsService } from '@/services/api';
 
-interface ArchiveDoc {
+interface DocumentItem {
     id: string;
+    type: string;
     typeBadge: string;
     typeBadgeColor: string;
     titre: string;
     bien: string;
-    champ1Label: string; champ1Value: string;
-    champ2Label: string; champ2Value: string;
-    champ3Label: string; champ3Value: string;
-    champ4Label: string; champ4Value: string;
-    dateBas: string;
+    date: string;
+    reference: string;
     file_size?: number;
-    type?: string;
+    file_url?: string;
+    amount?: number;
+    status?: string;
+    property_id?: number;
+    tenant_id?: number;
+    tenant_name?: string;
+    [key: string]: any;
 }
 
 interface ArchiveDocsProps {
@@ -24,190 +28,148 @@ interface ArchiveDocsProps {
 const ArchivageDocs: React.FC<ArchiveDocsProps> = ({ notify }) => {
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
-    const [archiveList, setArchiveList] = useState<ArchiveDoc[]>([]);
+    const [documents, setDocuments] = useState<DocumentItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [kpis, setKpis] = useState({ 
-        totalDoc: 0, 
-        bauxTermines: 0, 
-        edlArchived: 0, 
-        storageUsed: '0 MB' 
+    const [stats, setStats] = useState({ 
+        total: 0, 
+        baux: 0, 
+        edl: 0, 
+        quittances: 0,
+        paiements: 0
     });
 
     const filters = [
-        { id: 'all', label: 'Tout' },
+        { id: 'all', label: 'Tous' },
         { id: 'lease', label: 'Baux' },
         { id: 'inventory', label: 'EDL' },
         { id: 'receipt', label: 'Quittances' },
-        { id: 'other', label: 'Autres' }
+        { id: 'payment', label: 'Paiements' }
     ];
 
-    const fetchData = async () => {
+    const fetchAllDocuments = async () => {
         try {
             setLoading(true);
-            const [docs, statsData] = await Promise.all([
-                documentArchiveService.list(),
-                documentArchiveService.getStats()
-            ]);
+            
+            console.log('📁 Récupération de tous les documents...');
+            
+            const allDocs = await documentsService.getAllDocuments();
+            console.log('Documents récupérés:', allDocs);
+            
+            const docsStats = await documentsService.getDocumentsStats();
+            console.log('Statistiques:', docsStats);
 
-            const mapped = (docs || []).map((d: any) => {
-                const type = d.type || 'other';
-                let typeBadge = 'DOCUMENT';
-                let typeBadgeColor = '#6b7280';
-                
-                if (type === 'lease' || d.typeBadge?.includes('BAIL')) {
-                    typeBadge = 'Bail';
-                    typeBadgeColor = '#77B84D';
-                } else if (type === 'condition_report' || type === 'inventory' || d.typeBadge?.includes('EDL')) {
-                    typeBadge = 'EDL';
-                    typeBadgeColor = '#f59e0b';
-                } else if (type === 'receipt' || d.typeBadge?.includes('QUITTANCE')) {
-                    typeBadge = 'Quittance';
-                    typeBadgeColor = '#77B84D';
-                }
-
-                return {
-                    id: String(d.id),
-                    typeBadge: d.typeBadge || typeBadge,
-                    typeBadgeColor: d.typeBadgeColor || typeBadgeColor,
-                    type: type,
-                    titre: d.titre || d.title || 'Sans titre',
-                    bien: d.bien || (d.property?.name || d.property?.address || 'Bien inconnu'),
-                    champ1Label: d.champ1Label || 'Déposé le',
-                    champ1Value: d.champ1Value || new Date(d.created_at || d.date_archive).toLocaleDateString('fr-FR'),
-                    champ2Label: d.champ2Label || 'Type',
-                    champ2Value: d.champ2Value || d.category || 'Archive',
-                    champ3Label: d.champ3Label || 'Méta',
-                    champ3Value: d.champ3Value || d.metadata || '—',
-                    champ4Label: d.champ4Label || 'Taille',
-                    champ4Value: d.champ4Value || (d.file_size ? `${(d.file_size / 1024).toFixed(1)} KB` : '—'),
-                    dateBas: d.dateBas || `Archivé le ${new Date(d.created_at || d.date_archive).toLocaleDateString('fr-FR')}`,
-                    file_size: d.file_size || 0
-                };
+            setDocuments(allDocs);
+            
+            setStats({
+                total: docsStats.total_documents || allDocs.length,
+                baux: allDocs.filter(d => d.type === 'lease').length,
+                edl: allDocs.filter(d => d.type === 'inventory').length,
+                quittances: allDocs.filter(d => d.type === 'receipt').length,
+                paiements: allDocs.filter(d => d.type === 'payment').length
             });
 
-            setArchiveList(mapped);
-            if (statsData || (docs && (docs as any).stats)) {
-                const s = statsData || (docs as any).stats;
-                setKpis({
-                    totalDoc: s.total_documents || s.total_count || 0,
-                    bauxTermines: s.baux_termines || s.expired_leases || 0,
-                    edlArchived: s.edl_archives || s.condition_reports || 0,
-                    storageUsed: s.total_size || s.storage_human || '0 MB'
-                });
-            }
         } catch (error) {
-            console.error('Erreur archives:', error);
-            notify('Erreur lors du chargement des archives', 'error');
+            console.error('❌ Erreur chargement documents:', error);
+            notify('Erreur lors du chargement des documents', 'error');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchData();
+        fetchAllDocuments();
     }, []);
 
-    const filtered = archiveList.filter(d => {
-        const matchesSearch = d.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            d.bien.toLowerCase().includes(searchTerm.toLowerCase());
+    const filtered = documents.filter(doc => {
+        const matchesSearch = (doc.titre?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (doc.bien?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (doc.reference?.toLowerCase() || '').includes(searchTerm.toLowerCase());
         
-        const matchesFilter = activeFilter === 'all' || 
-            (activeFilter === 'lease' && (d.type === 'lease' || d.typeBadge === 'Bail')) ||
-            (activeFilter === 'inventory' && (d.type === 'condition_report' || d.type === 'inventory' || d.typeBadge === 'EDL')) ||
-            (activeFilter === 'receipt' && (d.type === 'receipt' || d.typeBadge === 'Quittance')) ||
-            (activeFilter === 'other' && d.type === 'other');
+        const matchesFilter = activeFilter === 'all' || doc.type === activeFilter;
         
         return matchesSearch && matchesFilter;
     });
 
-    const handleDownload = (doc: ArchiveDoc) => {
-        notify('Téléchargement en cours...', 'info');
+    const formatDate = (dateStr: string) => {
+        try {
+            return new Date(dateStr).toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        } catch {
+            return 'Date inconnue';
+        }
     };
 
+    const getTypeIcon = (type: string) => {
+        switch(type) {
+            case 'lease': return <FileSignature className="w-4 h-4" />;
+            case 'inventory': return <Home className="w-4 h-4" />;
+            case 'receipt': return <FileCheck className="w-4 h-4" />;
+            default: return <FileText className="w-4 h-4" />;
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center py-16">
+                <Loader2 className="w-10 h-10 animate-spin text-[#77B84D]" />
+                <p className="mt-4 text-gray-500 text-base font-medium">Chargement des documents...</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="space-y-6 py-4" style={{ fontFamily: "'Merriweather', serif" }}>
-            {/* Header - Compact */}
+        <div className="space-y-6 py-4 max-w-7xl mx-auto px-4">
+            {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div className="space-y-1">
-                    <h1 className="text-2xl md:text-3xl font-black text-gray-900 font-merriweather tracking-tight">
-                        Archivage de documents
+                <div>
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                        Gestion des documents
                     </h1>
-                    <p className="text-gray-400 font-manrope font-medium text-sm max-w-xl">
-                        Retrouvez tous vos documents archivés : anciens baux, états des lieux terminés, quittances passées.
+                    <p className="text-gray-500 text-sm mt-1">
+                        Retrouvez tous vos baux, états des lieux, quittances et paiements
                     </p>
                 </div>
-                <button 
-                    onClick={() => notify('Ajout document à venir', 'info')}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-[#77B84D] text-white rounded-2xl font-bold text-xs uppercase tracking-wider hover:bg-[#6a9e42] transition-all shadow-lg"
-                >
-                    <Plus size={16} />
-                    Ajouter
-                </button>
             </div>
 
-            {/* Stats Section - Fond noir avec #77B84D */}
-            <div className="p-2 rounded-3xl bg-gray-900 shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-48 h-48 bg-[#77B84D]/10 rounded-full -mr-24 -mt-24 blur-3xl opacity-50" />
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#77B84D]/5 rounded-full -ml-24 -mb-24 blur-3xl opacity-30" />
-
-                <div className="relative grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-800/50">
-                    <div className="p-4 md:p-6 space-y-1 text-center md:text-left">
-                        <p className="text-[9px] font-black text-[#77B84D] uppercase tracking-[0.15em] font-manrope">
-                            Documents archivés
-                        </p>
-                        <div className="flex items-center justify-center md:justify-start gap-2">
-                            <FileSignature className="w-4 h-4 text-gray-500" />
-                            <p className="text-2xl font-black text-white font-merriweather">{kpis.totalDoc}</p>
-                        </div>
-                    </div>
-
-                    <div className="p-4 md:p-6 space-y-1 text-center md:text-left">
-                        <p className="text-[9px] font-black text-[#77B84D] uppercase tracking-[0.15em] font-manrope">
-                            Baux terminés
-                        </p>
-                        <div className="flex items-center justify-center md:justify-start gap-2">
-                            <FileCheck className="w-4 h-4 text-gray-500" />
-                            <p className="text-2xl font-black text-white font-merriweather">{kpis.bauxTermines}</p>
-                        </div>
-                    </div>
-
-                    <div className="p-4 md:p-6 space-y-1 text-center md:text-left">
-                        <p className="text-[9px] font-black text-[#77B84D] uppercase tracking-[0.15em] font-manrope">
-                            EDL archivés
-                        </p>
-                        <div className="flex items-center justify-center md:justify-start gap-2">
-                            <Building className="w-4 h-4 text-gray-500" />
-                            <p className="text-2xl font-black text-white font-merriweather">{kpis.edlArchived}</p>
-                        </div>
-                    </div>
-
-                    <div className="p-4 md:p-6 space-y-1 text-center md:text-left">
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.15em] font-manrope">
-                            Espace utilisé
-                        </p>
-                        <div className="flex items-center justify-center md:justify-start gap-2">
-                            <Home className="w-4 h-4 text-gray-500" />
-                            <p className="text-2xl font-black text-white font-merriweather text-nowrap">{kpis.storageUsed}</p>
-                        </div>
-                    </div>
+            {/* Stats Cards - Plus visibles */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="bg-white rounded-xl p-5 shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+                    <p className="text-xs text-gray-500 mb-2 font-medium">Total</p>
+                    <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
+                </div>
+                <div className="bg-white rounded-xl p-5 shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+                    <p className="text-xs text-gray-500 mb-2 font-medium">Baux</p>
+                    <p className="text-3xl font-bold text-[#77B84D]">{stats.baux}</p>
+                </div>
+                <div className="bg-white rounded-xl p-5 shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+                    <p className="text-xs text-gray-500 mb-2 font-medium">EDL</p>
+                    <p className="text-3xl font-bold text-[#f59e0b]">{stats.edl}</p>
+                </div>
+                <div className="bg-white rounded-xl p-5 shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+                    <p className="text-xs text-gray-500 mb-2 font-medium">Quittances</p>
+                    <p className="text-3xl font-bold text-[#77B84D]">{stats.quittances}</p>
+                </div>
+                <div className="bg-white rounded-xl p-5 shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+                    <p className="text-xs text-gray-500 mb-2 font-medium">Paiements</p>
+                    <p className="text-3xl font-bold text-[#3b82f6]">{stats.paiements}</p>
                 </div>
             </div>
 
-            {/* Filters Section - Compact */}
-            <div className="p-6 rounded-3xl border border-gray-100 shadow-lg bg-white space-y-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-[#77B84D]/10 rounded-full -mr-12 -mt-12 blur-2xl" />
-
-                {/* Type Tabs */}
-                <div className="flex flex-wrap gap-3 relative z-10">
+            {/* Filters */}
+            <div className="bg-white rounded-xl p-5 shadow-md border border-gray-100">
+                <div className="flex flex-wrap gap-2 mb-4">
                     {filters.map((filter) => (
                         <button
                             key={filter.id}
                             onClick={() => setActiveFilter(filter.id)}
-                            className={`px-6 py-3 rounded-2xl font-bold text-[10px] uppercase tracking-wider transition-all ${
+                            className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
                                 activeFilter === filter.id
-                                    ? 'bg-[#77B84D] text-white shadow-lg scale-105'
-                                    : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
-                            } font-manrope`}
+                                    ? 'bg-[#77B84D] text-white shadow-md scale-105'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
                         >
                             {filter.label}
                         </button>
@@ -215,129 +177,108 @@ const ArchivageDocs: React.FC<ArchiveDocsProps> = ({ notify }) => {
                 </div>
 
                 {/* Search */}
-                <div className="relative z-10">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#77B84D] w-4 h-4" />
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <input
                         type="text"
-                        placeholder="Rechercher..."
+                        placeholder="Rechercher par titre, bien ou référence..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-sm font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-[#77B84D]/20 transition-all font-manrope placeholder:text-gray-300"
+                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#77B84D]/20"
                     />
                 </div>
             </div>
 
-            {/* Documents Grid - 2 par ligne */}
-            {loading ? (
-                <div className="flex flex-col items-center justify-center py-16">
-                    <Loader2 className="w-8 h-8 animate-spin text-[#77B84D]" />
-                    <p className="mt-4 text-gray-400 text-sm font-medium">Chargement des archives...</p>
-                </div>
-            ) : filtered.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Documents Grid - 2 par ligne avec textes plus grands */}
+            {filtered.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {filtered.map((doc) => (
                         <div 
-                            key={doc.id} 
-                            className="overflow-hidden rounded-2xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 bg-white group flex flex-col h-full relative border-t-4 border-t-[#77B84D]/20"
+                            key={doc.id}
+                            className="bg-white rounded-xl p-5 shadow-md border border-gray-100 hover:shadow-xl transition-all hover:-translate-y-1"
                         >
-                            <div className="absolute top-0 right-0 w-20 h-20 bg-[#77B84D]/10 opacity-20 group-hover:opacity-100 rounded-full -mr-10 -mt-10 blur-xl transition-all" />
-
-                            <div className="p-6 flex-grow relative">
-                                {/* Badge & Action */}
-                                <div className="mb-4 flex justify-between items-start">
-                                    <div className="space-y-2">
-                                        <span 
-                                            className="px-3 py-1 rounded-xl text-[8px] font-black uppercase tracking-wider border font-manrope"
-                                            style={{ 
-                                                background: doc.typeBadgeColor + '20', 
-                                                color: doc.typeBadgeColor,
-                                                borderColor: doc.typeBadgeColor + '30'
-                                            }}
-                                        >
-                                            {doc.typeBadge}
-                                        </span>
-                                        <p className="text-[9px] font-black text-gray-300 uppercase tracking-wider">
-                                            Ref. #{doc.id}
-                                        </p>
-                                    </div>
-
-                                    <button
-                                        onClick={() => handleDownload(doc)}
-                                        className="p-3 rounded-xl bg-gray-900 text-white hover:bg-[#77B84D] transition-all shadow-lg group-hover:scale-105"
+                            {/* Header with badge */}
+                            <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                    <span 
+                                        className="px-2.5 py-1 rounded text-xs font-semibold"
+                                        style={{ 
+                                            backgroundColor: doc.typeBadgeColor + '15', 
+                                            color: doc.typeBadgeColor
+                                        }}
                                     >
-                                        <Download className="w-4 h-4" />
-                                    </button>
+                                        {doc.typeBadge}
+                                    </span>
+                                    <span className="text-xs text-gray-400 font-mono">
+                                        #{doc.reference.slice(-8)}
+                                    </span>
                                 </div>
+                                {doc.amount && (
+                                    <span className="text-sm font-semibold text-gray-700">
+                                        {doc.amount.toLocaleString()} FCFA
+                                    </span>
+                                )}
+                            </div>
 
-                                {/* Title */}
-                                <h3 className="text-base font-black text-gray-900 mb-4 font-merriweather leading-snug group-hover:text-[#77B84D] transition-colors line-clamp-2">
-                                    {doc.titre}
-                                </h3>
+                            {/* Title */}
+                            <h3 className="text-base font-semibold text-gray-900 mb-3 line-clamp-2">
+                                {doc.titre}
+                            </h3>
 
-                                {/* Property */}
-                                <div className="flex items-center gap-2 text-xs font-bold text-gray-700 mb-4 font-manrope bg-[#77B84D]/5 p-3 rounded-xl border border-[#77B84D]/10">
-                                    <Building className="w-4 h-4 text-[#77B84D]" />
+                            {/* Info grid */}
+                            <div className="grid grid-cols-2 gap-3 text-sm">
+                                {/* Bien */}
+                                <div className="flex items-center gap-2 text-gray-600">
+                                    <Building className="w-4 h-4 text-gray-400 flex-shrink-0" />
                                     <span className="truncate">{doc.bien}</span>
                                 </div>
-
-                                {/* Details Grid */}
-                                <div className="space-y-3 pt-4 border-t border-gray-100">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-0.5">
-                                            <p className="text-[8px] font-black text-gray-400 uppercase">{doc.champ1Label}</p>
-                                            <p className="text-[10px] font-bold text-gray-600">{doc.champ1Value}</p>
-                                        </div>
-                                        <div className="space-y-0.5">
-                                            <p className="text-[8px] font-black text-gray-400 uppercase">{doc.champ2Label}</p>
-                                            <p className="text-[10px] font-bold text-gray-600">{doc.champ2Value}</p>
-                                        </div>
-                                    </div>
-                                    {(doc.champ3Value !== '—' || doc.champ4Value !== '—') && (
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-0.5">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase">{doc.champ3Label}</p>
-                                                <p className="text-[10px] font-bold text-gray-600">{doc.champ3Value}</p>
-                                            </div>
-                                            {doc.champ4Value !== '—' && (
-                                                <div className="space-y-0.5">
-                                                    <p className="text-[8px] font-black text-gray-400 uppercase">{doc.champ4Label}</p>
-                                                    <p className="text-[10px] font-bold text-gray-600">{doc.champ4Value}</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
+                                
+                                {/* Date */}
+                                <div className="flex items-center gap-2 text-gray-600">
+                                    <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                    <span>{formatDate(doc.date)}</span>
                                 </div>
                             </div>
 
-                            {/* Footer */}
-                            <div className="px-6 py-4 bg-gray-50/50 flex items-center justify-between border-t border-gray-100 group-hover:bg-[#77B84D] transition-all duration-300">
-                                <div className="flex items-center gap-2">
-                                    <Calendar className="w-4 h-4 text-gray-400 group-hover:text-white/70 transition-colors" />
-                                    <span className="text-[10px] font-bold text-gray-600 group-hover:text-white transition-colors">
-                                        {doc.dateBas}
+                            {/* Footer with type icon */}
+                            <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+                                <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                                    {getTypeIcon(doc.type)}
+                                    <span className="capitalize">
+                                        {doc.type === 'lease' ? 'Bail' : 
+                                         doc.type === 'inventory' ? 'État des lieux' :
+                                         doc.type === 'receipt' ? 'Quittance' : 
+                                         doc.type === 'payment' ? 'Paiement' : 'Document'}
                                     </span>
                                 </div>
-                                <button className="text-[10px] font-black text-[#77B84D] group-hover:text-white uppercase tracking-wider flex items-center gap-1">
-                                    <span>Voir</span>
-                                    <Eye className="w-3 h-3" />
-                                </button>
+                                {doc.status && (
+                                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                                        doc.status === 'active' ? 'bg-green-100 text-green-700' :
+                                        doc.status === 'terminated' ? 'bg-gray-100 text-gray-600' :
+                                        doc.status === 'paid' ? 'bg-blue-100 text-blue-600' :
+                                        'bg-yellow-100 text-yellow-600'
+                                    }`}>
+                                        {doc.status === 'active' ? 'Actif' :
+                                         doc.status === 'terminated' ? 'Terminé' :
+                                         doc.status === 'paid' ? 'Payé' :
+                                         doc.status === 'pending' ? 'En attente' :
+                                         doc.status}
+                                    </span>
+                                )}
                             </div>
                         </div>
                     ))}
                 </div>
             ) : (
-                <div className="p-16 text-center rounded-3xl border border-gray-100 shadow-inner bg-gray-50/20 border-dashed">
-                    <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                        <FileText className="w-10 h-10 text-[#77B84D]/30" />
-                    </div>
-                    <h3 className="text-xl font-black text-gray-900 mb-3 font-merriweather">
-                        Aucun document archivé
+                <div className="text-center py-16 bg-gray-50 rounded-xl border border-gray-200">
+                    <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-700 mb-2">
+                        Aucun document trouvé
                     </h3>
-                    <p className="text-gray-400 font-manrope max-w-sm mx-auto text-sm">
-                        {searchTerm
+                    <p className="text-gray-400 text-sm">
+                        {searchTerm 
                             ? `Aucun résultat pour "${searchTerm}"`
-                            : 'Votre dossier d\'archives est actuellement vide.'
-                        }
+                            : 'Commencez par créer des baux, états des lieux ou quittances'}
                     </p>
                 </div>
             )}

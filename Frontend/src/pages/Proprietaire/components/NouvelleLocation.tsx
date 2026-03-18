@@ -205,7 +205,7 @@ const NouvelleLocation = () => {
       border: "1.5px solid #d1d5db",
       borderRadius: "8px",
       padding: "9px 18px",
-      fontSize: "13px",
+      fontSize: "15px", // ↑ was 13px
       color: "#374151",
       cursor: "pointer",
       fontWeight: 500,
@@ -224,7 +224,7 @@ const NouvelleLocation = () => {
       border: "1.5px solid #ef4444",
       borderRadius: "8px",
       padding: "9px 20px",
-      fontSize: "13px",
+      fontSize: "15px", // ↑ was 13px
       color: "#ef4444",
       cursor: "pointer",
       fontWeight: 600,
@@ -239,7 +239,7 @@ const NouvelleLocation = () => {
       border: "none",
       borderRadius: "8px",
       padding: "9px 22px",
-      fontSize: "13px",
+      fontSize: "15px", // ↑ was 13px
       color: "white",
       cursor: "pointer",
       fontWeight: 600,
@@ -263,7 +263,7 @@ const NouvelleLocation = () => {
       letterSpacing: "-0.3px",
     },
     subtitle: {
-      fontSize: "16px",
+      fontSize: "17px", // ↑ was 16px
       color: "#6b7280",
       margin: 0,
       fontFamily: SMALL_FONT,
@@ -277,7 +277,7 @@ const NouvelleLocation = () => {
       boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
     },
     cardTitle: {
-      fontSize: "17px",
+      fontSize: "19px", // ↑ was 17px
       fontWeight: 700,
       color: "#111827",
       marginBottom: "28px",
@@ -298,7 +298,7 @@ const NouvelleLocation = () => {
       gap: "6px",
     },
     label: {
-      fontSize: "13px",
+      fontSize: "15px", // ↑ was 13px
       fontWeight: 600,
       color: "#374151",
       fontFamily: SMALL_FONT,
@@ -312,7 +312,7 @@ const NouvelleLocation = () => {
       padding: "10px 14px",
       borderRadius: "8px",
       border: "1.5px solid #d1d5db",
-      fontSize: "13px",
+      fontSize: "15px", // ↑ was 13px
       color: "#111827",
       background: "white",
       appearance: "none",
@@ -329,7 +329,7 @@ const NouvelleLocation = () => {
       padding: "10px 14px",
       borderRadius: "8px",
       border: "1.5px solid #d1d5db",
-      fontSize: "13px",
+      fontSize: "15px", // ↑ was 13px
       color: "#111827",
       background: "white",
       boxSizing: "border-box",
@@ -351,7 +351,7 @@ const NouvelleLocation = () => {
       display: "flex",
       alignItems: "center",
       gap: "6px",
-      fontSize: "13px",
+      fontSize: "15px", // ↑ was 13px
       color: "#374151",
       cursor: "pointer",
       fontWeight: 500,
@@ -368,7 +368,7 @@ const NouvelleLocation = () => {
       padding: "12px 14px",
       borderRadius: "8px",
       border: "1.5px solid #d1d5db",
-      fontSize: "13px",
+      fontSize: "15px", // ↑ was 13px
       color: "#111827",
       background: "white",
       boxSizing: "border-box",
@@ -379,7 +379,7 @@ const NouvelleLocation = () => {
       transition: "border-color 0.15s",
     },
     helpText: {
-      fontSize: "12px",
+      fontSize: "13px", // ↑ was 12px
       color: "#9ca3af",
       marginTop: "4px",
       display: "flex",
@@ -415,7 +415,7 @@ const NouvelleLocation = () => {
       gridColumn: "1 / -1",
     },
     errorText: {
-      fontSize: "12px",
+      fontSize: "13px", // ↑ was 12px
       color: "#dc2626",
       marginTop: "4px",
     },

@@ -453,18 +453,29 @@ export const Layout: React.FC<LayoutProps> = ({
           </button>
 
           {/* Mon compte */}
-          <button
-            onClick={() => handleNavigate('settings' as Tab)}
-            className="flex items-center gap-2 py-2 px-6 rounded-full text-white text-xs sm:text-sm font-semibold transition-all hover:bg-white/20"
-            style={{ background: 'rgba(255,255,255,0.4)', border: 'none', backdropFilter: 'blur(8px)' }}
-          >
-            <img
-              src="/Ressource_gestiloc/customer.png"
-              alt="Mon compte"
-              className="w-6 h-6 rounded-full object-cover shadow-sm bg-white"
-            />
-            <span className="hidden sm:inline">Mon compte</span>
-          </button>
+       
+
+<button
+  onClick={() => {
+    // Rediriger vers la page des paramètres (Mon compte)
+    const token = getToken();
+    if (!token) {
+      window.location.href = `${CONFIG.LARAVEL_URL}${CONFIG.LOGIN_URL}`;
+      return;
+    }
+    const sep = '/coproprietaire/parametres'.includes('?') ? '&' : '?';
+    window.location.href = `${CONFIG.REACT_URL}/coproprietaire/parametres${sep}api_token=${encodeURIComponent(token)}&_t=${Date.now()}`;
+  }}
+  className="flex items-center gap-2 py-2 px-6 rounded-full text-white text-xs sm:text-sm font-semibold transition-all hover:bg-white/20"
+  style={{ background: 'rgba(255,255,255,0.4)', border: 'none', backdropFilter: 'blur(8px)' }}
+>
+  <img
+    src="/Ressource_gestiloc/customer.png"
+    alt="Mon compte"
+    className="w-6 h-6 rounded-full object-cover shadow-sm bg-white"
+  />
+  <span className="hidden sm:inline">Mon compte</span>
+</button>
         </div>
       </header>
 

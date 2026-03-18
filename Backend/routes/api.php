@@ -116,6 +116,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/quittances/{id}/pdf', [App\Http\Controllers\Api\QuittanceController::class, 'downloadPdf']);
     Route::post('/quittances/{id}/send-email', [App\Http\Controllers\Api\QuittanceController::class, 'sendEmail']);
 });
+
+
 /* =========================
 |  PROTECTED (auth:sanctum)
 |========================= */

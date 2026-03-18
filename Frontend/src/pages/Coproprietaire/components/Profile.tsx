@@ -119,12 +119,13 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate, notify }) => {
 
   if (loading) {
     return (
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-6 animate-fade-in p-6 max-w-7xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
             <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg w-48 animate-pulse"></div>
             <div className="h-4 bg-gray-200 rounded w-64 mt-2 animate-pulse"></div>
           </div>
+          <div className="h-10 w-32 bg-gray-200 rounded-lg animate-pulse"></div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
@@ -147,7 +148,7 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate, notify }) => {
 
   if (!profile) {
     return (
-      <div className="text-center py-16 animate-fade-in">
+      <div className="text-center py-16 animate-fade-in max-w-7xl mx-auto">
         <div className="relative inline-block">
           <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4 animate-bounce" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#70AE48] to-[#8BC34A] rounded-full blur-xl opacity-30 animate-pulse"></div>
@@ -169,172 +170,81 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate, notify }) => {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* Header avec dégradé vert */}
-      <div className="bg-gradient-to-r from-[#70AE48] via-[#8BC34A] to-[#70AE48] rounded-2xl p-6 text-white shadow-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
-                {isAgency ? (
-                  <Building2 className="w-6 h-6" />
-                ) : isProfessional ? (
-                  <BriefcaseBusiness className="w-6 h-6" />
-                ) : (
-                  <User className="w-6 h-6" />
-                )}
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-white">
-                  Mon Profil
-                </h1>
-                <p className="text-green-100">
-                  {isAgency ? 'Agence immobilière' : isProfessional ? 'Professionnel' : 'Copropriétaire'} • Gérez vos informations
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <BadgeCheck className="w-4 h-4" />
-                <span>Statut: {profile.status || 'Actif'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <span>Membre depuis {formatDate(profile.joined_at)}</span>
-              </div>
-              {isAgency && (
-                <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full">
-                  <Building2 className="w-3 h-3" />
-                  <span>Agence Immobilière</span>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          <div className="flex gap-3">
-            {!isEditing ? (
-              <Button 
-                onClick={() => setIsEditing(true)} 
-                className="flex items-center gap-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-white/30 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
-              >
-                <Edit2 className="w-4 h-4" />
-                Modifier le profil
-              </Button>
-            ) : (
-              <div className="flex gap-3 animate-slide-up">
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setFormData({
-                      first_name: profile.first_name,
-                      last_name: profile.last_name,
-                      email: profile.email,
-                      phone: profile.phone,
-                      address: profile.address,
-                      date_of_birth: profile.date_of_birth,
-                      id_number: profile.id_number,
-                      company_name: profile.company_name,
-                      address_billing: profile.address_billing,
-                      license_number: profile.license_number,
-                      ifu: profile.ifu,
-                      rccm: profile.rccm,
-                      vat_number: profile.vat_number,
-                    });
-                  }}
-                  disabled={saving}
-                  className="text-white
-                    bg-gradient-to-r from-[#70AE48] to-[#8BC34A]
-                    hover:from-[#5d8f3a] hover:to-[#70AE48]
-                    border border-white/20 backdrop-blur-sm
-                    transition-all duration-200"
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Annuler
-                </Button>
-
-                <Button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="flex items-center gap-2 text-white 
-                    bg-gradient-to-r from-[#70AE48] to-[#8BC34A]
-                    hover:from-[#5d8f3a] hover:to-[#70AE48]
-                    hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
-                >
-                  <Save className="w-4 h-4" />
-                  {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
-                </Button>
-              </div>
-            )}
-          </div>
+    <div className="space-y-8 animate-fade-in p-6 max-w-7xl mx-auto">
+      {/* Header avec titre à gauche et bouton à droite */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            Mon compte
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">
+            Gérez vos informations personnelles et professionnelles
+          </p>
         </div>
-      </div>
+        
+        {!isEditing ? (
+          <Button 
+            onClick={() => setIsEditing(true)} 
+            className="flex items-center gap-2 
+              bg-[#70AE48] hover:bg-[#5d8f3a] 
+              text-white shadow-md 
+              hover:shadow-lg transform hover:-translate-y-0.5 
+              transition-all duration-200"
+          >
+            <Edit2 className="w-4 h-4" />
+            Modifier le profil
+          </Button>
+        ) : (
+          <div className="flex gap-3 animate-slide-up">
+            {/* Bouton Annuler */}
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setIsEditing(false);
+                setFormData({
+                  first_name: profile.first_name,
+                  last_name: profile.last_name,
+                  email: profile.email,
+                  phone: profile.phone,
+                  address: profile.address,
+                  date_of_birth: profile.date_of_birth,
+                  id_number: profile.id_number,
+                  company_name: profile.company_name,
+                  address_billing: profile.address_billing,
+                  license_number: profile.license_number,
+                  ifu: profile.ifu,
+                  rccm: profile.rccm,
+                  vat_number: profile.vat_number,
+                });
+              }}
+              disabled={saving}
+              className="flex items-center gap-2
+                bg-gray-200 hover:bg-gray-300 
+                text-gray-800 border border-gray-300
+                shadow-sm hover:shadow-md
+                transition-all duration-200"
+            >
+              <X className="w-4 h-4" />
+              Annuler
+            </Button>
 
-      {/* Statistics Cards avec animations */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="p-6 bg-gradient-to-br from-green-50 to-white border border-green-100 hover:border-green-200 hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 animate-slide-up">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-gradient-to-r from-[#70AE48] to-[#8BC34A] rounded-xl shadow-lg">
-              <Building className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 font-medium">Biens délégués</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {profile.statistics?.delegated_properties_count || 0}
-              </p>
-            </div>
+            {/* Bouton Enregistrer */}
+            <Button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-2 
+                text-white 
+                bg-gradient-to-r from-[#70AE48] to-[#8BC34A]
+                hover:from-[#5d8f3a] hover:to-[#70AE48]
+                shadow-md hover:shadow-lg 
+                transform hover:-translate-y-0.5 
+                transition-all duration-200"
+            >
+              <Save className="w-4 h-4" />
+              {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+            </Button>
           </div>
-          <div className="mt-4 h-1 bg-gradient-to-r from-[#70AE48] to-[#8BC34A] rounded-full"></div>
-        </Card>
-
-        <Card className="p-6 bg-gradient-to-br from-green-50 to-white border border-green-100 hover:border-green-200 hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 animate-slide-up delay-75">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-gradient-to-r from-[#70AE48] to-[#8BC34A] rounded-xl shadow-lg">
-              <FileText className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 font-medium">Baux actifs</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {profile.statistics?.active_leases_count || 0}
-              </p>
-            </div>
-          </div>
-          <div className="mt-4 h-1 bg-gradient-to-r from-[#70AE48] to-[#8BC34A] rounded-full"></div>
-        </Card>
-
-        <Card className="p-6 bg-gradient-to-br from-green-50 to-white border border-green-100 hover:border-green-200 hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 animate-slide-up delay-100">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-gradient-to-r from-[#70AE48] to-[#8BC34A] rounded-xl shadow-lg">
-             <span className="text-white font-bold text-lg">FCFA</span>
-
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 font-medium">Loyers collectés</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {formatCurrency(profile.statistics?.total_rent_collected || 0)}
-              </p>
-            </div>
-          </div>
-          <div className="mt-4 h-1 bg-gradient-to-r from-[#70AE48] to-[#8BC34A] rounded-full"></div>
-        </Card>
-
-        <Card className="p-6 bg-gradient-to-br from-amber-50 to-white border border-amber-100 hover:border-amber-200 hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 animate-slide-up delay-125">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl shadow-lg">
-              <Shield className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 font-medium">Statut</p>
-              <div className="flex items-center gap-2 mt-1">
-                <div className={`w-2 h-2 rounded-full ${profile.status === 'active' ? 'bg-[#70AE48] animate-pulse' : 'bg-yellow-500'}`}></div>
-                <p className="text-2xl font-bold text-gray-900 capitalize">
-                  {profile.status || 'Actif'}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="mt-4 h-1 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full"></div>
-        </Card>
+        )}
       </div>
 
       {/* Onglets de navigation */}
@@ -806,7 +716,7 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate, notify }) => {
 
       {/* Message d'état en édition */}
       {isEditing && (
-        <div className="fixed bottom-6 right-6 animate-slide-up">
+        <div className="fixed bottom-6 right-6 animate-slide-up z-50">
           <div className="bg-gradient-to-r from-[#70AE48] to-[#8BC34A] text-white px-6 py-4 rounded-xl shadow-xl flex items-center gap-3">
             <Edit2 className="w-5 h-5 animate-pulse" />
             <div>

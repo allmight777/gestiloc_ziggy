@@ -97,6 +97,9 @@ const resolvePhotoUrl = (p?: string | null) => {
   return `${origin}/storage/${normalized}`;
 };
 
+// Image par défaut pour les biens sans photo
+const DEFAULT_PROPERTY_IMAGE = "/Ressource_gestiloc/default-property.jpg"; // À ajuster selon votre chemin
+
 // Styles pour le composant
 const styles = `
   .edit-form {
@@ -762,7 +765,10 @@ const EditPropertyModal: React.FC<{
                   src={photos[0]}
                   alt="Photo principale"
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  onError={() => {}}
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    img.style.display = "none";
+                  }}
                 />
               ) : photoPreviews.length > 0 ? (
                 <img
@@ -771,7 +777,13 @@ const EditPropertyModal: React.FC<{
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               ) : (
-                <ImageIcon size={48} color="#b0b5c0" />
+                <>
+                  <Building2 size={48} color="#b0b5c0" />
+                  <div className="absolute inset-0 bg-gray-100 flex flex-col items-center justify-center">
+                    <ImageIcon size={32} color="#9ca3af" />
+                    <p className="text-xs text-gray-400 mt-2">Aucune photo</p>
+                  </div>
+                </>
               )}
 
               <span
@@ -1409,24 +1421,53 @@ const EditPropertyModal: React.FC<{
 };
 
 function BienCard({ bien, onClick }: { bien: any; onClick: () => void }) {
+  // Fonction pour gérer l'image par défaut
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    img.src = DEFAULT_PROPERTY_IMAGE;
+    // Si même l'image par défaut ne se charge pas, on masque l'img et on affiche le fallback
+    img.onerror = () => {
+      img.style.display = "none";
+      const parent = img.parentElement;
+      if (parent) {
+        const fallback = parent.querySelector('.fallback-icon') as HTMLElement;
+        if (fallback) fallback.style.display = "flex";
+      }
+    };
+  };
+
   return (
     <div
       onClick={onClick}
       className="bg-white border border-green-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col group"
     >
       {/* Image Container */}
-      <div className="relative h-56 sm:h-64 md:h-[280px] w-full overflow-hidden bg-gray-100">
-        <img
-          src={bien.image}
-          alt={bien.titre}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          onError={(e) => {
-            const img = e.currentTarget;
-            img.style.display = "none";
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-green-100 flex flex-col items-center justify-center -z-10">
-          <Building2 size={48} className="text-green-300/50" />
+      <div className="relative h-56 sm:h-64 md:h-[280px] w-full overflow-hidden bg-gray-100 flex items-center justify-center">
+        {bien.image ? (
+          <img
+            src={bien.image}
+            alt={bien.titre}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={handleImageError}
+          />
+        ) : null}
+        
+        {/* Fallback quand pas d'image ou erreur */}
+        <div 
+          className="absolute inset-0 bg-gradient-to-br from-green-50 to-green-100 flex flex-col items-center justify-center"
+          style={{ display: bien.image ? 'none' : 'flex' }}
+        >
+          <Building2 size={64} className="text-green-300/50 mb-2" />
+          <p className="text-sm text-gray-400 font-medium">Aucune photo</p>
+        </div>
+
+        {/* Fallback icon caché par défaut */}
+        <div 
+          className="absolute inset-0 bg-gradient-to-br from-green-50 to-green-100 flex-col items-center justify-center fallback-icon"
+          style={{ display: 'none' }}
+        >
+          <Building2 size={64} className="text-green-300/50 mb-2" />
+          <p className="text-sm text-gray-400 font-medium">Aucune photo</p>
         </div>
 
         {/* Status badge */}
@@ -1513,7 +1554,7 @@ export default function MesBiens({ notify, currentUser }: MesBiensProps) {
         surface: p.surface || "0",
         photos: p.photos ? p.photos.length : 0,
         ref: p.reference_code || `REF-${p.id}`,
-        image: p.photos && p.photos.length > 0 ? resolvePhotoUrl(p.photos[0]) : "",
+        image: p.photos && p.photos.length > 0 ? resolvePhotoUrl(p.photos[0]) : null,
         raw: p // Garder l'objet original pour l'édition
       }));
       setProperties(mappedResults);
@@ -1580,13 +1621,13 @@ export default function MesBiens({ notify, currentUser }: MesBiensProps) {
         </div>
       </div>
 
-      {/* Page title - Mobile First */}
+      {/* Page title - TAILLE AUGMENTÉE */}
       <div className="animate-fadeInUp animate-delay-100 mb-6 font-serif">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-          <img src="/Ressource_gestiloc/Home.png" alt="Mes biens" className="w-8 h-8" />
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+          <img src="/Ressource_gestiloc/Home.png" alt="Mes biens" className="w-10 h-10" />
           <span className="break-words font-serif tracking-tight">Mes biens</span>
         </h1>
-        <p className="text-sm sm:text-sm text-gray-500 leading-relaxed max-w-3xl font-sans mt-2">
+        <p className="text-base sm:text-lg text-gray-500 leading-relaxed max-w-3xl font-sans mt-2">
           Gérez l'ensemble de vos biens : appartements, maisons, locaux professionnels...
         </p>
       </div>

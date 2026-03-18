@@ -56,9 +56,7 @@ class CoOwnerAssignPropertyController extends Controller
             });
 
         $tenants = Tenant::where('meta->landlord_id', $coOwner->landlord_id)
-            ->whereDoesntHave('leases', function($query) {
-                $query->where('status', 'active');
-            })
+           
             ->with('user')
             ->get();
 
