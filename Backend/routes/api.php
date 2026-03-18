@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\Landlord\AccountingController;
 use App\Http\Controllers\Api\Landlord\DocumentArchiveController;
 use App\Http\Controllers\Api\Landlord\SettingsController;
 use App\Http\Controllers\Api\Landlord\LandlordNotificationController;
+use App\Http\Controllers\Api\Landlord\LandlordConditionReportController;
 use App\Http\Controllers\Api\TenantPaymentController;
 use App\Http\Controllers\Api\FedapayWebhookController;
 use App\Http\Controllers\Api\TenantQuittanceController;
@@ -77,7 +78,18 @@ Route::get('/fedapay/return', [FedapayReturnController::class, 'handle']);
 Route::get('/pay-links/{token}', [\App\Http\Controllers\Api\PaymentLinkController::class, 'show']);
 Route::post('/pay-links/{token}/init', [\App\Http\Controllers\Api\PaymentLinkController::class, 'init']);
 
-
+Route::middleware(['auth:sanctum', 'role:landlord'])->prefix('landlord')->group(function () {
+    // Routes pour les états des lieux
+    Route::get('/condition-reports', [LandlordConditionReportController::class, 'apiIndex']);
+    Route::get('/condition-reports/properties', [LandlordConditionReportController::class, 'apiProperties']);
+    Route::get('/condition-reports/leases/{propertyId}', [LandlordConditionReportController::class, 'apiLeasesForProperty']);
+    Route::get('/condition-reports/{id}', [LandlordConditionReportController::class, 'apiShow']);
+    Route::post('/condition-reports', [LandlordConditionReportController::class, 'apiStore']);
+    Route::post('/condition-reports/{id}/sign', [LandlordConditionReportController::class, 'apiSign']);
+    Route::post('/condition-reports/{id}/upload-signed', [LandlordConditionReportController::class, 'apiUploadSigned']);
+    Route::get('/condition-reports/{id}/download', [LandlordConditionReportController::class, 'apiDownloadPdf']);
+    Route::delete('/condition-reports/{id}', [LandlordConditionReportController::class, 'apiDestroy']);
+});
 
 
 /* =========================
@@ -351,6 +363,10 @@ Route::post('incidents/{id}/reply', [\App\Http\Controllers\Api\Landlord\Maintena
 Route::get('/invoices/create', [InvoiceController::class, 'create']);
 // Dans la section protégée (auth:sanctum)
 Route::get('/invoices/properties', [InvoiceController::class, 'getPropertiesForFilter']);
+
+
+// Dans le groupe middleware ['role:landlord']
+
 
 
 // Dans la section protégée (auth:sanctum)

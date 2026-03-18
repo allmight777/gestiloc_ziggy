@@ -5,7 +5,7 @@
 @section('content')
 <style>
     .condition-reports-container {
-        padding: 2rem;
+        padding: 3rem;
         max-width: 1400px;
         margin: 0 auto;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -15,19 +15,19 @@
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 2rem;
+        margin-bottom: 3rem;
     }
 
     .header-content h1 {
-        font-size: 2rem;
+        font-size: 2.5rem;
         font-weight: 700;
         color: #1f2937;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1rem;
     }
 
     .header-description {
         color: #6b7280;
-        font-size: 0.95rem;
+        font-size: 1.15rem;
         line-height: 1.5;
         margin: 0;
     }
@@ -35,16 +35,16 @@
     .create-btn {
         background: #70AE48;
         color: white;
-        padding: 0.875rem 1.5rem;
+        padding: 1rem 2rem;
         border-radius: 2rem;
         font-weight: 500;
-        font-size: 0.95rem;
+        font-size: 1.15rem;
         border: none;
         cursor: pointer;
         transition: all 0.2s ease;
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 1rem;
         text-decoration: none;
     }
 
@@ -64,23 +64,23 @@
         border-radius: 0.75rem;
         padding: 0.375rem;
         display: inline-flex;
-        gap: 0.25rem;
-        margin-bottom: 1.5rem;
+        gap: 0.5rem;
+        margin-bottom: 2.5rem;
     }
 
     .tab-btn {
-        padding: 0.625rem 1.25rem;
+        padding: 0.875rem 1.5rem;
         border-radius: 0.5rem;
         border: none;
         background: transparent;
         color: #6b7280;
         font-weight: 500;
-        font-size: 0.9rem;
+        font-size: 1.1rem;
         transition: all 0.2s ease;
         cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 1rem;
     }
 
     .tab-btn.active {
@@ -97,27 +97,27 @@
         background: white;
         border: 1px solid #e5e7eb;
         border-radius: 1rem;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
     }
 
     .filter-title {
-        font-size: 0.875rem;
+        font-size: 1.05rem;
         font-weight: 600;
         color: #374151;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
         text-transform: uppercase;
         letter-spacing: 0.025em;
     }
 
     .property-select {
         width: 100%;
-        padding: 0.875rem 1rem;
+        padding: 1.2rem 1.5rem;
         border: 1px solid #84cc16;
         border-radius: 0.75rem;
-        font-size: 0.95rem;
+        font-size: 1.15rem;
         color: #6b7280;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
         background: white;
         cursor: pointer;
         appearance: none;
@@ -133,7 +133,7 @@
 
     .filter-row {
         display: flex;
-        gap: 1rem;
+        gap: 1.5rem;
         align-items: center;
     }
 
@@ -147,7 +147,7 @@
         padding: 0.875rem 1rem 0.875rem 2.5rem;
         border: 1px solid #84cc16;
         border-radius: 0.75rem;
-        font-size: 0.95rem;
+        font-size: 1.15rem;
         color: #374151;
         background: white;
     }
@@ -178,11 +178,11 @@
         color: #374151;
         border-radius: 0.75rem;
         font-weight: 500;
-        font-size: 0.9rem;
+        font-size: 1.1rem;
         cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 1rem;
         white-space: nowrap;
     }
 
@@ -193,8 +193,8 @@
     /* Reports Grid */
     .reports-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2.5rem;
     }
 
     .report-card {
@@ -219,21 +219,21 @@
     }
 
     .report-header {
-        padding: 1.25rem;
+        padding: 2rem;
         border-bottom: 1px solid #f3f4f6;
     }
 
     .report-badge {
         display: inline-flex;
         align-items: center;
-        gap: 0.375rem;
+        gap: 0.75rem;
         padding: 0.375rem 0.75rem;
         border-radius: 0.375rem;
-        font-size: 0.7rem;
+        font-size: 0.95rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.025em;
-        margin-bottom: 0.75rem;
+        margin-bottom: 1.25rem;
     }
 
     .report-badge.entry {
@@ -247,7 +247,7 @@
     }
 
     .report-title {
-        font-size: 1.125rem;
+        font-size: 1.4rem;
         font-weight: 700;
         color: #111827;
         margin-bottom: 0.375rem;
@@ -256,9 +256,9 @@
     .report-location {
         display: flex;
         align-items: center;
-        gap: 0.375rem;
+        gap: 0.75rem;
         color: #84cc16;
-        font-size: 0.875rem;
+        font-size: 1.05rem;
         font-weight: 500;
     }
 
@@ -269,24 +269,24 @@
     }
 
     .report-body {
-        padding: 1.25rem;
+        padding: 2rem;
     }
 
     .report-info-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 1rem 2rem;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .info-item {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 0.5rem;
     }
 
     .info-label {
-        font-size: 0.7rem;
+        font-size: 0.95rem;
         font-weight: 600;
         color: #9ca3af;
         text-transform: uppercase;
@@ -294,7 +294,7 @@
     }
 
     .info-value {
-        font-size: 0.9rem;
+        font-size: 1.1rem;
         font-weight: 600;
         color: #111827;
     }
@@ -302,7 +302,7 @@
     .status-value {
         display: flex;
         align-items: center;
-        gap: 0.375rem;
+        gap: 0.75rem;
     }
 
     .status-check {
@@ -313,11 +313,11 @@
     .photo-count {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 1rem;
         padding: 0.625rem 0.875rem;
         background: #f9fafb;
         border-radius: 0.5rem;
-        font-size: 0.875rem;
+        font-size: 1.05rem;
         color: #374151;
     }
 
@@ -336,13 +336,13 @@
     }
 
     .creation-date {
-        font-size: 0.8rem;
+        font-size: 1rem;
         color: #6b7280;
     }
 
     .action-buttons {
         display: flex;
-        gap: 0.5rem;
+        gap: 1rem;
     }
 
     .action-btn {
@@ -398,20 +398,20 @@
 
     .empty-icon {
         font-size: 3rem;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .empty-title {
-        font-size: 1.25rem;
+        font-size: 1.6rem;
         font-weight: 700;
         color: #111827;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1rem;
     }
 
     .empty-description {
         color: #6b7280;
-        margin-bottom: 1.5rem;
-        font-size: 0.9rem;
+        margin-bottom: 2.5rem;
+        font-size: 1.1rem;
     }
 
     /* Pagination */
@@ -424,7 +424,7 @@
     @media (max-width: 768px) {
         .header-section {
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.5rem;
         }
 
         .reports-grid {
@@ -440,6 +440,267 @@
             justify-content: center;
         }
     }
+
+    /* Augmenter l'espacement général */
+    .condition-reports-container {
+        padding: 1.25rem !important;
+    }
+
+    /* Titres plus grands */
+    .header-content h1 {
+        font-size: 2rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .header-description {
+        font-size: 1rem !important;
+        line-height: 1.7 !important;
+    }
+
+    /* Bouton créer plus grand */
+    .create-btn {
+        padding: 1.2rem 2.5rem !important;
+        font-size: 0.9rem !important;
+        border-radius: 3rem !important;
+    }
+
+    .create-btn svg {
+        width: 24px !important;
+        height: 24px !important;
+    }
+
+    /* Tabs plus grands */
+    .tabs-container {
+        padding: 0.5rem !important;
+        gap: 0.5rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .tab-btn {
+        padding: 0.875rem 1.75rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* Section filtres plus grande */
+    .filter-section {
+        padding: 1.5rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .filter-title {
+        font-size: 0.9rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .property-select {
+        padding: 1.2rem 1.5rem !important;
+        font-size: 0.9rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .search-input {
+        padding: 1.2rem 1.5rem 1.2rem 3rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    .search-icon {
+        width: 22px !important;
+        height: 22px !important;
+        left: 1.2rem !important;
+    }
+
+    .display-btn {
+        padding: 1.2rem 1.75rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* Cartes d'état des lieux plus grandes et espacées */
+    .reports-grid {
+        gap: 1.5rem !important;
+    }
+
+    .report-card {
+        border-radius: 1.5rem !important;
+        border-left-width: 6px !important;
+    }
+
+    .report-header {
+        padding: 1.25rem !important;
+    }
+
+    .report-badge {
+        padding: 0.625rem 1rem !important;
+        font-size: 0.9rem !important;
+        margin-bottom: 1.25rem !important;
+    }
+
+    .report-title {
+        font-size: 1.6rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .report-location {
+        font-size: 0.9rem !important;
+    }
+
+    .report-location svg {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+    .report-body {
+        padding: 1.25rem !important;
+    }
+
+    .report-info-grid {
+        gap: 1.5rem 3rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .info-label {
+        font-size: 0.95rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .info-value {
+        font-size: 0.95rem !important;
+    }
+
+    .photo-count {
+        padding: 1rem 1.25rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    .photo-count svg {
+        width: 20px !important;
+        height: 20px !important;
+    }
+
+    .report-footer {
+        padding: 1.25rem 2rem !important;
+    }
+
+    .creation-date {
+        font-size: 1rem !important;
+    }
+
+    .action-btn {
+        width: 44px !important;
+        height: 44px !important;
+    }
+
+    .action-btn svg {
+        width: 20px !important;
+        height: 20px !important;
+    }
+
+    /* Empty state plus grand */
+    .empty-state {
+        padding: 6rem 3rem !important;
+    }
+
+    .empty-icon {
+        font-size: 4rem !important;
+        margin-bottom: 2rem !important;
+    }
+
+    .empty-title {
+        font-size: 1.8rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .empty-description {
+        font-size: 0.95rem !important;
+        margin-bottom: 2rem !important;
+    }
+
+    /* Responsive pour mobile */
+    @media (max-width: 1024px) {
+        .reports-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+
+
+    /* Réduire l'espace en haut du titre principal */
+    .header-content h1 {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+
+    /* Réduire l'espacement du header-section */
+    .header-section {
+        margin-bottom: 1.5rem !important;
+        padding-top: 0 !important;
+    }
+
+    /* Réduire la taille du titre dans la carte */
+    .report-title {
+        font-size: 1.25rem !important;
+    }
+
+    /* Réduire le padding des cartes */
+    .report-card {
+        border-radius: 1rem !important;
+    }
+
+    .report-header {
+        padding: 1.25rem !important;
+    }
+
+    .report-body {
+        padding: 1.25rem !important;
+    }
+
+    .report-footer {
+        padding: 0.875rem 1.25rem !important;
+    }
+
+    /* Réduire le gap de la grille d'info */
+    .report-info-grid {
+        gap: 1rem 2rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* Réduire le padding des boutons */
+    .create-btn {
+        padding: 0.875rem 1.5rem !important;
+        font-size: 0.95rem !important;
+    }
+
+    /* Réduire le padding des tabs */
+    .tab-btn {
+        padding: 0.625rem 1.25rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* Réduire le padding des inputs */
+    .search-input {
+        padding: 0.875rem 1rem 0.875rem 2.5rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    .property-select {
+        padding: 0.875rem 1rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    .display-btn {
+        padding: 0.875rem 1.25rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* Réduire le padding de la section filtre */
+    .filter-section {
+        padding: 1.5rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    /* Réduire le margin du container principal */
+    .condition-reports-container {
+        padding: 1.5rem 2rem !important;
+    }
+
 </style>
 
 <div class="condition-reports-container">
@@ -596,19 +857,13 @@
                                 <line x1="12" y1="15" x2="12" y2="3"/>
                             </svg>
                         </a>
-                        <a href="{{ route('co-owner.condition-reports.edit', $report->id) }}" class="action-btn edit" title="Modifier">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                            </svg>
-                        </a>
-                        <button type="button" class="action-btn more" title="Plus d'options" onclick="showOptions({{ $report->id }})">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <circle cx="12" cy="5" r="2"/>
-                                <circle cx="12" cy="12" r="2"/>
-                                <circle cx="12" cy="19" r="2"/>
-                            </svg>
-                        </button>
+                       <a href="{{ route('co-owner.condition-reports.show', $report->id) }}" class="action-btn show" title="Voir">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+        <circle cx="12" cy="12" r="3"/>
+    </svg>
+</a>
+                      
                     </div>
                 </div>
             </div>

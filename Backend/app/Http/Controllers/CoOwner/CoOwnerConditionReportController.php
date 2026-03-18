@@ -137,43 +137,36 @@ class CoOwnerConditionReportController extends Controller
     /**
      * Affiche le formulaire de création
      */
-public function create()
-{
-    $user = Auth::user();
-    $coOwnerProfile = CoOwner::where('user_id', $user->id)->first();
+    public function create()
+    {
+        $user = Auth::user();
+        $coOwnerProfile = CoOwner::where('user_id', $user->id)->first();
 
-    if (!$coOwnerProfile) {
-        abort(403, 'Vous n\'avez pas de profil copropriétaire.');
+        if (!$coOwnerProfile) {
+            abort(403, 'Vous n\'avez pas de profil copropriétaire.');
+        }
+
+        // Récupérer les biens délégués ACTIFS
+        $propertyIds = PropertyDelegation::where('co_owner_id', $coOwnerProfile->id)
+            ->where('status', 'active')
+            ->pluck('property_id');
+
+        if ($propertyIds->isEmpty()) {
+            return redirect()->route('co-owner.condition-reports.index')
+                ->with('error', 'Aucun bien délégué. Vous ne pouvez pas créer d\'état des lieux.');
+        }
+
+        // Récupérer les biens avec leurs baux ACTIFS et locataires
+        $properties = Property::whereIn('id', $propertyIds)
+            ->with(['leases' => function($query) {
+                $query->where('status', 'active')
+                      ->with('tenant');
+            }])
+            ->get();
+
+        return view('co-owner.condition-reports.create', compact('properties'));
     }
 
-    // Récupérer les biens délégués ACTIFS
-    $propertyIds = PropertyDelegation::where('co_owner_id', $coOwnerProfile->id)
-        ->where('status', 'active')
-        ->pluck('property_id');
-
-    if ($propertyIds->isEmpty()) {
-        return redirect()->route('co-owner.condition-reports.index')
-            ->with('error', 'Aucun bien délégué. Vous ne pouvez pas créer d\'état des lieux.');
-    }
-
-    // Récupérer les biens avec leurs baux ACTIFS et locataires
-    $properties = Property::whereIn('id', $propertyIds)
-        ->with(['leases' => function($query) {
-            $query->where('status', 'active')
-                  ->with('tenant');
-        }])
-        ->get();
-
-    // Log pour debug
-    \Log::info('Propriétés chargées:', ['count' => $properties->count()]);
-    foreach ($properties as $property) {
-        \Log::info('Propriété: ' . $property->name, [
-            'leases_count' => $property->leases->count()
-        ]);
-    }
-
-    return view('co-owner.condition-reports.create', compact('properties'));
-}
     /**
      * Enregistre un nouvel état des lieux
      */
@@ -586,8 +579,8 @@ public function create()
         }
     }
 
-     /**
-     * Ajoute une signature à l'état des lieux
+    /**
+     * Ajoute une signature à l'état des lieux (signature électronique)
      */
     public function sign(Request $request, $id)
     {
@@ -610,102 +603,58 @@ public function create()
             return response()->json(['error' => 'Accès non autorisé'], 403);
         }
 
+        if ($report->signed_at) {
+            return response()->json(['error' => 'Cet état des lieux est déjà signé'], 400);
+        }
+
         try {
-            // Si c'est une requête AJAX (signature électronique)
-            if ($request->ajax() || $request->wantsJson()) {
-                $signature = $request->input('signature');
+            $signature = $request->input('signature');
 
-                if (!$signature) {
-                    return response()->json(['error' => 'Signature manquante'], 400);
-                }
-
-                // Décoder la signature base64 (si c'est une image)
-                $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $signature));
-
-                // Générer un nom de fichier unique
-                $filename = 'signatures/' . $report->id . '/' . Str::uuid() . '.png';
-
-                // Sauvegarder l'image
-                Storage::disk('public')->put($filename, $imageData);
-
-                $report->signature_path = $filename;
-                $report->signed_at = now();
-                $report->signed_by = $user->id;
-                $report->save();
-
-                // Envoyer une notification au locataire si nécessaire
-                $this->sendSignedNotification($report);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'État des lieux signé avec succès',
-                    'signed_at' => $report->signed_at->format('d/m/Y H:i')
-                ]);
+            if (!$signature) {
+                return response()->json(['error' => 'Signature manquante'], 400);
             }
 
-            // Sinon, redirection classique
-            return redirect()->route('co-owner.condition-reports.show', $report->id)
-                ->with('success', 'État des lieux signé avec succès');
+            // Décoder la signature base64
+            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $signature));
+
+            // Générer un nom de fichier unique
+            $filename = 'signatures/' . $report->id . '/' . Str::uuid() . '.png';
+
+            // Sauvegarder l'image
+            Storage::disk('public')->put($filename, $imageData);
+
+            // Préparer les données de signature
+            $signatureData = [
+                'type' => 'electronic',
+                'image_path' => $filename,
+                'signed_at' => now()->toDateTimeString(),
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ];
+
+            $report->signature_data = $signatureData;
+            $report->signed_at = now();
+            $report->signed_by = $user->id;
+            $report->save();
+
+            // Envoyer une notification au locataire
+            $this->sendSignedNotification($report);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'État des lieux signé avec succès',
+                'signed_at' => $report->signed_at->format('d/m/Y H:i')
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Erreur signature état des lieux: ' . $e->getMessage());
 
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['error' => 'Erreur lors de la signature'], 500);
-            }
-
-            return redirect()->back()->with('error', 'Erreur lors de la signature');
+            return response()->json(['error' => 'Erreur lors de la signature : ' . $e->getMessage()], 500);
         }
     }
 
     /**
-     * Voir le document signé
-     */
-    public function viewSignedDocument(Request $request, $id)
-    {
-        $user = Auth::user();
-        $coOwnerProfile = CoOwner::where('user_id', $user->id)->first();
-
-        if (!$coOwnerProfile) {
-            abort(403, 'Profil co-propriétaire non trouvé');
-        }
-
-        $report = PropertyConditionReport::with(['photos', 'lease.tenant', 'property'])->findOrFail($id);
-
-        $hasAccess = PropertyDelegation::where('co_owner_id', $coOwnerProfile->id)
-            ->where('property_id', $report->property_id)
-            ->where('status', 'active')
-            ->exists();
-
-        if (!$hasAccess) {
-            abort(403, 'Accès non autorisé');
-        }
-
-        // Si un document signé existe, le streamer
-        if ($report->signed_document_path) {
-            $path = storage_path('app/public/' . $report->signed_document_path);
-
-            if (file_exists($path)) {
-                return response()->file($path, [
-                    'Content-Type' => 'application/pdf',
-                    'Content-Disposition' => 'inline; filename="etat-des-lieux-' . $report->id . '-signe.pdf"',
-                ]);
-            }
-        }
-
-        // Sinon, générer un PDF avec la signature
-        try {
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('co-owner.condition-reports.pdf-signed', compact('report'));
-            return $pdf->stream("etat-des-lieux-{$report->id}.pdf");
-
-        } catch (\Exception $e) {
-            Log::error('Erreur génération PDF signé: ' . $e->getMessage());
-            abort(404, 'Document signé non trouvé');
-        }
-    }
-
-    /**
-     * Uploader un document signé
+     * Uploader un document signé (PDF)
      */
     public function uploadSignedDocument(Request $request, $id)
     {
@@ -727,23 +676,32 @@ public function create()
             return redirect()->back()->with('error', 'Accès non autorisé');
         }
 
+        if ($report->signed_at) {
+            return redirect()->back()->with('error', 'Cet état des lieux est déjà signé');
+        }
+
         $request->validate([
             'signed_file' => 'required|file|mimes:pdf|max:10240', // 10MB max
         ]);
 
         try {
-            // Supprimer l'ancien document si existe
-            if ($report->signed_document_path) {
-                Storage::disk('public')->delete($report->signed_document_path);
-            }
-
-            // Sauvegarder le nouveau document
+            // Sauvegarder le fichier
             $path = $request->file('signed_file')->store(
                 'condition-reports/' . $report->id . '/signed',
                 'public'
             );
 
-            $report->signed_document_path = $path;
+            // Préparer les données de signature
+            $signatureData = [
+                'type' => 'upload',
+                'file_path' => $path,
+                'file_name' => $request->file('signed_file')->getClientOriginalName(),
+                'file_size' => $request->file('signed_file')->getSize(),
+                'uploaded_at' => now()->toDateTimeString()
+            ];
+
+            // Mettre à jour le rapport avec les informations de signature
+            $report->signature_data = $signatureData;
             $report->signed_at = now();
             $report->signed_by = $user->id;
             $report->save();
@@ -758,7 +716,53 @@ public function create()
             Log::error('Erreur upload document signé: ' . $e->getMessage());
 
             return redirect()->back()
-                ->with('error', 'Erreur lors du téléchargement du document');
+                ->with('error', 'Erreur lors du téléchargement du document : ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Voir le document signé (PDF ou signature)
+     */
+    public function viewSignedDocument(Request $request, $id)
+    {
+        $user = Auth::user();
+        $coOwnerProfile = CoOwner::where('user_id', $user->id)->first();
+
+        if (!$coOwnerProfile) {
+            abort(403, 'Profil co-propriétaire non trouvé');
+        }
+
+        $report = PropertyConditionReport::with(['photos', 'lease.tenant', 'property'])->findOrFail($id);
+
+        $hasAccess = PropertyDelegation::where('co_owner_id', $coOwnerProfile->id)
+            ->where('property_id', $report->property_id)
+            ->where('status', 'active')
+            ->exists();
+
+        if (!$hasAccess) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        // Si c'est un upload de PDF
+        if ($report->signature_data && $report->signature_data['type'] === 'upload') {
+            $path = storage_path('app/public/' . $report->signature_data['file_path']);
+
+            if (file_exists($path)) {
+                return response()->file($path, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'inline; filename="etat-des-lieux-' . $report->id . '-signe.pdf"',
+                ]);
+            }
+        }
+
+        // Sinon, générer un PDF avec la signature électronique
+        try {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('co-owner.condition-reports.pdf-signed', compact('report'));
+            return $pdf->stream("etat-des-lieux-{$report->id}.pdf");
+
+        } catch (\Exception $e) {
+            Log::error('Erreur génération PDF signé: ' . $e->getMessage());
+            abort(404, 'Document signé non trouvé');
         }
     }
 
@@ -783,6 +787,10 @@ public function create()
 
         if (!$hasAccess) {
             return redirect()->back()->with('error', 'Accès non autorisé');
+        }
+
+        if ($report->signed_at) {
+            return redirect()->back()->with('error', 'Cet état des lieux est déjà signé');
         }
 
         $tenant = $report->lease->tenant;
@@ -920,33 +928,33 @@ public function create()
         }
     }
 
-/**
- * Récupérer les baux d'une propriété (pour AJAX)
- */
-public function getLeases($propertyId)
-{
-    $user = Auth::user();
-    $coOwnerProfile = CoOwner::where('user_id', $user->id)->first();
+    /**
+     * Récupérer les baux d'une propriété (pour AJAX)
+     */
+    public function getLeases($propertyId)
+    {
+        $user = Auth::user();
+        $coOwnerProfile = CoOwner::where('user_id', $user->id)->first();
 
-    if (!$coOwnerProfile) {
-        return response()->json(['error' => 'Non autorisé'], 403);
+        if (!$coOwnerProfile) {
+            return response()->json(['error' => 'Non autorisé'], 403);
+        }
+
+        // Vérifier l'accès au bien
+        $hasAccess = PropertyDelegation::where('co_owner_id', $coOwnerProfile->id)
+            ->where('property_id', $propertyId)
+            ->where('status', 'active')
+            ->exists();
+
+        if (!$hasAccess) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
+
+        $leases = Lease::where('property_id', $propertyId)
+            ->where('status', 'active')
+            ->with('tenant')
+            ->get();
+
+        return response()->json($leases);
     }
-
-    // Vérifier l'accès au bien
-    $hasAccess = PropertyDelegation::where('co_owner_id', $coOwnerProfile->id)
-        ->where('property_id', $propertyId)
-        ->where('status', 'active')
-        ->exists();
-
-    if (!$hasAccess) {
-        return response()->json(['error' => 'Accès non autorisé'], 403);
-    }
-
-    $leases = Lease::where('property_id', $propertyId)
-        ->where('status', 'active')
-        ->with('tenant')
-        ->get();
-
-    return response()->json($leases);
-}
 }
