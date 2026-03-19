@@ -190,9 +190,7 @@ const initializeCsrfToken = async () => {
   return true;
 };
 
-if (!IS_STANDALONE) {
-  initializeCsrfToken().catch(console.error);
-}
+// Bearer token auth - CSRF init desactivee
 
 // Intercepteur pour gérer les erreurs 419 (CSRF)
 api.interceptors.response.use(
