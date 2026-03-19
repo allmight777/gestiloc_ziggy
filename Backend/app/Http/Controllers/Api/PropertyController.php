@@ -379,7 +379,7 @@ class PropertyController extends Controller
                     }
                 }
             })
-            ->distinct();
+            ->distinct('id');
 
         // Appliquer le filtre de statut si présent
         if ($status && in_array($status, ['available', 'rented', 'maintenance', 'off_market'])) {
