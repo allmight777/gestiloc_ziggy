@@ -1,5 +1,22 @@
 <?php
 
+
+// ULTRA DEBUG
+Route::post('/ultra-debug', function () {
+    return response()->json(['ok' => true, 'time' => now()->toISOString()]);
+});
+
+Route::post('/ultra-debug2', function (\Illuminate\Http\Request $request) {
+    return response()->json([
+        'ok' => true,
+        'data' => $request->all(),
+        'classes' => [
+            'AuthController' => class_exists('\\App\\Http\\Controllers\\Api\\AuthController'),
+            'Spatie' => class_exists('\\Spatie\\Permission\\Models\\Role'),
+        ]
+    ]);
+});
+
 // ROUTE DEBUG TEMPORAIRE - A SUPPRIMER APRES
 Route::get('/debug-info', function () {
     return response()->json([
