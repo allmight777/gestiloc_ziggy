@@ -64,6 +64,22 @@ use Illuminate\Support\Facades\Route;
 /* =========================
 |  PUBLIC AUTH
 |========================= */
+
+// DEBUG REGISTER - A SUPPRIMER APRES
+Route::post('/debug-register', function (\Illuminate\Http\Request $request) {
+    try {
+        $controller = new \App\Http\Controllers\Api\AuthController();
+        return $controller->registerLandlord($request);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => array_slice($e->getTrace(), 0, 5),
+        ], 500);
+    }
+});
+
 Route::post('auth/register/landlord', [AuthController::class, 'registerLandlord']);
 Route::post('auth/register/co-owner', [AuthController::class, 'registerCoOwner']);
 Route::post('auth/login', [AuthController::class, 'login']);
