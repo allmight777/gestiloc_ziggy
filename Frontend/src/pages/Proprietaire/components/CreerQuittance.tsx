@@ -79,7 +79,7 @@ const CreerQuittance: React.FC<CreerQuittanceProps> = ({ notify }) => {
       
       if (lease) {
         // Pré-remplir le montant avec le loyer
-        const totalAmount = (lease.rent_amount + (lease.charges_amount || 0));
+        const totalAmount = (parseFloat(lease.rent_amount) + parseFloat(lease.charges_amount || 0));
         setAmountPaid(totalAmount.toString());
       }
     } else {
@@ -631,7 +631,7 @@ const CreerQuittance: React.FC<CreerQuittanceProps> = ({ notify }) => {
                     <p>
                       <CreditCard size={16} />
                       <strong>Loyer mensuel:</strong> <span id="rent-amount">
-                        {selectedLease ? (selectedLease.rent_amount + (selectedLease.charges_amount || 0)).toLocaleString() : '-'}
+                        {selectedLease ? (parseFloat(selectedLease.rent_amount) + parseFloat(selectedLease.charges_amount || 0)).toLocaleString() : '-'}
                       </span> FCFA
                     </p>
                   </div>

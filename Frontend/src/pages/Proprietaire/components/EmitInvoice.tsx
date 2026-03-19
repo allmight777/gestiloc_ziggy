@@ -88,7 +88,7 @@ const EmitInvoice: React.FC<EmitInvoiceProps> = ({ notify }) => {
     if (invoiceType === 'rent' && selectedLeaseId) {
       const lease = leases.find(l => l.id.toString() === selectedLeaseId);
       if (lease) {
-        setAmount((lease.rent_amount + (lease.charges_amount || 0)).toString());
+        setAmount((parseFloat(lease.rent_amount) + parseFloat(lease.charges_amount || 0)).toString());
       }
     }
   }, [invoiceType, selectedLeaseId, leases]);

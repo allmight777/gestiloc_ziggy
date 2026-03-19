@@ -129,6 +129,10 @@ Route::get('/pay-links/{token}', [\App\Http\Controllers\Api\PaymentLinkControlle
 Route::post('/pay-links/{token}/init', [\App\Http\Controllers\Api\PaymentLinkController::class, 'init']);
 
 Route::middleware(['auth:sanctum', 'role:landlord'])->prefix('landlord')->group(function () {
+    // Notifications landlord
+    Route::get('/notifications', [\App\Http\Controllers\Api\Landlord\LandlordNotificationController::class, 'index']);
+    Route::post('/notifications/{id}/read', [\App\Http\Controllers\Api\Landlord\LandlordNotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [\App\Http\Controllers\Api\Landlord\LandlordNotificationController::class, 'markAllAsRead']);
     // Routes pour les états des lieux
     Route::get('/condition-reports', [LandlordConditionReportController::class, 'apiIndex']);
     Route::get('/condition-reports/properties', [LandlordConditionReportController::class, 'apiProperties']);
