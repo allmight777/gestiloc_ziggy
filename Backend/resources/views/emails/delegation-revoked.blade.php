@@ -90,7 +90,7 @@
             <p>Vous n'avez désormais plus accès à ce bien dans votre espace.</p>
 
             <div style="text-align: center;">
-                <a href="{{ $dashboardUrl ?? 'http://localhost:8080/coproprietaire/dashboard' }}" class="button">
+                <a href="{{ $dashboardUrl ?? 'https://gestiloc-front.vercel.app/coproprietaire/dashboard' }}" class="button">
                     Voir mes biens actuels
                 </a>
             </div>

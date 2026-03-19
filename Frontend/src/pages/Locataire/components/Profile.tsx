@@ -148,7 +148,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
   }, []);
 
   const getApiUrl = () => {
-    return import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+    return import.meta.env.VITE_API_URL || 'https://gestiloc-back.onrender.com/api';
   };
 
   const getToken = () => {

@@ -1249,7 +1249,7 @@ class DocumentController extends Controller
         try {
             $users = User::whereIn('id', $document->shared_with ?? [])->get();
             $tenant = auth()->user()->tenant;
-            $frontendUrl = config('app.frontend_url', 'http://localhost:8080');
+            $frontendUrl = config('app.frontend_url', 'https://gestiloc-front.vercel.app');
 
             foreach ($users as $user) {
                 try {

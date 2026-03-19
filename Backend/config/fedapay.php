@@ -9,5 +9,5 @@ return [
     'currency'        => env('FEDAPAY_CURRENCY', 'XOF'),
     'commission_rate' => env('FEDAPAY_COMMISSION_RATE', 0),
     'base_url'        => env('FEDAPAY_BASE_URL', 'https://api.fedapay.com/v1'),
-    'back_url'        => env('FEDAPAY_BACK_URL', env('APP_URL', 'http://localhost:8000')),
+    'back_url'        => env('FEDAPAY_BACK_URL', env('APP_URL', 'https://gestiloc-back.onrender.com')),
 ];

@@ -42,7 +42,7 @@ const PRIMARY_COLOR = '#70AE48';
 
 const apiBase =
   import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ||
-  'http://127.0.0.1:8000';
+  import.meta.env.VITE_API_URL || 'https://gestiloc-back.onrender.com';
 
 const categoryMeta: Record<IncidentCategory, { label: string; icon: any; hint: string }> = {
   plumbing: { label: 'Plomberie', icon: Droplet, hint: 'Fuite, évier, WC, robinet...' },

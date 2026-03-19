@@ -12,11 +12,11 @@ class AppServiceProvider extends ServiceProvider
     {
         // Helper pour générer l'URL React
         app()->singleton('react_url', function () {
-            return env('REACT_APP_URL', 'http://localhost:3000');
+            return env('REACT_APP_URL', 'https://gestiloc-front.vercel.app');
         });
 
         // Partager avec toutes les vues
-        view()->share('reactUrl', env('REACT_APP_URL', 'http://localhost:3000'));
+        view()->share('reactUrl', env('REACT_APP_URL', 'https://gestiloc-front.vercel.app'));
 
         // Helper pour déterminer si un lien est React ou Laravel
         view()->share('isReactRoute', function ($path) {

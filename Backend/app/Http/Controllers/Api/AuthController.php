@@ -370,7 +370,7 @@ HTML;
             ->where('expires_at', '>', now())
             ->firstOrFail();
 
-        $frontendUrl = config('app.frontend_url', 'http://localhost:8080');
+        $frontendUrl = config('app.frontend_url', 'https://gestiloc-front.vercel.app');
 
         return redirect()->away(
             rtrim($frontendUrl, '/') .
@@ -602,7 +602,7 @@ HTML;
             ->where('expires_at', '>', now())
             ->firstOrFail();
 
-        $frontendUrl = config('app.frontend_url', 'http://localhost:8080');
+        $frontendUrl = config('app.frontend_url', 'https://gestiloc-front.vercel.app');
 
         return redirect()->away(
             rtrim($frontendUrl, '/') .

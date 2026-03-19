@@ -77,9 +77,9 @@ class CoOwnerManagementController extends Controller
         if (!$user) {
             $apiToken = $request->get('api_token');
             if ($apiToken) {
-                return redirect('http://localhost:8000/login?api_token=' . $apiToken);
+                return redirect('https://gestiloc-back.onrender.com/login?api_token=' . $apiToken);
             }
-            return redirect('http://localhost:8000/login');
+            return redirect('https://gestiloc-back.onrender.com/login');
         }
 
         if (!$user->hasRole(['landlord', 'co_owner'])) {
@@ -253,9 +253,9 @@ public function show(Request $request, $id)
     if (!$user) {
         $apiToken = $request->get('api_token');
         if ($apiToken) {
-            return redirect('http://localhost:8000/login?api_token=' . $apiToken);
+            return redirect('https://gestiloc-back.onrender.com/login?api_token=' . $apiToken);
         }
-        return redirect('http://localhost:8000/login');
+        return redirect('https://gestiloc-back.onrender.com/login');
     }
 
     if (!$user->hasRole(['landlord', 'co_owner'])) {
@@ -400,9 +400,9 @@ public function show(Request $request, $id)
         if (!$user) {
             $apiToken = $request->get('api_token');
             if ($apiToken) {
-                return redirect('http://localhost:8000/login?api_token=' . $apiToken);
+                return redirect('https://gestiloc-back.onrender.com/login?api_token=' . $apiToken);
             }
-            return redirect('http://localhost:8000/login');
+            return redirect('https://gestiloc-back.onrender.com/login');
         }
 
         if (!$user->hasRole(['landlord', 'co_owner'])) {
@@ -431,9 +431,9 @@ public function invite(Request $request)
         }
         $apiToken = $request->get('api_token');
         if ($apiToken) {
-            return redirect('http://localhost:8000/login?api_token=' . $apiToken);
+            return redirect('https://gestiloc-back.onrender.com/login?api_token=' . $apiToken);
         }
-        return redirect('http://localhost:8000/login');
+        return redirect('https://gestiloc-back.onrender.com/login');
     }
 
     if (!$user->hasRole(['landlord', 'co_owner'])) {
@@ -766,9 +766,9 @@ public function delegate(Request $request, $id)
         }
         $apiToken = $request->get('api_token');
         if ($apiToken) {
-            return redirect('http://localhost:8000/login?api_token=' . $apiToken);
+            return redirect('https://gestiloc-back.onrender.com/login?api_token=' . $apiToken);
         }
-        return redirect('http://localhost:8000/login');
+        return redirect('https://gestiloc-back.onrender.com/login');
     }
 
     if (!$user->hasRole(['landlord', 'co_owner'])) {
@@ -875,7 +875,7 @@ public function delegate(Request $request, $id)
                     'permissions' => $permissions,
                     'expiresAt' => $validated['expires_at'] ? Carbon::parse($validated['expires_at'])->format('d/m/Y') : null,
                     'notes' => $notes,
-                    'dashboardUrl' => 'http://localhost:8080/coproprietaire/dashboard',
+                    'dashboardUrl' => 'https://gestiloc-front.vercel.app/coproprietaire/dashboard',
                 ], function ($message) use ($targetCoOwner) {
                     $message->to($targetCoOwner->user->email)
                             ->subject('Un bien vous a été délégué');
@@ -946,9 +946,9 @@ public function delegate(Request $request, $id)
             }
             $apiToken = $request->get('api_token');
             if ($apiToken) {
-                return redirect('http://localhost:8000/login?api_token=' . $apiToken);
+                return redirect('https://gestiloc-back.onrender.com/login?api_token=' . $apiToken);
             }
-            return redirect('http://localhost:8000/login');
+            return redirect('https://gestiloc-back.onrender.com/login');
         }
 
         if (!$user->hasRole(['landlord', 'co_owner'])) {
@@ -1059,9 +1059,9 @@ public function revoke(Request $request, $id)
     if (!$user) {
         $apiToken = $request->get('api_token');
         if ($apiToken) {
-            return redirect('http://localhost:8000/login?api_token=' . $apiToken);
+            return redirect('https://gestiloc-back.onrender.com/login?api_token=' . $apiToken);
         }
-        return redirect('http://localhost:8000/login');
+        return redirect('https://gestiloc-back.onrender.com/login');
     }
 
     // Récupérer le co_owner à révoquer
@@ -1158,9 +1158,9 @@ public function reactivate(Request $request, $id)
     if (!$user) {
         $apiToken = $request->get('api_token');
         if ($apiToken) {
-            return redirect('http://localhost:8000/login?api_token=' . $apiToken);
+            return redirect('https://gestiloc-back.onrender.com/login?api_token=' . $apiToken);
         }
-        return redirect('http://localhost:8000/login');
+        return redirect('https://gestiloc-back.onrender.com/login');
     }
 
     // Récupérer le co_owner à réactiver

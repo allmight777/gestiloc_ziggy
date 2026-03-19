@@ -64,18 +64,18 @@ class CoOwnerPropertyController extends Controller
             // Rediriger vers la page de login React avec le token
             $apiToken = $request->get('api_token');
             if ($apiToken) {
-                return redirect('http://localhost:8080/login?api_token=' . $apiToken);
+                return redirect('https://gestiloc-front.vercel.app/login?api_token=' . $apiToken);
             }
-            return redirect('http://localhost:8080/login');
+            return redirect('https://gestiloc-front.vercel.app/login');
         }
 
         if (!$user->hasRole('co_owner')) {
-            return redirect('http://localhost:8080/dashboard')->with('error', 'Accès réservé aux copropriétaires');
+            return redirect('https://gestiloc-front.vercel.app/dashboard')->with('error', 'Accès réservé aux copropriétaires');
         }
 
         $coOwner = $user->coOwner;
         if (!$coOwner) {
-            return redirect('http://localhost:8080/dashboard')->with('error', 'Profil copropriétaire non trouvé');
+            return redirect('https://gestiloc-front.vercel.app/dashboard')->with('error', 'Profil copropriétaire non trouvé');
         }
 
         Log::info('=== FORMULAIRE CRÉATION BIEN (COPRIO) ===', [

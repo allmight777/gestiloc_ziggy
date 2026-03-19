@@ -76,7 +76,7 @@ class PaymentMethodController extends Controller
                         'error' => 'Non authentifié'
                     ], 401);
                 }
-                return redirect('http://localhost:8080/login');
+                return redirect('https://gestiloc-front.vercel.app/login');
             }
 
             $method = PaymentMethod::where('user_id', $user->id)
@@ -112,7 +112,7 @@ class PaymentMethodController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://gestiloc-front.vercel.app/login');
         }
 
         return view('payment-methods.create');

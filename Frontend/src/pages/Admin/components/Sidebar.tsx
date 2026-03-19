@@ -22,11 +22,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, isO
     if (!token) {
       console.error("Aucun token trouvé pour l'authentification Laravel");
       alert("Session expirée, veuillez vous reconnecter");
-      window.location.href = 'http://127.0.0.1:8000/login';
+      window.location.href = 'https://gestiloc-back.onrender.com/login';
       return;
     }
 
-    const laravelBaseUrl = 'http://127.0.0.1:8000';
+    const laravelBaseUrl = import.meta.env.VITE_API_URL || 'https://gestiloc-back.onrender.com';
     let fullPath = path;
     
     if (fullPath.startsWith('/')) {
@@ -45,7 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, isO
   const handleLogout = () => {
     // Rediriger vers la route de déconnexion Laravel
     // Laravel s'occupera de nettoyer la session et rediriger vers React
-    window.location.href = 'http://127.0.0.1:8000/logout';
+    window.location.href = 'https://gestiloc-back.onrender.com/logout';
   };
 
   // ✅ Fonction pour gérer la navigation mixte (React ou Laravel)

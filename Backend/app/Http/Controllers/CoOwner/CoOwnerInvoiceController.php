@@ -55,7 +55,7 @@ class CoOwnerInvoiceController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://gestiloc-front.vercel.app/login');
         }
 
         if (!$user->hasRole('co_owner')) {
@@ -149,7 +149,7 @@ class CoOwnerInvoiceController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://gestiloc-front.vercel.app/login');
         }
 
         if (!$user->hasRole('co_owner')) {
@@ -199,7 +199,7 @@ class CoOwnerInvoiceController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://gestiloc-front.vercel.app/login');
         }
 
         if (!$user->hasRole('co_owner')) {
@@ -331,7 +331,7 @@ class CoOwnerInvoiceController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://gestiloc-front.vercel.app/login');
         }
 
         $coOwner = $user->coOwner;
@@ -363,7 +363,7 @@ class CoOwnerInvoiceController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://gestiloc-front.vercel.app/login');
         }
 
         $coOwner = $user->coOwner;
@@ -405,7 +405,7 @@ class CoOwnerInvoiceController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://gestiloc-front.vercel.app/login');
         }
 
         $coOwner = $user->coOwner;
