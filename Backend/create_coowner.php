@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\DB;
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
+
+
+
 try {
     // Créer un utilisateur co-propriétaire de test
     $user = User::create([
