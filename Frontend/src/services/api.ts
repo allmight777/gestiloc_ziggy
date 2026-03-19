@@ -166,6 +166,8 @@ const getCsrfToken = async () => {
   }
 
   try {
+    // CSRF desactive - Bearer token auth
+    return true;
     await axios.get(`${API_URL.replace('/api', '')}/sanctum/csrf-cookie`, {
       withCredentials: false,
       headers: {
