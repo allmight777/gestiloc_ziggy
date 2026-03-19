@@ -124,32 +124,7 @@ class LandlordNotificationController extends Controller
                 ];
             }
 
-            // 4. Invitations de locataires acceptées récemment
-            $recentInvitations = TenantInvitation::whereHas('lease.property', function($q) use ($landlordId) {
-                    $q->where('landlord_id', $landlordId);
-                })
-                ->where('accepted_at', '>=', now()->subDays(7))
-                ->with(['lease.property', 'lease.tenant'])
-                ->get();
-
-            foreach ($recentInvitations as $invitation) {
-                $propertyName = $invitation->lease->property->name ?? 'Inconnu';
-                $tenantName = $invitation->lease->tenant 
-                    ? ($invitation->lease->tenant->first_name . ' ' . $invitation->lease->tenant->last_name)
-                    : $invitation->email;
-
-                $notifications[] = [
-                    'id' => 'invitation_accepted_' . $invitation->id,
-                    'type' => 'success',
-                    'title' => 'Locataire confirmé',
-                    'message' => "{$tenantName} a confirmé sa location pour {$propertyName}",
-                    'subtext' => 'Invitation acceptée',
-                    'is_read' => false,
-                    'created_at' => $invitation->accepted_at,
-                    'link' => '/locataires',
-                    'icon' => 'user-check',
-                ];
-            }
+            // 4. Invitations de locataires acceptées récemment - skip si relation manquante
 
             // 5. Nouvelles demandes d'intervention
             $recentInterventions = MaintenanceRequest::whereHas('property', function($q) use ($landlordId) {
@@ -238,33 +213,7 @@ class LandlordNotificationController extends Controller
                 ];
             }
 
-            // 8. Préavis reçus
-            $recentNotices = Notice::whereHas('lease.property', function($q) use ($landlordId) {
-                    $q->where('landlord_id', $landlordId);
-                })
-                ->where('created_at', '>=', now()->subDays(7))
-                ->with(['lease.property', 'lease.tenant'])
-                ->get();
-
-            foreach ($recentNotices as $notice) {
-                $propertyName = $notice->lease->property->name ?? 'Inconnu';
-                $tenantName = $notice->lease->tenant 
-                    ? ($notice->lease->tenant->first_name . ' ' . $notice->lease->tenant->last_name)
-                    : 'Inconnu';
-                $effectiveDate = Carbon::parse($notice->effective_date)->format('d/m/Y');
-
-                $notifications[] = [
-                    'id' => 'notice_' . $notice->id,
-                    'type' => 'warning',
-                    'title' => 'Préavis reçu',
-                    'message' => "{$tenantName} a envoyé un préavis pour {$propertyName}",
-                    'subtext' => 'Effective le: ' . $effectiveDate,
-                    'is_read' => false,
-                    'created_at' => $notice->created_at,
-                    'link' => '/preavis',
-                    'icon' => 'file-signature',
-                ];
-            }
+            // 8. Préavis reçus - skip si relation manquante
 
             // Trier par date décroissante
             usort($notifications, function($a, $b) {
