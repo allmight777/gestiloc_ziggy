@@ -106,7 +106,7 @@ class DashboardController extends Controller
         })
             ->where('due_date', '>=', Carbon::now()->subMonths(6))
             ->select(
-                DB::raw("DATE_FORMAT(due_date, '%Y-%m') as month"),
+                DB::raw("TO_CHAR(due_date, 'YYYY-MM') as month"),
                 DB::raw('SUM(amount_paid) as total_paid'),
                 DB::raw('SUM(amount_total) as total_expected')
             )
