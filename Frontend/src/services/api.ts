@@ -154,7 +154,7 @@ const api = axios.create({
     Accept: 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
   },
-  withCredentials: true,
+  withCredentials: false,
 });
 
 // ================= CSRF / SANCTUM =================
@@ -167,7 +167,7 @@ const getCsrfToken = async () => {
 
   try {
     await axios.get(`${API_URL.replace('/api', '')}/sanctum/csrf-cookie`, {
-      withCredentials: true,
+      withCredentials: false,
       headers: {
         Accept: 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
@@ -255,7 +255,7 @@ export const authService = {
           device_name: 'web-browser',
         },
         {
-          withCredentials: true,
+          withCredentials: false,
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
