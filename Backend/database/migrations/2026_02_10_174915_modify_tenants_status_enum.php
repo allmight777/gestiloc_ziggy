@@ -7,44 +7,34 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        // Pour MySQL, nous devons modifier le type ENUM manuellement
-        if (DB::connection()->getDriverName() === 'mysql') {
-            DB::statement("ALTER TABLE tenants MODIFY COLUMN `status` ENUM('candidate', 'active', 'inactive', 'archived', 'pending', 'rejected', 'suspended') DEFAULT 'candidate'");
-        } else {
-            // Pour PostgreSQL/SQLite, utiliser Schema
-            Schema::table('tenants', function (Blueprint $table) {
-                $table->enum('status', [
-                    'candidate', 'active', 'inactive', 'archived',
-                    'pending', 'rejected', 'suspended'
-                ])->default('candidate')->change();
-            });
-        }
+        $driver = DB::connection()->getDriverName();
 
-        // Ajouter un commentaire à la colonne pour la documentation
-        if (DB::connection()->getDriverName() === 'mysql') {
+        if ($driver === 'mysql') {
+            DB::statement("ALTER TABLE tenants MODIFY COLUMN `status` ENUM('candidate', 'active', 'inactive', 'archived', 'pending', 'rejected', 'suspended') DEFAULT 'candidate'");
             DB::statement("ALTER TABLE tenants MODIFY COLUMN `status` ENUM('candidate', 'active', 'inactive', 'archived', 'pending', 'rejected', 'suspended') DEFAULT 'candidate' COMMENT 'candidate: Candidat, active: Actif, inactive: Inactif, archived: Archivé, pending: En attente, rejected: Rejeté, suspended: Suspendu'");
+        } else {
+            DB::statement('PRAGMA legacy_alter_table = ON');
+            Schema::table('tenants', function (Blueprint $table) {
+                $table->string('status', 50)->default('candidate')->change();
+            });
+            DB::statement('PRAGMA legacy_alter_table = OFF');
         }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        // Revenir aux anciennes valeurs 
-        if (DB::connection()->getDriverName() === 'mysql') {
+        $driver = DB::connection()->getDriverName();
+
+        if ($driver === 'mysql') {
             DB::statement("ALTER TABLE tenants MODIFY COLUMN `status` ENUM('candidate', 'active', 'inactive') DEFAULT 'candidate'");
         } else {
+            DB::statement('PRAGMA legacy_alter_table = ON');
             Schema::table('tenants', function (Blueprint $table) {
-                $table->enum('status', ['candidate', 'active', 'inactive'])
-                      ->default('candidate')
-                      ->change();
+                $table->string('status', 50)->default('candidate')->change();
             });
+            DB::statement('PRAGMA legacy_alter_table = OFF');
         }
     }
 };
