@@ -1668,6 +1668,12 @@ export const landlordService = {
     }
   },
 
+
+
+
+
+  
+
   updateProfile: async (userData: {
     first_name?: string;
     last_name?: string;

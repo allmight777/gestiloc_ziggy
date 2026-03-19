@@ -25,6 +25,9 @@ class Note extends Model
         'meta',
     ];
 
+
+    
+
     protected $casts = [
         'is_shared' => 'boolean',
         'shared_with' => 'array',
