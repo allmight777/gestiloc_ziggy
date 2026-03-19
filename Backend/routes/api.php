@@ -1,5 +1,22 @@
 <?php
 
+// ROUTE DEBUG TEMPORAIRE - A SUPPRIMER APRES
+Route::get('/debug-info', function () {
+    return response()->json([
+        'status' => 'ok',
+        'php' => PHP_VERSION,
+        'laravel' => app()->version(),
+        'env' => app()->environment(),
+        'db_driver' => config('database.default'),
+        'session_driver' => config('session.driver'),
+        'cache_driver' => config('cache.default'),
+        'app_url' => config('app.url'),
+        'cors_paths' => config('cors.paths'),
+        'cors_origins' => config('cors.allowed_origins'),
+    ]);
+});
+
+
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TenantController;
 use App\Http\Controllers\Api\CoOwnerController;
