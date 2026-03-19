@@ -89,6 +89,10 @@ class PaymentMethod extends Model
         };
     }
 
+
+
+    
+
     public function getColorAttribute()
     {
         return match($this->type) {
@@ -141,5 +145,5 @@ class PaymentMethod extends Model
         $this->update(['is_default' => true]);
     }
 
-    
+
 }
