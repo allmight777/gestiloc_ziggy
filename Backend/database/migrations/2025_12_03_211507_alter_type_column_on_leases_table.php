@@ -10,7 +10,9 @@ return new class extends Migration {
     {
         Schema::table('leases', function (Blueprint $table) {
             // Si actuellement c'est un ENUM ou un TINYINT, on change en ENUM('nu','meuble')
-            DB::statement("ALTER TABLE leases MODIFY COLUMN type ENUM('nu', 'meuble') NOT NULL DEFAULT 'nu'");
+            Schema::table('leases', function (Blueprint \$table) {
+                \$table->enum('type', ['nu', 'meuble'])->default('nu')->change();
+            });
         });
     }
 
