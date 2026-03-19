@@ -57,6 +57,7 @@ class AdminDashboardSeeder extends Seeder
                     'end_date' => now()->addMonths(rand(6, 12)),
                     'rent_amount' => $property->rent_amount,
                     'status' => 'active',
+                    'type' => 'nu',
                     'guarantee_amount' => $property->rent_amount,
                 ]);
             }
