@@ -1093,12 +1093,10 @@
             const token = params.get('api_token');
             if (token) {
                 localStorage.setItem('token', token);
-                params.delete('api_token');
-                const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '') + window.location.hash;
-                window.history.replaceState({}, '', newUrl);
-                return token;
+                sessionStorage.setItem('token', token);
+                // Ne pas supprimer le token de l'URL - le middleware en a besoin
             }
-            return null;
+            return token || localStorage.getItem('token') || sessionStorage.getItem('token');
         }
 
         // ─── NAVIGATION ───
