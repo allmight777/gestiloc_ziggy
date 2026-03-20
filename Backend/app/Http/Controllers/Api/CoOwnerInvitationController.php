@@ -51,7 +51,9 @@ class CoOwnerInvitationController extends Controller
         } catch (\Exception $e) {
             Log::error('Erreur renvoi invitation', ['error' => $e->getMessage()]);
             return response()->json([
-                'message' => 'Erreur lors du renvoi de l\'invitation'
+                'message' => 'Erreur lors du renvoi de l\'invitation',
+                'error' => $e->getMessage(),
+                'trace' => substr($e->getTraceAsString(), 0, 500)
             ], 500);
         }
     }
