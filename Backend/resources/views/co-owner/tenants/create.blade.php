@@ -7,7 +7,7 @@
     <div class="form-card">
         <div class="form-body">
             <div class="top-actions">
-                <a href="{{ route('co-owner.tenants.index') }}" class="button button-secondary">
+                <a href="{{ route('co-owner.tenants.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="button button-secondary">
                     <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
                     Retour à la liste
                 </a>

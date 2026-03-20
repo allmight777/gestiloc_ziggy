@@ -18,7 +18,7 @@
                 </p>
             </div>
 
-            <a href="{{ route('co-owner.notices.create') }}"
+            <a href="{{ route('co-owner.notices.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                class="btn-create"
                style="display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; background: #70AE48; color: white; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 8px rgba(112, 174, 72, 0.3); transition: all 0.2s;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -196,7 +196,7 @@
                     @endif
                 </p>
                 @if(!$searchTerm && !$propertyFilter && $statusFilter === 'all' && !$typeFilter)
-                    <a href="{{ route('co-owner.notices.create') }}"
+                    <a href="{{ route('co-owner.notices.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                        style="display: inline-flex; align-items: center; gap: 10px; padding: 14px 32px; background: #70AE48; color: white; border-radius: 14px; text-decoration: none; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 12px rgba(112,174,72,0.3);">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -205,7 +205,7 @@
                         Créer un préavis
                     </a>
                 @else
-                    <a href="{{ route('co-owner.notices.index') }}"
+                    <a href="{{ route('co-owner.notices.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                        style="display: inline-flex; align-items: center; gap: 10px; padding: 14px 32px; background: #6B7280; color: white; border-radius: 14px; text-decoration: none; font-weight: 700; font-size: 1rem;">
                         Réinitialiser les filtres
                     </a>
@@ -334,7 +334,7 @@
 
                         <!-- Actions -->
                         <div style="display: flex; gap: 1rem;">
-                            <a href="{{ route('co-owner.notices.show', $notice) }}"
+                            <a href="{{ route('co-owner.notices.show', $notice) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                                style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: white; color: #6B7280; border: 1.5px solid #E5E7EB; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 0.95rem; transition: all 0.2s;"
                                onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='#70AE48'"
                                onmouseout="this.style.background='white'; this.style.borderColor='#E5E7EB'">
@@ -345,7 +345,7 @@
                                 Voir
                             </a>
 
-                            <a href="{{ route('co-owner.notices.edit', $notice) }}"
+                            <a href="{{ route('co-owner.notices.edit', $notice) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                                style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: white; color: #70AE48; border: 1.5px solid #70AE48; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 0.95rem; transition: all 0.2s;"
                                onmouseover="this.style.background='#F0F9F0'"
                                onmouseout="this.style.background='white'">

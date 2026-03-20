@@ -8,7 +8,7 @@
     <div class="content-card">
         <div class="content-body">
             <div class="top-actions">
-                <a href="{{ route('co-owner.notices.index') }}" class="button button-secondary">
+                <a href="{{ route('co-owner.notices.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="button button-secondary">
                     <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
                     Retour à la liste
                 </a>
@@ -119,7 +119,7 @@
                         Créer le préavis
                     </button>
 
-                    <a href="{{ route('co-owner.notices.index') }}"
+                    <a href="{{ route('co-owner.notices.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                        class="button button-secondary"
                        style="width: auto !important; flex: 0 0 auto !important;">
                         <i data-lucide="x" style="width:16px;height:16px;"></i>

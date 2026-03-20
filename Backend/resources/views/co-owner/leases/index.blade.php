@@ -11,7 +11,7 @@
             <h1>Contrats de bail</h1>
             <p class="subtitle">Générez automatiquement vos contrats de bail personnalisés en quelques clics.<br>Documents conformes et prêts à signer.</p>
         </div>
-        <a href="{{ route('co-owner.assign-property.create') }}" class="btn-new-lease">
+        <a href="{{ route('co-owner.assign-property.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn-new-lease">
             <i data-lucide="plus" style="width:18px;height:18px;"></i>
             Contrat de bail
         </a>
@@ -133,7 +133,7 @@
                     <div class="contract-actions">
 
                         {{-- PDF --}}
-                        <a href="{{ route('co-owner.leases.documents.download', $lease) }}"
+                        <a href="{{ route('co-owner.leases.documents.download', $lease) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                            class="action-btn btn-download"
                            title="Télécharger le contrat PDF">
                             <i data-lucide="download" style="width:14px;height:14px;"></i>
@@ -169,7 +169,7 @@
 
                         {{-- Voir --}}
                         @if($hasSignedDoc)
-                            <a href="{{ route('co-owner.leases.view-signed', $lease->uuid) }}"
+                            <a href="{{ route('co-owner.leases.view-signed', $lease->uuid) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                                class="action-btn btn-view"
                                target="_blank"
                                title="Voir le contrat signé"
@@ -220,7 +220,7 @@
                 <i data-lucide="file-text" style="width:64px;height:64px;color:#cbd5e1;"></i>
                 <h3>Aucun contrat de bail</h3>
                 <p>Vous n'avez pas encore créé de contrat de bail pour les biens qui vous sont délégués.</p>
-                <a href="{{ route('co-owner.assign-property.create') }}" class="btn-new-lease">
+                <a href="{{ route('co-owner.assign-property.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn-new-lease">
                     <i data-lucide="plus" style="width:18px;height:18px;"></i>
                     Créer un contrat
                 </a>

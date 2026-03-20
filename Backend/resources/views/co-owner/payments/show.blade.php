@@ -11,7 +11,7 @@
                 <p class="subtitle">Consultez les informations complètes du paiement</p>
             </div>
             <div class="header-actions">
-                <a href="{{ route('co-owner.payments.index') }}" class="btn-outline">
+                <a href="{{ route('co-owner.payments.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn-outline">
                     <span class="icon">←</span>
                     Retour à la liste
                 </a>
@@ -22,7 +22,7 @@
                         <span class="icon">✉️</span>
                         Envoyer la quittance
                     </button>
-                    <a href="{{ route('co-owner.payments.receipt', $payment->id) }}" class="btn-secondary" target="_blank">
+                    <a href="{{ route('co-owner.payments.receipt', $payment->id) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn-secondary" target="_blank">
                         <span class="icon">📄</span>
                         Télécharger PDF
                     </a>

@@ -568,7 +568,7 @@
             </h1>
         </div>
         <div class="page-actions">
-            <a href="{{ route('co-owner.condition-reports.download', $report->id) }}" class="btn btn-outline-primary">
+            <a href="{{ route('co-owner.condition-reports.download', $report->id) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn btn-outline-primary">
                 <svg viewBox="0 0 24 24">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="7 10 12 15 17 10"/>
@@ -576,7 +576,7 @@
                 </svg>
                 Télécharger PDF
             </a>
-            <a href="{{ route('co-owner.condition-reports.index') }}" class="btn btn-outline">
+            <a href="{{ route('co-owner.condition-reports.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn btn-outline">
                 <svg viewBox="0 0 24 24">
                     <path d="M19 12H5M12 19l-7-7 7-7"/>
                 </svg>
@@ -774,7 +774,7 @@
                 </div>
                 <div class="card-body">
                     <div class="actions-list">
-                        <a href="{{ route('co-owner.condition-reports.download', $report->id) }}" class="btn btn-outline-primary">
+                        <a href="{{ route('co-owner.condition-reports.download', $report->id) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn btn-outline-primary">
                             <svg viewBox="0 0 24 24">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                                 <polyline points="7 10 12 15 17 10"/>

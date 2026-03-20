@@ -26,7 +26,7 @@
                 <i data-lucide="download" style="width: 18px; height: 18px;"></i>
                 Exporter
             </button>
-            <a href="{{ route('co-owner.payments.create') }}" class="btn-add">
+            <a href="{{ route('co-owner.payments.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn-add">
                 <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
                 Ajouter une transaction
             </a>

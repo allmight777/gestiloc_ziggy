@@ -713,7 +713,7 @@
                 Générez des PDF professionnels en quelques clics.
             </p>
         </div>
-        <a href="{{ route('co-owner.condition-reports.create') }}" class="create-btn">
+        <a href="{{ route('co-owner.condition-reports.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="create-btn">
             <svg viewBox="0 0 20 20" fill="none">
                 <path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
@@ -780,7 +780,7 @@
             <div class="empty-icon">📋</div>
             <h4 class="empty-title">Aucun état des lieux trouvé</h4>
             <p class="empty-description">Commencez par créer votre premier état des lieux.</p>
-            <a href="{{ route('co-owner.condition-reports.create') }}" class="create-btn">
+            <a href="{{ route('co-owner.condition-reports.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="create-btn">
                 <svg viewBox="0 0 20 20" fill="none" style="width: 18px; height: 18px;">
                     <path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
@@ -850,14 +850,14 @@
                 <div class="report-footer">
                     <span class="creation-date">Créé le {{ $report->created_at->format('d M Y') }}</span>
                     <div class="action-buttons">
-                        <a href="{{ route('co-owner.condition-reports.download', $report->id) }}" class="action-btn download" title="Télécharger PDF">
+                        <a href="{{ route('co-owner.condition-reports.download', $report->id) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="action-btn download" title="Télécharger PDF">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                                 <polyline points="7 10 12 15 17 10"/>
                                 <line x1="12" y1="15" x2="12" y2="3"/>
                             </svg>
                         </a>
-                       <a href="{{ route('co-owner.condition-reports.show', $report->id) }}" class="action-btn show" title="Voir">
+                       <a href="{{ route('co-owner.condition-reports.show', $report->id) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="action-btn show" title="Voir">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
         <circle cx="12" cy="12" r="3"/>

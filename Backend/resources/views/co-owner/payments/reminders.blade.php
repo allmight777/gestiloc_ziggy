@@ -14,7 +14,7 @@
             <p>Gérez les rappels pour les paiements en retard</p>
         </div>
         <div class="header-actions">
-            <a href="{{ route('co-owner.payments.index') }}" class="button button-secondary">
+            <a href="{{ route('co-owner.payments.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="button button-secondary">
                 <i data-lucide="arrow-left"></i>
                 Retour aux paiements
             </a>
@@ -73,7 +73,7 @@
                 </div>
                 <h3>Aucun rappel en attente</h3>
                 <p>Tous les paiements sont à jour. Aucun rappel nécessaire pour le moment.</p>
-                <a href="{{ route('co-owner.payments.index') }}" class="button button-primary">
+                <a href="{{ route('co-owner.payments.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="button button-primary">
                     <i data-lucide="arrow-left"></i>
                     Retour aux paiements
                 </a>
@@ -152,7 +152,7 @@
                                 <i data-lucide="send"></i>
                                 Envoyer un rappel
                             </button>
-                            <a href="{{ route('co-owner.payments.show', $payment) }}" class="button button-secondary">
+                            <a href="{{ route('co-owner.payments.show', $payment) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="button button-secondary">
                                 <i data-lucide="eye"></i>
                                 Voir
                             </a>

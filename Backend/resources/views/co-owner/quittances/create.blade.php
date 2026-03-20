@@ -5,7 +5,7 @@
 @section('content')
 <div class="content-body">
     <div class="top-actions">
-        <a href="{{ route('co-owner.quittances.index') }}" class="button button-back">
+        <a href="{{ route('co-owner.quittances.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="button button-back">
             <i data-lucide="arrow-left" style="width: 24px; height: 24px;"></i>
             Retour à la liste
         </a>
@@ -36,7 +36,7 @@
             <i data-lucide="home" class="empty-state-icon" style="width: 80px; height: 80px;"></i>
             <h3 class="empty-state-title">Aucun bail disponible</h3>
             <p class="empty-state-text">Vous devez avoir au moins un bail actif pour créer une quittance.</p>
-            <a href="{{ route('co-owner.leases.index') }}" class="button button-primary">
+            <a href="{{ route('co-owner.leases.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="button button-primary">
                 <i data-lucide="plus" style="width: 20px; height: 20px;"></i>
                 Gérer les baux
             </a>
@@ -165,7 +165,7 @@
                         <i data-lucide="file-plus" style="width: 20px; height: 20px;"></i>
                         Créer la quittance
                     </button>
-                    <a href="{{ route('co-owner.quittances.index') }}" class="button button-secondary">
+                    <a href="{{ route('co-owner.quittances.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="button button-secondary">
                         <i data-lucide="x" style="width: 20px; height: 20px;"></i>
                         Annuler
                     </a>

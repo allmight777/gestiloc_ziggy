@@ -1079,7 +1079,7 @@
     <div class="header-wrapper">
         <div class="header-content">
             <div class="header-left">
-                <a href="{{ route('co-owner.management.index') }}" class="back-btn">
+                <a href="{{ route('co-owner.management.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="back-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>

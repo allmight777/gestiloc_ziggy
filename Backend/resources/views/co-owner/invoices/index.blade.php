@@ -435,7 +435,7 @@
                 Gardez une trace de toutes vos dépenses et documents administratifs.
             </p>
         </div>
-        <a href="{{ route('co-owner.invoices.create') }}" class="add-document-btn">
+        <a href="{{ route('co-owner.invoices.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="add-document-btn">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
             </svg>
@@ -465,22 +465,22 @@
 
     <!-- Filtres par type -->
     <div class="filter-tabs">
-        <a href="{{ route('co-owner.invoices.index') }}" class="filter-tab {{ !request('type') ? 'active' : '' }}">
+        <a href="{{ route('co-owner.invoices.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="filter-tab {{ !request('type') ? 'active' : '' }}">
             Tous
         </a>
-        <a href="{{ route('co-owner.invoices.index', ['type' => 'rent']) }}" class="filter-tab {{ request('type') == 'rent' ? 'active' : '' }}">
+        <a href="{{ route('co-owner.invoices.index', ['type' => 'rent']) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="filter-tab {{ request('type') == 'rent' ? 'active' : '' }}">
             Facture
         </a>
-        <a href="{{ route('co-owner.invoices.index', ['type' => 'repair']) }}" class="filter-tab {{ request('type') == 'repair' ? 'active' : '' }}">
+        <a href="{{ route('co-owner.invoices.index', ['type' => 'repair']) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="filter-tab {{ request('type') == 'repair' ? 'active' : '' }}">
             Travaux
         </a>
-        <a href="{{ route('co-owner.invoices.index', ['type' => 'deposit']) }}" class="filter-tab {{ request('type') == 'deposit' ? 'active' : '' }}">
+        <a href="{{ route('co-owner.invoices.index', ['type' => 'deposit']) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="filter-tab {{ request('type') == 'deposit' ? 'active' : '' }}">
             Assurances
         </a>
-        <a href="{{ route('co-owner.invoices.index', ['type' => 'charge']) }}" class="filter-tab {{ request('type') == 'charge' ? 'active' : '' }}">
+        <a href="{{ route('co-owner.invoices.index', ['type' => 'charge']) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="filter-tab {{ request('type') == 'charge' ? 'active' : '' }}">
             Diagnostics
         </a>
-        <a href="{{ route('co-owner.invoices.index', ['type' => 'other']) }}" class="filter-tab {{ request('type') == 'other' ? 'active' : '' }}">
+        <a href="{{ route('co-owner.invoices.index', ['type' => 'other']) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="filter-tab {{ request('type') == 'other' ? 'active' : '' }}">
             Autres
         </a>
     </div>
@@ -586,7 +586,7 @@
                     Ajouté le {{ \Carbon\Carbon::parse($invoice->created_at)->format('d M Y') }}
                 </div>
                 <div class="card-actions">
-                    <a href="{{ route('co-owner.invoices.pdf', $invoice->id) }}" class="action-btn primary" title="Télécharger PDF">
+                    <a href="{{ route('co-owner.invoices.pdf', $invoice->id) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="action-btn primary" title="Télécharger PDF">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="7 10 12 15 17 10"/>
@@ -607,7 +607,7 @@
             </svg>
             <h3>Aucune facture trouvée</h3>
             <p>
-                <a href="{{ route('co-owner.invoices.create') }}">Créez votre première facture</a>
+                <a href="{{ route('co-owner.invoices.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}">Créez votre première facture</a>
             </p>
         </div>
         @endforelse

@@ -18,7 +18,7 @@
                 </p>
             </div>
 
-            <a href="{{ route('co-owner.quittances.create') }}"
+            <a href="{{ route('co-owner.quittances.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                class="btn-create"
                style="display: inline-flex; align-items: center; gap: 12px; padding: 16px 32px; background: #70AE48; color: white; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 1.05rem; box-shadow: 0 4px 12px rgba(112, 174, 72, 0.3); transition: all 0.2s ease;">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -190,7 +190,7 @@
                     @endif
                 </p>
                 @if(!$searchTerm && !$propertyFilter && $statusFilter === 'all')
-                    <a href="{{ route('co-owner.quittances.create') }}"
+                    <a href="{{ route('co-owner.quittances.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                        style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; background: #70AE48; color: white; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 1.05rem; box-shadow: 0 4px 12px rgba(112, 174, 72, 0.3); transition: all 0.2s;"
                        onmouseover="this.style.background='#5d8f3a'; this.style.transform='translateY(-1px)'"
                        onmouseout="this.style.background='#70AE48'; this.style.transform='translateY(0)'">
@@ -201,7 +201,7 @@
                         Créer une quittance
                     </a>
                 @else
-                    <a href="{{ route('co-owner.quittances.index') }}"
+                    <a href="{{ route('co-owner.quittances.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                        style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; background: #6B7280; color: white; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 1.05rem; transition: all 0.2s;"
                        onmouseover="this.style.background='#4B5563'"
                        onmouseout="this.style.background='#6B7280'">
@@ -278,7 +278,7 @@
 
                         <!-- Actions -->
                         <div style="display: flex; gap: 0.75rem;">
-                            <a href="{{ route('co-owner.quittances.download', $receipt->id) }}"
+                            <a href="{{ route('co-owner.quittances.download', $receipt->id) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                                style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; background: white; color: #6B7280; border: 1px solid #E5E7EB; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s;"
                                onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='#70AE48'; this.style.color='#70AE48'"
                                onmouseout="this.style.background='white'; this.style.borderColor='#E5E7EB'; this.style.color='#6B7280'">

@@ -394,7 +394,7 @@
                             </svg>
                             <div>
                                 <strong>Aucune location active</strong><br>
-                                <span style="font-size: 0.9rem;">Vous devez d'abord <a href="{{ route('co-owner.assign-property.create') }}">assigner un bien</a>.</span>
+                                <span style="font-size: 0.9rem;">Vous devez d'abord <a href="{{ route('co-owner.assign-property.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}">assigner un bien</a>.</span>
                             </div>
                         </div>
                     @else
@@ -529,7 +529,7 @@
                     Précédent
                 </button>
 
-                <a href="{{ route('co-owner.invoices.index') }}" class="btn btn-secondary" id="cancel-btn">
+                <a href="{{ route('co-owner.invoices.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn btn-secondary" id="cancel-btn">
                     Annuler
                 </a>
 

@@ -11,7 +11,7 @@
                 <p class="subtitle">Gérez vos interventions, suivez les demandes de vos locataires et planifiez les
                     travaux.<br>Centralisez tous les devis, factures et suivis de chantier au même endroit.</p>
             </div>
-            <a href="{{ route('co-owner.maintenance.create') }}" class="btn-create">
+            <a href="{{ route('co-owner.maintenance.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn-create">
                 <i data-lucide="plus" style="width: 24px; height: 24px;"></i>
                 Créer une intervention
             </a>
@@ -39,23 +39,23 @@
 
         <!-- Filtres par statut (pills) -->
         <div class="status-filters">
-            <a href="{{ route('co-owner.maintenance.index') }}"
+            <a href="{{ route('co-owner.maintenance.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                 class="status-pill {{ $currentFilter === 'all' || !isset($currentFilter) ? 'active' : '' }}">
                 Tous
             </a>
-            <a href="{{ route('co-owner.maintenance.index', ['status_filter' => 'urgent']) }}"
+            <a href="{{ route('co-owner.maintenance.index', ['status_filter' => 'urgent']) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                 class="status-pill {{ $currentFilter === 'urgent' ? 'active' : '' }}">
                 Urgentes
             </a>
-            <a href="{{ route('co-owner.maintenance.index', ['status_filter' => 'in_progress']) }}"
+            <a href="{{ route('co-owner.maintenance.index', ['status_filter' => 'in_progress']) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                 class="status-pill {{ $currentFilter === 'in_progress' ? 'active' : '' }}">
                 En cours
             </a>
-            <a href="{{ route('co-owner.maintenance.index', ['status_filter' => 'planned']) }}"
+            <a href="{{ route('co-owner.maintenance.index', ['status_filter' => 'planned']) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                 class="status-pill {{ $currentFilter === 'planned' ? 'active' : '' }}">
                 Planifiées
             </a>
-            <a href="{{ route('co-owner.maintenance.index', ['status_filter' => 'completed']) }}"
+            <a href="{{ route('co-owner.maintenance.index', ['status_filter' => 'completed']) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                 class="status-pill {{ $currentFilter === 'completed' ? 'active' : '' }}">
                 Terminées
             </a>
@@ -244,7 +244,7 @@
                         </span>
 
                         <div class="intervention-actions">
-                            <a href="{{ route('co-owner.maintenance.show', $request) }}" class="action-btn"
+                            <a href="{{ route('co-owner.maintenance.show', $request) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="action-btn"
                                 title="Voir">
                                 <i data-lucide="eye" style="width: 22px; height: 22px;"></i>
                             </a>
@@ -257,7 +257,7 @@
                                     </button>
                                 </form>
                             @endif
-                            <a href="{{ route('co-owner.maintenance.edit', $request) }}" class="action-btn"
+                            <a href="{{ route('co-owner.maintenance.edit', $request) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="action-btn"
                                 title="Modifier">
                                 <i data-lucide="pencil" style="width: 22px; height: 22px;"></i>
                             </a>
@@ -269,7 +269,7 @@
                     <i data-lucide="wrench" style="width: 90px; height: 90px; color: #cbd5e1;"></i>
                     <h3>Aucune intervention</h3>
                     <p>Vous n'avez pas encore d'interventions pour les biens délégués.</p>
-                    <a href="{{ route('co-owner.maintenance.create') }}" class="btn-create">
+                    <a href="{{ route('co-owner.maintenance.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn-create">
                         <i data-lucide="plus" style="width: 24px; height: 24px;"></i>
                         Créer une intervention
                     </a>

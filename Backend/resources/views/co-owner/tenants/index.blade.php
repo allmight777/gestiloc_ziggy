@@ -31,7 +31,7 @@
                     </svg>
                     Retour au tableau de bord
                 </a>
-                <a href="{{ route('co-owner.tenants.create') }}" class="tl-btn-primary">
+                <a href="{{ route('co-owner.tenants.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="tl-btn-primary">
                     <svg width="17.5" height="17.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 5v14M5 12h14" />
                     </svg>
@@ -173,7 +173,7 @@
                                         </td>
                                         <td>
                                             <div class="tl-actions">
-                                               {{--  <a href="{{ route('co-owner.tenants.show', $tenant) }}" class="tl-btn-action" style="font-size:15.5px;">
+                                               {{--  <a href="{{ route('co-owner.tenants.show', $tenant) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="tl-btn-action" style="font-size:15.5px;">
                                                     <svg width="15.5" height="15.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M22 12c-2.667 4.667-6 7-10 7s-7.333-2.333-10-7c2.667-4.667 6-7 10-7s7.333 2.333 10 7z"/></svg>
                                                     Voir
                                                 </a>  --}}
@@ -205,7 +205,7 @@
                     @endif
 
                     <div class="tl-add-bottom">
-                        <a href="{{ route('co-owner.tenants.create') }}" class="tl-btn-add" style="font-size:17.5px;">
+                        <a href="{{ route('co-owner.tenants.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="tl-btn-add" style="font-size:17.5px;">
                             <svg width="17.5" height="17.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 5v14M5 12h14" />
                             </svg>
@@ -222,7 +222,7 @@
                         </svg>
                         <h3 style="font-size:19.5px;">Aucun locataire trouvé</h3>
                         <p style="font-size:17.5px;">Vous pouvez inviter vos locataires pour leur donner accès à la zone membres.</p>
-                        <a href="{{ route('co-owner.tenants.create') }}" class="tl-btn-primary" style="font-size:17.5px;">
+                        <a href="{{ route('co-owner.tenants.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="tl-btn-primary" style="font-size:17.5px;">
                             <svg width="17.5" height="17.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 5v14M5 12h14" />
                             </svg>

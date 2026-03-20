@@ -13,12 +13,12 @@
                     Retour aux baux
                 </button>
                 <div class="top-actions-right">
-                    <a href="{{ route('co-owner.leases.documents.download', $lease) }}"
+                    <a href="{{ route('co-owner.leases.documents.download', $lease) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                         class="button button-primary">
                         <i data-lucide="file-text" style="width: 16px; height: 16px;"></i>
                         Télécharger le contrat PDF
                     </a>
-                    <a href="{{ route('co-owner.leases.documents.preview', $lease) }}" target="_blank"
+                    <a href="{{ route('co-owner.leases.documents.preview', $lease) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" target="_blank"
                         class="button button-success">
                         <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
                         Prévisualiser

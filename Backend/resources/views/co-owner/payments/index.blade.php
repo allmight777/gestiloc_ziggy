@@ -116,11 +116,11 @@
 
         <!-- Action Buttons -->
         <div class="actions-bar">
-            <a href="{{ route('co-owner.payments.create') }}" class="btn-primary">
+            <a href="{{ route('co-owner.payments.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn-primary">
                 <span class="plus-icon"><i class="fas fa-plus"></i></span>
                 Enregistrer un paiement
             </a>
-         {{--    <a href="{{ route('co-owner.payments.reminders') }}" class="btn-secondary">
+         {{--    <a href="{{ route('co-owner.payments.reminders') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn-secondary">
                 <span class="bell-icon"><i class="fas fa-bell"></i></span>
                 Rappels
             </a>  --}}
@@ -217,12 +217,12 @@
                             </td>
                             <td>
                                 <div class="action-buttons">
-                                  {{--   <a href="{{ route('co-owner.payments.show', $payment->id) }}" class="btn-action view"
+                                  {{--   <a href="{{ route('co-owner.payments.show', $payment->id) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn-action view"
                                         title="Voir les détails">
                                         <i class="fas fa-eye"></i>
                                     </a>    --}}
                                     @if ($payment->status === 'approved')
-                                        <a href="{{ route('co-owner.payments.receipt', $payment->id) }}"
+                                        <a href="{{ route('co-owner.payments.receipt', $payment->id) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}"
                                             class="btn-action pdf" title="Télécharger la quittance" target="_blank">
                                             <i class="fas fa-file-pdf"></i>
                                         </a>
@@ -242,7 +242,7 @@
                                     <span class="empty-icon"><i class="fas fa-wallet"></i></span>
                                     <h3>Aucun paiement trouvé</h3>
                                     <p>Aucun paiement ne correspond à vos critères de recherche.</p>
-                                    <a href="{{ route('co-owner.payments.create') }}" class="btn-primary" style="margin-top: 1rem; display: inline-flex;">
+                                    <a href="{{ route('co-owner.payments.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn-primary" style="margin-top: 1rem; display: inline-flex;">
                                         <span class="plus-icon"><i class="fas fa-plus"></i></span>
                                         Enregistrer un paiement
                                     </a>

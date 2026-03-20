@@ -563,7 +563,7 @@
     <!-- Header avec bouton retour et actions -->
     <div class="page-header">
         <div class="header-left">
-            <a href="{{ route('co-owner.tenants.index') }}" class="btn-back">
+            <a href="{{ route('co-owner.tenants.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn-back">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 12H5M12 19l-7-7 7-7"/>
                 </svg>
@@ -696,7 +696,7 @@
                                 <circle cx="12" cy="7" r="4"/>
                             </svg>
                             <p>Aucun locataire disponible</p>
-                            <a href="{{ route('co-owner.tenants.create') }}" class="empty-state-link">
+                            <a href="{{ route('co-owner.tenants.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="empty-state-link">
                                 Créer un locataire
                             </a>
                         </div>

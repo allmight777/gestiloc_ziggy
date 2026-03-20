@@ -122,7 +122,7 @@
                         Enregistrer les modifications
                     </button>
 
-                    <a href="{{ route('co-owner.notices.show', $notice) }}" class="button button-secondary"
+                    <a href="{{ route('co-owner.notices.show', $notice) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="button button-secondary"
                         style="width: auto !important; flex: 0 0 auto !important; display: inline-flex !important; align-items: center; gap: 6px;">
                         <i data-lucide="x" style="width:16px;height:16px;"></i>
                         Annuler

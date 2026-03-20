@@ -6,7 +6,7 @@
 <div class="content-container">
     <div class="content-card">
         <div class="content-body">
-            <a href="{{ route('co-owner.maintenance.index') }}" class="back-button">
+            <a href="{{ route('co-owner.maintenance.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="back-button">
                 <i data-lucide="arrow-left" style="width: 24px; height: 24px;"></i>
                 Retour à la liste
             </a>

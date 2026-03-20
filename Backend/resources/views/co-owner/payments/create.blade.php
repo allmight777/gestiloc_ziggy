@@ -28,7 +28,7 @@
                     <div class="form-column">
                         <!-- Bouton à droite -->
                         <div class="top-actions">
-                            <a href="{{ route('co-owner.payments.index') }}" class="button button-secondary"
+                            <a href="{{ route('co-owner.payments.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="button button-secondary"
                                 style="display: inline-flex; align-items: center; gap: 8px;">
                                 <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
                                 Retour à la liste
@@ -189,7 +189,7 @@
                     <button type="submit" class="button button-primary">
                         <i data-lucide="check" style="width: 18px; height: 18px;"></i> Enregistrer le paiement
                     </button>
-                    <a href="{{ route('co-owner.payments.index') }}" class="button button-secondary">
+                    <a href="{{ route('co-owner.payments.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="button button-secondary">
                         <i data-lucide="x" style="width: 18px; height: 18px;"></i> Annuler
                     </a>
                 </div>

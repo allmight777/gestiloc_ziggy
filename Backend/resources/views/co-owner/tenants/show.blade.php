@@ -5,12 +5,12 @@
 @section('content')
 <div class="content-container">
     <div class="top-actions">
-        <a href="{{ route('co-owner.tenants.index') }}" class="button button-secondary">
+        <a href="{{ route('co-owner.tenants.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="button button-secondary">
             <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
             Retour à la liste
         </a>
         <div class="top-actions-right">
-            <a href="{{ route('co-owner.tenants.edit', $tenant) }}" class="button button-primary">
+            <a href="{{ route('co-owner.tenants.edit', $tenant) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="button button-primary">
                 <i data-lucide="edit" style="width: 16px; height: 16px;"></i>
                 Modifier
             </a>
@@ -203,7 +203,7 @@
                 <i data-lucide="home" class="empty-icon"></i>
                 <h3 style="color: var(--muted); margin-bottom: 0.5rem;">Aucun bien assigné</h3>
                 <p style="color: var(--muted2); margin-bottom: 1.5rem;">Ce locataire n'a pas encore de bien assigné.</p>
-                <a href="{{ route('co-owner.assign-property.create') }}" class="button button-primary">
+                <a href="{{ route('co-owner.assign-property.create') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="button button-primary">
                     <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
                     Assigner un bien
                 </a>

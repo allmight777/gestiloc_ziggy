@@ -657,7 +657,7 @@
 
             <!-- Footer -->
             <div class="form-footer">
-                <a href="{{ route('co-owner.condition-reports.index') }}" class="btn-cancel">
+                <a href="{{ route('co-owner.condition-reports.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn-cancel">
                     Annuler
                 </a>
                 <button type="submit" class="btn-submit">

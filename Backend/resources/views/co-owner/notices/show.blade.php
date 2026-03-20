@@ -8,12 +8,12 @@
         <div class="content-body">
             <!-- Header avec actions -->
             <div class="header-actions">
-                <a href="{{ route('co-owner.notices.index') }}" class="btn btn-outline">
+                <a href="{{ route('co-owner.notices.index') . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn btn-outline">
                     <i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i>
                     Retour
                 </a>
                 <div class="actions-group">
-                    <a href="{{ route('co-owner.notices.edit', $notice) }}" class="btn btn-outline">
+                    <a href="{{ route('co-owner.notices.edit', $notice) . '?api_token=' . (request()->get('api_token') ?? session('api_token', '')) }}" class="btn btn-outline">
                         <i data-lucide="edit" style="width: 18px; height: 18px;"></i>
                         Modifier
                     </a>
