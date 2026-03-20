@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CoOwner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CoOwner\AuthenticatesWithToken;
 use App\Models\CoOwner;
 use App\Models\PropertyDelegation;
 use App\Models\Property;
@@ -17,6 +18,8 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class CoOwnerManagementController extends Controller
 {
+    use AuthenticatesWithToken;
+
     /**
      * Méthode utilitaire pour récupérer l'utilisateur authentifié
      */

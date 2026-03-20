@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CoOwner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CoOwner\AuthenticatesWithToken;
 use App\Models\Lease;
 use App\Models\CoOwner;
 use App\Models\PropertyDelegation;
@@ -13,6 +14,8 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class CoOwnerLeaseDocumentController extends Controller
 {
+    use AuthenticatesWithToken;
+
     /**
      * Afficher les documents d'un bail
      */

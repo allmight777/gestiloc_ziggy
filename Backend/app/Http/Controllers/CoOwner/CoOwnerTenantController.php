@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CoOwner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CoOwner\AuthenticatesWithToken;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Models\Property;
@@ -20,6 +21,8 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class CoOwnerTenantController extends Controller
 {
+    use AuthenticatesWithToken;
+
     /**
      * Afficher la liste des locataires avec filtres
      */

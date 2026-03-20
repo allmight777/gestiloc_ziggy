@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CoOwner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CoOwner\AuthenticatesWithToken;
 use App\Models\Tenant;
 use App\Models\Property;
 use App\Models\PropertyDelegation;
@@ -16,6 +17,8 @@ use Illuminate\Support\Str;
 
 class CoOwnerAssignPropertyController extends Controller
 {
+    use AuthenticatesWithToken;
+
     /**
      * Afficher le formulaire d'assignation de bien
      */

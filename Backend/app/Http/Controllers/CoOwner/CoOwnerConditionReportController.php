@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CoOwner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CoOwner\AuthenticatesWithToken;
 use App\Models\Property;
 use App\Models\PropertyConditionReport;
 use App\Models\PropertyConditionPhoto;
@@ -21,6 +22,8 @@ use Illuminate\Support\Facades\Mail;
 
 class CoOwnerConditionReportController extends Controller
 {
+    use AuthenticatesWithToken;
+
     /**
      * Affiche la liste des états des lieux
      */

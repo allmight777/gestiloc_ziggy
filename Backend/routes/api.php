@@ -459,6 +459,9 @@ Route::get('/rent-receipts/stats', [RentReceiptController::class, 'stats']);
 Route::post('/rent-receipts/{id}/send-email', [RentReceiptController::class, 'sendByEmail']);
 
 
+        // Route properties-for-filter
+        Route::get('/properties-for-filter', [\App\Http\Controllers\Api\PropertyController::class, 'index']);
+
         // ✅ NOUVELLES ROUTES - Gestion des biens des locataires
         Route::post('tenants/{tenant}/assign-property', [TenantController::class, 'assignProperty']);
         Route::delete('tenants/{tenant}/properties/{property}', [TenantController::class, 'unassignProperty']);

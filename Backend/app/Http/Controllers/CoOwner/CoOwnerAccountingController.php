@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CoOwner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CoOwner\AuthenticatesWithToken;
 use App\Models\CoOwner;
 use App\Models\PropertyDelegation;
 use App\Models\Property;
@@ -18,6 +19,8 @@ use Carbon\Carbon;
 
 class CoOwnerAccountingController extends Controller
 {
+    use AuthenticatesWithToken;
+
     private function getCoOwner()
     {
         if (Auth::check()) {

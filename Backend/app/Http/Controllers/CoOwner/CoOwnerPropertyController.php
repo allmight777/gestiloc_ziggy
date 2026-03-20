@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CoOwner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CoOwner\AuthenticatesWithToken;
 use App\Models\Property;
 use App\Models\CoOwner;
 use App\Models\PropertyDelegation;
@@ -18,6 +19,8 @@ use App\Mail\PropertyModifiedNotification;
 
 class CoOwnerPropertyController extends Controller
 {
+    use AuthenticatesWithToken;
+
     /**
      * Méthode utilitaire pour récupérer l'utilisateur authentifié
      */

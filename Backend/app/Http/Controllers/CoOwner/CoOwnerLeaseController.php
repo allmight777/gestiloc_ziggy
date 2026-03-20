@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CoOwner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CoOwner\AuthenticatesWithToken;
 use App\Models\Lease;
 use App\Models\CoOwner;
 use App\Models\PropertyDelegation;
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Mail;
 
 class CoOwnerLeaseController extends Controller
 {
+    use AuthenticatesWithToken;
+
     /**
      * Liste des baux
      */

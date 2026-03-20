@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CoOwner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CoOwner\AuthenticatesWithToken;
 use App\Models\Payment;
 use App\Models\Property;
 use App\Models\Lease;
@@ -17,6 +18,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class CoOwnerPaymentController extends Controller
 {
+    use AuthenticatesWithToken;
+
     /**
      * Méthode utilitaire pour récupérer l'utilisateur authentifié (API + Web)
      */

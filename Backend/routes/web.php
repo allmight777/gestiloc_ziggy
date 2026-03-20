@@ -30,20 +30,12 @@ Route::get('/dossier-partage/{shareUrl}', function ($shareUrl) {
 
 // Routes de login/logout (publiques)
 Route::get('/login', function () {
-    // Si l'utilisateur a un token valide, rediriger vers le dashboard React
-    if (request()->has('api_token') || request()->cookie('laravel_session')) {
-        return "
-            <script>
-                const urlParams = new URLSearchParams(window.location.search);
-                const apiToken = urlParams.get('api_token');
-                if (apiToken) {
-                    localStorage.setItem('token', apiToken);
-                }
-                window.location.href = '/coproprietaire/dashboard';
-            </script>
-        ";
+    \$frontendUrl = 'https://gestiloc-front.vercel.app';
+    \$apiToken = request()->get('api_token');
+    if (\$apiToken) {
+        return redirect(\$frontendUrl . '/login?api_token=' . \$apiToken);
     }
-    return view('auth.login');
+    return redirect(\$frontendUrl . '/login');
 })->name('login');
 
 // Route de déconnexion (publique)

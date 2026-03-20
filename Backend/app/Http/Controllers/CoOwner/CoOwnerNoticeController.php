@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CoOwner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CoOwner\AuthenticatesWithToken;
 use App\Models\Notice;
 use App\Models\Lease;
 use App\Models\Property;
@@ -18,6 +19,8 @@ use Illuminate\Support\Str;
 
 class CoOwnerNoticeController extends Controller
 {
+    use AuthenticatesWithToken;
+
     /**
      * Récupérer l'utilisateur authentifié
      */

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CoOwner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CoOwner\AuthenticatesWithToken;
 use App\Models\RentReceipt;
 use App\Models\Lease;
 use App\Models\Property;
@@ -20,6 +21,8 @@ use Carbon\Carbon;
 
 class CoOwnerRentReceiptController extends Controller
 {
+    use AuthenticatesWithToken;
+
     /**
      * Liste des quittances avec filtres
      */
