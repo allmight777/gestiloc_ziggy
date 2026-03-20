@@ -71,7 +71,7 @@ class CoOwnerMaintenanceController extends Controller
                 ->get();
 
             $years = MaintenanceRequest::whereIn('property_id', $delegatedProperties)
-                ->selectRaw('YEAR(created_at) as year')
+                ->selectRaw('EXTRACT(YEAR FROM created_at) as year')
                 ->distinct()
                 ->orderBy('year', 'desc')
                 ->pluck('year')
@@ -114,7 +114,7 @@ class CoOwnerMaintenanceController extends Controller
             }
 
             if ($request->filled('year') && $request->year !== 'all') {
-                $query->whereYear('created_at', $request->year);
+                $query->whereRaw('EXTRACT(YEAR FROM created_at) = ?', [$request->year]);
             }
 
             if ($request->filled('search')) {
@@ -147,7 +147,7 @@ class CoOwnerMaintenanceController extends Controller
                     ->where('status', 'open')
                     ->count(),
                 'total_cost' => MaintenanceRequest::whereIn('property_id', $delegatedProperties)
-                    ->whereYear('created_at', date('Y'))
+                    ->whereRaw('EXTRACT(YEAR FROM created_at) = ?', [date('Y')])
                     ->sum('estimated_cost') ?? 0,
             ];
 
