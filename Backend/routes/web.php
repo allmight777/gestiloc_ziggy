@@ -62,9 +62,8 @@ Route::get('/logout', function () {
         </head>
         <body>
             <div class='container'>
-                <div class='spinner'></div>
-                <h2>Déconnexion en cours...</h2>
-                <p>Redirection vers la page de connexion</p>
+               
+
             </div>
             <script>
                 localStorage.removeItem('token');

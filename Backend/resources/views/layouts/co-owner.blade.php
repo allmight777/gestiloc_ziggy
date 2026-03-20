@@ -692,6 +692,26 @@
     </style>
 
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+    <script>
+        // Helper global token
+        (function() {
+            const urlToken = new URLSearchParams(window.location.search).get('api_token');
+            if (urlToken) {
+                localStorage.setItem('token', urlToken);
+            }
+            window.getApiToken = function() {
+                return new URLSearchParams(window.location.search).get('api_token') 
+                    || localStorage.getItem('token') 
+                    || sessionStorage.getItem('token');
+            };
+            window.apiFetch = function(url, options) {
+                const token = window.getApiToken();
+                const sep = url.includes('?') ? '&' : '?';
+                return fetch(url + sep + 'api_token=' + token, options);
+            };
+        })();
+    </script>
 </head>
 
 <body>

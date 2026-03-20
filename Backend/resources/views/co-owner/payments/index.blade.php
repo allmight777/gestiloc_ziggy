@@ -1477,7 +1477,7 @@
             confirmBtn.disabled = true;
             confirmBtn.innerHTML = '<span class="btn-icon"><i class="fas fa-clock"></i></span> Envoi en cours...';
 
-            fetch(`/coproprietaire/paiements/${currentPaymentId}/send-receipt`, {
+            apiFetch(`/coproprietaire/paiements/${currentPaymentId}/send-receipt`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',

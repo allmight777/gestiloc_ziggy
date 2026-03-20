@@ -664,7 +664,8 @@
     function loadPaymentMethods() {
         const container = document.getElementById('paymentMethodsList');
 
-        fetch('/payment-methods', {
+        const _token = new URLSearchParams(window.location.search).get('api_token') || localStorage.getItem('token');
+        fetch('/payment-methods' + (window.location.search || '?') + '&_blade=1', {
             headers: {
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
@@ -966,7 +967,7 @@
     function loadPaymentMethod(id) {
         console.log('Chargement de la méthode de paiement ID:', id);
 
-        fetch(`/payment-methods/${id}`, {
+        fetch(`/payment-methods/${id}?api_token=${new URLSearchParams(window.location.search).get('api_token') || localStorage.getItem('token')}`, {
             headers: {
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
@@ -1049,7 +1050,8 @@
 
         data.is_default = document.getElementById('is_default').checked ? 1 : 0;
 
-        const url = methodId ? `/payment-methods/${methodId}` : '/payment-methods';
+        const _t = new URLSearchParams(window.location.search).get('api_token') || localStorage.getItem('token');
+        const url = methodId ? `/payment-methods/${methodId}?api_token=${_t}` : `/payment-methods?api_token=${_t}`;
         const method = methodId ? 'PUT' : 'POST';
 
         fetch(url, {
@@ -1082,7 +1084,7 @@
             return;
         }
 
-        fetch(`/payment-methods/${id}/set-default`, {
+        fetch(`/payment-methods/${id}/set-default?api_token=${new URLSearchParams(window.location.search).get('api_token') || localStorage.getItem('token')}`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -1109,7 +1111,7 @@
             return;
         }
 
-        fetch(`/payment-methods/${id}`, {
+        fetch(`/payment-methods/${id}?api_token=${new URLSearchParams(window.location.search).get('api_token') || localStorage.getItem('token')}`, {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

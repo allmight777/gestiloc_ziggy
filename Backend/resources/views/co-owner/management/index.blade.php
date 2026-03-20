@@ -657,7 +657,7 @@ function showResendConfirm(id) {
         btn.style.opacity = '0.6';
         btn.style.cursor = 'not-allowed';
         btn.textContent = 'Envoi...';
-        fetch(`/coproprietaire/gestionnaires/invitations/${id}/resend`, { method: 'POST', headers: { 'X-CSRF-TOKEN': token || '', 'Content-Type': 'application/json', 'Accept': 'application/json' } })
+        apiFetch(`/coproprietaire/gestionnaires/invitations/${id}/resend`, { method: 'POST', headers: { 'X-CSRF-TOKEN': token || '', 'Content-Type': 'application/json', 'Accept': 'application/json' } })
         .then(r => r.json()).then(d => { if (d.success) { showToast('success', 'Invitation renvoyée avec succès'); setTimeout(() => location.reload(), 2000); } else { showToast('error', d.message || 'Erreur lors du renvoi'); btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; btn.textContent = 'Confirmer'; } })
         .catch(() => { showToast('error', "Erreur lors du renvoi de l'invitation"); btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; btn.textContent = 'Confirmer'; });
     });
@@ -673,7 +673,7 @@ function showCancelConfirm(id) {
         btn.style.opacity = '0.6';
         btn.style.cursor = 'not-allowed';
         btn.textContent = 'Annulation...';
-        fetch(`/coproprietaire/gestionnaires/invitations/${id}/cancel`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': token || '', 'Content-Type': 'application/json', 'Accept': 'application/json' } })
+        apiFetch(`/coproprietaire/gestionnaires/invitations/${id}/cancel`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': token || '', 'Content-Type': 'application/json', 'Accept': 'application/json' } })
         .then(r => r.json()).then(d => { if (d.success) { showToast('success', 'Invitation annulée avec succès'); setTimeout(() => location.reload(), 2000); } else { showToast('error', d.message || "Erreur lors de l'annulation"); btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; btn.textContent = 'Confirmer'; } })
         .catch(() => { showToast('error', "Erreur lors de l'annulation de l'invitation"); btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; btn.textContent = 'Confirmer'; });
     });
