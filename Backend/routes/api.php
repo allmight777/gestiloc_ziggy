@@ -1,6 +1,33 @@
 <?php
 
 
+
+// TEST EMAIL - A SUPPRIMER APRES
+Route::get('/test-email', function () {
+    try {
+        \Illuminate\Support\Facades\Mail::raw('Test email depuis Gestiloc sur Render', function($msg) {
+            $msg->to('agoliganange1@gmail.com')
+                ->subject('Test Gestiloc Email');
+        });
+        return response()->json([
+            'success' => true,
+            'message' => 'Email envoye',
+            'mailer' => config('mail.default'),
+            'host' => config('mail.mailers.smtp.host'),
+            'port' => config('mail.mailers.smtp.port'),
+            'username' => config('mail.mailers.smtp.username'),
+            'encryption' => config('mail.mailers.smtp.encryption'),
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'mailer' => config('mail.default'),
+            'host' => config('mail.mailers.smtp.host'),
+        ]);
+    }
+});
+
 // ULTRA DEBUG
 Route::post('/ultra-debug', function () {
     return response()->json(['ok' => true, 'time' => now()->toISOString()]);
