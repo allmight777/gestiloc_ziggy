@@ -30,12 +30,12 @@ Route::get('/dossier-partage/{shareUrl}', function ($shareUrl) {
 
 // Routes de login/logout (publiques)
 Route::get('/login', function () {
-    \$frontendUrl = 'https://gestiloc-front.vercel.app';
-    \$apiToken = request()->get('api_token');
-    if (\$apiToken) {
-        return redirect(\$frontendUrl . '/login?api_token=' . \$apiToken);
+    $frontendUrl = 'https://gestiloc-front.vercel.app';
+    $apiToken = request()->get('api_token');
+    if ($apiToken) {
+        return redirect($frontendUrl . '/login?api_token=' . $apiToken);
     }
-    return redirect(\$frontendUrl . '/login');
+    return redirect($frontendUrl . '/login');
 })->name('login');
 
 // Route de déconnexion (publique)
