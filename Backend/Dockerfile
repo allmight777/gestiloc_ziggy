@@ -11,11 +11,10 @@ WORKDIR /app
 COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
+RUN cp .env.example .env
 
 EXPOSE 8000
 CMD php artisan config:clear && \
     php artisan cache:clear && \
-    env | grep -E "^(APP_|DB_|MAIL_|SESSION_|CACHE_|QUEUE_|FRONTEND_|SANCTUM_|LOG_)" > .env && \
-    php artisan config:clear && \
     php artisan migrate --force && \
     php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
