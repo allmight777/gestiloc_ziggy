@@ -23,28 +23,19 @@ class CoOwnerMaintenanceController extends Controller
 
     private function getCoOwner()
     {
-        if (Auth::check()) {
-            $user = Auth::user();
-            if ($user && $this->isCoOwner($user)) {
-                return CoOwner::where('user_id', $user->id)->firstOrFail();
-            }
+        // Utiliser le trait AuthenticatesWithToken
+        $user = $this->getAuthenticatedUser(request());
+
+        if (!$user) {
+            abort(403, 'Session expirée. Veuillez vous reconnecter.');
         }
 
-        $token = request()->query('api_token');
-        if ($token) {
-            $accessToken = PersonalAccessToken::findToken($token);
-
-            if ($accessToken) {
-                $user = $accessToken->tokenable;
-
-                if ($user && $this->isCoOwner($user)) {
-                    Auth::login($user);
-                    return CoOwner::where('user_id', $user->id)->firstOrFail();
-                }
-            }
+        $coOwner = CoOwner::where('user_id', $user->id)->first();
+        if (!$coOwner) {
+            abort(403, 'Profil co-propriétaire non trouvé.');
         }
 
-        abort(403, 'Accès réservé aux copropriétaires/agences. Veuillez vous reconnecter.');
+        return $coOwner;
     }
 
     private function isCoOwner($user)
