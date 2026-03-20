@@ -266,6 +266,7 @@
 
     <div class="filters-card">
         <form method="GET" action="{{ route('co-owner.management.index') }}" class="filters-form">
+                <input type="hidden" name="api_token" value="{{ request()->get('api_token') ?? session('api_token', '') }}">
             <div class="search-wrapper">
                 <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Rechercher par nom, email, téléphone..." class="search-input">

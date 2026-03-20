@@ -489,6 +489,7 @@
     <div class="filter-section">
         <h3 class="filter-title">Filtrer par bien et par type</h3>
         <form method="GET" action="{{ route('co-owner.invoices.index') }}">
+                <input type="hidden" name="api_token" value="{{ request()->get('api_token') ?? session('api_token', '') }}">
             <div class="filter-grid">
                 <select name="property_id" class="filter-input">
                     <option value="">Tous les biens</option>

@@ -745,6 +745,7 @@
         <h3 class="filter-title">Filtrer par bien</h3>
 
         <form id="filterForm" action="{{ route('co-owner.condition-reports.index') }}" method="GET">
+                <input type="hidden" name="api_token" value="{{ request()->get('api_token') ?? session('api_token', '') }}">
             <input type="hidden" name="type" id="typeInput" value="{{ request('type') }}">
 
             <select name="property_id" class="property-select" onchange="this.form.submit()">

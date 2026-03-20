@@ -65,6 +65,8 @@
         <div class="filters-card">
             <h3 class="filters-title">FILTRE</h3>
             <form method="GET" action="{{ route('co-owner.maintenance.index') }}" class="filters-form">
+                <input type="hidden" name="api_token" value="{{ request()->get('api_token') ?? session('api_token', '') }}">
+                <input type="hidden" name="api_token" value="{{ request()->get('api_token') ?? session('api_token', '') }}">
                 @if (request('status_filter'))
                     <input type="hidden" name="status_filter" value="{{ request('status_filter') }}">
                 @endif

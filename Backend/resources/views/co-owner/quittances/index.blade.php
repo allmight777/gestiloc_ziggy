@@ -70,6 +70,7 @@
 
         <!-- Formulaire de filtres -->
         <form method="GET" action="{{ route('co-owner.quittances.index') }}" id="filter-form">
+                <input type="hidden" name="api_token" value="{{ request()->get('api_token') ?? session('api_token', '') }}">
             <!-- Filtres statut -->
             <div style="display: flex; gap: 1rem; margin-bottom: 2.5rem; flex-wrap: wrap;">
                 <button type="submit" name="status" value="all"

@@ -63,6 +63,7 @@
                 </div>
 
                 <form method="GET" action="{{ route('co-owner.tenants.index') }}" id="filter-form">
+                <input type="hidden" name="api_token" value="{{ request()->get('api_token') ?? session('api_token', '') }}">
                     <input type="hidden" name="status" value="{{ $status }}">
                     <div class="tl-filters-grid">
                         <div class="tl-filter-group">
@@ -93,6 +94,7 @@
 
             <!-- Search -->
             <form method="GET" action="{{ route('co-owner.tenants.index') }}" class="tl-search-row">
+                <input type="hidden" name="api_token" value="{{ request()->get('api_token') ?? session('api_token', '') }}">
                 <input type="hidden" name="status" value="{{ $status }}">
                 <input type="hidden" name="property_id" value="{{ $propertyId }}">
                 <input type="hidden" name="per_page" value="{{ $perPage }}">
