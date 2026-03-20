@@ -1,5 +1,4 @@
 <?php
-// app/Providers/AppServiceProvider.php
 
 namespace App\Providers;
 
@@ -10,7 +9,12 @@ class AppServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        // Helper pour générer l'URL React
+        // Forcer HTTPS en production
+        if (config('app.env') === 'production') {
+            URL::forceScheme('https');
+        }
+
+        // Helper pour generer l URL React
         app()->singleton('react_url', function () {
             return env('REACT_APP_URL', 'https://gestiloc-front.vercel.app');
         });
@@ -18,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
         // Partager avec toutes les vues
         view()->share('reactUrl', env('REACT_APP_URL', 'https://gestiloc-front.vercel.app'));
 
-        // Helper pour déterminer si un lien est React ou Laravel
+        // Helper pour determiner si un lien est React ou Laravel
         view()->share('isReactRoute', function ($path) {
             $reactRoutes = [
                 '/coproprietaire/biens',
@@ -35,7 +39,6 @@ class AppServiceProvider extends ServiceProvider
                 '/coproprietaire/retrait-methode',
                 '/coproprietaire/dashboard',
             ];
-
             return in_array($path, $reactRoutes);
         });
     }
