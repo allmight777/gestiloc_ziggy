@@ -5,25 +5,22 @@
 // TEST EMAIL - A SUPPRIMER APRES
 Route::get('/test-email', function () {
     try {
-        \Illuminate\Support\Facades\Mail::raw('Test email depuis Gestiloc sur Render', function($msg) {
-            $msg->to('agoliganange1@gmail.com')
-                ->subject('Test Gestiloc Email');
-        });
+        $brevo = new \App\Services\BrevoMailService();
+        $result = $brevo->send(
+            'agoliganange1@gmail.com',
+            'Test User',
+            'Test Gestiloc Email',
+            '<h1>Test email depuis Gestiloc</h1><p>Si vous recevez ceci, les emails fonctionnent !</p>'
+        );
         return response()->json([
-            'success' => true,
-            'message' => 'Email envoye',
-            'mailer' => config('mail.default'),
-            'host' => config('mail.mailers.smtp.host'),
-            'port' => config('mail.mailers.smtp.port'),
-            'username' => config('mail.mailers.smtp.username'),
-            'encryption' => config('mail.mailers.smtp.encryption'),
+            'success' => $result,
+            'message' => $result ? 'Email envoye via API Brevo' : 'Echec envoi',
+            'api_key_set' => !empty(env('BREVO_API_KEY')),
         ]);
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
             'error' => $e->getMessage(),
-            'mailer' => config('mail.default'),
-            'host' => config('mail.mailers.smtp.host'),
         ]);
     }
 });

@@ -16,6 +16,7 @@
         "league/flysystem-aws-s3-v3": "^3.0",
         "predis/predis": "^2.0",
         "pusher/pusher-php-server": "^7.2",
+        "sendinblue/api-v3-sdk": "^8.4",
         "spatie/laravel-permission": "^6.23"
     },
     "require-dev": {
