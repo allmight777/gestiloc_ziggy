@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\Invoice;
+use App\Models\RentReceipt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -58,6 +59,27 @@ class QuittanceController extends Controller
                     'amount' => $invoice->amount_total,
                     'date' => $invoice->created_at->format('d/m/Y'),
                     'month' => $invoice->due_date->format('m/Y'),
+                ]
+            ]);
+        }
+
+        // Chercher dans rent_receipts
+        $receipt = RentReceipt::with(['lease.tenant', 'property'])
+            ->where('id', $id)
+            ->first();
+
+        if ($receipt) {
+            $tenant = $receipt->lease->tenant ?? null;
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $receipt->id,
+                    'tenant_name' => $tenant ? trim($tenant->first_name . ' ' . $tenant->last_name) : 'Locataire',
+                    'tenant_email' => $receipt->lease->tenant->email ?? '',
+                    'property_name' => $receipt->property->name ?? 'Bien',
+                    'amount' => $receipt->amount_paid,
+                    'date' => $receipt->issued_date,
+                    'month' => $receipt->paid_month,
                 ]
             ]);
         }
@@ -115,6 +137,27 @@ class QuittanceController extends Controller
 
             $pdf = Pdf::loadView('pdf.quittances', $data);
             return $pdf->download('quittance-' . $invoice->id . '.pdf');
+        }
+
+        // Chercher dans rent_receipts
+        $receipt = RentReceipt::with(['lease.tenant', 'property'])
+            ->where('id', $id)
+            ->first();
+
+        if ($receipt) {
+            $tenant = $receipt->lease->tenant ?? null;
+            $data = [
+                'numero' => $receipt->reference ?? 'QUIT-' . str_pad($receipt->id, 6, '0', STR_PAD_LEFT),
+                'tenant_name' => $tenant ? trim($tenant->first_name . ' ' . $tenant->last_name) : 'Locataire',
+                'tenant_address' => $tenant->address ?? '',
+                'property_address' => $receipt->property->address ?? '',
+                'period' => $receipt->paid_month ?? '',
+                'amount' => number_format($receipt->amount_paid, 0, ',', ' ') . ' FCFA',
+                'amount_letters' => $this->numberToWords($receipt->amount_paid) . ' francs CFA',
+                'date' => $receipt->issued_date ? \Carbon\Carbon::parse($receipt->issued_date)->format('d/m/Y') : now()->format('d/m/Y'),
+            ];
+            $pdf = Pdf::loadView('pdf.quittances', $data);
+            return $pdf->download('quittance-' . $receipt->id . '.pdf');
         }
 
         return response()->json([
@@ -247,6 +290,46 @@ class QuittanceController extends Controller
                     'success' => true,
                     'message' => 'Quittance envoyée avec succès'
                 ]);
+            }
+
+            // Chercher dans rent_receipts
+            $receipt = RentReceipt::with(['lease.tenant', 'property'])
+                ->where('id', $id)
+                ->first();
+
+            if ($receipt) {
+                $tenant = $receipt->lease->tenant ?? null;
+                $tenantEmail = $tenant->email ?? ($receipt->lease->tenant->user->email ?? null);
+
+                if (!$tenantEmail) {
+                    return response()->json(['success' => false, 'message' => 'Email du locataire non trouvé'], 400);
+                }
+
+                $data = [
+                    'numero' => $receipt->reference ?? 'QUIT-' . str_pad($receipt->id, 6, '0', STR_PAD_LEFT),
+                    'tenant_name' => $tenant ? trim($tenant->first_name . ' ' . $tenant->last_name) : 'Locataire',
+                    'tenant_address' => $tenant->address ?? '',
+                    'property_address' => $receipt->property->address ?? '',
+                    'period' => $receipt->paid_month ?? '',
+                    'amount' => number_format($receipt->amount_paid, 0, ',', ' ') . ' FCFA',
+                    'amount_letters' => $this->numberToWords($receipt->amount_paid) . ' francs CFA',
+                    'date' => $receipt->issued_date ? \Carbon\Carbon::parse($receipt->issued_date)->format('d/m/Y') : now()->format('d/m/Y'),
+                ];
+
+                $pdf = Pdf::loadView('pdf.quittances', $data);
+                $tempPath = storage_path('app/temp');
+                if (!file_exists($tempPath)) mkdir($tempPath, 0755, true);
+                $pdfPath = $tempPath . '/quittance-' . $receipt->id . '.pdf';
+                $pdf->save($pdfPath);
+
+                Mail::send('emails.quittances', ['data' => $data], function ($message) use ($tenantEmail, $receipt, $pdfPath) {
+                    $message->to($tenantEmail)->subject('Votre quittance de loyer')
+                        ->attach($pdfPath, ['as' => 'quittance-' . $receipt->id . '.pdf', 'mime' => 'application/pdf']);
+                });
+
+                if (file_exists($pdfPath)) unlink($pdfPath);
+
+                return response()->json(['success' => true, 'message' => 'Quittance envoyée avec succès']);
             }
 
             return response()->json([
