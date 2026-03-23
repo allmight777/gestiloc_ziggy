@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import { Download, Loader2, Search, ChevronDown, Home } from "lucide-react";
 import { tenantRentReceiptService, RentReceipt } from "../services/tenantRentReceiptService";
 
@@ -93,7 +93,7 @@ export default function RentReceiptsPage() {
       });
     }
     
-    // Filtre par période
+    // Filtre par pÃ©riode
     if (periode && periode !== 'Tous') {
       filtered = filtered.filter((r) => {
         if (!r.issued_date) return false;
@@ -138,11 +138,11 @@ export default function RentReceiptsPage() {
 
   return (
     <div className="animate-fadeIn">
-      {/* ── EN-TÊTE ── */}
+      {/* â”€â”€ EN-TÃŠTE â”€â”€ */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Mes quittances</h1>
-          <p className="text-sm text-gray-400 mt-1 font-medium">Téléchargez vos quittances de loyer</p>
+          <p className="text-sm text-gray-400 mt-1 font-medium">TÃ©lÃ©chargez vos quittances de loyer</p>
         </div>
       </div>
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
@@ -174,13 +174,13 @@ export default function RentReceiptsPage() {
             )}
           </div>
 
-          {/* Filtre Période */}
+          {/* Filtre PÃ©riode */}
           <div className="relative w-40">
             <button
               onClick={() => setShowPeriodeDropdown(!showPeriodeDropdown)}
               className="w-full flex items-center justify-between px-3 py-2 border border-[#529D21] rounded-lg text-gray-700 hover:border-[#529D21]/80 transition-colors bg-white text-sm"
             >
-              <span className="truncate">{periode || 'Période'}</span>
+              <span className="truncate">{periode || 'PÃ©riode'}</span>
               <ChevronDown size={16} className="text-gray-500 flex-shrink-0" />
             </button>
             {showPeriodeDropdown && (
@@ -238,7 +238,7 @@ export default function RentReceiptsPage() {
             </div>
             <input
               type="text"
-              placeholder="Rechercher par référence, mois, adresse..."
+              placeholder="Rechercher par rÃ©fÃ©rence, mois, adresse..."
               value={q}
               onChange={(e) => setQ(e.target.value)}
               className="w-full pl-9 pr-3 py-2 border border-[#529D21] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#529D21]/20 focus:border-[#529D21] bg-white text-sm"
@@ -246,9 +246,9 @@ export default function RentReceiptsPage() {
           </div>
         </div>
 
-        {/* Indicateur de résultat (optionnel mais utile) */}
+        {/* Indicateur de rÃ©sultat (optionnel mais utile) */}
         <div className="mt-3 text-xs text-gray-500">
-          {filtered.length} quittance{filtered.length > 1 ? 's' : ''} trouvée{filtered.length > 1 ? 's' : ''}
+          {filtered.length} quittance{filtered.length > 1 ? 's' : ''} trouvÃ©e{filtered.length > 1 ? 's' : ''}
         </div>
       </div>
 
@@ -276,18 +276,18 @@ export default function RentReceiptsPage() {
               <tbody>
                 {filtered.map((r) => (
                   <tr key={r.id} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50/50">
-                    <td className="px-6 py-4 text-sm text-gray-900">{r.issued_date ? new Date(r.issued_date).toLocaleDateString('fr-FR') : '—'}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{r.issued_date ? new Date(r.issued_date).toLocaleDateString('fr-FR') : 'â€”'}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">
                       <div className="flex items-center gap-1">
                         <Home size={14} className="text-[#529D21] flex-shrink-0" />
-                        <span>{r.property?.name || r.property?.address?.split(',')[0] || '—'}</span>
+                        <span>{r.property?.name || r.property?.address?.split(',')[0] || 'â€”'}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-[#529D21]">{r.amount_paid != null ? formatFCFA(Number(r.amount_paid)) : '—'}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-[#529D21]">{r.amount_paid != null ? formatFCFA(Number(r.amount_paid)) : 'â€”'}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{r.reference || `Quittance #${r.id}`}</td>
                     <td className="px-6 py-4">
                       <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                        {r.status === 'paid' ? 'Payée' : 'En attente'}
+                        {r.status === 'paid' ? 'PayÃ©e' : 'En attente'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
@@ -295,7 +295,7 @@ export default function RentReceiptsPage() {
                         onClick={() => handleDownload(r)} 
                         disabled={busyId === r.id} 
                         className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
-                        title="Télécharger la quittance"
+                        title="TÃ©lÃ©charger la quittance"
                       >
                         {busyId === r.id ? 
                           <Loader2 size={18} className="animate-spin text-[#529D21]" /> : 

@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Send, Paperclip, Image as ImageIcon, MoreVertical, Trash2, Edit2, X } from 'lucide-react';
 import { Contact, Message } from '../types';
 import { Button } from './ui/Button';
 import { Modal } from './ui/Modal';
 
 const contacts: Contact[] = [
-  { id: '1', name: 'M. Dupont', role: 'Propriétaire', unreadCount: 3, avatar: 'https://picsum.photos/100/100' },
+  { id: '1', name: 'M. Dupont', role: 'PropriÃ©taire', unreadCount: 3, avatar: 'https://picsum.photos/100/100' },
   { id: '2', name: 'Agence Immo', role: 'Gestion', unreadCount: 0 },
   { id: '3', name: 'Syndic', role: 'Immeuble', unreadCount: 0 },
 ];
 
 const initialMessages: Message[] = [
-  { id: '1', sender: 'owner', content: 'Bonjour, avez-vous pu vérifier le radiateur ?', timestamp: '10:30', isRead: false },
+  { id: '1', sender: 'owner', content: 'Bonjour, avez-vous pu vÃ©rifier le radiateur ?', timestamp: '10:30', isRead: false },
   { id: '2', sender: 'me', content: 'Bonjour M. Dupont. Pas encore, je rentre ce soir.', timestamp: '10:35', isRead: true },
   { id: '3', sender: 'owner', content: 'D\'accord, tenez-moi au courant. C\'est important pour l\'entretien annuel.', timestamp: '10:36', isRead: false },
 ];
@@ -41,12 +41,12 @@ export const Messages: React.FC<MessagesProps> = ({ notify }) => {
     };
     setMessages([...messages, newMessage]);
     setInputValue('');
-    notify('Message envoyé', 'success');
+    notify('Message envoyÃ©', 'success');
   };
 
-  // READ - Les messages sont affichés dans la liste
+  // READ - Les messages sont affichÃ©s dans la liste
 
-  // UPDATE - Éditer un message
+  // UPDATE - Ã‰diter un message
   const handleEditMessage = (id: string, content: string) => {
     setEditingId(id);
     setEditValue(content);
@@ -54,7 +54,7 @@ export const Messages: React.FC<MessagesProps> = ({ notify }) => {
 
   const handleSaveEdit = (id: string) => {
     if (!editValue.trim()) {
-      notify('Le message ne peut pas être vide', 'error');
+      notify('Le message ne peut pas Ãªtre vide', 'error');
       return;
     }
     setMessages(messages.map(msg => 
@@ -62,7 +62,7 @@ export const Messages: React.FC<MessagesProps> = ({ notify }) => {
     ));
     setEditingId(null);
     setEditValue('');
-    notify('Message modifié', 'success');
+    notify('Message modifiÃ©', 'success');
   };
 
   // DELETE - Supprimer un message
@@ -74,7 +74,7 @@ export const Messages: React.FC<MessagesProps> = ({ notify }) => {
   const handleConfirmDelete = () => {
     if (deleteMessageId) {
       setMessages(messages.filter(msg => msg.id !== deleteMessageId));
-      notify('Message supprimé', 'success');
+      notify('Message supprimÃ©', 'success');
       setShowDeleteModal(false);
       setDeleteMessageId(null);
     }
@@ -124,7 +124,7 @@ export const Messages: React.FC<MessagesProps> = ({ notify }) => {
                  </div>
                  <div>
                      <h3 className="font-bold text-gray-900">{selectedContact.name}</h3>
-                     <p className="text-xs text-green-500 flex items-center">● En ligne</p>
+                     <p className="text-xs text-green-500 flex items-center">â— En ligne</p>
                  </div>
              </div>
              <button className="text-gray-400 hover:text-gray-600" aria-label="Plus d'options"><MoreVertical size={20} /></button>
@@ -139,11 +139,11 @@ export const Messages: React.FC<MessagesProps> = ({ notify }) => {
                          <button 
                            onClick={() => handleEditMessage(msg.id, msg.content)}
                            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                           aria-label="Éditer le message"
-                           title="Éditer le message"
+                           aria-label="Ã‰diter le message"
+                           title="Ã‰diter le message"
                          >
                            <Edit2 size={16} />
-                           <span className="sr-only">Éditer le message</span>
+                           <span className="sr-only">Ã‰diter le message</span>
                          </button>
                          <button 
                            onClick={() => handleDeleteClick(msg.id)}
@@ -168,7 +168,7 @@ export const Messages: React.FC<MessagesProps> = ({ notify }) => {
                                onChange={(e) => setEditValue(e.target.value)}
                                className="w-full p-2 border border-gray-300 rounded text-black text-sm"
                                title="Message"
-                               placeholder="Écrivez votre message ici"
+                               placeholder="Ã‰crivez votre message ici"
                                aria-label="Message"
                              />
                              <div className="flex gap-2">
@@ -228,7 +228,7 @@ export const Messages: React.FC<MessagesProps> = ({ notify }) => {
       {/* Modal de confirmation de suppression */}
       <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Supprimer le message">
         <div className="space-y-4">
-          <p className="text-gray-700">Êtes-vous sûr de vouloir supprimer ce message ? Cette action est irréversible.</p>
+          <p className="text-gray-700">ÃŠtes-vous sÃ»r de vouloir supprimer ce message ? Cette action est irrÃ©versible.</p>
           <div className="flex justify-end gap-3">
             <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Annuler</Button>
             <Button variant="danger" onClick={handleConfirmDelete}>Supprimer</Button>

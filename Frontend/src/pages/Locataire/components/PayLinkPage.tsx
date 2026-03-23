@@ -1,4 +1,4 @@
-// src/pages/Locataire/components/PayLinkPage.tsx
+﻿// src/pages/Locataire/components/PayLinkPage.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { tenantPayments, type PayLinkInfo } from "@/services/tenantPayments";
@@ -65,7 +65,7 @@ const Alert = ({
 
 export default function PayLinkPage() {
   const navigate = useNavigate();
-  const { token } = useParams<{ token?: string }>(); // ✅ token optionnel
+  const { token } = useParams<{ token?: string }>(); // âœ… token optionnel
   const [tokenInput, setTokenInput] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -82,8 +82,8 @@ export default function PayLinkPage() {
     const now = Date.now();
     const exp = expiresAt ? new Date(expiresAt).getTime() : null;
 
-    if (usedAt) return { label: "Déjà payé", tone: "ok" as const };
-    if (exp && exp < now) return { label: "Expiré", tone: "error" as const };
+    if (usedAt) return { label: "DÃ©jÃ  payÃ©", tone: "ok" as const };
+    if (exp && exp < now) return { label: "ExpirÃ©", tone: "error" as const };
     return { label: "Disponible", tone: "idle" as const };
   }, [info]);
 
@@ -124,12 +124,12 @@ export default function PayLinkPage() {
 
     setPayErr(null);
 
-    if (status.label === "Déjà payé") {
-      setPayErr("Ce lien a déjà été utilisé.");
+    if (status.label === "DÃ©jÃ  payÃ©") {
+      setPayErr("Ce lien a dÃ©jÃ  Ã©tÃ© utilisÃ©.");
       return;
     }
-    if (status.label === "Expiré") {
-      setPayErr("Ce lien a expiré. Demande un nouveau lien au propriétaire.");
+    if (status.label === "ExpirÃ©") {
+      setPayErr("Ce lien a expirÃ©. Demande un nouveau lien au propriÃ©taire.");
       return;
     }
 
@@ -146,14 +146,14 @@ export default function PayLinkPage() {
     }
   };
 
-  // ✅ CAS MENU: /locataire/pay-link (sans token)
+  // âœ… CAS MENU: /locataire/pay-link (sans token)
   if (!token) {
     return (
       <div className="mx-auto w-full max-w-xl p-4 md:p-6">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="text-xl font-extrabold text-slate-900">Paiement</div>
           <div className="mt-2 text-sm text-slate-600">
-            Colle le token reçu (ou ouvre le lien complet) pour accéder au paiement.
+            Colle le token reÃ§u (ou ouvre le lien complet) pour accÃ©der au paiement.
           </div>
 
           <div className="mt-4 space-y-3">
@@ -186,14 +186,14 @@ export default function PayLinkPage() {
     );
   }
 
-  // ✅ CAS TOKEN OK: /pay-link/:token OU /locataire/pay-link/:token
+  // âœ… CAS TOKEN OK: /pay-link/:token OU /locataire/pay-link/:token
   return (
     <div className="mx-auto w-full max-w-3xl p-4 md:p-6">
       <div className="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white shadow-sm">
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="text-xl font-extrabold tracking-tight">Paiement du loyer</div>
-            <div className="mt-1 text-sm text-white/80">Règle ton paiement en toute sécurité via FedaPay.</div>
+            <div className="mt-1 text-sm text-white/80">RÃ¨gle ton paiement en toute sÃ©curitÃ© via FedaPay.</div>
           </div>
           <div className="flex items-center gap-2">
             <Pill tone={status.tone}>{status.label}</Pill>
@@ -202,14 +202,14 @@ export default function PayLinkPage() {
               onClick={load}
               className="rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/15"
             >
-              Rafraîchir
+              RafraÃ®chir
             </button>
           </div>
         </div>
       </div>
 
       <div className="mt-5 space-y-4">
-        {loading && <Alert tone="info">Chargement du lien de paiement…</Alert>}
+        {loading && <Alert tone="info">Chargement du lien de paiementâ€¦</Alert>}
         {err && <Alert tone="error">{err}</Alert>}
 
         {!loading && !err && (
@@ -217,14 +217,14 @@ export default function PayLinkPage() {
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div>
-                  <div className="text-lg font-bold text-slate-900">Récapitulatif</div>
+                  <div className="text-lg font-bold text-slate-900">RÃ©capitulatif</div>
                   <div className="mt-1 text-sm text-slate-600">
                     {dueDate ? (
                       <>
-                        Échéance : <span className="font-semibold">{String(dueDate)}</span>
+                        Ã‰chÃ©ance : <span className="font-semibold">{String(dueDate)}</span>
                       </>
                     ) : (
-                      "Échéance non précisée"
+                      "Ã‰chÃ©ance non prÃ©cisÃ©e"
                     )}
                   </div>
                 </div>
@@ -241,7 +241,7 @@ export default function PayLinkPage() {
                 <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
                   <div className="text-xs font-semibold text-slate-500">Bien / Location</div>
                   <div className="mt-1 text-sm text-slate-900">
-                    {info?.property?.title || info?.property?.name || info?.lease?.property_title || "—"}
+                    {info?.property?.title || info?.property?.name || info?.lease?.property_title || "â€”"}
                   </div>
                   <div className="mt-1 text-xs text-slate-600">
                     {info?.property?.address || info?.lease?.property_address || ""}
@@ -251,7 +251,7 @@ export default function PayLinkPage() {
                 <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
                   <div className="text-xs font-semibold text-slate-500">Locataire</div>
                   <div className="mt-1 text-sm text-slate-900">
-                    {info?.tenant?.name || info?.tenant?.full_name || "—"}
+                    {info?.tenant?.name || info?.tenant?.full_name || "â€”"}
                   </div>
                   <div className="mt-1 text-xs text-slate-600">{info?.tenant?.email || ""}</div>
                 </div>
@@ -273,10 +273,10 @@ export default function PayLinkPage() {
                 disabled={paying || status.label !== "Disponible"}
                 className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {paying ? "Redirection…" : "Payer maintenant"}
+                {paying ? "Redirectionâ€¦" : "Payer maintenant"}
               </button>
 
-              <div className="text-xs text-slate-500">Paiement sécurisé · FedaPay Checkout</div>
+              <div className="text-xs text-slate-500">Paiement sÃ©curisÃ© Â· FedaPay Checkout</div>
             </div>
 
             <details className="rounded-xl border border-slate-200 bg-slate-50 p-3">

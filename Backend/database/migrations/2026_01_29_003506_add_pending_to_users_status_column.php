@@ -7,10 +7,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("
-            ALTER TABLE users
-            MODIFY COLUMN status ENUM('active','suspended','deactivated','pending') NOT NULL DEFAULT 'active'
-        ");
+        Schema::table('users', function (\Illuminate\Database\Schema\Blueprint $table) {
+            $table->enum('status', ['active','suspended','deactivated','pending'])
+                  ->default('active')
+                  ->change();
+        });
     }
 
     public function down(): void

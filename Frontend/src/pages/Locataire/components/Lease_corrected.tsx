@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { FileSignature, Calendar, DollarSign, Download, Home, MapPin, Ruler, Shield, AlertCircle } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
@@ -15,13 +15,13 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
   const [error, setError] = useState<string | null>(null);
   const isMounted = useRef(true);
   
-  // Chargement initial des données
+  // Chargement initial des donnÃ©es
   useEffect(() => {
     const loadData = async () => {
       if (!isMounted.current) return;
       
       try {
-        console.log('Début du chargement des données...');
+        console.log('DÃ©but du chargement des donnÃ©es...');
         setLoading(true);
         setError(null);
         
@@ -29,14 +29,14 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
         
         if (!isMounted.current) return;
         
-        console.log('Baux reçus:', leases);
+        console.log('Baux reÃ§us:', leases);
         
         if (leases && leases.length > 0) {
-          console.log('Baux trouvés :', leases.length);
+          console.log('Baux trouvÃ©s :', leases.length);
           setLease(leases[0]);
         } else {
-          console.log('Aucun bail trouvé');
-          const errorMsg = 'Aucun bail trouvé pour votre compte.';
+          console.log('Aucun bail trouvÃ©');
+          const errorMsg = 'Aucun bail trouvÃ© pour votre compte.';
           setError(errorMsg);
           notify(errorMsg, 'info');
         }
@@ -65,7 +65,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
     if (!lease) return;
     
     try {
-      // Télécharger le PDF du contrat de bail
+      // TÃ©lÃ©charger le PDF du contrat de bail
       const pdfBlob = await tenantApi.downloadLeaseContract(lease.uuid);
       const url = window.URL.createObjectURL(pdfBlob);
       const a = document.createElement('a');
@@ -76,10 +76,10 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
       window.URL.revokeObjectURL(url);
       a.remove();
       
-      notify('Votre bail a été téléchargé avec succès', 'success');
+      notify('Votre bail a Ã©tÃ© tÃ©lÃ©chargÃ© avec succÃ¨s', 'success');
     } catch (err) {
-      console.error('Erreur lors du téléchargement:', err);
-      const errorMsg = err instanceof Error ? err.message : 'Erreur lors du téléchargement du bail';
+      console.error('Erreur lors du tÃ©lÃ©chargement:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Erreur lors du tÃ©lÃ©chargement du bail';
       notify(errorMsg, 'error');
     }
   };
@@ -101,7 +101,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
         <h3 className="mt-2 text-lg font-medium text-gray-900">Erreur de chargement</h3>
         <p className="mt-1 text-sm text-gray-500">{error}</p>
         <Button className="mt-4" onClick={() => window.location.reload()}>
-          Réessayer
+          RÃ©essayer
         </Button>
       </div>
     );
@@ -110,7 +110,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
   if (!lease) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">Aucun bail trouvé pour votre compte.</p>
+        <p className="text-gray-500">Aucun bail trouvÃ© pour votre compte.</p>
       </div>
     );
   }
@@ -123,7 +123,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
         <div className="flex gap-2">
           <Button variant="secondary" size="sm" onClick={handleDownload}>
             <Download className="h-4 w-4 mr-2" />
-            Télécharger
+            TÃ©lÃ©charger
           </Button>
         </div>
       </div>
@@ -132,14 +132,14 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
       <Card className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Détails du bien</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">DÃ©tails du bien</h3>
             <div className="space-y-3">
               <div className="flex items-center">
                 <Home className="h-5 w-5 text-gray-400 mr-3" />
                 <div>
                   <p className="text-sm text-gray-500">Adresse</p>
                   <p className="font-medium">
-                    {lease.property?.address || 'Non spécifiée'}
+                    {lease.property?.address || 'Non spÃ©cifiÃ©e'}
                   </p>
                 </div>
               </div>
@@ -148,7 +148,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
                 <div>
                   <p className="text-sm text-gray-500">Ville</p>
                   <p className="font-medium">
-                    {lease.property?.city || 'Non spécifiée'}
+                    {lease.property?.city || 'Non spÃ©cifiÃ©e'}
                   </p>
                 </div>
               </div>
@@ -157,7 +157,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
                 <div>
                   <p className="text-sm text-gray-500">Surface</p>
                   <p className="font-medium">
-                    {lease.property?.surface ? `${lease.property.surface} m²` : 'Non spécifiée'}
+                    {lease.property?.surface ? `${lease.property.surface} mÂ²` : 'Non spÃ©cifiÃ©e'}
                   </p>
                 </div>
               </div>
@@ -165,21 +165,21 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
           </div>
 
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Détails du bail</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">DÃ©tails du bail</h3>
             <div className="space-y-3">
               <div className="flex items-center">
                 <FileSignature className="h-5 w-5 text-gray-400 mr-3" />
                 <div>
-                  <p className="text-sm text-gray-500">Référence</p>
-                  <p className="font-medium">{lease.uuid || 'Non spécifiée'}</p>
+                  <p className="text-sm text-gray-500">RÃ©fÃ©rence</p>
+                  <p className="font-medium">{lease.uuid || 'Non spÃ©cifiÃ©e'}</p>
                 </div>
               </div>
               <div className="flex items-center">
                 <Calendar className="h-5 w-5 text-gray-400 mr-3" />
                 <div>
-                  <p className="text-sm text-gray-500">Début du bail</p>
+                  <p className="text-sm text-gray-500">DÃ©but du bail</p>
                   <p className="font-medium">
-                    {lease.start_date ? formatDate(lease.start_date) : 'Non spécifié'}
+                    {lease.start_date ? formatDate(lease.start_date) : 'Non spÃ©cifiÃ©'}
                   </p>
                 </div>
               </div>
@@ -188,7 +188,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
                 <div>
                   <p className="text-sm text-gray-500">Loyer mensuel</p>
                   <p className="font-medium">
-                    {lease.rent_amount ? formatCurrency(lease.rent_amount) : 'Non spécifié'}
+                    {lease.rent_amount ? formatCurrency(lease.rent_amount) : 'Non spÃ©cifiÃ©'}
                   </p>
                 </div>
               </div>
@@ -197,7 +197,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
         </div>
       </Card>
 
-      {/* Documents associés */}
+      {/* Documents associÃ©s */}
       <Card className="p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Documents</h3>
         <div className="space-y-2">
@@ -208,17 +208,17 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
             </div>
             <Button variant="secondary" size="sm" onClick={handleDownload}>
               <Download className="h-4 w-4 mr-2" />
-              Télécharger
+              TÃ©lÃ©charger
             </Button>
           </div>
           <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
             <div className="flex items-center">
               <Shield className="h-5 w-5 text-gray-400 mr-3" />
-              <span>État des lieux d'entrée</span>
+              <span>Ã‰tat des lieux d'entrÃ©e</span>
             </div>
             <Button variant="secondary" size="sm" onClick={() => {}}>
               <Download className="h-4 w-4 mr-2" />
-              Télécharger
+              TÃ©lÃ©charger
             </Button>
           </div>
         </div>

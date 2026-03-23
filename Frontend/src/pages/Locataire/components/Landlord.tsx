@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   MoreVertical, 
@@ -101,22 +101,22 @@ interface Personne {
   ville: string;
   codePostal: string;
   pays: string;
-  type: string; // Propriétaire, Copropriétaire, Agence
+  type: string; // PropriÃ©taire, CopropriÃ©taire, Agence
   sous_type?: string;
   role: string;
   is_creator?: boolean;
   company_name?: string;
   is_professional?: boolean;
-  property_name?: string; // Nom du bien concerné
-  property_address?: string; // Adresse du bien concerné
-  statut: string; // Propriétaire ou Copropriétaire
+  property_name?: string; // Nom du bien concernÃ©
+  property_address?: string; // Adresse du bien concernÃ©
+  statut: string; // PropriÃ©taire ou CopropriÃ©taire
   permissions?: string[];
   delegation_type?: string;
   delegated_at?: string;
   expires_at?: string;
 }
 
-// Données fictives pour les utilisateurs non connectés
+// DonnÃ©es fictives pour les utilisateurs non connectÃ©s
 const mockLandlordData = {
   success: true,
   creator: {
@@ -126,18 +126,18 @@ const mockLandlordData = {
     telephone: "+221 77 123 45 67",
     email: "jean.dupont@example.com",
     avatar: "JD",
-    adresse: "123 Avenue de la République",
+    adresse: "123 Avenue de la RÃ©publique",
     ville: "Dakar",
     codePostal: "12500",
-    pays: "Sénégal",
-    type: "Propriétaire",
-    statut: "Propriétaire",
-    role: "Créateur du bien",
+    pays: "SÃ©nÃ©gal",
+    type: "PropriÃ©taire",
+    statut: "PropriÃ©taire",
+    role: "CrÃ©ateur du bien",
     is_creator: true,
     company_name: "Immobilier Dupont & Fils",
     is_professional: true,
-    property_name: "Résidence Les Palmiers",
-    property_address: "123 Avenue de la République, Dakar",
+    property_name: "RÃ©sidence Les Palmiers",
+    property_address: "123 Avenue de la RÃ©publique, Dakar",
     permissions: ["Consultation", "Gestion des baux", "Collecte des loyers"]
   },
   landlord: {
@@ -150,13 +150,13 @@ const mockLandlordData = {
     adresse: "45 Rue des Palmiers",
     ville: "Dakar",
     codePostal: "12500",
-    pays: "Sénégal",
-    type: "Propriétaire foncier",
-    statut: "Propriétaire",
-    role: "Propriétaire foncier",
+    pays: "SÃ©nÃ©gal",
+    type: "PropriÃ©taire foncier",
+    statut: "PropriÃ©taire",
+    role: "PropriÃ©taire foncier",
     is_professional: false,
-    property_name: "Résidence Les Palmiers",
-    property_address: "123 Avenue de la République, Dakar",
+    property_name: "RÃ©sidence Les Palmiers",
+    property_address: "123 Avenue de la RÃ©publique, Dakar",
     permissions: ["Consultation", "Modification"]
   },
   co_owners: [
@@ -170,13 +170,13 @@ const mockLandlordData = {
       adresse: "78 Rue de la Corniche",
       ville: "Dakar",
       codePostal: "12500",
-      pays: "Sénégal",
-      type: "Copropriétaire",
-      statut: "Copropriétaire",
-      role: "Copropriétaire",
+      pays: "SÃ©nÃ©gal",
+      type: "CopropriÃ©taire",
+      statut: "CopropriÃ©taire",
+      role: "CopropriÃ©taire",
       is_professional: false,
-      property_name: "Résidence Les Palmiers",
-      property_address: "123 Avenue de la République, Dakar",
+      property_name: "RÃ©sidence Les Palmiers",
+      property_address: "123 Avenue de la RÃ©publique, Dakar",
       permissions: ["Consultation", "Gestion des interventions"],
       delegation_type: "partial",
       delegated_at: "2025-01-15T10:30:00Z",
@@ -192,14 +192,14 @@ const mockLandlordData = {
       adresse: "12 Rue des Manguiers",
       ville: "Dakar",
       codePostal: "12500",
-      pays: "Sénégal",
-      type: "Agence immobilière",
-      statut: "Copropriétaire",
+      pays: "SÃ©nÃ©gal",
+      type: "Agence immobiliÃ¨re",
+      statut: "CopropriÃ©taire",
       role: "Agence de gestion",
-      company_name: "Agence Immobilière du Soleil",
+      company_name: "Agence ImmobiliÃ¨re du Soleil",
       is_professional: true,
-      property_name: "Résidence Les Palmiers",
-      property_address: "123 Avenue de la République, Dakar",
+      property_name: "RÃ©sidence Les Palmiers",
+      property_address: "123 Avenue de la RÃ©publique, Dakar",
       permissions: ["Consultation", "Modification", "Gestion des baux", "Collecte des loyers"],
       delegation_type: "full",
       delegated_at: "2025-02-01T09:00:00Z"
@@ -208,8 +208,8 @@ const mockLandlordData = {
   properties: [
     {
       id: 1,
-      name: "Résidence Les Palmiers",
-      address: "123 Avenue de la République, Dakar"
+      name: "RÃ©sidence Les Palmiers",
+      address: "123 Avenue de la RÃ©publique, Dakar"
     },
     {
       id: 2,
@@ -237,7 +237,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
 
-  // Vérifier l'authentification au chargement
+  // VÃ©rifier l'authentification au chargement
   useEffect(() => {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
@@ -247,7 +247,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
       fetchLandlordInfo();
     } else {
       setIsAuthenticated(false);
-      // Utiliser les données fictives
+      // Utiliser les donnÃ©es fictives
       setCreator(mockLandlordData.creator || null);
       setLandlord(mockLandlordData.landlord || null);
       setCoOwners(mockLandlordData.co_owners || []);
@@ -269,9 +269,9 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
         setPropertyInfo(response.data.property || null);
         setProperties(response.data.properties || []);
         
-        // Message clair si aucune donnée
+        // Message clair si aucune donnÃ©e
         if (!response.data.creator && !response.data.landlord && response.data.co_owners.length === 0) {
-          setError('VOUS N\'AVEZ AUCUN BIEN ASSOCIÉ À VOTRE COMPTE');
+          setError('VOUS N\'AVEZ AUCUN BIEN ASSOCIÃ‰ Ã€ VOTRE COMPTE');
           setShowNoPropertyModal(true);
         }
       } else {
@@ -280,7 +280,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
     } catch (err: any) {
       console.error('Erreur lors du chargement:', err);
       
-      // En cas d'erreur 401, utiliser les données fictives
+      // En cas d'erreur 401, utiliser les donnÃ©es fictives
       if (err.response?.status === 401) {
         setIsAuthenticated(false);
         setCreator(mockLandlordData.creator || null);
@@ -289,7 +289,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
         setPropertyInfo(mockLandlordData.properties[0] || null);
         setProperties(mockLandlordData.properties || []);
       } else {
-        setError(err.response?.data?.message || 'Erreur lors du chargement des données');
+        setError(err.response?.data?.message || 'Erreur lors du chargement des donnÃ©es');
       }
       
       notify('Erreur lors du chargement des informations', 'error');
@@ -299,26 +299,26 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
   };
 
   const allPeople = [
-    ...(creator ? [{ ...creator, filterType: 'creator', statut: creator.type === 'Propriétaire' ? 'Propriétaire' : 'Propriétaire' }] : []),
-    ...(landlord ? [{ ...landlord, filterType: 'landlord', statut: landlord.type || 'Propriétaire' }] : []),
-    ...coOwners.map(co => ({ ...co, filterType: 'coowner', statut: co.type === 'Agence' ? 'Agence' : 'Copropriétaire' }))
+    ...(creator ? [{ ...creator, filterType: 'creator', statut: creator.type === 'PropriÃ©taire' ? 'PropriÃ©taire' : 'PropriÃ©taire' }] : []),
+    ...(landlord ? [{ ...landlord, filterType: 'landlord', statut: landlord.type || 'PropriÃ©taire' }] : []),
+    ...coOwners.map(co => ({ ...co, filterType: 'coowner', statut: co.type === 'Agence' ? 'Agence' : 'CopropriÃ©taire' }))
   ].map(person => ({
     ...person,
-    role: person.role || 'Non défini',
-    type: person.type || 'Non défini',
-    statut: person.statut || (person.type === 'Agence' ? 'Agence' : (person.is_creator ? 'Propriétaire' : 'Copropriétaire')),
-    telephone: person.telephone || 'Non renseigné',
-    email: person.email || 'Non renseigné',
-    adresse: person.adresse || 'Non renseignée',
-    ville: person.ville || 'Non renseignée',
+    role: person.role || 'Non dÃ©fini',
+    type: person.type || 'Non dÃ©fini',
+    statut: person.statut || (person.type === 'Agence' ? 'Agence' : (person.is_creator ? 'PropriÃ©taire' : 'CopropriÃ©taire')),
+    telephone: person.telephone || 'Non renseignÃ©',
+    email: person.email || 'Non renseignÃ©',
+    adresse: person.adresse || 'Non renseignÃ©e',
+    ville: person.ville || 'Non renseignÃ©e',
     codePostal: person.codePostal || '',
-    pays: person.pays || 'Sénégal',
-    property_name: person.property_name || (propertyInfo?.name || 'Non spécifié'),
-    property_address: person.property_address || (propertyInfo?.address || 'Non spécifiée'),
+    pays: person.pays || 'SÃ©nÃ©gal',
+    property_name: person.property_name || (propertyInfo?.name || 'Non spÃ©cifiÃ©'),
+    property_address: person.property_address || (propertyInfo?.address || 'Non spÃ©cifiÃ©e'),
     permissions: [] // On retire les permissions
   }));
 
-  // Filtrer par propriété sélectionnée
+  // Filtrer par propriÃ©tÃ© sÃ©lectionnÃ©e
   const getFilteredPeople = () => {
     let filtered = allPeople;
     
@@ -333,7 +333,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
       );
     }
     
-    // Filtre par propriété
+    // Filtre par propriÃ©tÃ©
     if (selectedProperty !== 'all') {
       filtered = filtered.filter(p => 
         p.property_name?.toLowerCase().includes(properties.find(prop => prop.id.toString() === selectedProperty)?.name.toLowerCase() || '')
@@ -357,27 +357,27 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
     navigator.clipboard.writeText(text);
     setCopiedEmail(type);
     setTimeout(() => setCopiedEmail(null), 2000);
-    notify(`${type === 'email' ? 'Email' : 'Téléphone'} copié !`, 'success');
+    notify(`${type === 'email' ? 'Email' : 'TÃ©lÃ©phone'} copiÃ© !`, 'success');
   };
 
   const getRoleColor = (role: string) => {
     if (!role) return 'bg-gray-100 text-gray-800';
-    if (role.includes('Créateur')) return 'bg-purple-100 text-purple-800 border-purple-200';
+    if (role.includes('CrÃ©ateur')) return 'bg-purple-100 text-purple-800 border-purple-200';
     if (role.includes('foncier')) return 'bg-blue-100 text-blue-800 border-blue-200';
     if (role.includes('Agence')) return 'bg-orange-100 text-orange-800 border-orange-200';
     return 'bg-green-100 text-green-800 border-green-200';
   };
 
   const getRoleIcon = (role: string) => {
-    if (role.includes('Créateur')) return <Crown size={14} className="text-purple-600" />;
+    if (role.includes('CrÃ©ateur')) return <Crown size={14} className="text-purple-600" />;
     if (role.includes('foncier')) return <Building size={14} className="text-blue-600" />;
     if (role.includes('Agence')) return <Briefcase size={14} className="text-orange-600" />;
     return <User size={14} className="text-green-600" />;
   };
 
   const getStatutColor = (statut: string) => {
-    if (statut === 'Propriétaire') return 'bg-blue-100 text-blue-800 border-blue-200';
-    if (statut === 'Copropriétaire') return 'bg-green-100 text-green-800 border-green-200';
+    if (statut === 'PropriÃ©taire') return 'bg-blue-100 text-blue-800 border-blue-200';
+    if (statut === 'CopropriÃ©taire') return 'bg-green-100 text-green-800 border-green-200';
     if (statut === 'Agence') return 'bg-orange-100 text-orange-800 border-orange-200';
     return 'bg-gray-100 text-gray-800 border-gray-200';
   };
@@ -399,7 +399,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
     );
   }
 
-  // Message quand il y a des données mais aucune après filtrage
+  // Message quand il y a des donnÃ©es mais aucune aprÃ¨s filtrage
   if (allPeople.length === 0 && !error) {
     return (
       <div className="p-4 sm:p-6 max-w-7xl mx-auto">
@@ -407,14 +407,14 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
           <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <Building size={48} className="text-blue-600" />
           </div>
-          <h3 className="text-2xl font-bold text-blue-800 mb-3">AUCUN INTERVENANT TROUVÉ</h3>
+          <h3 className="text-2xl font-bold text-blue-800 mb-3">AUCUN INTERVENANT TROUVÃ‰</h3>
           <p className="text-blue-700 text-lg mb-4 max-w-lg mx-auto">
-            Aucun propriétaire, copropriétaire ou intervenant n'est actuellement associé à votre bien.
+            Aucun propriÃ©taire, copropriÃ©taire ou intervenant n'est actuellement associÃ© Ã  votre bien.
           </p>
           <div className="bg-white/50 rounded-xl p-4 max-w-md mx-auto">
             <p className="text-sm text-blue-600 flex items-center justify-center gap-2">
               <Info size={16} />
-              Les informations apparaîtront automatiquement dès qu'un intervenant sera associé à votre location.
+              Les informations apparaÃ®tront automatiquement dÃ¨s qu'un intervenant sera associÃ© Ã  votre location.
             </p>
           </div>
         </div>
@@ -425,15 +425,15 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
   return (
     
     <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fadeIn">
-      {/* ── EN-TÊTE ── */}
+      {/* â”€â”€ EN-TÃŠTE â”€â”€ */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Mes intervenants</h1>
-          <p className="text-sm text-gray-400 mt-1 font-medium">Propriétaires, copropriétaires et professionnels de la gestion</p>
+          <p className="text-sm text-gray-400 mt-1 font-medium">PropriÃ©taires, copropriÃ©taires et professionnels de la gestion</p>
         </div>
       </div>
 
-      {/* Bannière mode démo si non authentifié */}
+      {/* BanniÃ¨re mode dÃ©mo si non authentifiÃ© */}
       {!isAuthenticated && (
         <div className="bg-gradient-to-r from-amber-400 to-amber-500 rounded-xl p-4 mb-6 text-white shadow-lg">
           <div className="flex items-center justify-between">
@@ -442,8 +442,8 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
                 <Info size={20} />
               </div>
               <div>
-                <p className="font-medium">Mode Démonstration</p>
-                <p className="text-sm text-white/90">Les données affichées sont fictives. Connectez-vous pour voir vos véritables informations.</p>
+                <p className="font-medium">Mode DÃ©monstration</p>
+                <p className="text-sm text-white/90">Les donnÃ©es affichÃ©es sont fictives. Connectez-vous pour voir vos vÃ©ritables informations.</p>
               </div>
             </div>
             <button
@@ -478,7 +478,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
               <div className="absolute -bottom-12 left-6 z-10">
                 <div className="w-24 h-24 rounded-2xl bg-white shadow-xl flex items-center justify-center border-4 border-white">
                   <div className={`w-20 h-20 rounded-xl flex items-center justify-center text-white font-bold text-3xl ${
-                    selectedPerson.role.includes('Créateur') ? 'bg-gradient-to-br from-purple-500 to-purple-700' :
+                    selectedPerson.role.includes('CrÃ©ateur') ? 'bg-gradient-to-br from-purple-500 to-purple-700' :
                     selectedPerson.role.includes('foncier') ? 'bg-gradient-to-br from-blue-500 to-blue-700' :
                     selectedPerson.role.includes('Agence') ? 'bg-gradient-to-br from-orange-500 to-orange-700' :
                     'bg-gradient-to-br from-green-500 to-green-700'
@@ -493,7 +493,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
             <div className="flex-1 overflow-y-auto min-h-0">
               <div className="pt-16 px-6 pb-2">
 
-                {/* Nom et rôle */}
+                {/* Nom et rÃ´le */}
                 <div className="flex items-start justify-between mb-6">
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">
@@ -527,7 +527,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
                     <button
                       onClick={() => copyToClipboard(selectedPerson.telephone, 'phone')}
                       className="p-2 hover:bg-gray-100 rounded-xl transition-colors group"
-                      title="Copier le téléphone"
+                      title="Copier le tÃ©lÃ©phone"
                     >
                       {copiedEmail === 'phone' ? <Check size={18} className="text-green-600" /> : <Phone size={18} className="text-gray-600 group-hover:text-[#529D21]" />}
                     </button>
@@ -540,7 +540,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
                   </div>
                 </div>
 
-                {/* Coordonnées */}
+                {/* CoordonnÃ©es */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                   <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 hover:border-[#529D21]/30 transition-colors">
                     <div className="flex items-center gap-2 text-[#529D21] mb-2">
@@ -552,13 +552,13 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
                   <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 hover:border-[#529D21]/30 transition-colors">
                     <div className="flex items-center gap-2 text-[#529D21] mb-2">
                       <Phone size={16} />
-                      <span className="text-sm font-medium">Téléphone</span>
+                      <span className="text-sm font-medium">TÃ©lÃ©phone</span>
                     </div>
                     <p className="text-gray-900 font-medium">{selectedPerson.telephone}</p>
                   </div>
                 </div>
 
-                {/* Sections détaillées */}
+                {/* Sections dÃ©taillÃ©es */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
                     <div className="flex items-center gap-2 mb-3 text-gray-700">
@@ -566,10 +566,10 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
                       <h4 className="font-semibold">Adresse</h4>
                     </div>
                     <div className="space-y-1 text-sm">
-                      <p><span className="text-gray-500">Adresse:</span> <span className="text-gray-700">{selectedPerson.adresse || 'Non renseignée'}</span></p>
-                      <p><span className="text-gray-500">Ville:</span> <span className="text-gray-700">{selectedPerson.ville || 'Non renseignée'}</span></p>
-                      <p><span className="text-gray-500">Code postal:</span> <span className="text-gray-700">{selectedPerson.codePostal || 'Non renseigné'}</span></p>
-                      <p><span className="text-gray-500">Pays:</span> <span className="text-gray-700">{selectedPerson.pays || 'Sénégal'}</span></p>
+                      <p><span className="text-gray-500">Adresse:</span> <span className="text-gray-700">{selectedPerson.adresse || 'Non renseignÃ©e'}</span></p>
+                      <p><span className="text-gray-500">Ville:</span> <span className="text-gray-700">{selectedPerson.ville || 'Non renseignÃ©e'}</span></p>
+                      <p><span className="text-gray-500">Code postal:</span> <span className="text-gray-700">{selectedPerson.codePostal || 'Non renseignÃ©'}</span></p>
+                      <p><span className="text-gray-500">Pays:</span> <span className="text-gray-700">{selectedPerson.pays || 'SÃ©nÃ©gal'}</span></p>
                     </div>
                   </div>
 
@@ -588,11 +588,11 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
                     <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
                       <div className="flex items-center gap-2 mb-3 text-gray-700">
                         <Calendar size={16} className="text-[#529D21]" />
-                        <h4 className="font-semibold">Délégation</h4>
+                        <h4 className="font-semibold">DÃ©lÃ©gation</h4>
                       </div>
                       <div className="space-y-1 text-sm">
                         <p>
-                          <span className="text-gray-500">Délégué le:</span>{' '}
+                          <span className="text-gray-500">DÃ©lÃ©guÃ© le:</span>{' '}
                           <span className="text-gray-700 font-medium">
                             {new Date(selectedPerson.delegated_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
                           </span>
@@ -607,7 +607,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
                         )}
                         <p className="mt-2">
                           <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                            {selectedPerson.delegation_type === 'full' ? 'Délégation totale' : 'Délégation partielle'}
+                            {selectedPerson.delegation_type === 'full' ? 'DÃ©lÃ©gation totale' : 'DÃ©lÃ©gation partielle'}
                           </span>
                         </p>
                       </div>
@@ -615,13 +615,13 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
                   )}
                 </div>
 
-                {/* Bien concerné */}
+                {/* Bien concernÃ© */}
                 {(selectedPerson.property_name || propertyInfo) && (
                   <div className="mt-6 pt-6 border-t border-gray-200">
                     <div className="bg-gradient-to-r from-[#529D21]/5 to-[#F5A623]/5 rounded-xl p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <Home size={16} className="text-[#529D21]" />
-                        <h4 className="font-semibold text-gray-900">Bien concerné</h4>
+                        <h4 className="font-semibold text-gray-900">Bien concernÃ©</h4>
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
@@ -664,7 +664,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
               Intervenants
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              {filteredPeople.length} personne{filteredPeople.length > 1 ? 's' : ''} trouvée{filteredPeople.length > 1 ? 's' : ''}
+              {filteredPeople.length} personne{filteredPeople.length > 1 ? 's' : ''} trouvÃ©e{filteredPeople.length > 1 ? 's' : ''}
             </p>
           </div>
           {propertyInfo && (
@@ -703,7 +703,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
               </div>
               <input
                 type="text"
-                placeholder="Rechercher par nom, email, téléphone, entreprise ou bien..."
+                placeholder="Rechercher par nom, email, tÃ©lÃ©phone, entreprise ou bien..."
                 value={searchTerm}
                 onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                 className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#529D21]/20 focus:border-[#529D21] transition-all text-gray-900"
@@ -743,8 +743,8 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
               <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                 <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Personne</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Statut</th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Bien concerné</th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Téléphone</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Bien concernÃ©</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">TÃ©lÃ©phone</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-gray-700">Email</th>
                 <th className="text-center px-6 py-4 text-sm font-semibold text-gray-700">Actions</th>
               </tr>
@@ -754,7 +754,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
                 paginatedPeople.map((person, index) => {
                   let avatarGradient = 'from-green-500 to-green-600';
                   let avatarIcon = <User size={20} />;
-                  if (person.role.includes('Créateur')) { avatarGradient = 'from-purple-500 to-purple-700'; avatarIcon = <Crown size={20} />; }
+                  if (person.role.includes('CrÃ©ateur')) { avatarGradient = 'from-purple-500 to-purple-700'; avatarIcon = <Crown size={20} />; }
                   else if (person.role.includes('foncier')) { avatarGradient = 'from-blue-500 to-blue-700'; avatarIcon = <Building size={20} />; }
                   else if (person.role.includes('Agence')) { avatarGradient = 'from-orange-500 to-orange-700'; avatarIcon = <Briefcase size={20} />; }
                   
@@ -768,7 +768,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
                           <div>
                             <div className="flex items-center gap-2">
                               <span className="font-semibold text-gray-900">{person.prenom} {person.nom}</span>
-                              {person.is_creator && <span className="px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">Créateur</span>}
+                              {person.is_creator && <span className="px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">CrÃ©ateur</span>}
                             </div>
                             {person.company_name && (
                               <p className="text-xs text-gray-500 flex items-center gap-1 mt-1"><Briefcase size={12} />{person.company_name}</p>
@@ -778,7 +778,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
                       </td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1 border ${getStatutColor(person.statut)}`}>
-                          {person.statut === 'Propriétaire' ? <Building size={12} /> : 
+                          {person.statut === 'PropriÃ©taire' ? <Building size={12} /> : 
                            person.statut === 'Agence' ? <Briefcase size={12} /> : 
                            <User size={12} />}
                           {person.statut}
@@ -800,7 +800,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
                       </td>
                       <td className="px-6 py-4 text-center">
                         <div className="flex items-center justify-center gap-1">
-                          <button onClick={() => openModal(person)} className="p-2.5 bg-gradient-to-r from-[#529D21]/10 to-[#F5A623]/10 rounded-xl hover:from-[#529D21]/20 hover:to-[#F5A623]/20 transition-all" title="Voir les détails">
+                          <button onClick={() => openModal(person)} className="p-2.5 bg-gradient-to-r from-[#529D21]/10 to-[#F5A623]/10 rounded-xl hover:from-[#529D21]/20 hover:to-[#F5A623]/20 transition-all" title="Voir les dÃ©tails">
                             <Eye size={18} className="text-gray-600 hover:text-[#529D21] transition-colors" />
                           </button>
                           <a href={`mailto:${person.email}`} className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors" title="Envoyer un email">
@@ -819,10 +819,10 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
                   <td colSpan={6} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center">
                       <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4"><Users size={32} className="text-gray-400" /></div>
-                      <p className="text-gray-500 font-medium">Aucune personne trouvée</p>
+                      <p className="text-gray-500 font-medium">Aucune personne trouvÃ©e</p>
                       <p className="text-sm text-gray-400 mt-1">Essayez de modifier vos filtres de recherche</p>
                       <button onClick={() => { setSearchTerm(''); setSelectedProperty('all'); }} className="mt-4 px-4 py-2 bg-[#529D21] text-white rounded-lg hover:bg-[#529D21]/90 transition-colors">
-                        Réinitialiser les filtres
+                        RÃ©initialiser les filtres
                       </button>
                     </div>
                   </td>
@@ -835,9 +835,9 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
         {filteredPeople.length > 0 && (
           <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-600">
-              Affichage de <span className="font-medium">{(currentPage - 1) * parseInt(itemsPerPage) + 1}</span> à{' '}
+              Affichage de <span className="font-medium">{(currentPage - 1) * parseInt(itemsPerPage) + 1}</span> Ã {' '}
               <span className="font-medium">{Math.min(currentPage * parseInt(itemsPerPage), filteredPeople.length)}</span>{' '}
-              sur <span className="font-medium">{filteredPeople.length}</span> résultats
+              sur <span className="font-medium">{filteredPeople.length}</span> rÃ©sultats
             </p>
             <div className="flex items-center gap-2">
               <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} className="p-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:bg-white disabled:cursor-not-allowed transition-colors"><ChevronsLeft size={16} /></button>
@@ -849,7 +849,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
           </div>
         )}
 
-      {/* ===== MODALE D'ERREUR : AUCUN BIEN ASSOCIÉ ===== */}
+      {/* ===== MODALE D'ERREUR : AUCUN BIEN ASSOCIÃ‰ ===== */}
       {showNoPropertyModal && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-white rounded-2xl p-8 max-w-lg w-full shadow-2xl animate-slideUp">
@@ -867,13 +867,13 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
                 <AlertCircle size={48} className="text-amber-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                VOUS N'AVEZ AUCUN BIEN ASSOCIÉ
+                VOUS N'AVEZ AUCUN BIEN ASSOCIÃ‰
               </h2>
               <p className="text-gray-600 mb-2">
-                Aucun bien n'est actuellement associé à votre compte locataire.
+                Aucun bien n'est actuellement associÃ© Ã  votre compte locataire.
               </p>
               <p className="text-gray-500 text-sm mb-6">
-                Contactez votre propriétaire pour associer un bien à votre compte.
+                Contactez votre propriÃ©taire pour associer un bien Ã  votre compte.
               </p>
 
               {/* Boutons */}
@@ -892,7 +892,7 @@ export const Landlord: React.FC<LandlordProps> = ({ notify }) => {
                   className="flex-1 px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-medium inline-flex items-center justify-center gap-2"
                 >
                   <RefreshCw size={18} />
-                  Réessayer
+                  RÃ©essayer
                 </button>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   Search,
   ChevronDown,
@@ -109,9 +109,9 @@ export const Location: React.FC<LocationProps> = ({ notify }) => {
     nom: '',
     message: `Bonjour,
 
-Je voudrais vous faire découvrir Gestiloc, une plateforme de gestion locative.
+Je voudrais vous faire dÃ©couvrir Gestiloc, une plateforme de gestion locative.
 
-Vous pouvez créer votre compte gratuitement et gérer votre bien en ligne.
+Vous pouvez crÃ©er votre compte gratuitement et gÃ©rer votre bien en ligne.
 
 Cordialement`
   });
@@ -135,15 +135,15 @@ Cordialement`
   const fetchLocationDetails = async (locationId: number) => {
     setLoadingDetails(true);
     try {
-      // Récupérer les détails du bail
+      // RÃ©cupÃ©rer les dÃ©tails du bail
       const response = await api.get(`/tenant/leases/${locationId}`);
       if (response.data) {
         setPropertyDetails(response.data.property || null);
         setLandlordDetails(response.data.landlord || null);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des détails:', error);
-      notify?.('Erreur lors du chargement des détails', 'error');
+      console.error('Erreur lors du chargement des dÃ©tails:', error);
+      notify?.('Erreur lors du chargement des dÃ©tails', 'error');
     } finally {
       setLoadingDetails(false);
     }
@@ -170,16 +170,16 @@ Cordialement`
       });
 
       if (response.data.success) {
-        notify?.('Invitation envoyée avec succès !', 'success');
+        notify?.('Invitation envoyÃ©e avec succÃ¨s !', 'success');
         setShowInviteModal(false);
         setInviteForm({
           email: '',
           nom: '',
           message: `Bonjour,
 
-Je voudrais vous faire découvrir Gestiloc, une plateforme de gestion locative.
+Je voudrais vous faire dÃ©couvrir Gestiloc, une plateforme de gestion locative.
 
-Vous pouvez créer votre compte gratuitement et gérer votre bien en ligne.
+Vous pouvez crÃ©er votre compte gratuitement et gÃ©rer votre bien en ligne.
 
 Cordialement`
         });
@@ -220,7 +220,7 @@ Cordialement`
   };
 
   const formatEndDate = (endDate: string | null) => {
-    if (!endDate) return 'Indéterminée';
+    if (!endDate) return 'IndÃ©terminÃ©e';
     return new Date(endDate).toLocaleDateString('fr-FR', {
       day: 'numeric',
       month: 'long',
@@ -296,7 +296,7 @@ Cordialement`
     }
     if (status === 'terminated') {
       return {
-        label: 'Terminé',
+        label: 'TerminÃ©',
         color: 'bg-gray-100 text-gray-800 border-gray-200',
         icon: <Clock size={14} className="text-gray-600" />
       };
@@ -327,15 +327,15 @@ Cordialement`
 
   return (
     <div className="animate-fadeIn">
-      {/* ── EN-TÊTE ── */}
+      {/* â”€â”€ EN-TÃŠTE â”€â”€ */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Ma location</h1>
-          <p className="text-sm text-gray-400 mt-1 font-medium">Consultez les détails de votre location</p>
+          <p className="text-sm text-gray-400 mt-1 font-medium">Consultez les dÃ©tails de votre location</p>
         </div>
       </div>
 
-      {/* Modal Détails du bien et du propriétaire */}
+      {/* Modal DÃ©tails du bien et du propriÃ©taire */}
       {showDetailsModal && selectedLocation && (
         <div
           className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center pt-16 p-4 animate-fadeIn"
@@ -345,11 +345,11 @@ Cordialement`
             className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-slideUp"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* En-tête */}
+            {/* En-tÃªte */}
             <div className="sticky top-0 bg-gradient-to-r from-[#529D21] to-[#F5A623] text-white px-6 py-4 flex items-center justify-between rounded-t-2xl">
               <h2 className="text-xl font-semibold flex items-center gap-2">
                 <Building size={20} />
-                Détails de la location
+                DÃ©tails de la location
               </h2>
               <button
                 onClick={() => setShowDetailsModal(false)}
@@ -364,7 +364,7 @@ Cordialement`
               {loadingDetails ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader className="w-8 h-8 text-[#529D21] animate-spin" />
-                  <span className="ml-3 text-gray-600">Chargement des détails...</span>
+                  <span className="ml-3 text-gray-600">Chargement des dÃ©tails...</span>
                 </div>
               ) : (
                 <div className="space-y-8">
@@ -381,7 +381,7 @@ Cordialement`
                           <p className="font-medium text-gray-900">{propertyDetails?.name || selectedLocation.property.name}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Adresse complète</p>
+                          <p className="text-xs text-gray-500 mb-1">Adresse complÃ¨te</p>
                           <p className="font-medium text-gray-900">
                             {propertyDetails?.address || selectedLocation.property.address}
                             {propertyDetails?.city && `, ${propertyDetails.city}`}
@@ -398,18 +398,18 @@ Cordialement`
                         {propertyDetails?.surface && (
                           <div>
                             <p className="text-xs text-gray-500 mb-1">Surface</p>
-                            <p className="font-medium text-gray-900">{propertyDetails.surface} m²</p>
+                            <p className="font-medium text-gray-900">{propertyDetails.surface} mÂ²</p>
                           </div>
                         )}
                         {propertyDetails?.rooms && (
                           <div>
-                            <p className="text-xs text-gray-500 mb-1">Pièces</p>
+                            <p className="text-xs text-gray-500 mb-1">PiÃ¨ces</p>
                             <p className="font-medium text-gray-900">{propertyDetails.rooms}</p>
                           </div>
                         )}
                         {propertyDetails?.floor && (
                           <div>
-                            <p className="text-xs text-gray-500 mb-1">Étage</p>
+                            <p className="text-xs text-gray-500 mb-1">Ã‰tage</p>
                             <p className="font-medium text-gray-900">{propertyDetails.floor}</p>
                           </div>
                         )}
@@ -417,11 +417,11 @@ Cordialement`
                     </div>
                   </div>
 
-                  {/* Informations du propriétaire */}
+                  {/* Informations du propriÃ©taire */}
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-4">
                       <User size={18} className="text-[#529D21]" />
-                      Le propriétaire
+                      Le propriÃ©taire
                     </h3>
                     <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                       <div className="flex items-start gap-4 mb-4">
@@ -462,7 +462,7 @@ Cordialement`
                         <div className="bg-white rounded-lg p-3 border border-gray-100">
                           <div className="flex items-center gap-2 text-[#529D21] mb-2">
                             <Phone size={14} />
-                            <span className="text-xs font-medium">Téléphone</span>
+                            <span className="text-xs font-medium">TÃ©lÃ©phone</span>
                           </div>
                           <p className="text-sm text-gray-900">
                             {landlordDetails?.phone || selectedLocation.landlord.phone || '-'}
@@ -491,7 +491,7 @@ Cordialement`
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-4">
                       <FileText size={18} className="text-[#529D21]" />
-                      Détails du bail
+                      DÃ©tails du bail
                     </h3>
                     <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -503,17 +503,17 @@ Cordialement`
                           )}
                         </div>
                         <div className="bg-white rounded-lg p-3 border border-gray-100">
-                          <p className="text-xs text-gray-500 mb-1">Dépôt de garantie</p>
+                          <p className="text-xs text-gray-500 mb-1">DÃ©pÃ´t de garantie</p>
                           <p className="font-bold text-gray-900">{selectedLocation.guarantee_deposit ? formatMoney(selectedLocation.guarantee_deposit) : '-'}</p>
                         </div>
                         <div className="bg-white rounded-lg p-3 border border-gray-100">
                           <p className="text-xs text-gray-500 mb-1">Solde</p>
                           <p className={`font-bold ${selectedLocation.balance > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                            {selectedLocation.balance > 0 ? formatMoney(selectedLocation.balance) : 'À jour'}
+                            {selectedLocation.balance > 0 ? formatMoney(selectedLocation.balance) : 'Ã€ jour'}
                           </p>
                         </div>
                         <div className="bg-white rounded-lg p-3 border border-gray-100">
-                          <p className="text-xs text-gray-500 mb-1">Date de début</p>
+                          <p className="text-xs text-gray-500 mb-1">Date de dÃ©but</p>
                           <p className="font-medium text-gray-900">
                             {new Date(selectedLocation.start_date).toLocaleDateString('fr-FR', {
                               day: 'numeric',
@@ -531,7 +531,7 @@ Cordialement`
                                   month: 'long',
                                   year: 'numeric'
                                 })
-                              : 'Indéterminée'
+                              : 'IndÃ©terminÃ©e'
                             }
                           </p>
                         </div>
@@ -564,7 +564,7 @@ Cordialement`
                 className="px-6 py-2.5 bg-gradient-to-r from-[#529D21] to-[#F5A623] text-white rounded-xl hover:shadow-lg transition-all font-medium inline-flex items-center gap-2"
               >
                 <Mail size={16} />
-                Contacter le propriétaire
+                Contacter le propriÃ©taire
               </a>
             </div>
           </div>
@@ -584,7 +584,7 @@ Cordialement`
             <div className="sticky top-0 text-white px-6 py-4 flex items-center justify-between"
               style={{ backgroundColor: "#70AE48" }}>
               <h2 className="text-xl font-semibold text-white">
-                Inviter votre propriétaire
+                Inviter votre propriÃ©taire
               </h2>
               <button
                 onClick={() => setShowInviteModal(false)}
@@ -600,7 +600,7 @@ Cordialement`
                 <p className="text-sm text-blue-800">
                   <span className="font-semibold">Information</span>
                   <br />
-                  Faites découvrir Gestiloc à votre bailleur en lui envoyant une invitation par email.
+                  Faites dÃ©couvrir Gestiloc Ã  votre bailleur en lui envoyant une invitation par email.
                 </p>
               </div>
 
@@ -628,7 +628,7 @@ Cordialement`
                     value={inviteForm.nom}
                     onChange={(e) => setInviteForm({ ...inviteForm, nom: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
-                    placeholder="Nom du propriétaire"
+                    placeholder="Nom du propriÃ©taire"
                     disabled={sendingInvite}
                   />
                 </div>
@@ -678,7 +678,7 @@ Cordialement`
               Filtrer mes locations
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              {filteredLocations.length} location{filteredLocations.length > 1 ? 's' : ''} trouvée{filteredLocations.length > 1 ? 's' : ''}
+              {filteredLocations.length} location{filteredLocations.length > 1 ? 's' : ''} trouvÃ©e{filteredLocations.length > 1 ? 's' : ''}
             </p>
           </div>
           <button
@@ -686,7 +686,7 @@ Cordialement`
             className="group relative px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center gap-2 text-sm font-medium"
           >
             <UserPlus size={18} className="group-hover:rotate-12 transition-transform" />
-            Inviter un propriétaire
+            Inviter un propriÃ©taire
             <div className="absolute inset-0 rounded-xl bg-white opacity-0 group-hover:opacity-10 transition-opacity"></div>
           </button>
         </div>
@@ -769,7 +769,7 @@ Cordialement`
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
-              placeholder="Rechercher un bien ou un propriétaire..."
+              placeholder="Rechercher un bien ou un propriÃ©taire..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -799,14 +799,14 @@ Cordialement`
               <option value="all">Tous les statuts</option>
               <option value="active">Actifs</option>
               <option value="late">En retard</option>
-              <option value="terminated">Terminés</option>
+              <option value="terminated">TerminÃ©s</option>
             </select>
             <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" size={16} />
           </div>
         </div>
       </div>
 
-      {/* Table Section - Avec colonnes modifiées */}
+      {/* Table Section - Avec colonnes modifiÃ©es */}
       <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden animate-slideUp">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -820,7 +820,7 @@ Cordialement`
                     <Building size={16} className="text-gray-500" />
                     Bien
                     {sortField === 'property' && (
-                      <span className="text-green-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                      <span className="text-green-600">{sortDirection === 'asc' ? 'â†‘' : 'â†“'}</span>
                     )}
                   </div>
                 </th>
@@ -830,9 +830,9 @@ Cordialement`
                 >
                   <div className="flex items-center gap-2">
                     <User size={16} className="text-gray-500" />
-                    Propriétaire
+                    PropriÃ©taire
                     {sortField === 'landlord' && (
-                      <span className="text-green-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                      <span className="text-green-600">{sortDirection === 'asc' ? 'â†‘' : 'â†“'}</span>
                     )}
                   </div>
                 </th>
@@ -844,7 +844,7 @@ Cordialement`
                     <DollarSign size={16} className="text-gray-500" />
                     Loyer
                     {sortField === 'rent_amount' && (
-                      <span className="text-green-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                      <span className="text-green-600">{sortDirection === 'asc' ? 'â†‘' : 'â†“'}</span>
                     )}
                   </div>
                 </th>
@@ -862,7 +862,7 @@ Cordialement`
                     <Calendar size={16} className="text-gray-500" />
                     Date de fin
                     {sortField === 'end_date' && (
-                      <span className="text-green-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                      <span className="text-green-600">{sortDirection === 'asc' ? 'â†‘' : 'â†“'}</span>
                     )}
                   </div>
                 </th>
@@ -934,7 +934,7 @@ Cordialement`
                         <button
                           onClick={() => handleViewDetails(location)}
                           className="p-2.5 bg-gradient-to-r from-[#529D21]/10 to-[#F5A623]/10 rounded-xl hover:from-[#529D21]/20 hover:to-[#F5A623]/20 transition-all group"
-                          title="Voir les détails"
+                          title="Voir les dÃ©tails"
                         >
                           <Eye size={18} className="text-gray-600 group-hover:text-[#529D21] transition-colors" />
                         </button>
@@ -949,7 +949,7 @@ Cordialement`
                       <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                         <Building size={32} className="text-gray-400" />
                       </div>
-                      <p className="text-gray-500 font-medium">Aucune location trouvée</p>
+                      <p className="text-gray-500 font-medium">Aucune location trouvÃ©e</p>
                       <p className="text-sm text-gray-400 mt-1">Essayez de modifier vos filtres de recherche</p>
                       <button
                         onClick={() => {
@@ -958,7 +958,7 @@ Cordialement`
                         }}
                         className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                       >
-                        Réinitialiser les filtres
+                        RÃ©initialiser les filtres
                       </button>
                     </div>
                   </td>
@@ -972,11 +972,11 @@ Cordialement`
         {filteredLocations.length > 0 && (
           <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-600">
-              Affichage <span className="font-medium">{(currentPage - 1) * rowsPerPage + 1}</span> à{' '}
+              Affichage <span className="font-medium">{(currentPage - 1) * rowsPerPage + 1}</span> Ã {' '}
               <span className="font-medium">
                 {Math.min(currentPage * rowsPerPage, filteredLocations.length)}
               </span>{' '}
-              sur <span className="font-medium">{filteredLocations.length}</span> résultats
+              sur <span className="font-medium">{filteredLocations.length}</span> rÃ©sultats
             </p>
             <div className="flex items-center gap-2">
               <button

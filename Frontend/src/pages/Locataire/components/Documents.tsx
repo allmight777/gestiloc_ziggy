@@ -1,4 +1,4 @@
-// src/pages/Locataire/components/Documents.tsx
+﻿// src/pages/Locataire/components/Documents.tsx
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -267,7 +267,7 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
       case 'active': return <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Actif</span>;
       case 'pending_signature': return <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">En attente de signature</span>;
       case 'pending': return <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">En attente</span>;
-      case 'terminated': return <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Résilié</span>;
+      case 'terminated': return <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">RÃ©siliÃ©</span>;
       default: return <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">{status}</span>;
     }
   };
@@ -290,7 +290,7 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
         </div>
 
         <div className="p-6">
-          {/* En-tête du bail */}
+          {/* En-tÃªte du bail */}
           <div className="bg-gradient-to-r from-[#70AE48]/10 to-[#FFB74D]/10 rounded-lg p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -303,19 +303,19 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <p className="text-xs text-gray-500">Début</p>
+                <p className="text-xs text-gray-500">DÃ©but</p>
                 <p className="text-sm font-semibold text-gray-900">{formatDate(lease.start_date)}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">Fin</p>
-                <p className="text-sm font-semibold text-gray-900">{lease.end_date ? formatDate(lease.end_date) : 'Indéterminée'}</p>
+                <p className="text-sm font-semibold text-gray-900">{lease.end_date ? formatDate(lease.end_date) : 'IndÃ©terminÃ©e'}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">Loyer mensuel</p>
                 <p className="text-sm font-semibold text-gray-900">{formatMoney(lease.rent_amount)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Dépôt de garantie</p>
+                <p className="text-xs text-gray-500">DÃ©pÃ´t de garantie</p>
                 <p className="text-sm font-semibold text-gray-900">{formatMoney(lease.deposit)}</p>
               </div>
             </div>
@@ -333,7 +333,7 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
                 {hasTenantSigned ? (
                   <span className="text-sm text-green-600 flex items-center gap-1">
                     <CheckCircle size={16} />
-                    Signé le {lease.tenant_signature ? formatDate(JSON.parse(lease.tenant_signature).signed_at) : ''}
+                    SignÃ© le {lease.tenant_signature ? formatDate(JSON.parse(lease.tenant_signature).signed_at) : ''}
                   </span>
                 ) : (
                   <span className="text-sm text-yellow-600 flex items-center gap-1">
@@ -343,11 +343,11 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
                 )}
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Signature du propriétaire</span>
+                <span className="text-sm text-gray-600">Signature du propriÃ©taire</span>
                 {hasLandlordSigned ? (
                   <span className="text-sm text-green-600 flex items-center gap-1">
                     <CheckCircle size={16} />
-                    Signé
+                    SignÃ©
                   </span>
                 ) : (
                   <span className="text-sm text-yellow-600 flex items-center gap-1">
@@ -360,16 +360,16 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
                 <div className="mt-2 pt-2 border-t border-gray-200">
                   <span className="text-sm text-green-600 flex items-center gap-1">
                     <FileCheck size={16} />
-                    Contrat signé disponible
+                    Contrat signÃ© disponible
                   </span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Détails du bail */}
+          {/* DÃ©tails du bail */}
           <div className="space-y-4">
-            <h4 className="font-medium text-gray-900">Détails du contrat</h4>
+            <h4 className="font-medium text-gray-900">DÃ©tails du contrat</h4>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-gray-50 rounded-lg p-4">
@@ -378,18 +378,18 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
                   {lease.type === 'residential' && 'Bail d\'habitation'}
                   {lease.type === 'commercial' && 'Bail commercial'}
                   {lease.type === 'professional' && 'Bail professionnel'}
-                  {lease.type === 'furnished' && 'Bail meublé'}
+                  {lease.type === 'furnished' && 'Bail meublÃ©'}
                   {lease.type === 'empty' && 'Bail vide'}
                 </p>
               </div>
               
               <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-xs text-gray-500 mb-1">Référence</p>
+                <p className="text-xs text-gray-500 mb-1">RÃ©fÃ©rence</p>
                 <p className="text-sm font-medium text-gray-900 font-mono">{lease.uuid}</p>
               </div>
               
               <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-xs text-gray-500 mb-1">Date de création</p>
+                <p className="text-xs text-gray-500 mb-1">Date de crÃ©ation</p>
                 <p className="text-sm font-medium text-gray-900">{formatDate(lease.created_at)}</p>
               </div>
               
@@ -399,7 +399,7 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
                   {lease.status === 'active' && 'Bail en cours'}
                   {lease.status === 'pending_signature' && 'En attente de signature'}
                   {lease.status === 'pending' && 'En attente de validation'}
-                  {lease.status === 'terminated' && 'Bail résilié'}
+                  {lease.status === 'terminated' && 'Bail rÃ©siliÃ©'}
                 </p>
               </div>
             </div>
@@ -430,7 +430,7 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
               >
                 <Eye size={18} />
-                Voir le contrat signé
+                Voir le contrat signÃ©
               </button>
             ) : (
               <button
@@ -438,7 +438,7 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
                 className="px-4 py-2 bg-[#70AE48] text-white rounded-lg hover:bg-[#5a8f3a] transition-colors flex items-center gap-2"
               >
                 <Download size={18} />
-                Télécharger le contrat
+                TÃ©lÃ©charger le contrat
               </button>
             )}
           </div>
@@ -485,7 +485,7 @@ const SignatureModal: React.FC<SignatureModalProps> = ({
               <AlertCircle className="h-5 w-5 text-yellow-400" />
               <div className="ml-3">
                 <p className="text-sm text-yellow-700">
-                  En signant ce contrat, vous reconnaissez avoir lu et accepté toutes les conditions du bail.
+                  En signant ce contrat, vous reconnaissez avoir lu et acceptÃ© toutes les conditions du bail.
                 </p>
               </div>
             </div>
@@ -577,14 +577,14 @@ const ConditionReportViewerModal: React.FC<ConditionReportViewerModalProps> = ({
   };
 
   const getTypeLabel = (type: string) => {
-    return type === 'entry' ? 'État des lieux d\'entrée' : 'État des lieux de sortie';
+    return type === 'entry' ? 'Ã‰tat des lieux d\'entrÃ©e' : 'Ã‰tat des lieux de sortie';
   };
 
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'draft': return <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Brouillon</span>;
-      case 'finalized': return <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Finalisé</span>;
-      case 'signed': return <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Signé</span>;
+      case 'finalized': return <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">FinalisÃ©</span>;
+      case 'signed': return <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">SignÃ©</span>;
       default: return <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">{status}</span>;
     }
   };
@@ -603,7 +603,7 @@ const ConditionReportViewerModal: React.FC<ConditionReportViewerModalProps> = ({
         </div>
 
         <div className="p-6">
-          {/* En-tête du rapport */}
+          {/* En-tÃªte du rapport */}
           <div className="bg-gradient-to-r from-[#70AE48]/10 to-[#FFB74D]/10 rounded-lg p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -620,14 +620,14 @@ const ConditionReportViewerModal: React.FC<ConditionReportViewerModalProps> = ({
                 <p className="text-sm font-semibold text-gray-900">{formatDate(report.report_date)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Créé par</p>
+                <p className="text-xs text-gray-500">CrÃ©Ã© par</p>
                 <p className="text-sm font-semibold text-gray-900">{report.created_by_name}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">Signatures</p>
                 <p className="text-sm font-semibold text-gray-900">
-                  {report.signature_tenant ? '✅ Locataire' : '❌ Locataire'}, 
-                  {report.signature_landlord ? '✅ Propriétaire' : '❌ Propriétaire'}
+                  {report.signature_tenant ? 'âœ… Locataire' : 'âŒ Locataire'}, 
+                  {report.signature_landlord ? 'âœ… PropriÃ©taire' : 'âŒ PropriÃ©taire'}
                 </p>
               </div>
             </div>
@@ -726,7 +726,7 @@ const ConditionReportViewerModal: React.FC<ConditionReportViewerModalProps> = ({
                 className="px-4 py-2 bg-[#70AE48] text-white rounded-lg hover:bg-[#5a8f3a] transition-colors flex items-center gap-2"
               >
                 <Download size={18} />
-                Télécharger le rapport
+                TÃ©lÃ©charger le rapport
               </button>
             )}
           </div>
@@ -751,7 +751,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, shareUrl, titl
   const handleCopy = () => {
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
-    notify?.('Lien copié dans le presse-papiers', 'success');
+    notify?.('Lien copiÃ© dans le presse-papiers', 'success');
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -817,7 +817,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, shareUrl, titl
                 className="px-4 py-2.5 bg-[#70AE48] text-white rounded-lg hover:bg-[#5a8f3a] transition-colors flex items-center gap-2"
               >
                 {copied ? <Check size={18} /> : <Copy size={18} />}
-                {copied ? 'Copié' : 'Copier'}
+                {copied ? 'CopiÃ©' : 'Copier'}
               </button>
             </div>
           </div>
@@ -947,7 +947,7 @@ const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ isOpen, onClo
                   {document.type === 'quittance' && 'Quittance'}
                   {document.type === 'dpe' && 'DPE'}
                   {document.type === 'diagnostic' && 'Diagnostic'}
-                  {document.type === 'etat_des_lieux' && 'État des lieux'}
+                  {document.type === 'etat_des_lieux' && 'Ã‰tat des lieux'}
                   {document.type === 'contrat_bail' && 'Contrat de bail'}
                   {document.type === 'autre' && 'Autre'}
                 </span>
@@ -970,7 +970,7 @@ const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ isOpen, onClo
 
             {document.created_by_name && (
               <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-sm text-gray-600">Créé par</span>
+                <span className="text-sm text-gray-600">CrÃ©Ã© par</span>
                 <span className="text-sm font-medium text-gray-900">{document.created_by_name}</span>
               </div>
             )}
@@ -992,7 +992,7 @@ const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ isOpen, onClo
 
             {document.shared_with_users && document.shared_with_users.length > 0 && (
               <div className="py-2 border-b border-gray-100">
-                <span className="text-sm text-gray-600 block mb-2">Partagé avec</span>
+                <span className="text-sm text-gray-600 block mb-2">PartagÃ© avec</span>
                 <div className="space-y-2">
                   {document.shared_with_users.map(user => (
                     <div key={user.id} className="flex items-center gap-2 text-sm">
@@ -1022,13 +1022,13 @@ const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ isOpen, onClo
 
 // ==================== COMPOSANT PRINCIPAL ====================
 export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
-  // États principaux
+  // Ã‰tats principaux
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<'documents' | 'dossier'>('documents');
   const [activeFilter, setActiveFilter] = useState<'actifs' | 'archives' | 'templates' | 'contrats' | 'etats_lieux' | 'proprio'>('actifs');
 
-  // États pour les données
+  // Ã‰tats pour les donnÃ©es
   const [documents, setDocuments] = useState<Document[]>([]);
   const [ownerDocuments, setOwnerDocuments] = useState<Document[]>([]);
   const [leases, setLeases] = useState<Lease[]>([]);
@@ -1044,7 +1044,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
     report_types: []
   });
 
-  // États pour les compteurs
+  // Ã‰tats pour les compteurs
   const [actifsCount, setActifsCount] = useState(0);
   const [archivesCount, setArchivesCount] = useState(0);
   const [templatesCount, setTemplatesCount] = useState(0);
@@ -1052,7 +1052,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
   const [etatsLieuxCount, setEtatsLieuxCount] = useState(0);
   const [ownerDocumentsCount, setOwnerDocumentsCount] = useState(0);
 
-  // États pour les modals
+  // Ã‰tats pour les modals
   const [showAddModal, setShowAddModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showDocumentViewer, setShowDocumentViewer] = useState(false);
@@ -1065,7 +1065,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
   const [shareUrl, setShareUrl] = useState('');
   const [shareTitle, setShareTitle] = useState('');
 
-  // États pour les filtres
+  // Ã‰tats pour les filtres
   const [itemsPerPage, setItemsPerPage] = useState('10');
   const [showItemsDropdown, setShowItemsDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -1097,7 +1097,6 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
     a_propos: '',
     email: '',
     telephone: '',
-    mobile: '',
     adresse: '',
     ville: '',
     pays: '',
@@ -1126,27 +1125,27 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
     { value: 'quittance', label: 'Quittance' },
     { value: 'dpe', label: 'DPE' },
     { value: 'diagnostic', label: 'Diagnostic' },
-    { value: 'etat_des_lieux', label: 'État des lieux' },
+    { value: 'etat_des_lieux', label: 'Ã‰tat des lieux' },
     { value: 'contrat_bail', label: 'Contrat de bail' },
     { value: 'autre', label: 'Autre' }
   ];
 
   const activityOptions = [
-    'Salarié CDI', 'Salarié CDD', 'Gérant salarié', 'Non salarié',
+    'SalariÃ© CDI', 'SalariÃ© CDD', 'GÃ©rant salariÃ©', 'Non salariÃ©',
     'Fonctionnaire', 'Etudiant', 'Intermittent du spectacle',
-    'Intérimaire', 'Assistante maternelle', 'Retraité', 'Autre'
+    'IntÃ©rimaire', 'Assistante maternelle', 'RetraitÃ©', 'Autre'
   ];
 
-  const paysOptions = ['Bénin', 'France', 'Belgique', 'Suisse', 'Luxembourg', 'Canada', 'Autre'];
+  const paysOptions = ['BÃ©nin', 'France', 'Belgique', 'Suisse', 'Luxembourg', 'Canada', 'Autre'];
 
   const garantTypeOptions = [
     { value: 'personne_physique', label: 'Personne physique' },
-    { value: 'organisme', label: 'Organisme ou société' },
+    { value: 'organisme', label: 'Organisme ou sociÃ©tÃ©' },
     { value: 'bancaire', label: 'Garantie bancaire' },
     { value: 'autre', label: 'Autre' }
   ];
 
-  // Charger les données
+  // Charger les donnÃ©es
   useEffect(() => {
     fetchDocuments();
     fetchLeases();
@@ -1155,7 +1154,35 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
     fetchDossier();
     fetchFilterOptions();
     fetchOwnerDocuments();
+    fetchProfileForDossier();
   }, []);
+
+  const fetchProfileForDossier = async () => {
+    try {
+      const response = await api.get('/tenant/profile/full');
+      if (response.data.success) {
+        const p = response.data.data;
+        // Fusionner avec dossierForm s'il est vide
+        setDossierForm(prev => ({
+          ...prev,
+          nom: prev.nom || p.last_name || '',
+          prenoms: prev.prenoms || p.first_name || '',
+          email: prev.email || p.email || '',
+          telephone: prev.telephone || p.phone || '',
+          adresse: prev.adresse || p.address?.street || '',
+          ville: prev.ville || p.address?.city || '',
+          pays: prev.pays || p.address?.country || '',
+          region: prev.region || p.address?.complement || '',
+          date_naissance: prev.date_naissance || p.birth_date || '',
+          profession: prev.profession || p.professional?.profession || '',
+          type_activite: prev.type_activite || p.professional?.contract_type || '',
+          revenus_mensuels: prev.revenus_mensuels || p.professional?.monthly_income || '',
+        }));
+      }
+    } catch (error) {
+      console.warn('Profile fetch for dossier failed');
+    }
+  };
 
   // Recharger quand les filtres changent
   useEffect(() => {
@@ -1169,12 +1196,12 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
       } else if (activeFilter === 'etats_lieux') {
         fetchConditionReports();
       } else if (activeFilter === 'templates') {
-        // Templates déjà chargés
+        // Templates dÃ©jÃ  chargÃ©s
       }
     }
   }, [activeFilter, searchQuery, periode, typeFilter, propertyFilter, itemsPerPage]);
 
-  // Charger les contacts quand un bien est sélectionné
+  // Charger les contacts quand un bien est sÃ©lectionnÃ©
   useEffect(() => {
     if (newDocument.property_id) {
       fetchContacts(newDocument.property_id);
@@ -1292,7 +1319,6 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
           a_propos: response.data.data.a_propos || '',
           email: response.data.data.email || '',
           telephone: response.data.data.telephone || '',
-          mobile: response.data.data.mobile || '',
           adresse: response.data.data.adresse || '',
           ville: response.data.data.ville || '',
           pays: response.data.data.pays || '',
@@ -1347,7 +1373,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
       const response = await api.delete(`/tenant/documents/${docToDelete}`);
       if (response.data.success) {
         setDocuments(documents.filter(d => d.id !== docToDelete));
-        notify?.('Document supprimé avec succès', 'success');
+        notify?.('Document supprimÃ© avec succÃ¨s', 'success');
         fetchDocuments();
       }
     } catch (error) {
@@ -1369,7 +1395,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
     try {
       const response = await api.post(`/tenant/documents/${doc.id}/archive`);
       if (response.data.success) {
-        notify?.('Document archivé avec succès', 'success');
+        notify?.('Document archivÃ© avec succÃ¨s', 'success');
         fetchDocuments();
       }
     } catch (error) {
@@ -1382,7 +1408,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
     try {
       const response = await api.post(`/tenant/documents/${doc.id}/restore`);
       if (response.data.success) {
-        notify?.('Document restauré avec succès', 'success');
+        notify?.('Document restaurÃ© avec succÃ¨s', 'success');
         fetchDocuments();
       }
     } catch (error) {
@@ -1409,10 +1435,10 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         window.URL.revokeObjectURL(url);
       }, 100);
 
-      notify?.('Téléchargement réussi', 'success');
+      notify?.('TÃ©lÃ©chargement rÃ©ussi', 'success');
     } catch (error) {
-      console.error('Erreur téléchargement:', error);
-      notify?.('Erreur lors du téléchargement', 'error');
+      console.error('Erreur tÃ©lÃ©chargement:', error);
+      notify?.('Erreur lors du tÃ©lÃ©chargement', 'error');
     }
   };
 
@@ -1458,10 +1484,10 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         window.URL.revokeObjectURL(url);
       }, 100);
 
-      notify?.('PDF des informations téléchargé avec succès', 'success');
+      notify?.('PDF des informations tÃ©lÃ©chargÃ© avec succÃ¨s', 'success');
     } catch (error) {
-      console.error('Erreur téléchargement PDF:', error);
-      notify?.('Erreur lors du téléchargement du PDF', 'error');
+      console.error('Erreur tÃ©lÃ©chargement PDF:', error);
+      notify?.('Erreur lors du tÃ©lÃ©chargement du PDF', 'error');
     }
   };
 
@@ -1483,10 +1509,10 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         window.URL.revokeObjectURL(url);
       }, 100);
 
-      notify?.('Contrat de bail téléchargé avec succès', 'success');
+      notify?.('Contrat de bail tÃ©lÃ©chargÃ© avec succÃ¨s', 'success');
     } catch (error) {
-      console.error('Erreur téléchargement contrat:', error);
-      notify?.('Erreur lors du téléchargement du contrat', 'error');
+      console.error('Erreur tÃ©lÃ©chargement contrat:', error);
+      notify?.('Erreur lors du tÃ©lÃ©chargement du contrat', 'error');
     }
   };
 
@@ -1503,8 +1529,8 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         window.URL.revokeObjectURL(url);
       }, 100);
     } catch (error) {
-      console.error('Erreur visualisation contrat signé:', error);
-      notify?.('Erreur lors de la visualisation du contrat signé', 'error');
+      console.error('Erreur visualisation contrat signÃ©:', error);
+      notify?.('Erreur lors de la visualisation du contrat signÃ©', 'error');
     }
   };
 
@@ -1547,10 +1573,10 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         window.URL.revokeObjectURL(url);
       }, 100);
 
-      notify?.('État des lieux téléchargé avec succès', 'success');
+      notify?.('Ã‰tat des lieux tÃ©lÃ©chargÃ© avec succÃ¨s', 'success');
     } catch (error) {
-      console.error('Erreur téléchargement état des lieux:', error);
-      notify?.('Erreur lors du téléchargement de l\'état des lieux', 'error');
+      console.error('Erreur tÃ©lÃ©chargement Ã©tat des lieux:', error);
+      notify?.('Erreur lors du tÃ©lÃ©chargement de l\'Ã©tat des lieux', 'error');
     }
   };
 
@@ -1567,7 +1593,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         window.URL.revokeObjectURL(url);
       }, 100);
     } catch (error) {
-      console.error('Erreur visualisation état des lieux:', error);
+      console.error('Erreur visualisation Ã©tat des lieux:', error);
       
       // Fallback: ouvrir l'URL directe
       if (report.file_url) {
@@ -1596,10 +1622,10 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         window.URL.revokeObjectURL(url);
       }, 100);
 
-      notify?.('Dossier téléchargé avec succès', 'success');
+      notify?.('Dossier tÃ©lÃ©chargÃ© avec succÃ¨s', 'success');
     } catch (error) {
-      console.error('Erreur téléchargement dossier:', error);
-      notify?.('Erreur lors du téléchargement', 'error');
+      console.error('Erreur tÃ©lÃ©chargement dossier:', error);
+      notify?.('Erreur lors du tÃ©lÃ©chargement', 'error');
     }
   };
 
@@ -1619,12 +1645,12 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
 
   const handleCreateDocument = async () => {
     if (!selectedFile) {
-      notify?.('Veuillez sélectionner un fichier', 'error');
+      notify?.('Veuillez sÃ©lectionner un fichier', 'error');
       return;
     }
 
     if (!newDocument.type) {
-      notify?.('Veuillez sélectionner un type de document', 'error');
+      notify?.('Veuillez sÃ©lectionner un type de document', 'error');
       return;
     }
 
@@ -1666,11 +1692,11 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         });
         setSelectedFile(null);
         setShowAddModal(false);
-        notify?.('Document ajouté avec succès', 'success');
+        notify?.('Document ajoutÃ© avec succÃ¨s', 'success');
         fetchDocuments();
       }
     } catch (error) {
-      console.error('Erreur création document:', error);
+      console.error('Erreur crÃ©ation document:', error);
       notify?.('Erreur lors de l\'ajout du document', 'error');
     } finally {
       setSubmitting(false);
@@ -1682,7 +1708,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
     try {
       const response = await api.put('/tenant/dossier', dossierForm);
       if (response.data.success) {
-        notify?.('Dossier enregistré avec succès', 'success');
+        notify?.('Dossier enregistrÃ© avec succÃ¨s', 'success');
         fetchDossier();
       }
     } catch (error) {
@@ -1697,7 +1723,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
     try {
       const response = await api.post('/tenant/dossier/publish');
       if (response.data.success) {
-        notify?.('Dossier publié avec succès', 'success');
+        notify?.('Dossier publiÃ© avec succÃ¨s', 'success');
         fetchDossier();
       }
     } catch (error) {
@@ -1803,12 +1829,12 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900">Confirmer la suppression</h3>
-                <p className="text-sm text-gray-500 mt-1">Cette action est irréversible</p>
+                <p className="text-sm text-gray-500 mt-1">Cette action est irrÃ©versible</p>
               </div>
             </div>
 
             <p className="text-gray-600 mb-8">
-              Êtes-vous sûr de vouloir supprimer définitivement ce document ?
+              ÃŠtes-vous sÃ»r de vouloir supprimer dÃ©finitivement ce document ?
             </p>
 
             <div className="flex gap-3">
@@ -1854,7 +1880,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
               <div className="bg-[#FFF8E7] border-l-4 border-[#FFB74D] p-4 rounded-r-lg">
                 <h4 className="font-semibold text-gray-900 mb-2">Information</h4>
                 <p className="text-sm text-gray-600">
-                  Formats acceptés : PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, JPEG, PNG, GIF. Taille maximale : 15 Mo.
+                  Formats acceptÃ©s : PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, JPEG, PNG, GIF. Taille maximale : 15 Mo.
                 </p>
               </div>
 
@@ -1875,7 +1901,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                     <div className="flex flex-col items-center justify-center">
                       <Upload size={28} className="text-gray-400 mb-2" />
                       <p className="text-sm text-gray-500 text-center">
-                        {selectedFile ? selectedFile.name : 'Cliquez pour sélectionner un fichier'}
+                        {selectedFile ? selectedFile.name : 'Cliquez pour sÃ©lectionner un fichier'}
                       </p>
                     </div>
                   </label>
@@ -1893,7 +1919,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20"
                   style={{ borderColor: `${PRIMARY_COLOR}80` }}
                 >
-                  <option value="">Sélectionnez un type</option>
+                  <option value="">SÃ©lectionnez un type</option>
                   {typeOptions.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
@@ -1917,7 +1943,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
 
               {/* Bien */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Bien concerné</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Bien concernÃ©</label>
                 <select
                   value={newDocument.property_id || ''}
                   onChange={(e) => setNewDocument({
@@ -1927,7 +1953,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20"
                   style={{ borderColor: `${PRIMARY_COLOR}80` }}
                 >
-                  <option value="">Sélectionnez un bien</option>
+                  <option value="">SÃ©lectionnez un bien</option>
                   {filterOptions.properties.map(property => (
                     <option key={property.id} value={property.id}>
                       {property.name}
@@ -2138,7 +2164,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
             <div className="bg-[#FFF8E7] border-l-4 border-[#FFB74D] p-4 rounded-r-lg">
               <h4 className="font-semibold text-gray-900 mb-2">Informations</h4>
               <p className="text-sm text-gray-600">
-                Créez votre dossier de candidature en ligne. Vous le partagez ensuite en un clic avec les propriétaires et agences immobilières de votre choix.
+                CrÃ©ez votre dossier de candidature en ligne. Vous le partagez ensuite en un clic avec les propriÃ©taires et agences immobiliÃ¨res de votre choix.
               </p>
             </div>
 
@@ -2158,7 +2184,26 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                 className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors"
               >
                 <Download size={18} />
-                Télécharger PDF
+                TÃ©lÃ©charger PDF
+              </button>
+            </div>
+
+             <div className="flex justify-end gap-3">
+              {dossier?.shareable_url && (
+                <button
+                  onClick={handleShareDossier}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                >
+                  <Share2 size={18} />
+                  Partager
+                </button>
+              )}
+              <button
+                onClick={handleDownloadDossier}
+                className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors"
+              >
+                <Download size={18} />
+                TÃ©lÃ©charger PDF
               </button>
             </div>
 
@@ -2189,7 +2234,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
 
             {/* Informations personnelles */}
             <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2 ">
                 <User size={20} className="text-[#70AE48]" />
                 Informations personnelles
               </h3>
@@ -2208,7 +2253,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Prénoms</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">PrÃ©noms</label>
                   <input
                     type="text"
                     value={dossierForm.prenoms}
@@ -2249,7 +2294,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
 
             {/* Informations de contact */}
             <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2 ">
                 <Mail size={20} className="text-[#70AE48]" />
                 Informations de contact
               </h3>
@@ -2270,7 +2315,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">TÃ©lÃ©phone</label>
                   <div className="relative">
                     <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
@@ -2282,26 +2327,12 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                     />
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
-                  <div className="relative">
-                    <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input
-                      type="tel"
-                      value={dossierForm.mobile}
-                      onChange={(e) => setDossierForm({ ...dossierForm, mobile: e.target.value })}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900"
-                      style={{ borderColor: `${PRIMARY_COLOR}80` }}
-                    />
-                  </div>
-                </div>
               </div>
             </Card>
 
             {/* Adresse */}
             <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2 ">
                 <MapPin size={20} className="text-[#70AE48]" />
                 Adresse
               </h3>
@@ -2332,14 +2363,14 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Région</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">RÃ©gion</label>
                   <input
                     type="text"
                     value={dossierForm.region}
                     onChange={(e) => setDossierForm({ ...dossierForm, region: e.target.value })}
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900"
                     style={{ borderColor: `${PRIMARY_COLOR}80` }}
-                    placeholder="Votre région"
+                    placeholder="Votre rÃ©gion"
                   />
                 </div>
 
@@ -2351,7 +2382,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900"
                     style={{ borderColor: `${PRIMARY_COLOR}80` }}
                   >
-                    <option value="">Sélectionnez...</option>
+                    <option value="">SÃ©lectionnez...</option>
                     {paysOptions.map(pays => (
                       <option key={pays} value={pays}>{pays}</option>
                     ))}
@@ -2362,21 +2393,21 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
 
             {/* Situation professionnelle */}
             <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2 ">
                 <Briefcase size={20} className="text-[#70AE48]" />
                 Situation professionnelle
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Type d'activité</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Type d'activitÃ©</label>
                   <select
                     value={dossierForm.type_activite}
                     onChange={(e) => setDossierForm({ ...dossierForm, type_activite: e.target.value })}
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900"
                     style={{ borderColor: `${PRIMARY_COLOR}80` }}
                   >
-                    <option value="">Sélectionnez...</option>
+                    <option value="">SÃ©lectionnez...</option>
                     {activityOptions.map(activity => (
                       <option key={activity} value={activity}>{activity}</option>
                     ))}
@@ -2414,7 +2445,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
 
             {/* Garants */}
             <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2 ">
                 <Users size={20} className="text-[#70AE48]" />
                 Garants
               </h3>
@@ -2470,7 +2501,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
 
             {/* Options de partage */}
             <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2 ">
                 <Users size={20} className="text-[#70AE48]" />
                 Options de partage
               </h3>
@@ -2532,12 +2563,12 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
           </div>
         ) : (
           <div className="max-w-6xl mx-auto space-y-6">
-            {/* En-tête */}
+            {/* En-tÃªte */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Mes documents</h1>
                 <p className="text-sm text-gray-400 mt-1 font-medium">
-                  Gérez vos documents, contrats de bail et états des lieux
+                  GÃ©rez vos documents, contrats de bail et Ã©tats des lieux
                 </p>
               </div>
 
@@ -2550,7 +2581,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
               </button>
             </div>
 
-            {/* Filtres par catégorie */}
+            {/* Filtres par catÃ©gorie */}
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <button
                 onClick={() => setActiveFilter('actifs')}
@@ -2578,7 +2609,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                 }`}
               >
                 <Building2 size={16} />
-                Documents du propriétaire
+                Documents du propriÃ©taire
                 <span className={`ml-1 px-1.5 py-0.5 rounded-full text-xs ${
                   activeFilter === 'proprio' ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-700'
                 }`}>
@@ -2612,7 +2643,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                 }`}
               >
                 <ClipboardList size={16} />
-                États des lieux
+                Ã‰tats des lieux
                 <span className={`ml-1 px-1.5 py-0.5 rounded-full text-xs ${
                   activeFilter === 'etats_lieux' ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-700'
                 }`}>
@@ -2684,7 +2715,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                   )}
                 </div>
 
-                {/* Période - uniquement pour les documents */}
+                {/* PÃ©riode - uniquement pour les documents */}
                 {(activeFilter === 'actifs' || activeFilter === 'archives') && (
                   <select
                     value={periode}
@@ -2692,7 +2723,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                     className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-opacity-20 md:w-40 bg-white text-gray-900"
                     style={{ borderColor: `${PRIMARY_COLOR}80` }}
                   >
-                    <option value="">Période</option>
+                    <option value="">PÃ©riode</option>
                     {filterOptions.periodes.map(p => (
                       <option key={p} value={p}>{p}</option>
                     ))}
@@ -2716,7 +2747,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                   </select>
                 )}
 
-                {/* Type d'état des lieux */}
+                {/* Type d'Ã©tat des lieux */}
                 {activeFilter === 'etats_lieux' && (
                   <select
                     value={typeFilter}
@@ -2724,9 +2755,9 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                     className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-opacity-20 md:w-48 bg-white text-gray-900"
                     style={{ borderColor: `${PRIMARY_COLOR}80` }}
                   >
-                    <option value="all">Tous les états des lieux</option>
-                    <option value="entry">État des lieux d'entrée</option>
-                    <option value="exit">État des lieux de sortie</option>
+                    <option value="all">Tous les Ã©tats des lieux</option>
+                    <option value="entry">Ã‰tat des lieux d'entrÃ©e</option>
+                    <option value="exit">Ã‰tat des lieux de sortie</option>
                   </select>
                 )}
 
@@ -2762,7 +2793,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
               </div>
             </Card>
 
-            {/* Liste des éléments */}
+            {/* Liste des Ã©lÃ©ments */}
             <div className="space-y-3">
               {loading ? (
                 <Card className="p-12 text-center">
@@ -2806,8 +2837,8 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                       <Building2 size={24} className="text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-1">Aucun document du propriétaire</h3>
-                    <p className="text-sm text-gray-500">Votre propriétaire n'a pas encore partagé de documents avec vous</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">Aucun document du propriÃ©taire</h3>
+                    <p className="text-sm text-gray-500">Votre propriÃ©taire n'a pas encore partagÃ© de documents avec vous</p>
                   </Card>
                 ) : (
                   ownerDocuments.map((doc) => (
@@ -2850,7 +2881,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
 
                             <div className="flex items-center gap-1 text-xs text-gray-500">
                               <User size={12} />
-                              <span>Partagé par {doc.created_by_name}</span>
+                              <span>PartagÃ© par {doc.created_by_name}</span>
                             </div>
                           </div>
                         </div>
@@ -2866,7 +2897,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                           <button
                             onClick={() => handleDownload(doc)}
                             className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group"
-                            title="Télécharger"
+                            title="TÃ©lÃ©charger"
                           >
                             <Download size={16} className="text-gray-500 group-hover:text-[#70AE48]" />
                           </button>
@@ -2909,13 +2940,13 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                                 'bg-red-100 text-red-700'
                               }`}>
                                 {lease.status === 'active' ? 'Actif' :
-                                 lease.status === 'pending_signature' ? (hasTenantSigned ? 'En attente (propriétaire)' : 'En attente de votre signature') :
-                                 'Résilié'}
+                                 lease.status === 'pending_signature' ? (hasTenantSigned ? 'En attente (propriÃ©taire)' : 'En attente de votre signature') :
+                                 'RÃ©siliÃ©'}
                               </span>
                               {lease.signed_document && (
                                 <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1">
                                   <FileCheck size={10} />
-                                  Signé
+                                  SignÃ©
                                 </span>
                               )}
                             </div>
@@ -2930,7 +2961,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
 
                               <div className="flex items-center gap-1 text-xs text-gray-500">
                                 <Calendar size={12} />
-                                <span>Début: {formatDate(lease.start_date)}</span>
+                                <span>DÃ©but: {formatDate(lease.start_date)}</span>
                               </div>
 
                               {lease.end_date && (
@@ -2951,7 +2982,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                               {hasTenantSigned ? (
                                 <span className="text-xs text-green-600 flex items-center gap-1">
                                   <UserCheck size={12} />
-                                  Vous avez signé
+                                  Vous avez signÃ©
                                 </span>
                               ) : (
                                 lease.status === 'pending_signature' && (
@@ -2965,13 +2996,13 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                               {hasLandlordSigned ? (
                                 <span className="text-xs text-green-600 flex items-center gap-1">
                                   <CheckCircle size={12} />
-                                  Propriétaire a signé
+                                  PropriÃ©taire a signÃ©
                                 </span>
                               ) : (
                                 lease.status === 'pending_signature' && hasTenantSigned && (
                                   <span className="text-xs text-yellow-600 flex items-center gap-1">
                                     <AlertCircle size={12} />
-                                    En attente du propriétaire
+                                    En attente du propriÃ©taire
                                   </span>
                                 )
                               )}
@@ -3002,7 +3033,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                               <button
                                 onClick={() => handleViewSignedLeaseContract(lease)}
                                 className="p-1.5 hover:bg-blue-100 rounded-lg transition-colors group"
-                                title="Voir le contrat signé"
+                                title="Voir le contrat signÃ©"
                               >
                                 <FileCheck size={16} className="text-blue-600" />
                               </button>
@@ -3010,7 +3041,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                               <button
                                 onClick={() => handleDownloadLeaseContract(lease)}
                                 className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group"
-                                title="Télécharger le contrat"
+                                title="TÃ©lÃ©charger le contrat"
                               >
                                 <Download size={16} className="text-gray-500 group-hover:text-[#70AE48]" />
                               </button>
@@ -3027,8 +3058,8 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                       <ClipboardList size={24} className="text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-1">Aucun état des lieux</h3>
-                    <p className="text-sm text-gray-500">Vous n'avez pas encore d'état des lieux</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">Aucun Ã©tat des lieux</h3>
+                    <p className="text-sm text-gray-500">Vous n'avez pas encore d'Ã©tat des lieux</p>
                   </Card>
                 ) : (
                   conditionReports.map((report) => (
@@ -3038,7 +3069,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                           <div className="flex items-center gap-2 mb-1">
                             {getReportIcon(report.type, report.status)}
                             <h3 className="text-base font-semibold text-gray-900">
-                              {report.type === 'entry' ? 'État des lieux d\'entrée' : 'État des lieux de sortie'}
+                              {report.type === 'entry' ? 'Ã‰tat des lieux d\'entrÃ©e' : 'Ã‰tat des lieux de sortie'}
                               {report.property && ` - ${report.property.name}`}
                             </h3>
                             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -3046,8 +3077,8 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                               report.status === 'finalized' ? 'bg-blue-100 text-blue-700' :
                               'bg-yellow-100 text-yellow-700'
                             }`}>
-                              {report.status === 'signed' ? 'Signé' :
-                               report.status === 'finalized' ? 'Finalisé' : 'Brouillon'}
+                              {report.status === 'signed' ? 'SignÃ©' :
+                               report.status === 'finalized' ? 'FinalisÃ©' : 'Brouillon'}
                             </span>
                           </div>
 
@@ -3081,12 +3112,12 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                           <div className="flex items-center gap-2 mt-2">
                             {report.signature_tenant && (
                               <span className="text-xs text-green-600 flex items-center gap-1">
-                                <Check size={12} /> Vous avez signé
+                                <Check size={12} /> Vous avez signÃ©
                               </span>
                             )}
                             {report.signature_landlord && (
                               <span className="text-xs text-green-600 flex items-center gap-1">
-                                <Check size={12} /> Propriétaire a signé
+                                <Check size={12} /> PropriÃ©taire a signÃ©
                               </span>
                             )}
                           </div>
@@ -3096,7 +3127,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                           <button
                             onClick={() => handlePreviewConditionReport(report)}
                             className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group"
-                            title="Voir l'état des lieux"
+                            title="Voir l'Ã©tat des lieux"
                           >
                             <Eye size={16} className="text-gray-500 group-hover:text-blue-600" />
                           </button>
@@ -3112,7 +3143,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                             <button
                               onClick={() => handleDownloadConditionReport(report)}
                               className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group"
-                              title="Télécharger l'état des lieux"
+                              title="TÃ©lÃ©charger l'Ã©tat des lieux"
                             >
                               <Download size={16} className="text-gray-500 group-hover:text-[#70AE48]" />
                             </button>
@@ -3128,7 +3159,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                       <FileText size={24} className="text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-1">Aucun document trouvé</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">Aucun document trouvÃ©</h3>
                     <p className="text-sm text-gray-500 mb-4">Ajoutez votre premier document</p>
                     <button
                       onClick={() => setShowAddModal(true)}
@@ -3153,13 +3184,13 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                             {doc.is_shared && (
                               <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1">
                                 <Share2 size={10} />
-                                Partagé
+                                PartagÃ©
                               </span>
                             )}
                             {doc.status === 'archive' && (
                               <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-xs font-medium flex items-center gap-1">
                                 <Archive size={10} />
-                                Archivé
+                                ArchivÃ©
                               </span>
                             )}
                           </div>
@@ -3236,14 +3267,14 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                           <button
                             onClick={() => handleDownload(doc)}
                             className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group"
-                            title="Télécharger le fichier"
+                            title="TÃ©lÃ©charger le fichier"
                           >
                             <Download size={16} className="text-gray-500 group-hover:text-[#70AE48]" />
                           </button>
                           <button
                             onClick={() => handleDownloadPdf(doc)}
                             className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group"
-                            title="Télécharger les informations PDF"
+                            title="TÃ©lÃ©charger les informations PDF"
                           >
                             <FileText size={16} className="text-gray-500 group-hover:text-purple-600" />
                           </button>
@@ -3293,7 +3324,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
             
             {activeFilter === 'proprio' && ownerDocuments.length > 0 && (
               <div className="flex items-center justify-between text-sm text-gray-500">
-                <span>{ownerDocuments.length} document{ownerDocuments.length > 1 ? 's' : ''} partagé{ownerDocuments.length > 1 ? 's' : ''}</span>
+                <span>{ownerDocuments.length} document{ownerDocuments.length > 1 ? 's' : ''} partagÃ©{ownerDocuments.length > 1 ? 's' : ''}</span>
               </div>
             )}
             
@@ -3303,14 +3334,14 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                 <span>
                   {leases.filter(l => l.status === 'active').length} actif{leases.filter(l => l.status === 'active').length > 1 ? 's' : ''}, {' '}
                   {leases.filter(l => l.status === 'pending_signature').length} en attente, {' '}
-                  {leases.filter(l => l.status === 'terminated').length} terminé{leases.filter(l => l.status === 'terminated').length > 1 ? 's' : ''}
+                  {leases.filter(l => l.status === 'terminated').length} terminÃ©{leases.filter(l => l.status === 'terminated').length > 1 ? 's' : ''}
                 </span>
               </div>
             )}
             
             {activeFilter === 'etats_lieux' && conditionReports.length > 0 && (
               <div className="flex items-center justify-between text-sm text-gray-500">
-                <span>{conditionReports.length} état{conditionReports.length > 1 ? 's' : ''} des lieux</span>
+                <span>{conditionReports.length} Ã©tat{conditionReports.length > 1 ? 's' : ''} des lieux</span>
               </div>
             )}
           </div>

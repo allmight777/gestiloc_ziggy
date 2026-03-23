@@ -520,10 +520,8 @@ const EditPropertyModal: React.FC<{
 
       // Photos
       if (property.photos && property.photos.length > 0) {
-        const photoUrls = property.photos.map((photo: string) => 
-          photo.startsWith('http') ? photo : `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'}/storage/${photo}`
-        );
-        setPhotos(photoUrls);
+        const photoUrls = property.photos.map((photo: string) => resolvePhotoUrl(photo));
+        setPhotos(photoUrls.filter((u): u is string => u !== null));
       }
     }
   }, [property]);

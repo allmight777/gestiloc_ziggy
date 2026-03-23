@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   Menu,
   X,
@@ -66,23 +66,23 @@ interface LayoutProps {
   notify: (message: string, type: 'success' | 'error' | 'info') => void;
 }
 
-// ─── COMPOSANTS ET CONSTANTES DU DESIGN HARMONISÉ ───────────────────
+// â”€â”€â”€ COMPOSANTS ET CONSTANTES DU DESIGN HARMONISÃ‰ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const ic = (c: string) => ({ stroke: c, fill: "none", strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const });
 
 const Icons = {
   Dashboard: () => <img src="/Ressource_gestiloc/tb_locataire.png" alt="Tableau de bord" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   LocationImg: () => <img src="/Ressource_gestiloc/Ma_location.png" alt="Ma location" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   LocationCategoryImg: () => <img src="/Ressource_gestiloc/Ma_location.png" alt="Location" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
-  ProprioImg: () => <img src="/Ressource_gestiloc/Home.png" alt="Mon propriétaire" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
+  ProprioImg: () => <img src="/Ressource_gestiloc/Home.png" alt="Mon propriÃ©taire" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   QuittancesImg: () => <img src="/Ressource_gestiloc/Mes_quittances.png" alt="Mes quittances" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   DocumentsImg: () => <img src="/Ressource_gestiloc/document.png" alt="Documents" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   DocumentsCategoryImg: () => <img src="/Ressource_gestiloc/Document%20In%20Folder.png" alt="Documents" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   InterventionsImg: () => <img src="/Ressource_gestiloc/Tools.png" alt="Mes interventions" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
-  TasksImg: () => <img src="/Ressource_gestiloc/Nouvelles_taches.png" alt="Mes tâches" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
+  TasksImg: () => <img src="/Ressource_gestiloc/Nouvelles_taches.png" alt="Mes tÃ¢ches" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   NotesImg: () => <img src="/Ressource_gestiloc/Edit%20Property.png" alt="Mes notes" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
-  PreavisImg: () => <img src="/Ressource_gestiloc/preavis.png" alt="Préavis" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
+  PreavisImg: () => <img src="/Ressource_gestiloc/preavis.png" alt="PrÃ©avis" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   PaiementsImg: () => <img src="/Ressource_gestiloc/paiement.png" alt="Paiements" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
-  ParametresImg: () => <img src="/Ressource_gestiloc/parametre_loc.png" alt="Paramètres" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
+  ParametresImg: () => <img src="/Ressource_gestiloc/parametre_loc.png" alt="ParamÃ¨tres" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   ConfigurationCategoryImg: () => <img src="/Ressource_gestiloc/Tools.png" alt="Configuration" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   LogOut: ({ c }: { c: string }) => (
     <svg viewBox="0 0 24 24" width={18} height={18} {...ic(c || "#aaa")}>
@@ -127,9 +127,9 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
         categoryIcon: "LocationCategoryImg",
         children: [
           { id: 'location', label: 'Ma location', icon: "LocationImg" },
-          { id: 'landlord', label: 'Mon propriétaire', icon: "ProprioImg" },
+          { id: 'landlord', label: 'Mon propriÃ©taire', icon: "ProprioImg" },
           { id: 'payments', label: 'Paiements', icon: "PaiementsImg" },
-          { id: 'notice', label: 'Préavis', icon: "PreavisImg" },
+          { id: 'notice', label: 'PrÃ©avis', icon: "PreavisImg" },
         ]
       },
       { 
@@ -150,7 +150,7 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
         categoryIcon: "ToolsIcon",
         children: [
           { id: 'interventions', label: 'Mes interventions', icon: "InterventionsImg" },
-          { id: 'tasks', label: 'Mes tâches', icon: "TasksImg" },
+          { id: 'tasks', label: 'Mes tÃ¢ches', icon: "TasksImg" },
         ]
       },
       { 
@@ -159,15 +159,15 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
         icon: "ConfigurationCategoryImg",
         categoryIcon: "ConfigurationCategoryImg",
         children: [
-          { id: 'settings', label: 'Paramètres', icon: "ParametresImg" },
-          { id: 'logout', label: 'Déconnexion', icon: "LogOut", isLogout: true },
+          { id: 'settings', label: 'ParamÃ¨tres', icon: "ParametresImg" },
+          { id: 'logout', label: 'DÃ©connexion', icon: "LogOut", isLogout: true },
         ]
       },
     ]
   }
 ];
 
-// ─── NAV ITEM COMPONENT ────────────
+// â”€â”€â”€ NAV ITEM COMPONENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const NavItem: React.FC<{
   item: MenuItem,
   activeTab: Tab,
@@ -252,7 +252,7 @@ const NavItem: React.FC<{
   );
 };
 
-// ─── SIDEBAR COMPONENT ────────────
+// â”€â”€â”€ SIDEBAR COMPONENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const SidebarContent: React.FC<{
   activeTab: Tab,
   onNavigate: (tab: Tab) => void,
@@ -371,7 +371,7 @@ export const Layout: React.FC<LayoutProps> = ({
       await api.post('/tenant/notifications/read-all');
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
       setUnreadCount(0);
-      notify('Toutes les notifications ont été marquées comme lues', 'success');
+      notify('Toutes les notifications ont Ã©tÃ© marquÃ©es comme lues', 'success');
     } catch (error) {
       console.error('Erreur mark all as read:', error);
     }
@@ -552,7 +552,7 @@ export const Layout: React.FC<LayoutProps> = ({
         ))}
       </div>
 
-      {/* ── NOTIFICATIONS DROPDOWN ── */}
+      {/* â”€â”€ NOTIFICATIONS DROPDOWN â”€â”€ */}
       {showNotifications && (
         <div className="fixed inset-0 sm:inset-auto sm:top-20 sm:right-6 sm:w-96 bg-white sm:rounded-xl shadow-2xl border-t sm:border border-gray-200 z-[110] flex flex-col h-full sm:h-auto max-h-[600px]">
           <div className="p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
@@ -595,7 +595,7 @@ export const Layout: React.FC<LayoutProps> = ({
                       </p>
                       {notif.pdf_url && (
                         <a href={notif.pdf_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800" onClick={(e) => e.stopPropagation()}>
-                          <Download size={12} /> Télécharger document
+                          <Download size={12} /> TÃ©lÃ©charger document
                         </a>
                       )}
                     </div>
@@ -612,7 +612,7 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
       )}
 
-      {/* ── AIDE DROPDOWN ── */}
+      {/* â”€â”€ AIDE DROPDOWN â”€â”€ */}
       {
         showHelp && (
           <div className="fixed inset-0 sm:inset-auto sm:top-20 sm:right-6 sm:w-96 bg-white sm:rounded-xl shadow-2xl border-t sm:border border-gray-200 z-[110] flex flex-col h-full sm:h-auto">
@@ -626,8 +626,8 @@ export const Layout: React.FC<LayoutProps> = ({
             </div>
             <div className="flex-1 overflow-y-auto p-2">
               {[
-                { title: 'Guide de démarrage locataire', desc: 'Apprenez les bases de GestiLoc', color: 'bg-green-500', route: 'help' },
-                { title: 'Gérer ses incidents', desc: 'Déclarer ou suivre une intervention', color: 'bg-blue-500', route: 'interventions' },
+                { title: 'Guide de dÃ©marrage locataire', desc: 'Apprenez les bases de GestiLoc', color: 'bg-green-500', route: 'help' },
+                { title: 'GÃ©rer ses incidents', desc: 'DÃ©clarer ou suivre une intervention', color: 'bg-blue-500', route: 'interventions' },
                 { title: 'Nous contacter', desc: 'Une question ?', color: 'bg-purple-500', route: 'help' },
               ].map((help, idx) => (
                 <div key={idx} onClick={() => handleNavigate(help.route as Tab)} className="p-4 m-1 hover:bg-gray-50 rounded-xl transition-all cursor-pointer border border-transparent hover:border-gray-100">

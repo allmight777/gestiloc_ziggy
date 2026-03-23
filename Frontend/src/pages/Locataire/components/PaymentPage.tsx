@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Loader, AlertCircle, ArrowLeft } from 'lucide-react';
 import paymentService from '../services/paymentService';
@@ -20,7 +20,7 @@ export default function PaymentPage() {
   useEffect(() => {
     const initializePayment = async () => {
       if (!invoiceId) {
-        setError('Facture non trouvée');
+        setError('Facture non trouvÃ©e');
         setLoading(false);
         return;
       }
@@ -33,7 +33,7 @@ export default function PaymentPage() {
         setSessionId(result.session_id);
         setTransactionRef(result.transaction_reference);
 
-        // Redirection automatique vers Fedapay après 2 secondes
+        // Redirection automatique vers Fedapay aprÃ¨s 2 secondes
         setTimeout(() => {
           if (result.payment_url) {
             window.location.href = result.payment_url;
@@ -41,7 +41,7 @@ export default function PaymentPage() {
         }, 2000);
       } catch (err) {
         console.error('Erreur initialisation paiement:', err);
-        setError('Impossible d\'initialiser le paiement. Veuillez réessayer.');
+        setError('Impossible d\'initialiser le paiement. Veuillez rÃ©essayer.');
       } finally {
         setLoading(false);
       }
@@ -70,7 +70,7 @@ export default function PaymentPage() {
             <ArrowLeft size={20} />
             <span>Retour</span>
           </button>
-          <h1 className="text-3xl font-bold text-gray-900">Paiement sécurisé</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Paiement sÃ©curisÃ©</h1>
           <p className="text-gray-600 mt-2">Facture #{invoiceId}</p>
         </div>
 
@@ -81,13 +81,13 @@ export default function PaymentPage() {
               <Loader className="text-blue-600 animate-spin" size={48} />
             </div>
             <h2 className="text-lg font-semibold text-gray-900 mb-2">
-              Préparation du paiement...
+              PrÃ©paration du paiement...
             </h2>
             <p className="text-gray-600 mb-4">
-              Vous serez redirigé vers la page de paiement Fedapay.
+              Vous serez redirigÃ© vers la page de paiement Fedapay.
             </p>
             <p className="text-sm text-gray-500">
-              Cette opération peut prendre quelques secondes.
+              Cette opÃ©ration peut prendre quelques secondes.
             </p>
           </div>
         )}
@@ -108,7 +108,7 @@ export default function PaymentPage() {
                 onClick={handleRetry}
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
               >
-                Réessayer
+                RÃ©essayer
               </button>
               <button
                 onClick={handleCancel}
@@ -140,7 +140,7 @@ export default function PaymentPage() {
                 </svg>
               </div>
               <h2 className="text-lg font-semibold text-green-900">
-                Paiement prêt
+                Paiement prÃªt
               </h2>
             </div>
 
@@ -151,7 +151,7 @@ export default function PaymentPage() {
                   <p className="font-semibold text-gray-900">#{invoiceId}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Référence</p>
+                  <p className="text-sm text-gray-600">RÃ©fÃ©rence</p>
                   <p className="font-semibold text-gray-900 text-xs break-all">
                     {transactionRef}
                   </p>
@@ -164,9 +164,9 @@ export default function PaymentPage() {
 
             <div className="space-y-3">
               <p className="text-sm text-gray-700">
-                Vous serez redirigé automatiquement vers le portail de paiement Fedapay.
+                Vous serez redirigÃ© automatiquement vers le portail de paiement Fedapay.
                 <br />
-                <span className="font-semibold">Suivez les instructions pour compléter votre paiement.</span>
+                <span className="font-semibold">Suivez les instructions pour complÃ©ter votre paiement.</span>
               </p>
 
               <a
@@ -189,7 +189,7 @@ export default function PaymentPage() {
             </div>
 
             <p className="text-xs text-gray-500 mt-4 text-center">
-              💡 Vos données de paiement sont sécurisées par Fedapay
+              ðŸ’¡ Vos donnÃ©es de paiement sont sÃ©curisÃ©es par Fedapay
             </p>
           </div>
         )}

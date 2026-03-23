@@ -284,7 +284,7 @@ const DashboardComponent: React.FC<DashboardProps> = ({ onNavigate, notify }) =>
                   <div className="text-base sm:text-lg font-bold text-gray-900 font-manrope group-hover:text-green-600 transition-colors truncate">
                     {step.title}
                   </div>
-                  <div className="text-[0.8rem] sm:text-sm text-gray-500 font-medium mt-0.5 sm:mt-1 truncate">
+                  <div className="text-[0.7rem] sm:text-xs text-gray-500 font-medium mt-0.5 sm:mt-1 leading-tight">
                     {step.desc}
                   </div>
                 </div>

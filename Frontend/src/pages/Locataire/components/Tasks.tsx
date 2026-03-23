@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import {
   Plus,
   Trash2,
@@ -166,18 +166,18 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
       const response = await api.get('/tenant/tasks');
       setTasks(response.data);
     } catch (error) {
-      console.error('Erreur chargement tâches:', error);
-      // Données mockées sans notification d'erreur
+      console.error('Erreur chargement tÃ¢ches:', error);
+      // DonnÃ©es mockÃ©es sans notification d'erreur
       setTasks([
         {
           id: 1,
           uuid: 'task-1',
-          title: 'Vérifier les installations',
-          description: 'Contrôle mensuel des équipements',
+          title: 'VÃ©rifier les installations',
+          description: 'ContrÃ´le mensuel des Ã©quipements',
           due_date: '2025-03-15',
           completed: false,
           priority: 'high',
-          assigned_to: 'Propriétaire',
+          assigned_to: 'PropriÃ©taire',
           property_id: 1,
           property: { id: 1, name: 'Appartement Paris', address: '123 Rue de Paris', city: 'Paris' },
           created_at: '2025-02-26',
@@ -187,11 +187,11 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
           id: 2,
           uuid: 'task-2',
           title: 'Maintenance chauffage',
-          description: 'Révision annuelle du chauffage',
+          description: 'RÃ©vision annuelle du chauffage',
           due_date: '2025-04-10',
           completed: false,
           priority: 'medium',
-          assigned_to: 'Propriétaire',
+          assigned_to: 'PropriÃ©taire',
           property_id: 1,
           property: { id: 1, name: 'Appartement Paris', address: '123 Rue de Paris', city: 'Paris' },
           created_at: '2025-02-26',
@@ -208,12 +208,12 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
       const response = await api.get('/tenant/my-leases');
       setProperties(response.data);
     } catch (error) {
-      console.error('Erreur chargement propriétés:', error);
+      console.error('Erreur chargement propriÃ©tÃ©s:', error);
       setProperties([]);
     }
   }, []);
 
-  // Charger les données au montage
+  // Charger les donnÃ©es au montage
   useEffect(() => {
     fetchTasks();
     fetchProperties();
@@ -231,10 +231,10 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
       setTasks(tasks.map(t =>
         t.id === id ? { ...t, completed: !t.completed } : t
       ));
-      notify?.('Statut de la tâche mis à jour', 'success');
+      notify?.('Statut de la tÃ¢che mis Ã  jour', 'success');
     } catch (error) {
-      console.error('Erreur mise à jour tâche:', error);
-      notify?.('Erreur lors de la mise à jour', 'error');
+      console.error('Erreur mise Ã  jour tÃ¢che:', error);
+      notify?.('Erreur lors de la mise Ã  jour', 'error');
     }
   };
 
@@ -249,9 +249,9 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
     try {
       await api.delete(`/tenant/tasks/${taskToDelete}`);
       setTasks(tasks.filter(t => t.id !== taskToDelete));
-      notify?.('Tâche supprimée avec succès', 'success');
+      notify?.('TÃ¢che supprimÃ©e avec succÃ¨s', 'success');
     } catch (error) {
-      console.error('Erreur suppression tâche:', error);
+      console.error('Erreur suppression tÃ¢che:', error);
       notify?.('Erreur lors de la suppression', 'error');
     } finally {
       setDeleting(false);
@@ -292,10 +292,10 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
         assigned_to: 'Moi',
       });
       setShowCreateForm(false);
-      notify?.('Tâche créée avec succès', 'success');
+      notify?.('TÃ¢che crÃ©Ã©e avec succÃ¨s', 'success');
     } catch (error) {
-      console.error('Erreur création tâche:', error);
-      notify?.('Erreur lors de la création de la tâche', 'error');
+      console.error('Erreur crÃ©ation tÃ¢che:', error);
+      notify?.('Erreur lors de la crÃ©ation de la tÃ¢che', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -308,7 +308,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
         text: 'text-red-700',
         border: 'border-red-200',
         icon: <Flame size={14} className="text-red-600" />,
-        label: 'Élevée'
+        label: 'Ã‰levÃ©e'
       };
       case 'medium': return {
         bg: 'bg-yellow-50',
@@ -353,7 +353,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
 
   const getPriorityLabel = (priority: string) => {
     switch (priority) {
-      case 'high': return 'Élevée';
+      case 'high': return 'Ã‰levÃ©e';
       case 'medium': return 'Moyenne';
       case 'low': return 'Faible';
       default: return priority;
@@ -414,13 +414,13 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
         className="px-6 py-2.5 text-white text-sm font-medium rounded-lg transition-colors hover:opacity-90"
         style={{ background: 'rgba(82, 157, 33, 1)' }}
       >
-        Nouvelle tâche
+        Nouvelle tÃ¢che
       </button>
     </div>
   );
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return '—';
+    if (!dateString) return 'â€”';
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',
@@ -448,12 +448,12 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900">Confirmer la suppression</h3>
-                <p className="text-sm text-gray-500 mt-1">Cette action est irréversible</p>
+                <p className="text-sm text-gray-500 mt-1">Cette action est irrÃ©versible</p>
               </div>
             </div>
 
             <p className="text-gray-600 mb-8">
-              Êtes-vous sûr de vouloir supprimer cette tâche ?
+              ÃŠtes-vous sÃ»r de vouloir supprimer cette tÃ¢che ?
             </p>
 
             <div className="flex gap-3">
@@ -484,7 +484,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
       )}
 
       {showCreateForm ? (
-        // Formulaire de création centré
+        // Formulaire de crÃ©ation centrÃ©
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Bouton Retour */}
           <div className="flex items-center gap-3">
@@ -500,11 +500,11 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
 
           {/* HEADER */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900">Nouvelle tâche</h1>
-            <p className="text-sm text-gray-600 mt-2">Créez une nouvelle tâche à accomplir</p>
+            <h1 className="text-3xl font-bold text-gray-900">Nouvelle tÃ¢che</h1>
+            <p className="text-sm text-gray-600 mt-2">CrÃ©ez une nouvelle tÃ¢che Ã  accomplir</p>
           </div>
 
-          {/* CREATE FORM - Centré */}
+          {/* CREATE FORM - CentrÃ© */}
           <div className="flex justify-center">
             <Card className="p-8 w-full max-w-2xl">
               <div className="space-y-6">
@@ -528,7 +528,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                 {/* Bien */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Bien concerné
+                    Bien concernÃ©
                   </label>
                   <select
                     value={newTask.property_id || ''}
@@ -539,7 +539,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-20"
                     style={{ borderColor: `${PRIMARY_COLOR}80` }}
                   >
-                    <option value="">Sélectionner un bien</option>
+                    <option value="">SÃ©lectionner un bien</option>
                     {properties.map((lease) => (
                       <option key={lease.id} value={lease.property?.id}>
                         {lease.property?.name} - {lease.property?.address}
@@ -558,14 +558,14 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                     onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-20 min-h-[120px]"
                     style={{ borderColor: `${PRIMARY_COLOR}80` }}
-                    placeholder="Description détaillée de la tâche..."
+                    placeholder="Description dÃ©taillÃ©e de la tÃ¢che..."
                   />
                 </div>
 
-                {/* Date d'échéance */}
+                {/* Date d'Ã©chÃ©ance */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date d'échéance
+                    Date d'Ã©chÃ©ance
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -581,9 +581,9 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                   </div>
                 </div>
 
-                {/* Priorité */}
+                {/* PrioritÃ© */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Priorité</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">PrioritÃ©</label>
                   <div className="grid grid-cols-3 gap-3">
                     {(['low', 'medium', 'high'] as const).map((p) => {
                       const priorityStyle = getPriorityColor(p);
@@ -605,10 +605,10 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                   </div>
                 </div>
 
-                {/* Assigné à */}
+                {/* AssignÃ© Ã  */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Assigné à
+                    AssignÃ© Ã 
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -620,7 +620,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                       onChange={(e) => setNewTask({ ...newTask, assigned_to: e.target.value })}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-20"
                       style={{ borderColor: `${PRIMARY_COLOR}80` }}
-                      placeholder="Moi, Copropriétaire, etc."
+                      placeholder="Moi, CopropriÃ©taire, etc."
                     />
                   </div>
                 </div>
@@ -642,12 +642,12 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                     {submitting ? (
                       <>
                         <Loader2 size={18} className="animate-spin" />
-                        Création...
+                        CrÃ©ation...
                       </>
                     ) : (
                       <>
                         <CheckSquare size={18} />
-                        Créer la tâche
+                        CrÃ©er la tÃ¢che
                       </>
                     )}
                   </button>
@@ -657,14 +657,14 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
           </div>
         </div>
       ) : (
-        // Liste des tâches
+        // Liste des tÃ¢ches
         <div className="max-w-7xl mx-auto space-y-6">
-          {/* En-tête avec bouton et compteurs */}
+          {/* En-tÃªte avec bouton et compteurs */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Mes tâches</h1>
+              <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Mes tÃ¢ches</h1>
               <p className="text-sm text-gray-400 mt-1 font-medium">
-                Gérez vos tâches et suivez votre progression
+                GÃ©rez vos tÃ¢ches et suivez votre progression
               </p>
             </div>
 
@@ -674,7 +674,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
               style={{ backgroundColor: PRIMARY_COLOR }}
             >
               <Plus size={18} />
-              Nouvelle tâche
+              Nouvelle tÃ¢che
             </button>
           </div>
 
@@ -686,7 +686,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                   <CheckSquare size={20} />
                 </div>
                 <div>
-                  <p className="text-xs text-green-600 font-medium">Total tâches</p>
+                  <p className="text-xs text-green-600 font-medium">Total tÃ¢ches</p>
                   <p className="text-2xl font-bold text-gray-900">{tasks.length}</p>
                 </div>
               </div>
@@ -712,7 +712,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                   <CheckCircle size={20} />
                 </div>
                 <div>
-                  <p className="text-xs text-blue-600 font-medium">Terminées</p>
+                  <p className="text-xs text-blue-600 font-medium">TerminÃ©es</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {tasks.filter(t => t.completed).length}
                   </p>
@@ -723,7 +723,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
 
           {/* Filtres */}
           <Card className="p-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-4">Filtrer les tâches</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-4">Filtrer les tÃ¢ches</h3>
             <div className="flex flex-col md:flex-row gap-3">
               {/* Filtre statut */}
               <div className="flex gap-2">
@@ -755,21 +755,21 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                     }`}
                   style={filterStatus === 'completed' ? { backgroundColor: PRIMARY_COLOR } : {}}
                 >
-                  Terminées
+                  TerminÃ©es
                 </button>
               </div>
 
-              {/* Filtre priorité */}
+              {/* Filtre prioritÃ© */}
               <select
                 value={filterPriority}
                 onChange={(e) => setFilterPriority(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-opacity-20"
                 style={{ borderColor: `${PRIMARY_COLOR}80` }}
               >
-                <option value="all">Toutes priorités</option>
-                <option value="high">Priorité Élevée</option>
-                <option value="medium">Priorité Moyenne</option>
-                <option value="low">Priorité Faible</option>
+                <option value="all">Toutes prioritÃ©s</option>
+                <option value="high">PrioritÃ© Ã‰levÃ©e</option>
+                <option value="medium">PrioritÃ© Moyenne</option>
+                <option value="low">PrioritÃ© Faible</option>
               </select>
 
               {/* Lignes par page */}
@@ -803,7 +803,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                 </div>
                 <input
                   type="text"
-                  placeholder="Rechercher une tâche..."
+                  placeholder="Rechercher une tÃ¢che..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-opacity-20 text-[#70AE48]"
@@ -813,22 +813,22 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
             </div>
           </Card>
 
-          {/* Liste des tâches - Design amélioré */}
+          {/* Liste des tÃ¢ches - Design amÃ©liorÃ© */}
           <div className="space-y-3">
             {paginatedTasks.length === 0 ? (
               <Card className="p-12 text-center">
                 <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckSquare size={32} className="text-gray-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune tâche trouvée</h3>
-                <p className="text-sm text-gray-500 mb-6">Créez votre première tâche pour commencer</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune tÃ¢che trouvÃ©e</h3>
+                <p className="text-sm text-gray-500 mb-6">CrÃ©ez votre premiÃ¨re tÃ¢che pour commencer</p>
                 <button
                   onClick={() => setShowCreateForm(true)}
                   className="inline-flex items-center gap-2 px-6 py-3 text-white text-sm font-medium rounded-xl transition-all hover:opacity-90"
                   style={{ backgroundColor: PRIMARY_COLOR }}
                 >
                   <Plus size={18} />
-                  Nouvelle tâche
+                  Nouvelle tÃ¢che
                 </button>
               </Card>
             ) : (
@@ -843,7 +843,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                       } ${isTaskOverdue ? 'border-l-4 border-l-red-500' : ''}`}
                   >
                     <div className="flex items-start gap-4">
-                      {/* Checkbox personnalisée */}
+                      {/* Checkbox personnalisÃ©e */}
                       <button
                         onClick={() => toggleTask(task.id)}
                         className="mt-1 flex-shrink-0"
@@ -872,7 +872,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                               </p>
                             )}
 
-                            {/* Métadonnées - Design en badges */}
+                            {/* MÃ©tadonnÃ©es - Design en badges */}
                             <div className="flex flex-wrap items-center gap-2 mt-3">
                               {/* Bien */}
                               {task.property && (
@@ -882,21 +882,21 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                                 </div>
                               )}
 
-                              {/* Date d'échéance */}
+                              {/* Date d'Ã©chÃ©ance */}
                               {task.due_date && (
                                 <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${isTaskOverdue
                                   ? 'bg-red-100 text-red-700'
                                   : 'bg-gray-100 text-gray-700'
                                   }`}>
                                   <Calendar size={12} />
-                                  <span>Échéance: {formatDate(task.due_date)}</span>
+                                  <span>Ã‰chÃ©ance: {formatDate(task.due_date)}</span>
                                   {isTaskOverdue && (
                                     <AlertCircle size={12} className="text-red-600" />
                                   )}
                                 </div>
                               )}
 
-                              {/* Assigné à */}
+                              {/* AssignÃ© Ã  */}
                               {task.assigned_to && (
                                 <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
                                   <User size={12} />
@@ -904,7 +904,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                                 </div>
                               )}
 
-                              {/* Priorité */}
+                              {/* PrioritÃ© */}
                               <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${priorityStyle.bg} ${priorityStyle.text}`}>
                                 {priorityStyle.icon}
                                 <span>{priorityStyle.label}</span>
@@ -944,7 +944,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
               className="px-4 py-2 text-white rounded-lg transition-colors hover:opacity-90"
               style={{ background: 'rgba(82, 157, 33, 1)' }}
             >
-              Créer la tâche
+              CrÃ©er la tÃ¢che
             </button>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Download, Printer, Share2 } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { Button } from './ui/Button';
@@ -14,7 +14,7 @@ interface DocumentViewerProps {
 export const DocumentViewer: React.FC<DocumentViewerProps> = ({ isOpen, onClose, fileName, fileType, notify }) => {
   
   const handleDownload = () => {
-    notify(`Téléchargement de ${fileName} lancé...`, 'success');
+    notify(`TÃ©lÃ©chargement de ${fileName} lancÃ©...`, 'success');
   };
 
   const handlePrint = () => {
@@ -36,7 +36,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({ isOpen, onClose,
              <Share2 size={20} />
            </button>
            <Button variant="primary" size="sm" icon={<Download size={16}/>} onClick={handleDownload}>
-             Télécharger
+             TÃ©lÃ©charger
            </Button>
         </div>
 
@@ -50,7 +50,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({ isOpen, onClose,
                 <div className="flex justify-between items-start mb-8 border-b border-gray-100 pb-6">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900 uppercase tracking-wider mb-2">Document Officiel</h1>
-                        <p className="text-sm text-gray-500">Réf: {fileName}</p>
+                        <p className="text-sm text-gray-500">RÃ©f: {fileName}</p>
                     </div>
                     <div className="w-16 h-16 bg-slate-900 rounded-lg flex items-center justify-center text-white font-bold text-xl">MT</div>
                 </div>
@@ -71,13 +71,13 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({ isOpen, onClose,
                         </div>
                         <div className="h-32 bg-gray-50 rounded border border-gray-100 p-4 relative">
                              <p className="text-xs font-bold text-gray-400 uppercase mb-2">Le Locataire</p>
-                             <div className="absolute bottom-4 right-4 font-handwriting text-2xl text-blue-600 transform -rotate-6">Lu et approuvé</div>
+                             <div className="absolute bottom-4 right-4 font-handwriting text-2xl text-blue-600 transform -rotate-6">Lu et approuvÃ©</div>
                         </div>
                     </div>
                 </div>
 
                 <div className="mt-auto pt-6 border-t border-gray-100 text-center text-xs text-gray-400">
-                    Généré numériquement par GestiLoc App - Page 1/3
+                    GÃ©nÃ©rÃ© numÃ©riquement par GestiLoc App - Page 1/3
                 </div>
              </div>
            )}

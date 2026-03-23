@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertTriangle,
   Calendar,
@@ -45,24 +45,24 @@ const apiBase =
   'http://127.0.0.1:8000';
 
 const categoryMeta: Record<IncidentCategory, { label: string; icon: any; hint: string }> = {
-  plumbing: { label: 'Plomberie', icon: Droplet, hint: 'Fuite, évier, WC, robinet...' },
-  electricity: { label: 'Électricité', icon: Zap, hint: 'Prise, disjoncteur, lumière...' },
-  heating: { label: 'Chauffage', icon: Thermometer, hint: 'Radiateur, chaudière, eau chaude...' },
-  other: { label: 'Autre', icon: HelpCircle, hint: 'Autre problème dans le logement' },
+  plumbing: { label: 'Plomberie', icon: Droplet, hint: 'Fuite, Ã©vier, WC, robinet...' },
+  electricity: { label: 'Ã‰lectricitÃ©', icon: Zap, hint: 'Prise, disjoncteur, lumiÃ¨re...' },
+  heating: { label: 'Chauffage', icon: Thermometer, hint: 'Radiateur, chaudiÃ¨re, eau chaude...' },
+  other: { label: 'Autre', icon: HelpCircle, hint: 'Autre problÃ¨me dans le logement' },
 };
 
 const priorityMeta: Record<IncidentPriority, { label: string; desc: string }> = {
   low: { label: 'Faible', desc: 'Non bloquant' },
-  medium: { label: 'Moyenne', desc: 'Gênant' },
-  high: { label: 'Élevée', desc: 'À traiter vite' },
+  medium: { label: 'Moyenne', desc: 'GÃªnant' },
+  high: { label: 'Ã‰levÃ©e', desc: 'Ã€ traiter vite' },
   emergency: { label: 'Urgente', desc: 'Risque / urgence' },
 };
 
 const statusLabel = (s: TenantIncident['status']) => {
   if (s === 'open') return 'Ouvert';
   if (s === 'in_progress') return 'En cours';
-  if (s === 'resolved') return 'Résolu';
-  return 'Annulé';
+  if (s === 'resolved') return 'RÃ©solu';
+  return 'AnnulÃ©';
 };
 
 type FormErrors = Partial<{
@@ -90,13 +90,13 @@ function looksTechnical(msg?: string) {
 }
 
 function normalizeApiError(e: any, fallback: string) {
-  if (e?.request && !e?.response) return "Le serveur ne répond pas. Vérifie ta connexion et réessaie.";
+  if (e?.request && !e?.response) return "Le serveur ne rÃ©pond pas. VÃ©rifie ta connexion et rÃ©essaie.";
   const status = e?.response?.status;
-  if (status === 401) return "Session expirée. Reconnecte-toi.";
-  if (status === 403) return "Accès refusé.";
-  if (status === 413) return "Fichiers trop volumineux. Réduis la taille des photos.";
-  if (status === 422) return "Certains champs sont invalides. Vérifie le formulaire.";
-  if (status >= 500) return "Problème serveur. Réessaie dans quelques instants.";
+  if (status === 401) return "Session expirÃ©e. Reconnecte-toi.";
+  if (status === 403) return "AccÃ¨s refusÃ©.";
+  if (status === 413) return "Fichiers trop volumineux. RÃ©duis la taille des photos.";
+  if (status === 422) return "Certains champs sont invalides. VÃ©rifie le formulaire.";
+  if (status >= 500) return "ProblÃ¨me serveur. RÃ©essaie dans quelques instants.";
   const backendMsg = e?.response?.data?.message;
   if (backendMsg && !looksTechnical(backendMsg)) return backendMsg;
   return fallback;
@@ -143,21 +143,21 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
   const helperBase = 'text-xs text-gray-500 mt-1';
   const errorText = 'text-xs text-red-600 mt-1';
 
-  // 🔥 Fonction de chargement centralisée avec cache-busting
+  // ðŸ”¥ Fonction de chargement centralisÃ©e avec cache-busting
   const loadData = async () => {
     try {
       setLoading(true);
       
-      // Ajouter un timestamp pour éviter le cache
+      // Ajouter un timestamp pour Ã©viter le cache
       const timestamp = Date.now();
       
-      // Charger les baux et les incidents en parallèle
+      // Charger les baux et les incidents en parallÃ¨le
       const [leasesData, incidentsData] = await Promise.all([
         tenantApi.getLeases(),
         tenantApi.getIncidents()
       ]);
       
-      console.log('Données chargées:', { leases: leasesData, incidents: incidentsData });
+      console.log('DonnÃ©es chargÃ©es:', { leases: leasesData, incidents: incidentsData });
       
       setLeases(leasesData);
       setIncidents(incidentsData);
@@ -169,7 +169,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
       
     } catch (e: any) {
       console.error('Erreur chargement:', e);
-      notify('Erreur lors du chargement des données', 'error');
+      notify('Erreur lors du chargement des donnÃ©es', 'error');
       setLeases([]);
       setIncidents([]);
       setHasActiveLease(false);
@@ -250,10 +250,10 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
     if (!files) return;
     const arr = Array.from(files);
     const tooMany = Math.max(0, photoFiles.length + arr.length - 8);
-    if (tooMany > 0) notify('Maximum 8 photos. Les photos en trop ne seront pas ajoutées.', 'info');
+    if (tooMany > 0) notify('Maximum 8 photos. Les photos en trop ne seront pas ajoutÃ©es.', 'info');
     const maxSize = 5 * 1024 * 1024;
     const filtered = arr.filter((f) => f.size <= maxSize);
-    if (filtered.length !== arr.length) notify('Certaines photos dépassent 5MB et ont été ignorées.', 'info');
+    if (filtered.length !== arr.length) notify('Certaines photos dÃ©passent 5MB et ont Ã©tÃ© ignorÃ©es.', 'info');
     setPhotoFiles((prev) => [...prev, ...filtered].slice(0, 8));
     setFormErrors((p) => ({ ...p, photos: undefined }));
   };
@@ -264,12 +264,12 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
     const errs: FormErrors = {};
     if (!propertyId) errs.propertyId = 'Choisis un bien.';
     if (!title.trim()) errs.title = 'Le titre est obligatoire.';
-    else if (title.trim().length < 3) errs.title = 'Le titre doit contenir au moins 3 caractères.';
+    else if (title.trim().length < 3) errs.title = 'Le titre doit contenir au moins 3 caractÃ¨res.';
     if (description.trim() && description.trim().length < 10) {
-      errs.description = 'Ajoute un peu plus de détails (au moins 10 caractères).';
+      errs.description = 'Ajoute un peu plus de dÃ©tails (au moins 10 caractÃ¨res).';
     }
     const partialSlots = slots.some((s) => (s.date || s.from || s.to) && !(s.date && s.from && s.to));
-    if (partialSlots) errs.slots = 'Chaque créneau doit avoir une date + une heure de début + une heure de fin.';
+    if (partialSlots) errs.slots = 'Chaque crÃ©neau doit avoir une date + une heure de dÃ©but + une heure de fin.';
     return errs;
   };
 
@@ -284,7 +284,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
     setFormErrors(errs);
 
     if (Object.keys(errs).length > 0) {
-      const firstMsg = Object.values(errs)[0] || 'Vérifie le formulaire.';
+      const firstMsg = Object.values(errs)[0] || 'VÃ©rifie le formulaire.';
       notify(firstMsg, 'error');
       focusFirstError(errs);
       return;
@@ -312,7 +312,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
         photos: uploadedPaths,
       });
 
-      notify('Incident envoyé au propriétaire', 'success');
+      notify('Incident envoyÃ© au propriÃ©taire', 'success');
 
       setTitle('');
       setCategory('plumbing');
@@ -322,7 +322,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
       setPhotoFiles([]);
       setFormErrors({});
 
-      // 🔥 Recharger TOUTES les données après création
+      // ðŸ”¥ Recharger TOUTES les donnÃ©es aprÃ¨s crÃ©ation
       await loadData();
       
     } catch (e: any) {
@@ -335,15 +335,15 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
         if (fieldErrors.property_id) mapped.propertyId = fieldErrors.property_id?.[0] || 'Bien invalide.';
         if (fieldErrors.title) mapped.title = fieldErrors.title?.[0] || 'Titre invalide.';
         if (fieldErrors.description) mapped.description = fieldErrors.description?.[0] || 'Description invalide.';
-        if (fieldErrors.preferred_slots) mapped.slots = fieldErrors.preferred_slots?.[0] || 'Créneaux invalides.';
+        if (fieldErrors.preferred_slots) mapped.slots = fieldErrors.preferred_slots?.[0] || 'CrÃ©neaux invalides.';
         if (fieldErrors.photos) mapped.photos = fieldErrors.photos?.[0] || 'Photos invalides.';
         setFormErrors((prev) => ({ ...prev, ...mapped }));
-        notify('Certains champs sont invalides. Vérifie le formulaire.', 'error');
+        notify('Certains champs sont invalides. VÃ©rifie le formulaire.', 'error');
         focusFirstError(mapped);
         return;
       }
 
-      notify(normalizeApiError(e, 'Erreur lors de l’envoi'), 'error');
+      notify(normalizeApiError(e, 'Erreur lors de lâ€™envoi'), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -366,12 +366,12 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
     try {
       // Essayer de supprimer l'incident
       await tenantApi.deleteIncident(incidentToDelete);
-      notify('Incident supprimé', 'success');
+      notify('Incident supprimÃ©', 'success');
     } catch (e: any) {
-      // Ignorer l'erreur 404 (l'incident n'existe déjà plus)
+      // Ignorer l'erreur 404 (l'incident n'existe dÃ©jÃ  plus)
       if (e.response?.status === 404) {
-        console.log('Incident déjà supprimé ou inexistant');
-        notify('Incident supprimé', 'success');
+        console.log('Incident dÃ©jÃ  supprimÃ© ou inexistant');
+        notify('Incident supprimÃ©', 'success');
       } else {
         console.error('Erreur lors de la suppression:', e);
         notify('Erreur lors de la suppression', 'error');
@@ -379,7 +379,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
     }
     
     try {
-      // 🔥 FORCER le rechargement complet des données
+      // ðŸ”¥ FORCER le rechargement complet des donnÃ©es
       await loadData();
     } catch (e) {
       console.error('Erreur lors du rechargement:', e);
@@ -450,12 +450,12 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900">Confirmer la suppression</h3>
-                <p className="text-sm text-gray-500 mt-1">Cette action est irréversible</p>
+                <p className="text-sm text-gray-500 mt-1">Cette action est irrÃ©versible</p>
               </div>
             </div>
 
             <p className="text-gray-600 mb-8">
-              Êtes-vous sûr de vouloir supprimer cette intervention ?
+              ÃŠtes-vous sÃ»r de vouloir supprimer cette intervention ?
             </p>
 
             <div className="flex gap-3">
@@ -502,7 +502,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
               <h2 className="text-xl font-semibold text-gray-900">Aucune location active</h2>
             </div>
             <p className="text-gray-600 mb-6">
-              Vous n'avez pas de location active. Pour créer une intervention, vous devez avoir une location en cours.
+              Vous n'avez pas de location active. Pour crÃ©er une intervention, vous devez avoir une location en cours.
             </p>
             <button
               onClick={() => setShowNoLeaseModal(false)}
@@ -516,7 +516,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
       )}
 
       {showCreateForm ? (
-        // Formulaire de création
+        // Formulaire de crÃ©ation
         <div className="space-y-6">
           {/* Bouton Retour */}
           <div className="flex items-center gap-3">
@@ -532,7 +532,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
 
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Nouvelle intervention</h1>
-            <p className="text-sm text-gray-600">Déclare un problème lié à ton bien</p>
+            <p className="text-sm text-gray-600">DÃ©clare un problÃ¨me liÃ© Ã  ton bien</p>
           </div>
 
           <Card className="p-6">
@@ -540,7 +540,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
               {/* Property preview */}
               <div className="lg:col-span-1 space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm font-bold text-gray-900">Bien concerné</div>
+                  <div className="text-sm font-bold text-gray-900">Bien concernÃ©</div>
                   <span className="text-xs text-gray-500">{leases.length} bail(s)</span>
                 </div>
 
@@ -556,7 +556,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
                 >
                   {leases.filter(l => l.status === 'active').map((l) => (
                     <option key={l.id} value={l.property?.id}>
-                      {l.property?.name || 'Bien'} - {l.property?.address} — {l.property?.city}
+                      {l.property?.name || 'Bien'} - {l.property?.address} â€” {l.property?.city}
                     </option>
                   ))}
                 </select>
@@ -593,7 +593,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className={labelBase}>Titre</label>
-                    <p className={helperBase}>Court et précis (ex: “Fuite robinet cuisine”).</p>
+                    <p className={helperBase}>Court et prÃ©cis (ex: â€œFuite robinet cuisineâ€).</p>
                     <input
                       ref={titleRef}
                       value={title}
@@ -609,7 +609,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
                   </div>
 
                   <div>
-                    <label className={labelBase}>Priorité</label>
+                    <label className={labelBase}>PrioritÃ©</label>
                     <p className={helperBase}>{priorityMeta[priority].desc}</p>
                     <select
                       value={priority}
@@ -629,7 +629,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
                 <div>
                   <div className="flex items-end justify-between">
                     <div>
-                      <div className="text-sm font-bold text-gray-900">Catégorie</div>
+                      <div className="text-sm font-bold text-gray-900">CatÃ©gorie</div>
                       <div className="text-xs text-gray-600">Choisis ce qui correspond le mieux.</div>
                     </div>
                   </div>
@@ -674,7 +674,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
                     }}
                     className={`${inputBase} mt-2 min-h-[120px]`}
                     style={{ borderColor: formErrors.description ? '#ef4444' : '#e5e7eb' }}
-                    placeholder="Décris le problème, localisation, depuis quand..."
+                    placeholder="DÃ©cris le problÃ¨me, localisation, depuis quand..."
                   />
                   {formErrors.description ? <p className={errorText}>{formErrors.description}</p> : null}
                 </div>
@@ -726,7 +726,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
                     </div>
                   ) : (
                     <div className="mt-3 rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-                      Ajoute des photos si possible (ça accélère la prise en charge).
+                      Ajoute des photos si possible (Ã§a accÃ©lÃ¨re la prise en charge).
                     </div>
                   )}
                 </div>
@@ -735,8 +735,8 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
                 <div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm font-bold text-gray-900">Disponibilités (optionnel)</div>
-                      <div className="text-xs text-gray-600">Propose 1 à 3 créneaux, si tu peux.</div>
+                      <div className="text-sm font-bold text-gray-900">DisponibilitÃ©s (optionnel)</div>
+                      <div className="text-xs text-gray-600">Propose 1 Ã  3 crÃ©neaux, si tu peux.</div>
                     </div>
 
                     <button
@@ -746,7 +746,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
                       style={{ color: PRIMARY_COLOR }}
                     >
                       <Plus size={16} />
-                      Ajouter un créneau
+                      Ajouter un crÃ©neau
                     </button>
                   </div>
 
@@ -790,7 +790,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
 
                         <div className="relative">
                           <div className="text-xs font-bold text-gray-700 mb-1 flex items-center gap-2">
-                            <Clock size={14} /> À
+                            <Clock size={14} /> Ã€
                           </div>
                           <input
                             type="time"
@@ -806,7 +806,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
                               type="button"
                               onClick={() => removeSlot(idx)}
                               className="absolute right-1 top-0 text-gray-400 hover:text-red-600 p-2"
-                              aria-label="Supprimer créneau"
+                              aria-label="Supprimer crÃ©neau"
                             >
                               <Trash2 size={16} />
                             </button>
@@ -833,7 +833,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
                     ) : (
                       <>
                         <AlertTriangle size={18} />
-                        Envoyer au propriétaire
+                        Envoyer au propriÃ©taire
                       </>
                     )}
                   </button>
@@ -845,7 +845,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
       ) : (
         // Liste des interventions
         <>
-          {/* ── EN-TÊTE ── */}
+          {/* â”€â”€ EN-TÃŠTE â”€â”€ */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Mes interventions</h1>
@@ -868,7 +868,7 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
           <Card className="p-4">
             <h3 className="text-sm font-medium text-gray-900 mb-4">Filtrer les interventions</h3>
             
-            {/* Tous les filtres sur la même ligne */}
+            {/* Tous les filtres sur la mÃªme ligne */}
             <div className="flex flex-wrap items-center gap-3">
               {/* Filtre par nombre de lignes */}
               <div className="relative w-32">
@@ -945,9 +945,9 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
               </div>
             </div>
 
-            {/* Indicateur de résultat */}
+            {/* Indicateur de rÃ©sultat */}
             <div className="mt-3 text-xs text-gray-500">
-              {filteredIncidents.length} intervention{filteredIncidents.length > 1 ? 's' : ''} trouvée{filteredIncidents.length > 1 ? 's' : ''}
+              {filteredIncidents.length} intervention{filteredIncidents.length > 1 ? 's' : ''} trouvÃ©e{filteredIncidents.length > 1 ? 's' : ''}
             </div>
           </Card>
 
@@ -959,9 +959,9 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
                     <th className="text-left px-4 py-3 text-xs font-medium text-gray-700">Sujet</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-gray-700">Bien</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-gray-700">Date</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-gray-700">Mis à jour</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-gray-700">Priorité</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-gray-700">État</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-gray-700">Mis Ã  jour</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-gray-700">PrioritÃ©</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-gray-700">Ã‰tat</th>
                     <th className="text-center px-4 py-3 text-xs font-medium text-gray-700">Action</th>
                   </tr>
                 </thead>
@@ -969,12 +969,12 @@ export const Interventions: React.FC<InterventionsProps> = ({ notify }) => {
                   {filteredIncidents.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
-                        Aucune intervention trouvée
+                        Aucune intervention trouvÃ©e
                       </td>
                     </tr>
                   ) : (
                     filteredIncidents.map((incident) => {
-                      // Récupérer le bail correspondant pour avoir le nom du bien
+                      // RÃ©cupÃ©rer le bail correspondant pour avoir le nom du bien
                       const lease = leases.find(l => l.property?.id === incident.property_id);
                       const propertyName = (incident.property as any)?.name || lease?.property?.name || 'Bien';
                       return (

@@ -58,6 +58,7 @@ const NouvelleLocation = () => {
   const [jourPaiement, setJourPaiement] = useState("5");
   const [periodicite, setPeriodicite] = useState("monthly");
   const [modePaiement, setModePaiement] = useState("Espèce");
+  const [autoRenew, setAutoRenew] = useState(true);
   const [details, setDetails] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -159,6 +160,7 @@ const NouvelleLocation = () => {
         billing_day: parseInt(jourPaiement),
         payment_frequency: periodicite,
         payment_mode: modePaiement,
+        auto_renew: autoRenew,
         special_conditions: details
       };
 
@@ -593,28 +595,7 @@ const NouvelleLocation = () => {
                 {errors.lease_type && <div style={styles.errorText}>{errors.lease_type}</div>}
               </div>
 
-              {/* Statut du bail */}
-              <div style={styles.fieldGroup}>
-                <label style={styles.label}>
-                  Statut du bail <span style={styles.requiredStar}>*</span>
-                </label>
-                <div style={styles.statutGroup}>
-                  {statuts.map(s => (
-                    <label key={s.value} style={styles.radioLabel}>
-                      <input
-                        type="radio"
-                        name="statutBail"
-                        value={s.value}
-                        checked={statutBail === s.value}
-                        onChange={() => setStatutBail(s.value)}
-                        style={{ accentColor: s.color }}
-                      />
-                      {s.label}
-                    </label>
-                  ))}
-                </div>
-                {errors.lease_status && <div style={styles.errorText}>{errors.lease_status}</div>}
-              </div>
+
             </div>
 
             <div style={styles.grid2}>
@@ -782,6 +763,22 @@ const NouvelleLocation = () => {
                 <option>Chèque</option>
                 <option>Mobile Money</option>
               </select>
+            </div>
+
+            {/* Reconduction automatique */}
+            <div style={{...styles.fieldGroup, ...styles.fullWidth, marginTop: "28px"}}>
+              <label style={styles.radioLabel}>
+                <input
+                  type="checkbox"
+                  checked={autoRenew}
+                  onChange={e => setAutoRenew(e.target.checked)}
+                  style={{ width: '18px', height: '18px', accentColor: "#16a34a" }}
+                />
+                <span style={{ fontSize: '14px', fontWeight: 700 }}>Reconduire le bail automatiquement</span>
+              </label>
+              <div style={{...styles.helpText, marginLeft: '26px'}}>
+                À la fin du bail, celui-ci sera reconduit pour la même durée sans intervention manuelle.
+              </div>
             </div>
 
             {/* Conditions particulières */}

@@ -9,8 +9,8 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('leases', function (Blueprint $table) {
-            // Si actuellement c'est un ENUM ou un TINYINT, on change en ENUM('nu','meuble')
-            DB::statement("ALTER TABLE leases MODIFY COLUMN type ENUM('nu', 'meuble') NOT NULL DEFAULT 'nu'");
+            // Utiliser le Schema Builder pour la compatibilité SQLite/MySQL
+            $table->enum('type', ['nu', 'meuble'])->default('nu')->change();
         });
     }
 

@@ -1,70 +1,68 @@
-import React from 'react';
-import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { CheckCircle2, AlertCircle, Info, X, Bell } from 'lucide-react';
+import { ToastMessage } from '../../types';
 
 interface ToastProps {
-  message: string;
-  type: 'success' | 'error' | 'info';
-  onClose: () => void;
+  toast: ToastMessage;
+  onClose: (id: number) => void;
 }
 
-export const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
+export const Toast: React.FC<ToastProps> = ({ toast, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose(toast.id);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [toast.id, onClose]);
+
   const getIcon = () => {
-    switch (type) {
-      case 'success':
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case 'error':
-        return <AlertCircle className="w-5 h-5 text-red-500" />;
-      case 'info':
-        return <Info className="w-5 h-5 text-emerald-500" />;
-      default:
-        return <Info className="w-5 h-5 text-emerald-500" />;
+    switch (toast.type) {
+      case 'success': return <CheckCircle2 className="w-5 h-5 text-[#8CCC63]" />;
+      case 'error': return <AlertCircle className="w-5 h-5 text-red-500" />;
+      case 'info': return <div className="p-1 bg-green-50 rounded-lg"><Bell className="w-4 h-4 text-[#529D21]" /></div>;
+      default: return <Info className="w-5 h-5 text-blue-500" />;
     }
   };
 
-  const getBgColor = () => {
-    switch (type) {
-      case 'success':
-        return 'bg-green-50 border-green-200';
-      case 'error':
-        return 'bg-red-50 border-red-200';
-      case 'info':
-        return 'bg-emerald-50 border-emerald-200';
-      default:
-        return 'bg-emerald-50 border-emerald-200';
-    }
-  };
-
-  const getTextColor = () => {
-    switch (type) {
-      case 'success':
-        return 'text-green-800';
-      case 'error':
-        return 'text-red-800';
-      case 'info':
-        return 'text-emerald-800';
-      default:
-        return 'text-emerald-800';
+  const getStyle = () => {
+    switch (toast.type) {
+      case 'success': return "border-l-4 border-l-[#8CCC63] bg-white/90";
+      case 'error': return "border-l-4 border-l-red-500 bg-white/90";
+      default: return "border-l-4 border-l-[#529D21] bg-white/90";
     }
   };
 
   return (
-    <div className={`flex items-center p-4 rounded-lg border ${getBgColor()} shadow-lg max-w-sm`}>
-      <div className="flex-shrink-0">
-        {getIcon()}
-      </div>
-      <div className="ml-3 flex-1">
-        <p className={`text-sm font-medium ${getTextColor()}`}>
-          {message}
+    <div
+      className={`
+        flex items-center gap-4 p-4 pr-3 
+        rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] 
+        border border-gray-100/50 backdrop-blur-md 
+        animate-slide-in-right min-w-[320px] max-w-md
+        group transition-all hover:translate-y-[-2px]
+        ${getStyle()}
+      `}
+      style={{ fontFamily: "'Merriweather', serif" }}
+    >
+      <div className="shrink-0 drop-shadow-sm">{getIcon()}</div>
+
+      <div className="flex-1 flex flex-col gap-0.5">
+        <span className="text-[0.8rem] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">
+          {toast.type === 'success' ? 'Succès' : toast.type === 'error' ? 'Alerte' : 'Notification'}
+        </span>
+        <p className="text-[0.95rem] font-bold text-gray-800 leading-tight">
+          {toast.message}
         </p>
       </div>
-      <div className="ml-4 flex-shrink-0">
-        <button
-          onClick={onClose}
-          className={`inline-flex ${getTextColor()} hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 rounded`}
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
+
+      <button
+        onClick={() => onClose(toast.id)}
+        className="shrink-0 w-8 h-8 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+      >
+        <X size={16} />
+      </button>
+
+      <div className="absolute bottom-0 left-0 h-[3px] bg-gradient-to-r from-transparent via-gray-200 to-transparent w-full opacity-20" />
     </div>
   );
 };

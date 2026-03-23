@@ -20,7 +20,6 @@ const AjouterLocataire = () => {
     phone: "",
     email: "",
     address: "",
-    zip_code: "",
     city: "",
     country: "France",
     emergency_contact_name: "",
@@ -700,10 +699,7 @@ const AjouterLocataire = () => {
             {/* Tab navigation - sans icônes */}
             <div className="tab-nav">
               <button type="button" className={`tab-button ${activeTab === 'infos' ? 'active' : ''}`} onClick={() => showTab('infos')}>
-                Informations personnelles
-              </button>
-              <button type="button" className={`tab-button ${activeTab === 'contact' ? 'active' : ''}`} onClick={() => showTab('contact')}>
-                Coordonnées
+                Informations & Coordonnées
               </button>
               <button type="button" className={`tab-button ${activeTab === 'pro' ? 'active' : ''}`} onClick={() => showTab('pro')}>
                 Situation professionnelle
@@ -843,9 +839,99 @@ const AjouterLocataire = () => {
                     </div>
                   </div>
 
+                  {/* Coordonnées intégrées */}
+                  <div style={{ marginTop: '1.2rem' }}>
+                    <h3 className="form-label" style={{ marginBottom: '0.6rem', fontSize: '1rem', color: '#70AE48' }}>
+                      Coordonnées
+                    </h3>
+                    <div className="form-grid form-grid-2">
+                      <div className="form-group">
+                        <label className="form-label">
+                          Email <span className="required">*</span>
+                        </label>
+                        <div className="form-input-icon">
+                          <div className="icon-wrapper">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                              <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                          </div>
+                          <input 
+                            className={`form-input ${apiErrors.email ? 'error' : ''}`} 
+                            type="email" 
+                            name="email" 
+                            value={formData.email} 
+                            onChange={handleChange} 
+                            placeholder="jean.dupont@exemple.com" 
+                            required 
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">
+                          Téléphone <span className="required">*</span>
+                        </label>
+                        <div className="form-input-icon">
+                          <div className="icon-wrapper">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8 10a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                          </div>
+                          <input 
+                            className={`form-input ${apiErrors.phone ? 'error' : ''}`} 
+                            type="tel" 
+                            name="phone" 
+                            value={formData.phone} 
+                            onChange={handleChange} 
+                            placeholder="06 12 34 56 78" 
+                            required 
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                        <label className="form-label">
+                          Adresse <span className="required">*</span>
+                        </label>
+                        <div className="form-input-icon">
+                          <div className="icon-wrapper">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                              <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                          </div>
+                          <input 
+                            className={`form-input ${apiErrors.address ? 'error' : ''}`} 
+                            type="text" 
+                            name="address" 
+                            value={formData.address} 
+                            onChange={handleChange} 
+                            placeholder="123 Rue de la Paix" 
+                            required 
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">
+                          Ville <span className="required">*</span>
+                        </label>
+                        <input className="form-input" type="text" name="city" value={formData.city} onChange={handleChange} placeholder="Paris" required />
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">
+                          Pays <span className="required">*</span>
+                        </label>
+                        <input className="form-input" type="text" name="country" value={formData.country} onChange={handleChange} placeholder="France" required />
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Contact d'urgence */}
                   <div style={{ marginTop: '1.2rem' }}>
-                    <h3 className="form-label" style={{ marginBottom: '0.6rem', fontSize: '0.8rem' }}>
+                    <h3 className="form-label" style={{ marginBottom: '0.6rem', fontSize: '1rem', color: '#70AE48' }}>
                       Contact d'urgence
                     </h3>
                     <div className="form-grid form-grid-3">
@@ -888,163 +974,8 @@ const AjouterLocataire = () => {
                   </div>
 
                   <div className="bottom-actions">
-                    <button type="button" className="button button-primary" onClick={() => validateAndGo('infos', 'contact')}>
-                      Suivant : Coordonnées
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Tab 2: Coordonnées */}
-              {activeTab === 'contact' && (
-                <div className="section">
-                  <h2 className="section-title">Coordonnées</h2>
-
-                  <div className="form-grid form-grid-2">
-                    <div className="form-group">
-                      <label className="form-label">
-                        Email <span className="required">*</span>
-                      </label>
-                      <div className="form-input-icon">
-                        <div className="icon-wrapper">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                            <polyline points="22,6 12,13 2,6"/>
-                          </svg>
-                        </div>
-                        <input 
-                          className={`form-input ${apiErrors.email ? 'error' : ''}`} 
-                          type="email" 
-                          name="email" 
-                          value={formData.email} 
-                          onChange={handleChange} 
-                          placeholder="jean.dupont@exemple.com" 
-                          required 
-                        />
-                      </div>
-                      {getFieldError('email') && (
-                        <div className="field-error">{getFieldError('email')}</div>
-                      )}
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">
-                        Téléphone <span className="required">*</span>
-                      </label>
-                      <div className="form-input-icon">
-                        <div className="icon-wrapper">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8 10a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0 1 22 16.92z"/>
-                          </svg>
-                        </div>
-                        <input 
-                          className={`form-input ${apiErrors.phone ? 'error' : ''}`} 
-                          type="tel" 
-                          name="phone" 
-                          value={formData.phone} 
-                          onChange={handleChange} 
-                          placeholder="06 12 34 56 78" 
-                          required 
-                        />
-                      </div>
-                      {getFieldError('phone') && (
-                        <div className="field-error">{getFieldError('phone')}</div>
-                      )}
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">
-                        Adresse <span className="required">*</span>
-                      </label>
-                      <div className="form-input-icon">
-                        <div className="icon-wrapper">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                            <circle cx="12" cy="10" r="3"/>
-                          </svg>
-                        </div>
-                        <input 
-                          className={`form-input ${apiErrors.address ? 'error' : ''}`} 
-                          type="text" 
-                          name="address" 
-                          value={formData.address} 
-                          onChange={handleChange} 
-                          placeholder="123 Rue de la Paix" 
-                          required 
-                        />
-                      </div>
-                      {getFieldError('address') && (
-                        <div className="field-error">{getFieldError('address')}</div>
-                      )}
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">
-                        Code postal <span className="required">*</span>
-                      </label>
-                      <input 
-                        className={`form-input ${apiErrors.zip_code ? 'error' : ''}`} 
-                        type="text" 
-                        name="zip_code" 
-                        value={formData.zip_code} 
-                        onChange={handleChange} 
-                        placeholder="75000" 
-                        required 
-                      />
-                      {getFieldError('zip_code') && (
-                        <div className="field-error">{getFieldError('zip_code')}</div>
-                      )}
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">
-                        Ville <span className="required">*</span>
-                      </label>
-                      <input 
-                        className={`form-input ${apiErrors.city ? 'error' : ''}`} 
-                        type="text" 
-                        name="city" 
-                        value={formData.city} 
-                        onChange={handleChange} 
-                        placeholder="Paris" 
-                        required 
-                      />
-                      {getFieldError('city') && (
-                        <div className="field-error">{getFieldError('city')}</div>
-                      )}
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">
-                        Pays <span className="required">*</span>
-                      </label>
-                      <input 
-                        className={`form-input ${apiErrors.country ? 'error' : ''}`} 
-                        type="text" 
-                        name="country" 
-                        value={formData.country} 
-                        onChange={handleChange} 
-                        placeholder="France" 
-                        required 
-                      />
-                      {getFieldError('country') && (
-                        <div className="field-error">{getFieldError('country')}</div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="bottom-actions">
-                    <button type="button" className="button button-secondary" onClick={() => showTab('infos')}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M19 12H5M12 5l-7 7 7 7"/>
-                      </svg>
-                      Précédent
-                    </button>
-                    <button type="button" className="button button-primary" onClick={() => validateAndGo('contact', 'pro')}>
-                      Suivant : Situation professionnelle
+                    <button type="button" className="button button-primary" onClick={() => validateAndGo('infos', 'pro')}>
+                      Suivant : Profession
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M5 12h14M12 5l7 7-7 7"/>
                       </svg>

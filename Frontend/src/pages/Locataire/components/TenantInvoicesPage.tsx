@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import {
   RefreshCw,
   Loader2,
@@ -25,7 +25,7 @@ const safeString = (v: any) => (v == null ? "" : String(v));
 
 const isPaid = (inv: Invoice) => {
   const s = safeString(inv.status).toLowerCase();
-  return s === "paid" || s === "paye" || s === "payé";
+  return s === "paid" || s === "paye" || s === "payÃ©";
 };
 const isPartial = (inv: Invoice) => safeString(inv.status).toLowerCase() === "partially_paid";
 const isOverdue = (inv: Invoice) => {
@@ -36,13 +36,13 @@ const isOverdue = (inv: Invoice) => {
 const statusInfo = (inv: Invoice) => {
   const s = safeString(inv.status).toLowerCase();
 
-  if (isPaid(inv)) return { label: "Payée", tone: "ok" as const };
+  if (isPaid(inv)) return { label: "PayÃ©e", tone: "ok" as const };
   if (isPartial(inv)) return { label: "Paiement partiel", tone: "warn" as const };
   if (isOverdue(inv)) return { label: "En retard", tone: "warn" as const };
   if (s === "pending") return { label: "En attente", tone: "idle" as const };
-  if (s === "failed") return { label: "Échouée", tone: "warn" as const };
+  if (s === "failed") return { label: "Ã‰chouÃ©e", tone: "warn" as const };
 
-  return { label: inv.status ? String(inv.status) : "À payer", tone: "idle" as const };
+  return { label: inv.status ? String(inv.status) : "Ã€ payer", tone: "idle" as const };
 };
 
 const getDueKey = (inv: Invoice) => safeString(inv.due_date || inv.period_end || inv.created_at || "");
@@ -145,9 +145,9 @@ export default function TenantInvoicesPage({
       else p1.push(inv);
     }
 
-    // À payer: échéance la + proche en haut (ASC) => plus logique pour locataire
+    // Ã€ payer: Ã©chÃ©ance la + proche en haut (ASC) => plus logique pour locataire
     p1.sort((a, b) => getDueKey(a).localeCompare(getDueKey(b)));
-    // Payées: paiement le + récent en haut (DESC)
+    // PayÃ©es: paiement le + rÃ©cent en haut (DESC)
     p2.sort((a, b) => getPaidKey(b).localeCompare(getPaidKey(a)));
 
     return { payable: p1, paid: p2 };
@@ -172,7 +172,7 @@ export default function TenantInvoicesPage({
     setErr(null);
 
     try {
-      pushNotify("Redirection vers le paiement…", "info");
+      pushNotify("Redirection vers le paiementâ€¦", "info");
       const { checkout_url } = await tenantPayments.initInvoicePayment(invoiceId);
       window.location.href = checkout_url;
     } catch (e: any) {
@@ -190,13 +190,13 @@ export default function TenantInvoicesPage({
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
     } catch (e: any) {
-      pushNotify(e?.message || "Impossible de télécharger la quittance.", "error");
+      pushNotify(e?.message || "Impossible de tÃ©lÃ©charger la quittance.", "error");
     }
   };
 
   return (
     <div className="py-8">
-      {/* Header (même esprit que CreatePaymentRequest) */}
+      {/* Header (mÃªme esprit que CreatePaymentRequest) */}
       <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-extrabold text-blue-700">
@@ -224,7 +224,7 @@ export default function TenantInvoicesPage({
             "
           >
             <FileText size={18} />
-            {showPaid ? "Masquer les payées" : "Afficher les payées"}
+            {showPaid ? "Masquer les payÃ©es" : "Afficher les payÃ©es"}
           </button>
 
           <button
@@ -251,13 +251,13 @@ export default function TenantInvoicesPage({
         <div className="w-full max-w-3xl space-y-4">
           {/* Stats row (chips) */}
           <div className="flex flex-wrap gap-2">
-            <Chip>À payer : {stats.payableCount}</Chip>
-            <Chip>Payées : {stats.paidCount}</Chip>
+            <Chip>Ã€ payer : {stats.payableCount}</Chip>
+            <Chip>PayÃ©es : {stats.paidCount}</Chip>
             <Chip>Total restant : {formatMoney(stats.totalToPay, stats.cur)}</Chip>
-            {stats.totalPaid > 0 ? <Chip>Total payé : {formatMoney(stats.totalPaid, stats.cur)}</Chip> : null}
+            {stats.totalPaid > 0 ? <Chip>Total payÃ© : {formatMoney(stats.totalPaid, stats.cur)}</Chip> : null}
           </div>
 
-          {loading && <Alert tone="info">Chargement des factures…</Alert>}
+          {loading && <Alert tone="info">Chargement des facturesâ€¦</Alert>}
           {err && (
             <Alert tone="error">
               <div className="flex items-center gap-2">
@@ -269,14 +269,14 @@ export default function TenantInvoicesPage({
 
           {!loading && !err && (
             <div className="space-y-6">
-              {/* À payer */}
+              {/* Ã€ payer */}
               <section className="rounded-3xl border border-blue-200 bg-white shadow-sm hover:shadow-md transition p-5 md:p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-lg md:text-xl font-extrabold text-gray-900">À payer</h2>
-                      <Pill tone={payable.length ? "warn" : "ok"}>
-                        {payable.length ? `${payable.length} en attente` : "Tout est réglé ✅"}
+                      <h2 className="text-lg md:text-xl font-extrabold text-gray-900">Ã€ payer</h2>
+                      <Pill tone={payable.length ? "warn" : "idle"}>
+                        {payable.length ? `${payable.length} en attente` : ""}
                       </Pill>
                     </div>
                     <p className="mt-1 text-sm font-semibold text-gray-600">
@@ -287,8 +287,8 @@ export default function TenantInvoicesPage({
 
                 {payable.length === 0 ? (
                   <div className="mt-4 rounded-3xl border border-blue-200 bg-blue-50 p-5">
-                    <div className="text-lg font-extrabold text-gray-900">Aucune facture à payer</div>
-                    <div className="mt-1 text-sm font-semibold text-gray-700">Tu es à jour ✅</div>
+                    <div className="text-lg font-extrabold text-gray-900">Aucune facture Ã  payer</div>
+                    <div className="mt-1 text-sm font-semibold text-gray-700">Tu es Ã  jour âœ…</div>
                   </div>
                 ) : (
                   <div className="mt-4 space-y-3">
@@ -310,31 +310,31 @@ export default function TenantInvoicesPage({
                               </div>
 
                               <div className="mt-2 text-sm font-semibold text-gray-700">
-                                Échéance : <span className="font-extrabold text-gray-900">{inv.due_date || "—"}</span>
+                                Ã‰chÃ©ance : <span className="font-extrabold text-gray-900">{inv.due_date || "â€”"}</span>
                                 {inv.type ? (
                                   <>
                                     {" "}
-                                    · Type : <span className="font-extrabold text-gray-900">{inv.type}</span>
+                                    Â· Type : <span className="font-extrabold text-gray-900">{inv.type}</span>
                                   </>
                                 ) : null}
                               </div>
 
                               {(inv.period_start || inv.period_end) && (
                                 <div className="mt-1 text-xs font-bold text-gray-500">
-                                  Période : {inv.period_start || "—"} → {inv.period_end || "—"}
+                                  PÃ©riode : {inv.period_start || "â€”"} â†’ {inv.period_end || "â€”"}
                                 </div>
                               )}
 
                               {isPartial(inv) && (
                                 <div className="mt-2 text-xs font-bold text-gray-600">
-                                  Restant à payer :{" "}
+                                  Restant Ã  payer :{" "}
                                   <span className="font-extrabold text-gray-900">{formatMoney(remaining, currency)}</span>
                                 </div>
                               )}
                             </div>
 
                             <div className="text-right">
-                              <div className="text-xs font-bold text-gray-500">{isPartial(inv) ? "Reste à payer" : "Montant"}</div>
+                              <div className="text-xs font-bold text-gray-500">{isPartial(inv) ? "Reste Ã  payer" : "Montant"}</div>
                               <div className="mt-1 text-2xl font-extrabold text-gray-900">
                                 {formatMoney(isPartial(inv) ? remaining : total, currency)}
                               </div>
@@ -355,7 +355,7 @@ export default function TenantInvoicesPage({
                                 >
                                   {payingId === inv.id ? (
                                     <>
-                                      <Loader2 size={16} className="animate-spin" /> Redirection…
+                                      <Loader2 size={16} className="animate-spin" /> Redirectionâ€¦
                                     </>
                                   ) : (
                                     <>
@@ -373,27 +373,27 @@ export default function TenantInvoicesPage({
                 )}
               </section>
 
-              {/* Payées */}
+              {/* PayÃ©es */}
               <section className="rounded-3xl border border-blue-200 bg-white shadow-sm hover:shadow-md transition p-5 md:p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-lg md:text-xl font-extrabold text-gray-900">Paiements effectués</h2>
-                      <Pill tone="ok">{paid.length} payé(s)</Pill>
+                      <h2 className="text-lg md:text-xl font-extrabold text-gray-900">Paiements effectuÃ©s</h2>
+                      {paid.length > 0 && <Pill tone="ok">{paid.length} payÃ©(s)</Pill>}
                     </div>
-                    <p className="mt-1 text-sm font-semibold text-gray-600">Historique des factures déjà réglées.</p>
+                    <p className="mt-1 text-sm font-semibold text-gray-600">Historique des factures dÃ©jÃ  rÃ©glÃ©es.</p>
                   </div>
                 </div>
 
                 {!showPaid ? (
                   <div className="mt-4 rounded-3xl border border-blue-200 bg-blue-50 p-5 text-sm font-semibold text-gray-700">
-                    Liste masquée.
+                    Liste masquÃ©e.
                   </div>
                 ) : paid.length === 0 ? (
                   <div className="mt-4 rounded-3xl border border-blue-200 bg-blue-50 p-5">
-                    <div className="text-lg font-extrabold text-gray-900">Aucun paiement enregistré</div>
+                    <div className="text-lg font-extrabold text-gray-900">Aucun paiement enregistrÃ©</div>
                     <div className="mt-1 text-sm font-semibold text-gray-700">
-                      Quand tu paieras une facture, elle apparaîtra ici.
+                      Quand tu paieras une facture, elle apparaÃ®tra ici.
                     </div>
                   </div>
                 ) : (
@@ -411,21 +411,21 @@ export default function TenantInvoicesPage({
                                 <div className="text-lg font-extrabold text-gray-900 truncate">
                                   {inv.invoice_number ? `Facture ${inv.invoice_number}` : `Facture #${inv.id}`}
                                 </div>
-                                <Pill tone="ok">Payée</Pill>
+                                <Pill tone="ok">PayÃ©e</Pill>
                               </div>
 
                               <div className="mt-2 text-sm font-semibold text-gray-700">
-                                Échéance : <span className="font-extrabold text-gray-900">{inv.due_date || "—"}</span>
+                                Ã‰chÃ©ance : <span className="font-extrabold text-gray-900">{inv.due_date || "â€”"}</span>
                                 {inv.type ? (
                                   <>
                                     {" "}
-                                    · Type : <span className="font-extrabold text-gray-900">{inv.type}</span>
+                                    Â· Type : <span className="font-extrabold text-gray-900">{inv.type}</span>
                                   </>
                                 ) : null}
                               </div>
 
                               <div className="mt-1 text-xs font-bold text-gray-500">
-                                Payée le : <span className="font-extrabold text-gray-700">{paidAt ? String(paidAt) : "—"}</span>
+                                PayÃ©e le : <span className="font-extrabold text-gray-700">{paidAt ? String(paidAt) : "â€”"}</span>
                               </div>
                             </div>
 

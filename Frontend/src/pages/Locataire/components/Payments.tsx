@@ -293,8 +293,8 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
     setPaymentError(null);
     setPhoneError(null);
     if (useCustomPhone) {
-      if (!paymentPhone.trim()) { setPhoneError('Veuillez saisir un numéro de téléphone'); return; }
-      if (!validatePhone(paymentPhone)) { setPhoneError('Format de numéro invalide. Utilisez le format: +229 01 23 45 67 89'); return; }
+      if (!paymentPhone.trim()) { setPhoneError('Veuillez saisir un numÃ©ro de tÃ©lÃ©phone'); return; }
+      if (!validatePhone(paymentPhone)) { setPhoneError('Format de numÃ©ro invalide. Utilisez le format: +229 01 23 45 67 89'); return; }
     }
     setProcessingPayment(true);
     try {
@@ -336,17 +336,17 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
           const status = response.data.data.status;
           if (status === 'approved') {
             clearInterval(interval);
-            notify?.('Paiement réussi !', 'success');
+            notify?.('Paiement rÃ©ussi !', 'success');
             setTimeout(() => { setShowPayModal(false); loadDashboard(); }, 2000);
           } else if (status === 'declined' || status === 'failed') {
             clearInterval(interval);
-            notify?.('Le paiement a échoué', 'error');
+            notify?.('Le paiement a Ã©chouÃ©', 'error');
           }
         }
       } catch (error) {
         console.error('Payment status check failed:', error);
       }
-      if (attempts >= maxAttempts) { clearInterval(interval); notify?.("Vérifiez le statut dans l'historique", 'info'); }
+      if (attempts >= maxAttempts) { clearInterval(interval); notify?.("VÃ©rifiez le statut dans l'historique", 'info'); }
     }, 5000);
   };
 
@@ -360,9 +360,9 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
       document.body.appendChild(link);
       link.click();
       setTimeout(() => { document.body.removeChild(link); window.URL.revokeObjectURL(url); }, 100);
-      notify?.('Quittance téléchargée', 'success');
+      notify?.('Quittance tÃ©lÃ©chargÃ©e', 'success');
     } catch (error) {
-      notify?.('Erreur lors du téléchargement', 'error');
+      notify?.('Erreur lors du tÃ©lÃ©chargement', 'error');
     }
   };
 
@@ -389,7 +389,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
     switch (status) {
       case 'paid': case 'approved':
         return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-semibold">
-          <CheckCircle size={11} /> Payé
+          <CheckCircle size={11} /> PayÃ©
         </span>;
       case 'pending':
         return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-semibold">
@@ -397,11 +397,11 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
         </span>;
       case 'initiated':
         return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full text-xs font-semibold">
-          <Loader2 size={11} className="animate-spin" /> Initialisé
+          <Loader2 size={11} className="animate-spin" /> InitialisÃ©
         </span>;
       case 'declined': case 'failed': case 'cancelled':
         return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 rounded-full text-xs font-semibold">
-          <AlertTriangle size={11} /> Échoué
+          <AlertTriangle size={11} /> Ã‰chouÃ©
         </span>;
       default:
         return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold">{status}</span>;
@@ -410,7 +410,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
 
   const statusOptions = [
     { value: '', label: 'Tous les statuts' },
-    { value: 'paid', label: 'Payé' },
+    { value: 'paid', label: 'PayÃ©' },
     { value: 'pending', label: 'En attente' },
   ];
 
@@ -418,9 +418,9 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
     const total = stats.total_paid + stats.total_pending + stats.total_overdue;
     if (total === 0) return [];
     return [
-      { name: 'Payé', value: stats.total_paid, color: '#10b981' },
+      { name: 'PayÃ©', value: stats.total_paid, color: '#10b981' },
       { name: 'En attente', value: stats.total_pending, color: '#f59e0b' },
-      { name: 'Impayés', value: stats.total_overdue, color: '#ef4444' }
+      { name: 'ImpayÃ©s', value: stats.total_overdue, color: '#ef4444' }
     ].filter(item => item.value > 0);
   };
 
@@ -474,10 +474,6 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
   return (
     <div className="min-h-screen bg-white p-4 sm:p-6">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
-        .payments-page { font-family: 'DM Sans', sans-serif; }
-        .mono { font-family: 'DM Mono', monospace; }
-
         @keyframes slideUp {
           from { opacity: 0; transform: translateY(16px); }
           to   { opacity: 1; transform: translateY(0); }
@@ -498,7 +494,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
         .custom-bar-hover:hover { filter: brightness(1.1); }
       `}</style>
 
-      {/* ── MODAL PAIEMENT ── */}
+      {/* â”€â”€ MODAL PAIEMENT â”€â”€ */}
       {showPayModal && (selectedInvoice || selectedPropertyForPayment) && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-slideUp overflow-hidden">
@@ -509,8 +505,8 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                   <CreditCard size={17} className="text-white" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-gray-900">Paiement sécurisé</h2>
-                  <p className="text-xs text-gray-400">Plateforme certifiée</p>
+                  <h2 className="text-base font-bold text-gray-900 ">Paiement sÃ©curisÃ©</h2>
+                  <p className="text-xs text-gray-400">Plateforme certifiÃ©e</p>
                 </div>
               </div>
               <button onClick={() => { setShowPayModal(false); setSelectedInvoice(null); setSelectedPropertyForPayment(null); }} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
@@ -519,13 +515,13 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
             </div>
 
             <div className="p-6">
-              {/* Récapitulatif */}
+              {/* RÃ©capitulatif */}
               <div className="rounded-xl p-4 mb-5" style={{ background: 'linear-gradient(135deg, #f0f9e8, #fafff6)', border: '1px solid #d4edbb' }}>
                 {selectedInvoice ? (
                   <div className="space-y-1.5">
                     <div className="flex justify-between text-sm"><span className="text-gray-500">Facture</span><span className="font-semibold text-gray-800 mono">{selectedInvoice.invoice_number}</span></div>
                     <div className="flex justify-between text-sm"><span className="text-gray-500">Bien</span><span className="font-semibold text-gray-800">{selectedInvoice.lease?.property?.name || '-'}</span></div>
-                    <div className="flex justify-between text-sm"><span className="text-gray-500">Période</span><span className="font-semibold text-gray-800">{selectedInvoice.period_start ? formatDate(selectedInvoice.period_start) : '-'}</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-gray-500">PÃ©riode</span><span className="font-semibold text-gray-800">{selectedInvoice.period_start ? formatDate(selectedInvoice.period_start) : '-'}</span></div>
                     <div className="flex justify-between items-center pt-2 border-t border-green-100 mt-2">
                       <span className="text-sm font-semibold text-gray-700">Total</span>
                       <span className="text-xl font-bold mono" style={{ color: PRIMARY_COLOR }}>{formatCurrency(selectedInvoice.amount_total)}</span>
@@ -543,11 +539,11 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                 )}
               </div>
 
-              {/* Téléphone */}
+              {/* TÃ©lÃ©phone */}
               <div className="mb-4">
                 <label className="flex items-center gap-2.5 cursor-pointer group">
                   <input type="checkbox" checked={useCustomPhone} onChange={(e) => { setUseCustomPhone(e.target.checked); if (!e.target.checked) setPaymentPhone(''); setPhoneError(null); }} className="w-4 h-4 rounded accent-[#70AE48]" />
-                  <span className="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">Utiliser un autre numéro de téléphone</span>
+                  <span className="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">Utiliser un autre numÃ©ro de tÃ©lÃ©phone</span>
                 </label>
                 {useCustomPhone && (
                   <div className="mt-3">
@@ -570,8 +566,8 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                   <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-3">
                     <CheckCircle size={28} className="text-emerald-500" />
                   </div>
-                  <p className="text-gray-900 font-bold mb-1">Paiement initialisé !</p>
-                  <p className="text-sm text-gray-500 mb-4">Redirection vers la plateforme sécurisée.</p>
+                  <p className="text-gray-900 font-bold mb-1">Paiement initialisÃ© !</p>
+                  <p className="text-sm text-gray-500 mb-4">Redirection vers la plateforme sÃ©curisÃ©e.</p>
                   <a href={checkoutUrl} target="_blank" rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-6 py-2.5 text-white rounded-xl font-semibold text-sm transition-all hover:opacity-90 hover:scale-[1.01]"
                     style={{ background: PRIMARY_COLOR }}>
@@ -581,7 +577,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
               ) : (
                 <>
                   <div className="p-3.5 rounded-xl mb-5" style={{ background: '#eef6ff', border: '1px solid #c3deff' }}>
-                    <p className="text-xs text-blue-700 leading-relaxed">Vous allez être redirigé vers une plateforme de paiement sécurisée. Aucune information bancaire n'est stockée sur nos serveurs.</p>
+                    <p className="text-xs text-blue-700 leading-relaxed">Vous allez Ãªtre redirigÃ© vers une plateforme de paiement sÃ©curisÃ©e. Aucune information bancaire n'est stockÃ©e sur nos serveurs.</p>
                   </div>
                   <div className="flex gap-3">
                     <button onClick={() => { setShowPayModal(false); setSelectedInvoice(null); setSelectedPropertyForPayment(null); }}
@@ -591,7 +587,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                     <button onClick={handleConfirmPayment} disabled={processingPayment || (useCustomPhone && !paymentPhone)}
                       className="flex-1 px-4 py-2.5 text-white rounded-xl font-semibold text-sm transition-all hover:opacity-90 disabled:bg-white flex items-center justify-center gap-2"
                       style={{ background: PRIMARY_COLOR }}>
-                      {processingPayment ? <><Loader2 size={15} className="animate-spin" />Initialisation…</> : 'Payer maintenant'}
+                      {processingPayment ? <><Loader2 size={15} className="animate-spin" />Initialisationâ€¦</> : 'Payer maintenant'}
                     </button>
                   </div>
                 </>
@@ -602,15 +598,15 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
       )}
 
       <div className="max-w-7xl mx-auto space-y-6 payments-page">
-        {/* ── EN-TÊTE ── */}
+        {/* â”€â”€ EN-TÃŠTE â”€â”€ */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Mes paiements</h1>
-            <p className="text-sm text-gray-400 mt-1 font-medium">Gérez vos loyers et factures en toute simplicité</p>
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight ">Mon Portefeuille</h1>
+            <p className="text-sm text-gray-400 mt-1 font-medium">GÃ©rez vos loyers et factures en toute simplicitÃ©</p>
           </div>
         </div>
 
-        {/* ── STATS ── */}
+        {/* â”€â”€ STATS â”€â”€ */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="stat-card bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-xl p-4 border border-blue-200">
             <div className="flex items-center gap-3">
@@ -618,7 +614,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                 <Wallet size={19} />
               </div>
               <div>
-                <p className="text-xs text-blue-600 font-semibold">Total payé</p>
+                <p className="text-xs text-blue-600 font-semibold">Total payÃ©</p>
                 <p className="text-lg font-bold text-gray-900 mono">{formatCurrency(stats.total_paid)}</p>
               </div>
             </div>
@@ -642,7 +638,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                 <AlertTriangle size={19} />
               </div>
               <div>
-                <p className="text-xs text-red-600 font-semibold">Impayés</p>
+                <p className="text-xs text-red-600 font-semibold">ImpayÃ©s</p>
                 <p className="text-lg font-bold text-gray-900 mono">{formatCurrency(stats.total_overdue)}</p>
               </div>
             </div>
@@ -654,14 +650,14 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                 <CheckCircle size={19} />
               </div>
               <div>
-                <p className="text-xs text-green-600 font-semibold">Paiements effectués</p>
+                <p className="text-xs text-green-600 font-semibold">Paiements effectuÃ©s</p>
                 <p className="text-lg font-bold text-gray-900 mono">{stats.payments_count}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ── TABS ── */}
+        {/* â”€â”€ TABS â”€â”€ */}
         <div className="flex gap-1 p-1 bg-gray-100 rounded-xl w-fit">
           {(['dashboard', 'invoices', 'history'] as const).map((tab) => (
             <button
@@ -681,14 +677,14 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
 
         {activeTab === 'dashboard' && (
           <>
-            {/* ── GRAPHIQUES ── */}
+            {/* â”€â”€ GRAPHIQUES â”€â”€ */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
               {/* Barres */}
               <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h3 className="text-base font-bold text-gray-900">Évolution des paiements</h3>
-                    <p className="text-xs text-gray-400 mt-0.5">Montants par période</p>
+                    <h3 className="text-base font-black text-gray-900 ">Ã‰volution</h3>
+                    <p className="text-xs text-gray-400 mt-0.5">Montants par pÃ©riode</p>
                   </div>
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#f0f9e8' }}>
                     <TrendingUp size={16} style={{ color: PRIMARY_COLOR }} />
@@ -741,8 +737,8 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                       <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mb-3">
                         <TrendingUp size={28} className="text-gray-200" />
                       </div>
-                      <p className="text-gray-500 font-semibold text-sm">Aucune donnée disponible</p>
-                      <p className="text-xs text-gray-400 mt-1">Les paiements effectués apparaîtront ici</p>
+                      <p className="text-gray-500 font-semibold text-sm">Aucune donnÃ©e disponible</p>
+                      <p className="text-xs text-gray-400 mt-1">Les paiements effectuÃ©s apparaÃ®tront ici</p>
                     </div>
                   )}
                 </div>
@@ -752,7 +748,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
               <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h3 className="text-base font-bold text-gray-900">Répartition</h3>
+                    <h3 className="text-base font-black text-gray-900 ">RÃ©partition</h3>
                     <p className="text-xs text-gray-400 mt-0.5">Par statut de paiement</p>
                   </div>
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-50">
@@ -792,18 +788,18 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                       <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mb-3">
                         <DollarSign size={28} className="text-gray-200" />
                       </div>
-                      <p className="text-gray-500 font-semibold text-sm">Aucune répartition</p>
+                      <p className="text-gray-500 font-semibold text-sm">Aucune rÃ©partition</p>
                     </div>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* ── MES LOCATIONS ── */}
+            {/* â”€â”€ MES LOCATIONS â”€â”€ */}
             <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h3 className="text-base font-bold text-gray-900">Mes locations</h3>
+                  <h3 className="text-base font-black text-gray-900 ">Mes locations</h3>
                   <p className="text-xs text-gray-400 mt-0.5">Statut de paiement par bien</p>
                 </div>
                 <Home size={18} className="text-gray-300" />
@@ -828,10 +824,10 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                             </div>
                             <h3 className="font-bold text-gray-900 text-sm">{item.property.name}</h3>
                             {item.current_month_paid ? (
-                              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-semibold">À jour</span>
+                              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-semibold">Ã€ jour</span>
                             ) : (
                               <span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-semibold">
-                                {item.has_pending_payment ? 'En cours' : 'À payer'}
+                                {item.has_pending_payment ? 'En cours' : 'Ã€ payer'}
                               </span>
                             )}
                           </div>
@@ -842,7 +838,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                               { label: 'Loyer', value: formatCurrency(item.rent_amount), accent: false, danger: false },
                               { label: 'Charges', value: formatCurrency(item.charges), accent: false, danger: false },
                               { label: 'Total/mois', value: formatCurrency(item.total_monthly), accent: true, danger: false },
-                              ...(item.unpaid_count > 0 ? [{ label: 'Impayés', value: `${item.unpaid_count} mois`, accent: false, danger: true }] : [])
+                              ...(item.unpaid_count > 0 ? [{ label: 'ImpayÃ©s', value: `${item.unpaid_count} mois`, accent: false, danger: true }] : [])
                             ].map((stat, i) => (
                               <div key={i} className="bg-gray-50 rounded-lg px-3 py-2">
                                 <p className="text-xs text-gray-400 mb-0.5">{stat.label}</p>
@@ -879,7 +875,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                                 <div className="flex items-center gap-3">
                                   <span className="text-sm font-bold text-gray-900 mono">{formatCurrency(payment.amount_total)}</span>
                                   {payment.status === 'approved' && (
-                                    <button onClick={() => handleDownloadReceipt(payment)} className="pay-action opacity-0 p-1.5 hover:bg-gray-100 rounded-lg transition-colors" title="Télécharger">
+                                    <button onClick={() => handleDownloadReceipt(payment)} className="pay-action opacity-0 p-1.5 hover:bg-gray-100 rounded-lg transition-colors" title="TÃ©lÃ©charger">
                                       <Download size={13} className="text-gray-400" />
                                     </button>
                                   )}
@@ -904,9 +900,9 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
 
         {(activeTab === 'invoices' || activeTab === 'history') && (
           <>
-            {/* ── FILTRES ── */}
+            {/* â”€â”€ FILTRES â”€â”€ */}
             <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Filtrer les résultats</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Filtrer les rÃ©sultats</p>
               <div className="flex flex-col md:flex-row gap-3">
                 {/* Bien */}
                 <div className="relative md:w-48" ref={propertyDropdownRef}>
@@ -967,12 +963,12 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                   )}
                 </div>
 
-                {/* Année */}
+                {/* AnnÃ©e */}
                 <div className="relative md:w-32" ref={yearDropdownRef}>
                   <button onClick={() => setShowYearDropdown(!showYearDropdown)}
                     className="w-full flex items-center justify-between px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm bg-white hover:border-gray-300 transition-colors"
                   >
-                    <span className={selectedYear ? 'text-gray-900 font-medium' : 'text-gray-400'}>{selectedYear || 'Année'}</span>
+                    <span className={selectedYear ? 'text-gray-900 font-medium' : 'text-gray-400'}>{selectedYear || 'AnnÃ©e'}</span>
                     <ChevronDown size={14} className="text-gray-400" />
                   </button>
                   {showYearDropdown && (
@@ -990,20 +986,24 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                     <Search size={14} className="text-gray-400" />
                   </div>
-                  <input type="text" placeholder="Rechercher par numéro ou bien…" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                  <input type="text" placeholder="Rechercher par numÃ©ro ou bienâ€¦" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#70AE48]/20 focus:border-[#70AE48]/50 bg-white text-[#70AE48] placeholder:text-gray-400" />
                 </div>
               </div>
             </div>
 
-            {/* ── TABLE FACTURES ── */}
+            {/* â”€â”€ TABLE FACTURES â”€â”€ */}
             {activeTab === 'invoices' && (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-8">
+                <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                  <h3 className="text-base font-black text-gray-900 ">Factures</h3>
+                  <FileText size={18} className="text-gray-300" />
+                </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       <tr className="bg-gray-50 border-b border-gray-200">
-                        {['N° Facture', 'Bien', 'Période', 'Montant', 'Statut', ''].map((h, i) => (
+                        {['NÂ° Facture', 'Bien', 'PÃ©riode', 'Montant', 'Statut', ''].map((h, i) => (
                           <th key={i} className="px-5 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             {h}
                           </th>
@@ -1016,7 +1016,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                           <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-3">
                             <FileText size={22} className="text-gray-200" />
                           </div>
-                          <p className="text-gray-400 font-medium text-sm">Aucune facture trouvée</p>
+                          <p className="text-gray-400 font-medium text-sm">Aucune facture trouvÃ©e</p>
                         </td></tr>
                       ) : invoices.map((invoice) => (
                         <tr key={invoice.id} className="hover:bg-gray-50/70 transition-colors">
@@ -1041,9 +1041,13 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                 </div>
               </div>
             )}
-            {/* ── TABLE HISTORIQUE ── */}
+            {/* â”€â”€ TABLE HISTORIQUE â”€â”€ */}
             {activeTab === 'history' && (
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                  <h3 className="text-base font-black text-gray-900 ">Historique des paiements</h3>
+                  <Clock size={18} className="text-gray-300" />
+                </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
@@ -1061,7 +1065,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                           <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-3">
                             <CreditCard size={22} className="text-gray-200" />
                           </div>
-                          <p className="text-gray-400 font-medium text-sm">Aucun paiement trouvé</p>
+                          <p className="text-gray-400 font-medium text-sm">Aucun paiement trouvÃ©</p>
                         </td></tr>
                       ) : payments.map((payment) => {
                         const displayDate = payment.paid_at || payment.created_at;
@@ -1073,7 +1077,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                             <td className="px-5 py-4">{getStatusBadge(payment.status)}</td>
                             <td className="px-5 py-4 text-right">
                               {payment.status === 'approved' && (
-                                <button onClick={() => handleDownloadReceipt(payment)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="Télécharger la quittance">
+                                <button onClick={() => handleDownloadReceipt(payment)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="TÃ©lÃ©charger la quittance">
                                   <Download size={15} className="text-gray-400" />
                                 </button>
                               )}

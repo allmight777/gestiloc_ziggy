@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
+﻿import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { Calendar, Loader2, Send, FileText, X, Plus, Trash2, ChevronDown, Search, ArrowLeft, History, AlertOctagon, CheckCircle, Home } from "lucide-react";
 import { noticeService } from "../../../services/noticeService";
 import tenantApi, { TenantLease } from "../services/tenantApi";
@@ -36,12 +36,12 @@ function looksTechnical(msg?: string) {
 }
 
 function normalizeApiError(err: ApiErr, fallback: string) {
-  if (err?.request && !err?.response) return "Le serveur ne répond pas. Vérifie ta connexion puis réessaie.";
+  if (err?.request && !err?.response) return "Le serveur ne rÃ©pond pas. VÃ©rifie ta connexion puis rÃ©essaie.";
   const status = err?.response?.status;
-  if (status === 401) return "Session expirée. Reconnecte-toi.";
-  if (status === 403) return "Accès refusé.";
-  if (status === 422) return "Certains champs sont invalides. Vérifie le formulaire.";
-  if (status && status >= 500) return "Problème serveur. Réessaie dans quelques instants.";
+  if (status === 401) return "Session expirÃ©e. Reconnecte-toi.";
+  if (status === 403) return "AccÃ¨s refusÃ©.";
+  if (status === 422) return "Certains champs sont invalides. VÃ©rifie le formulaire.";
+  if (status && status >= 500) return "ProblÃ¨me serveur. RÃ©essaie dans quelques instants.";
   const backendMsg = err?.response?.data?.message?.trim();
   if (backendMsg && !looksTechnical(backendMsg)) return backendMsg;
   return fallback;
@@ -55,7 +55,7 @@ type FormErrors = Partial<{
 }>;
 
 interface PreavisFormData {
-  propertyId: string; // Changé de typeLocation à propertyId
+  propertyId: string; // ChangÃ© de typeLocation Ã  propertyId
   dateDepart: string;
   dateEnvoi: string;
   commentaires: string;
@@ -63,17 +63,17 @@ interface PreavisFormData {
   motifDepart: string;
 }
 
-// Options pour le motif de départ
+// Options pour le motif de dÃ©part
 const MOTIFS_DEPART = [
   { value: "mutation", label: "Mutation professionnelle" },
   { value: "perte_emploi", label: "Perte d'emploi" },
   { value: "achat", label: "Achat d'un logement" },
   { value: "rapprochement", label: "Rapprochement familial" },
-  { value: "sante", label: "Raison de santé" },
+  { value: "sante", label: "Raison de santÃ©" },
   { value: "autre", label: "Autre motif" },
 ];
 
-// ========== COMPOSANTS EXTRAITS POUR ÉVITER LES RE-RENDUS ==========
+// ========== COMPOSANTS EXTRAITS POUR Ã‰VITER LES RE-RENDUS ==========
 
 const CancelConfirmModal = React.memo(({
   show,
@@ -103,12 +103,12 @@ const CancelConfirmModal = React.memo(({
           </div>
           <div>
             <h3 className="text-xl font-bold text-gray-900">Confirmer l'annulation</h3>
-            <p className="text-sm text-gray-500 mt-1">Cette action est irréversible</p>
+            <p className="text-sm text-gray-500 mt-1">Cette action est irrÃ©versible</p>
           </div>
         </div>
 
         <p className="text-gray-600 mb-8">
-          Êtes-vous sûr de vouloir annuler ce préavis ?
+          ÃŠtes-vous sÃ»r de vouloir annuler ce prÃ©avis ?
         </p>
 
         <div className="flex gap-3">
@@ -168,7 +168,7 @@ const EmptyStateIllustration = React.memo(({ onCreate }: { onCreate: () => void 
       className="px-6 py-2.5 text-white text-sm font-medium rounded-lg transition-colors hover:opacity-90"
       style={{ background: '#70AE48' }}
     >
-      Ajouter un préavis
+      Ajouter un prÃ©avis
     </button>
   </div>
 ));
@@ -199,7 +199,7 @@ export default function TenantPreavisPage({
   const [searchQuery, setSearchQuery] = useState('');
 
   const [formData, setFormData] = useState<PreavisFormData>({
-    propertyId: '', // Changé de typeLocation à propertyId
+    propertyId: '', // ChangÃ© de typeLocation Ã  propertyId
     dateDepart: '',
     dateEnvoi: '',
     commentaires: '',
@@ -224,7 +224,7 @@ export default function TenantPreavisPage({
 
   const errorText = "text-xs text-rose-700 font-bold mt-2";
 
-  // ========== CALLBACKS MÉMORISÉS ==========
+  // ========== CALLBACKS MÃ‰MORISÃ‰S ==========
 
   const handleCancelClick = useCallback((id: number) => {
     setNoticeToCancel(id);
@@ -242,7 +242,7 @@ export default function TenantPreavisPage({
     try {
       await noticeService.update(noticeToCancel, { status: "cancelled" });
       await fetchAll();
-      notify?.("Préavis annulé avec succès", "success");
+      notify?.("PrÃ©avis annulÃ© avec succÃ¨s", "success");
     } catch (e: any) {
       const err = e as ApiErr;
       notify?.(normalizeApiError(err, "Impossible d'annuler."), "error");
@@ -269,10 +269,10 @@ export default function TenantPreavisPage({
     const errs: FormErrors = {};
     if (!leaseId) errs.leaseId = "Choisis un bail.";
     if (!endDate) errs.endDate = "Choisis une date de sortie.";
-    else if (endDate < isoToday()) errs.endDate = "La date de sortie doit être au minimum aujourd'hui.";
+    else if (endDate < isoToday()) errs.endDate = "La date de sortie doit Ãªtre au minimum aujourd'hui.";
     if (!reason.trim()) errs.reason = "Ajoute une raison.";
-    else if (reason.trim().length < 5) errs.reason = "Raison trop courte (min 5 caractères).";
-    if (notes.trim() && notes.trim().length < 3) errs.notes = "Notes trop courtes (min 3 caractères).";
+    else if (reason.trim().length < 5) errs.reason = "Raison trop courte (min 5 caractÃ¨res).";
+    if (notes.trim() && notes.trim().length < 3) errs.notes = "Notes trop courtes (min 3 caractÃ¨res).";
     return errs;
   }, [leaseId, endDate, reason, notes]);
 
@@ -289,7 +289,7 @@ export default function TenantPreavisPage({
       const l = await tenantApi.getLeases();
       setLeases(l);
       
-      // Extraire les propriétés uniques des baux
+      // Extraire les propriÃ©tÃ©s uniques des baux
       const uniqueProperties = l.map(lease => lease.property)
         .filter((prop, index, self) => 
           prop && self.findIndex(p => p?.id === prop.id) === index
@@ -300,37 +300,11 @@ export default function TenantPreavisPage({
       setNotices(Array.isArray(n) ? n.filter((item: any) => item.status !== 'cancelled') : []);
       if (l?.[0]?.id) setLeaseId(l[0].id);
     } catch (e: any) {
-      // Utilise des données mockées si le backend n'est pas disponible
-      const mockLeases: TenantLease[] = [
-        {
-          id: 1,
-          property: {
-            id: 1,
-            name: "Appartement F3",
-            address: "123 Rue de l'Exemple",
-            city: "Paris",
-          },
-        } as TenantLease,
-        {
-          id: 2,
-          property: {
-            id: 2,
-            name: "Studio",
-            address: "45 Avenue des Fleurs",
-            city: "Lyon",
-          },
-        } as TenantLease,
-      ];
-      
-      const mockProperties = [
-        { id: 1, name: "Appartement F3", address: "123 Rue de l'Exemple", city: "Paris" },
-        { id: 2, name: "Studio", address: "45 Avenue des Fleurs", city: "Lyon" },
-      ];
-
-      setLeases(mockLeases);
-      setProperties(mockProperties);
+      // Utilise des donnÃ©es mockÃ©es si le backend n'est pas disponible
+      setLeases([]);
+      setProperties([]);
       setNotices([]);
-      setLeaseId(mockLeases[0].id);
+      setLeaseId("");
     } finally {
       setLoading(false);
     }
@@ -350,8 +324,8 @@ export default function TenantPreavisPage({
 
   const propertyLine = useMemo(() => {
     const p = selectedLease?.property;
-    if (!p) return "—";
-    return [p.address, p.city].filter(Boolean).join(" • ");
+    if (!p) return "â€”";
+    return [p.address, p.city].filter(Boolean).join(" â€¢ ");
   }, [selectedLease]);
 
   const filteredNotices = useMemo(() => {
@@ -370,7 +344,7 @@ export default function TenantPreavisPage({
     const errs = validate();
     setFormErrors(errs);
     if (Object.keys(errs).length > 0) {
-      const msg = Object.values(errs)[0] || "Vérifie le formulaire.";
+      const msg = Object.values(errs)[0] || "VÃ©rifie le formulaire.";
       setError(msg);
       notify?.(msg, "error");
       focusFirstError(errs);
@@ -384,7 +358,7 @@ export default function TenantPreavisPage({
         reason: reason.trim(),
         notes: notes.trim() || undefined,
       });
-      notify?.("Demande de préavis envoyée au propriétaire", "success");
+      notify?.("Demande de prÃ©avis envoyÃ©e au propriÃ©taire", "success");
       setEndDate(""); setReason(""); setNotes(""); setFormErrors({});
       await fetchAll();
     } catch (e: any) {
@@ -397,7 +371,7 @@ export default function TenantPreavisPage({
         if (be.reason) mapped.reason = be.reason?.[0] || "Raison invalide.";
         if (be.notes) mapped.notes = be.notes?.[0] || "Notes invalides.";
         setFormErrors((p) => ({ ...p, ...mapped }));
-        const msg = "Certains champs sont invalides. Vérifie le formulaire.";
+        const msg = "Certains champs sont invalides. VÃ©rifie le formulaire.";
         setError(msg); notify?.(msg, "error"); focusFirstError(mapped); setBusy(false); return;
       }
       const msg = normalizeApiError(err, "Erreur lors de l'envoi.");
@@ -409,21 +383,21 @@ export default function TenantPreavisPage({
 
   const handleNewSubmit = useCallback(async () => {
     if (!formData.motifDepart) {
-      notify?.("Veuillez sélectionner un motif de départ", "error");
+      notify?.("Veuillez sÃ©lectionner un motif de dÃ©part", "error");
       return;
     }
     if (!formData.dateDepart) {
-      notify?.("Veuillez sélectionner une date de départ", "error");
+      notify?.("Veuillez sÃ©lectionner une date de dÃ©part", "error");
       return;
     }
     if (!formData.propertyId) {
-      notify?.("Veuillez sélectionner un bien", "error");
+      notify?.("Veuillez sÃ©lectionner un bien", "error");
       return;
     }
 
     setBusy(true);
     try {
-      // Trouver le bail correspondant au bien sélectionné
+      // Trouver le bail correspondant au bien sÃ©lectionnÃ©
       const selectedLease = leases.find(l => l.property?.id === parseInt(formData.propertyId));
       
       await noticeService.create({
@@ -432,7 +406,7 @@ export default function TenantPreavisPage({
         reason: formData.motifDepart,
         notes: formData.commentaires || undefined,
       });
-      notify?.("Préavis créé avec succès", "success");
+      notify?.("PrÃ©avis crÃ©Ã© avec succÃ¨s", "success");
       setShowCreateForm(false);
       setFormData({
         propertyId: '',
@@ -444,7 +418,7 @@ export default function TenantPreavisPage({
       });
       await fetchAll();
     } catch (e: any) {
-      notify?.("Erreur lors de la création du préavis", "error");
+      notify?.("Erreur lors de la crÃ©ation du prÃ©avis", "error");
     } finally {
       setBusy(false);
     }
@@ -454,7 +428,7 @@ export default function TenantPreavisPage({
     try {
       await noticeService.update(id, { status: "cancelled" });
       await fetchAll();
-      notify?.("Préavis annulé", "success");
+      notify?.("PrÃ©avis annulÃ©", "success");
     } catch (e) {
       notify?.("Erreur lors de l'annulation", "error");
     }
@@ -464,7 +438,7 @@ export default function TenantPreavisPage({
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex items-center gap-3 text-gray-700 font-bold">
-          <Loader2 className="animate-spin" /> Chargement…
+          <Loader2 className="animate-spin" /> Chargementâ€¦
         </div>
       </div>
     );
@@ -475,15 +449,15 @@ export default function TenantPreavisPage({
       <div className="py-8 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Préavis (Ancienne version)</h1>
-            <p className="mt-1 text-sm font-semibold text-gray-600">Ancienne page de gestion des préavis.</p>
+            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">PrÃ©avis (Ancienne version)</h1>
+            <p className="mt-1 text-sm font-semibold text-gray-600">Ancienne page de gestion des prÃ©avis.</p>
           </div>
           <button
             onClick={() => setShowOldPage(false)}
             className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
           >
             <ArrowLeft size={18} />
-            Retour à la nouvelle page
+            Retour Ã  la nouvelle page
           </button>
         </div>
 
@@ -502,12 +476,12 @@ export default function TenantPreavisPage({
                 className={`${inputBase} mt-2`}
               >
                 {leases.map((l) => (
-                  <option key={l.id} value={l.id}>{l.property?.address} — {l.property?.city}</option>
+                  <option key={l.id} value={l.id}>{l.property?.address} â€” {l.property?.city}</option>
                 ))}
               </select>
               {formErrors.leaseId ? <div className={errorText}>{formErrors.leaseId}</div> : null}
               <div className="mt-3 rounded-2xl border border-blue-200 bg-blue-50 p-4">
-                <div className="text-xs font-extrabold tracking-wide text-blue-700 uppercase">Bien concerné</div>
+                <div className="text-xs font-extrabold tracking-wide text-blue-700 uppercase">Bien concernÃ©</div>
                 <div className="mt-1 text-sm font-extrabold text-gray-900">{propertyLine}</div>
               </div>
             </div>
@@ -520,12 +494,12 @@ export default function TenantPreavisPage({
               {formErrors.endDate ? <div className={errorText}>{formErrors.endDate}</div> : null}
               <div className="mt-4">
                 <div className="text-xs font-extrabold tracking-wide text-gray-600 uppercase">Raison</div>
-                <textarea ref={reasonRef} value={reason} onChange={(e) => { setReason(e.target.value); if (formErrors.reason) setFormErrors((p) => ({ ...p, reason: undefined })); }} className={`${inputBase} mt-2 min-h-[110px] resize-none`} placeholder="Ex : Mutation pro, changement de ville, achat immobilier…" />
+                <textarea ref={reasonRef} value={reason} onChange={(e) => { setReason(e.target.value); if (formErrors.reason) setFormErrors((p) => ({ ...p, reason: undefined })); }} className={`${inputBase} mt-2 min-h-[110px] resize-none`} placeholder="Ex : Mutation pro, changement de ville, achat immobilierâ€¦" />
                 {formErrors.reason ? <div className={errorText}>{formErrors.reason}</div> : null}
               </div>
               <div className="mt-4">
                 <div className="text-xs font-extrabold tracking-wide text-gray-600 uppercase">Notes (optionnel)</div>
-                <input value={notes} onChange={(e) => { setNotes(e.target.value); if (formErrors.notes) setFormErrors((p) => ({ ...p, notes: undefined })); }} className={`${inputBase} mt-2`} placeholder="Ex : dispo visites le samedi, remise des clés…" />
+                <input value={notes} onChange={(e) => { setNotes(e.target.value); if (formErrors.notes) setFormErrors((p) => ({ ...p, notes: undefined })); }} className={`${inputBase} mt-2`} placeholder="Ex : dispo visites le samedi, remise des clÃ©sâ€¦" />
                 {formErrors.notes ? <div className={errorText}>{formErrors.notes}</div> : null}
               </div>
               <button type="button" disabled={busy} onClick={handleSubmit} className="mt-4 w-full rounded-2xl bg-blue-600 text-white px-4 py-3 text-sm font-extrabold hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-2">
@@ -542,10 +516,10 @@ export default function TenantPreavisPage({
               <FileText size={18} className="text-blue-700" />
               Historique
             </div>
-            <div className="text-sm font-semibold text-gray-600">Tes préavis et leur statut.</div>
+            <div className="text-sm font-semibold text-gray-600">Tes prÃ©avis et leur statut.</div>
           </div>
           {notices.length === 0 ? (
-            <div className="px-6 py-10 text-center text-gray-600 font-semibold">Aucun préavis pour le moment.</div>
+            <div className="px-6 py-10 text-center text-gray-600 font-semibold">Aucun prÃ©avis pour le moment.</div>
           ) : (
             <div className="divide-y divide-blue-100">
               {notices.map((n: any) => (
@@ -557,12 +531,12 @@ export default function TenantPreavisPage({
                         <span className={badge(n.status)}>{n.status}</span>
                         {n.type ? (
                           <span className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-extrabold text-gray-700">
-                            {n.type === "tenant" ? "Demande locataire" : "Préavis bailleur"}
+                            {n.type === "tenant" ? "Demande locataire" : "PrÃ©avis bailleur"}
                           </span>
                         ) : null}
                       </div>
                       <div className="mt-2 text-sm font-semibold text-gray-600">
-                        Notice: {String(n.notice_date).slice(0, 10)} • Sortie: <span className="text-gray-900 font-extrabold">{String(n.end_date).slice(0, 10)}</span>
+                        Notice: {String(n.notice_date).slice(0, 10)} â€¢ Sortie: <span className="text-gray-900 font-extrabold">{String(n.end_date).slice(0, 10)}</span>
                       </div>
                       <div className="mt-3 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-semibold text-gray-800 whitespace-pre-line">
                         {n.notes ? n.notes : <span className="text-gray-500">Aucune note</span>}
@@ -604,34 +578,38 @@ export default function TenantPreavisPage({
           style={{ background: '#fffbe6', borderLeft: '4px solid #e8c135' }}
         >
           <p className="text-sm font-bold text-gray-900 mb-1">Informations</p>
-          <p className="text-sm font-semibold text-gray-800 mb-1">Délai de préavis légal</p>
+          <p className="text-sm font-semibold text-gray-800 mb-1">DÃ©lai de prÃ©avis lÃ©gal</p>
           <p className="text-sm text-gray-700 leading-relaxed">
-            Pour une location vide : 3 mois de préavis. Pour une location meublée : 1 mois de préavis. Dans certaines zones tendues ou situations particulières, le délai peut être réduit à 1 mois.
+            Pour une location vide : 3 mois de prÃ©avis. Pour une location meublÃ©e : 1 mois de prÃ©avis. Dans certaines zones tendues ou situations particuliÃ¨res, le dÃ©lai peut Ãªtre rÃ©duit Ã  1 mois.
           </p>
         </div>
 
         {/* Carte formulaire */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-6">
-            Remplissez ce formulaire pour notifier officiellement votre départ
+            Remplissez ce formulaire pour notifier officiellement votre dÃ©part
           </h2>
 
           <div className="space-y-5">
-            {/* Bien concerné - REMPLACE Type de location */}
+            {/* Bien concernÃ© - REMPLACE Type de location */}
             <div>
-              <label className="block text-sm text-gray-900 mb-1.5">Bien concerné</label>
+              <label className="block text-sm text-gray-900 mb-1.5">Bien concernÃ©</label>
               <div className="relative">
                 <select
                   value={formData.propertyId}
                   onChange={(e) => handleFieldChange('propertyId', e.target.value)}
                   className="w-full appearance-none px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-400 text-sm pr-10"
                 >
-                  <option value="">Sélectionnez un bien</option>
-                  {properties.map((property) => (
-                    <option key={property.id} value={property.id}>
-                      {property.name || property.address} - {property.city}
-                    </option>
-                  ))}
+                  <option value="">SÃ©lectionnez un bien</option>
+                  {leases.map((lease) => {
+                    const prop = lease.property;
+                    if (!prop) return null;
+                    return (
+                      <option key={prop.id} value={prop.id}>
+                        {prop.name || prop.address} - {prop.city}
+                      </option>
+                    );
+                  })}
                 </select>
                 <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                   <ChevronDown size={16} className="text-gray-500" />
@@ -639,16 +617,16 @@ export default function TenantPreavisPage({
               </div>
             </div>
 
-            {/* Motif de départ */}
+            {/* Motif de dÃ©part */}
             <div>
-              <label className="block text-sm text-gray-900 mb-1.5">Motif de départ</label>
+              <label className="block text-sm text-gray-900 mb-1.5">Motif de dÃ©part</label>
               <div className="relative">
                 <select
                   value={formData.motifDepart}
                   onChange={(e) => handleFieldChange('motifDepart', e.target.value)}
                   className="w-full appearance-none px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-400 text-sm pr-10"
                 >
-                  <option value="">Sélectionnez un motif</option>
+                  <option value="">SÃ©lectionnez un motif</option>
                   {MOTIFS_DEPART.map(motif => (
                     <option key={motif.value} value={motif.value}>
                       {motif.label}
@@ -661,9 +639,9 @@ export default function TenantPreavisPage({
               </div>
             </div>
 
-            {/* Date de départ souhaitée */}
+            {/* Date de dÃ©part souhaitÃ©e */}
             <div>
-              <label className="block text-sm text-gray-900 mb-1.5">Date de départ souhaitée</label>
+              <label className="block text-sm text-gray-900 mb-1.5">Date de dÃ©part souhaitÃ©e</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                   <Calendar size={16} className="text-gray-400" />
@@ -677,9 +655,9 @@ export default function TenantPreavisPage({
               </div>
             </div>
 
-            {/* Date d'envoi du préavis */}
+            {/* Date d'envoi du prÃ©avis */}
             <div>
-              <label className="block text-sm text-gray-900 mb-1.5">Date d'envoi du préavis</label>
+              <label className="block text-sm text-gray-900 mb-1.5">Date d'envoi du prÃ©avis</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                   <Calendar size={16} className="text-gray-400" />
@@ -749,11 +727,11 @@ export default function TenantPreavisPage({
         cancelling={cancelling}
       />
 
-      {/* ── EN-TÊTE ── */}
+      {/* â”€â”€ EN-TÃŠTE â”€â”€ */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Mes préavis</h1>
-          <p className="text-sm text-gray-400 mt-1 font-medium">Signalez et gérez vos préavis de départ</p>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Mes prÃ©avis</h1>
+          <p className="text-sm text-gray-400 mt-1 font-medium">Signalez et gÃ©rez vos prÃ©avis de dÃ©part</p>
         </div>
       </div>
 
@@ -764,14 +742,14 @@ export default function TenantPreavisPage({
           style={{ background: 'rgba(82, 157, 33, 1)' }}
         >
           <Plus size={18} />
-          Ajouter un préavis
+          Ajouter un prÃ©avis
         </button>
       </div>
 
       <Card className="p-4">
         <h3 className="text-sm font-medium text-gray-900 mb-4">Filtre</h3>
         
-        {/* FILTRES SUR LA MÊME LIGNE */}
+        {/* FILTRES SUR LA MÃŠME LIGNE */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Filtre par nombre de lignes */}
           <div className="relative w-32">
@@ -814,9 +792,9 @@ export default function TenantPreavisPage({
           </div>
         </div>
 
-        {/* Indicateur de résultat */}
+        {/* Indicateur de rÃ©sultat */}
         <div className="mt-3 text-xs text-gray-500">
-          {filteredNotices.length} préavis trouvé{filteredNotices.length > 1 ? 's' : ''}
+          {filteredNotices.length} prÃ©avis trouvÃ©{filteredNotices.length > 1 ? 's' : ''}
         </div>
       </Card>
 
@@ -826,7 +804,7 @@ export default function TenantPreavisPage({
             <thead>
               <tr className="border-b border-gray-200">
                 <th className="text-left px-4 py-3 text-xs font-medium text-gray-700">Bien</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-700">Date de départ</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-gray-700">Date de dÃ©part</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-gray-700">Date d'envoi</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-gray-700">Motif</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-gray-700">Statut</th>
@@ -855,18 +833,18 @@ export default function TenantPreavisPage({
                         <div className="text-xs text-gray-500">{lease?.property?.address || ''}</div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
-                        {notice.end_date ? String(notice.end_date).slice(0, 10) : '—'}
+                        {notice.end_date ? String(notice.end_date).slice(0, 10) : 'â€”'}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
-                        {notice.notice_date ? String(notice.notice_date).slice(0, 10) : '—'}
+                        {notice.notice_date ? String(notice.notice_date).slice(0, 10) : 'â€”'}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
-                        {MOTIFS_DEPART.find(m => m.value === notice.reason)?.label || notice.reason || '—'}
+                        {MOTIFS_DEPART.find(m => m.value === notice.reason)?.label || notice.reason || 'â€”'}
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <span className={badge(notice.status)}>
                           {notice.status === 'pending' ? 'En attente' :
-                            notice.status === 'confirmed' ? 'Confirmé' : 'Annulé'}
+                            notice.status === 'confirmed' ? 'ConfirmÃ©' : 'AnnulÃ©'}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -893,7 +871,7 @@ export default function TenantPreavisPage({
         {filteredNotices.length > 0 && (
           <div className="px-4 py-3 border-t border-gray-200 flex items-center gap-2">
             <span className="text-sm text-gray-500 ml-auto">
-              {filteredNotices.length} préavis
+              {filteredNotices.length} prÃ©avis
             </span>
           </div>
         )}

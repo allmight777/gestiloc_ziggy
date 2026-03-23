@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+﻿import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   FileSignature,
   Calendar,
@@ -32,22 +32,22 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // refs pour éviter re-render / dépendances
+  // refs pour Ã©viter re-render / dÃ©pendances
   const notifyRef = useRef(notify);
   const isFetching = useRef(false);
-  const didFetch = useRef(false); // évite double fetch en StrictMode (dev)
+  const didFetch = useRef(false); // Ã©vite double fetch en StrictMode (dev)
   const controllerRef = useRef<AbortController | null>(null);
 
-  // Mettre à jour la référence quand notify change
+  // Mettre Ã  jour la rÃ©fÃ©rence quand notify change
   useEffect(() => {
     notifyRef.current = notify;
   }, [notify]);
 
   const fetchLeaseData = useCallback(async () => {
-    // Ne pas relancer si déjà en cours
+    // Ne pas relancer si dÃ©jÃ  en cours
     if (isFetching.current) return;
 
-    // Annule la requête précédente si elle est en cours
+    // Annule la requÃªte prÃ©cÃ©dente si elle est en cours
     controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;
@@ -57,21 +57,21 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
       setLoading(true);
       setError(null);
 
-      // Récupérer les baux de l'utilisateur connecté
-      // ⚠️ Nécessite que tenantApi.getLeases accepte { signal }
+      // RÃ©cupÃ©rer les baux de l'utilisateur connectÃ©
+      // âš ï¸ NÃ©cessite que tenantApi.getLeases accepte { signal }
       const response = await tenantApi.getLeases({ signal: controller.signal });
 
-      // S'assurer que la réponse est bien un tableau
+      // S'assurer que la rÃ©ponse est bien un tableau
       const leases = Array.isArray(response) ? response : [];
 
       if (leases.length > 0) {
-        // Vérifier que le bail a bien un ID
+        // VÃ©rifier que le bail a bien un ID
         if (!leases[0].id) {
-          throw new Error("Format de données invalide: ID manquant");
+          throw new Error("Format de donnÃ©es invalide: ID manquant");
         }
         setLease(leases[0]);
       } else {
-        const errorMsg = 'Aucun bail trouvé pour votre compte.';
+        const errorMsg = 'Aucun bail trouvÃ© pour votre compte.';
         setLease(null);
         setError(errorMsg);
         notifyRef.current(errorMsg, 'info');
@@ -86,7 +86,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
       if (!aborted) {
         let errorMessage = 'Impossible de charger les informations du bail.';
         if (err?.response?.status === 404) {
-          errorMessage = 'Aucun bail trouvé pour votre compte.';
+          errorMessage = 'Aucun bail trouvÃ© pour votre compte.';
         } else if (err?.response?.data?.message) {
           errorMessage = err.response.data.message;
         } else if (err?.message) {
@@ -105,7 +105,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
 
   // Chargement initial (une seule fois)
   useEffect(() => {
-    // évite double exécution en dev (React 18 StrictMode)
+    // Ã©vite double exÃ©cution en dev (React 18 StrictMode)
     if (didFetch.current) return;
     didFetch.current = true;
 
@@ -121,7 +121,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
     if (!lease) return;
 
     try {
-      // Télécharger le PDF du contrat de bail
+      // TÃ©lÃ©charger le PDF du contrat de bail
       const pdfBlob = await tenantApi.downloadLeaseContract(lease.uuid);
       const url = window.URL.createObjectURL(pdfBlob);
       const a = document.createElement('a');
@@ -136,10 +136,10 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
       window.URL.revokeObjectURL(url);
       a.remove();
 
-      notify('Votre bail a été téléchargé avec succès', 'success');
+      notify('Votre bail a Ã©tÃ© tÃ©lÃ©chargÃ© avec succÃ¨s', 'success');
     } catch (err) {
-      console.error('Erreur lors du téléchargement:', err);
-      const errorMsg = err instanceof Error ? err.message : 'Erreur lors du téléchargement du bail';
+      console.error('Erreur lors du tÃ©lÃ©chargement:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Erreur lors du tÃ©lÃ©chargement du bail';
       notify(errorMsg, 'error');
     }
   };
@@ -171,7 +171,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
                     Chargement...
                   </>
                 ) : (
-                  'Réessayer'
+                  'RÃ©essayer'
                 )}
               </Button>
             </div>
@@ -189,7 +189,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
         </div>
         <h3 className="mt-4 text-lg font-medium text-gray-900">Aucun bail actif</h3>
         <p className="mt-2 text-sm text-gray-500">
-          Vous n&apos;avez pas encore de bail actif. Contactez votre propriétaire pour plus
+          Vous n&apos;avez pas encore de bail actif. Contactez votre propriÃ©taire pour plus
           d&apos;informations.
         </p>
         <div className="mt-6">
@@ -201,10 +201,10 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
             {isFetching.current ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Vérification...
+                VÃ©rification...
               </>
             ) : (
-              'Vérifier à nouveau'
+              'VÃ©rifier Ã  nouveau'
             )}
           </Button>
         </div>
@@ -224,13 +224,13 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Mon Bail</h1>
           <p className="text-slate-500 text-sm">
-            Contrat N° {`BL-${lease.id.toString().padStart(4, '0')}`} •{' '}
+            Contrat NÂ° {`BL-${lease.id.toString().padStart(4, '0')}`} â€¢{' '}
             {lease.status === 'active' ? 'Actif' : 'Inactif'}
           </p>
         </div>
 
         <Button icon={<Download size={18} />} onClick={handleDownload}>
-          Télécharger le PDF
+          TÃ©lÃ©charger le PDF
         </Button>
       </div>
 
@@ -253,13 +253,13 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="flex items-center gap-2 text-sm">
                 <Ruler className="w-4 h-4 text-slate-500" />
-                <span>{property.surface} m²</span>
+                <span>{property.surface} mÂ²</span>
               </div>
 
               <div className="flex items-center gap-2 text-sm">
                 <Bed className="w-4 h-4 text-slate-500" />
                 <span>
-                  {property.room_count} pièce{property.room_count > 1 ? 's' : ''}
+                  {property.room_count} piÃ¨ce{property.room_count > 1 ? 's' : ''}
                 </span>
               </div>
 
@@ -295,13 +295,13 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
               </div>
             </div>
 
-            {/* Entrée */}
+            {/* EntrÃ©e */}
             <div className="flex md:flex-col items-center gap-4 md:gap-2 bg-white md:bg-transparent pr-4 md:pr-0 z-10">
               <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center border-4 border-white shadow-lg ring-4 ring-blue-50">
                 <UserCheck size={18} />
               </div>
               <div className="text-left md:text-center">
-                <p className="font-bold text-sm text-blue-600">Entrée</p>
+                <p className="font-bold text-sm text-blue-600">EntrÃ©e</p>
                 <p className="text-xs text-slate-500">{formatDate(lease.start_date)}</p>
               </div>
             </div>
@@ -325,7 +325,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card title="Conditions Financières">
+        <Card title="Conditions FinanciÃ¨res">
           <div className="space-y-4">
             <div className="flex justify-between items-center py-3 border-b border-slate-50">
               <div className="flex items-center gap-3">
@@ -362,26 +362,26 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
                   <div className="p-2 bg-green-50 text-green-600 rounded-lg">
                     <Shield size={18} />
                   </div>
-                  <span className="text-slate-600 font-medium">Dépôt de garantie</span>
+                  <span className="text-slate-600 font-medium">DÃ©pÃ´t de garantie</span>
                 </div>
                 <Badge variant={lease.status === 'active' ? 'success' : 'warning'}>
-                  {lease.status === 'active' ? 'Payé' : 'En attente'} ({formatCurrency(depositAmount)})
+                  {lease.status === 'active' ? 'PayÃ©' : 'En attente'} ({formatCurrency(depositAmount)})
                 </Badge>
               </div>
             )}
           </div>
         </Card>
 
-        <Card title="Informations Complémentaires">
+        <Card title="Informations ComplÃ©mentaires">
           <ul className="space-y-4">
             <li className="flex items-start gap-3">
               <span className="w-1.5 h-1.5 bg-slate-400 rounded-full mt-2 shrink-0"></span>
               <div>
-                <p className="font-medium text-slate-800 text-sm">Durée du bail</p>
+                <p className="font-medium text-slate-800 text-sm">DurÃ©e du bail</p>
                 <p className="text-slate-500 text-xs">
                   {endDate
                     ? `Du ${formatDate(lease.start_date)} au ${formatDate(lease.end_date)}`
-                    : `À partir du ${formatDate(lease.start_date)} (sans date de fin)`}
+                    : `Ã€ partir du ${formatDate(lease.start_date)} (sans date de fin)`}
                 </p>
               </div>
             </li>
@@ -389,8 +389,8 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
             <li className="flex items-start gap-3">
               <span className="w-1.5 h-1.5 bg-slate-400 rounded-full mt-2 shrink-0"></span>
               <div>
-                <p className="font-medium text-slate-800 text-sm">Référence du bien</p>
-                <p className="text-slate-500 text-xs">{(property as any).reference_code || 'Non spécifiée'}</p>
+                <p className="font-medium text-slate-800 text-sm">RÃ©fÃ©rence du bien</p>
+                <p className="text-slate-500 text-xs">{(property as any).reference_code || 'Non spÃ©cifiÃ©e'}</p>
               </div>
             </li>
 
@@ -399,7 +399,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
               <div>
                 <p className="font-medium text-slate-800 text-sm">Type de location</p>
                 <p className="text-slate-500 text-xs">
-                  {lease.type === 'meuble' ? 'Meublé' : 'Non meublé'}
+                  {lease.type === 'meuble' ? 'MeublÃ©' : 'Non meublÃ©'}
                 </p>
               </div>
             </li>
@@ -407,7 +407,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
             <li className="flex items-start gap-3">
               <span className="w-1.5 h-1.5 bg-slate-400 rounded-full mt-2 shrink-0"></span>
               <div>
-                <p className="font-medium text-slate-800 text-sm">État du bail</p>
+                <p className="font-medium text-slate-800 text-sm">Ã‰tat du bail</p>
                 <div className="flex items-center gap-2">
                   <Badge
                     variant={
@@ -421,7 +421,7 @@ export const Lease: React.FC<LeaseProps> = ({ notify }) => {
                     {lease.status === 'active'
                       ? 'Actif'
                       : lease.status === 'terminated'
-                        ? 'Résilié'
+                        ? 'RÃ©siliÃ©'
                         : lease.status === 'draft'
                           ? 'Brouillon'
                           : 'Inconnu'}

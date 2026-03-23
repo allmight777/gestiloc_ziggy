@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   Plus,
   Trash2,
@@ -197,13 +197,13 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
   // Couleur principale
   const PRIMARY_COLOR = '#70AE48';
 
-  // Charger les données
+  // Charger les donnÃ©es
   useEffect(() => {
     fetchNotes();
     fetchProperties();
   }, []);
 
-  // Charger les contacts quand un bien est sélectionné
+  // Charger les contacts quand un bien est sÃ©lectionnÃ©
   useEffect(() => {
     if (newNote.property_id) {
       fetchContacts(newNote.property_id);
@@ -246,7 +246,7 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
           id: 1,
           property: {
             id: 1,
-            name: 'Appartement Témoin',
+            name: 'Appartement TÃ©moin',
             address: 'Rue de la Paix',
             city: 'Cotonou'
           }
@@ -278,7 +278,7 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
     try {
       await api.delete(`/tenant/notes/${noteToDelete}`);
       setNotes(notes.filter(n => n.id !== noteToDelete));
-      notify?.('Note supprimée avec succès', 'success');
+      notify?.('Note supprimÃ©e avec succÃ¨s', 'success');
     } catch (error) {
       console.error('Erreur suppression note:', error);
       notify?.('Erreur lors de la suppression', 'error');
@@ -299,15 +299,15 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
 
     const files = Array.from(e.target.files);
 
-    // Vérifier la taille (15MB max)
+    // VÃ©rifier la taille (15MB max)
     const maxSize = 15 * 1024 * 1024;
     const validFiles = files.filter(f => f.size <= maxSize);
 
     if (validFiles.length !== files.length) {
-      notify?.('Certains fichiers dépassent 15MB et ont été ignorés', 'error');
+      notify?.('Certains fichiers dÃ©passent 15MB et ont Ã©tÃ© ignorÃ©s', 'error');
     }
 
-    // Vérifier le nombre total
+    // VÃ©rifier le nombre total
     if (selectedFiles.length + validFiles.length > 5) {
       notify?.('Maximum 5 fichiers', 'error');
       return;
@@ -315,7 +315,7 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
 
     setSelectedFiles([...selectedFiles, ...validFiles]);
 
-    // Créer les previews
+    // CrÃ©er les previews
     const newPreviews = validFiles.map(f => URL.createObjectURL(f));
     setFilePreviews([...filePreviews, ...newPreviews]);
   };
@@ -349,7 +349,7 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
       if (newNote.content) formData.append('content', newNote.content);
       if (newNote.property_id) formData.append('property_id', newNote.property_id.toString());
 
-      // Envoyer comme booléen
+      // Envoyer comme boolÃ©en
       formData.append('is_shared', newNote.is_shared ? '1' : '0');
 
       if (newNote.is_shared && newNote.shared_with && newNote.shared_with.length > 0) {
@@ -380,10 +380,10 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
       setSelectedFiles([]);
       setFilePreviews([]);
       setShowCreateForm(false);
-      notify?.('Note créée avec succès', 'success');
+      notify?.('Note crÃ©Ã©e avec succÃ¨s', 'success');
     } catch (error) {
-      console.error('Erreur création note:', error);
-      notify?.('Erreur lors de la création de la note', 'error');
+      console.error('Erreur crÃ©ation note:', error);
+      notify?.('Erreur lors de la crÃ©ation de la note', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -499,12 +499,12 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-900">Confirmer la suppression</h3>
-                    <p className="text-sm text-gray-500 mt-1">Cette action est irréversible</p>
+                    <p className="text-sm text-gray-500 mt-1">Cette action est irrÃ©versible</p>
                   </div>
                 </div>
 
                 <p className="text-gray-600 mb-8">
-                  Êtes-vous sûr de vouloir supprimer cette note ?
+                  ÃŠtes-vous sÃ»r de vouloir supprimer cette note ?
                 </p>
 
                 <div className="flex gap-3">
@@ -535,7 +535,7 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
           )}
 
           {showCreateForm ? (
-            // Formulaire de création centré
+            // Formulaire de crÃ©ation centrÃ©
             <div className="max-w-3xl mx-auto space-y-4">
               {/* Bouton Retour et titre */}
               <div className="flex items-center justify-between">
@@ -549,22 +549,22 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
                 </button>
                 <div className="text-right">
                   <h1 className="text-2xl font-bold text-gray-900">Nouvelle note</h1>
-                  <p className="text-sm text-gray-600">Créez une note et partagez-la avec vos interlocuteurs</p>
+                  <p className="text-sm text-gray-600">CrÃ©ez une note et partagez-la avec vos interlocuteurs</p>
                 </div>
               </div>
 
-              {/* Information Card - Même largeur que le formulaire */}
+              {/* Information Card - MÃªme largeur que le formulaire */}
               <Card className="p-4 border-l-4 border-l-amber-400 bg-amber-50">
                 <div className="flex gap-3">
                   <Info size={20} className="text-amber-600 flex-shrink-0 mt-0.5" />
                   <div className="space-y-1">
                     <h3 className="font-semibold text-amber-800">Information</h3>
                     <p className="text-sm text-amber-700 leading-relaxed">
-                      Archivez vos documents scannés et partagez les avec vos propriétaires.<br />
-                      <span className="font-medium">Formats acceptés:</span> Word, Excel, PDF, Images (GIF, JPG, PNG). Taille maximale: 15 Mo<br />
-                      Pour numériser vos documents, vous pouvez:<br />
-                      • Les prendre en photo mais il faut faire attention au cadrage et à la qualité de l'image. Vous pouvez utiliser certaines applications de Scan pour Smartphones.<br />
-                      • À l'aide d'un Scanner. Une résolution de 150 à 200dpi suffit largement pour éviter d'avoir des tailles de fichiers trop élevées.
+                      Archivez vos documents scannÃ©s et partagez les avec vos propriÃ©taires.<br />
+                      <span className="font-medium">Formats acceptÃ©s:</span> Word, Excel, PDF, Images (GIF, JPG, PNG). Taille maximale: 15 Mo<br />
+                      Pour numÃ©riser vos documents, vous pouvez:<br />
+                      â€¢ Les prendre en photo mais il faut faire attention au cadrage et Ã  la qualitÃ© de l'image. Vous pouvez utiliser certaines applications de Scan pour Smartphones.<br />
+                      â€¢ Ã€ l'aide d'un Scanner. Une rÃ©solution de 150 Ã  200dpi suffit largement pour Ã©viter d'avoir des tailles de fichiers trop Ã©levÃ©es.
                     </p>
                   </div>
                 </div>
@@ -591,7 +591,7 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
                   {/* Bien */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Bien concerné
+                      Bien concernÃ©
                     </label>
                     <select
                       value={newNote.property_id || ''}
@@ -602,7 +602,7 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-20"
                       style={{ borderColor: `${PRIMARY_COLOR}80` }}
                     >
-                      <option value="">Sélectionner un bien</option>
+                      <option value="">SÃ©lectionner un bien</option>
                       {properties.map((lease) => (
                         <option key={lease.id} value={lease.property?.id}>
                           {lease.property?.name} - {lease.property?.address}
@@ -652,7 +652,7 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
                       </div>
                     </div>
 
-                    {/* Liste des fichiers sélectionnés */}
+                    {/* Liste des fichiers sÃ©lectionnÃ©s */}
                     {selectedFiles.length > 0 && (
                       <div className="mt-3 space-y-2">
                         {selectedFiles.map((file, index) => (
@@ -708,7 +708,7 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
                         </label>
                       </div>
 
-                      {/* Sélection des destinataires */}
+                      {/* SÃ©lection des destinataires */}
                       {newNote.is_shared && (
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -784,12 +784,12 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
                       {submitting ? (
                         <>
                           <Loader2 size={16} className="animate-spin" />
-                          Création...
+                          CrÃ©ation...
                         </>
                       ) : (
                         <>
                           <StickyNote size={16} />
-                          Créer la note
+                          CrÃ©er la note
                         </>
                       )}
                     </button>
@@ -800,12 +800,12 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
           ) : (
             // Liste des notes
             <div className="max-w-7xl mx-auto space-y-6">
-              {/* En-tête */}
+              {/* En-tÃªte */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Mes notes</h1>
                   <p className="text-sm text-gray-400 mt-1 font-medium">
-                    Gérez vos notes et documents partagés
+                    GÃ©rez vos notes et documents partagÃ©s
                   </p>
                 </div>
 
@@ -839,7 +839,7 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
                       <Share2 size={20} />
                     </div>
                     <div>
-                      <p className="text-xs text-green-600 font-medium">Notes partagées</p>
+                      <p className="text-xs text-green-600 font-medium">Notes partagÃ©es</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {notes.filter(n => n.is_shared).length}
                       </p>
@@ -890,8 +890,8 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
                     style={{ borderColor: `${PRIMARY_COLOR}80` }}
                   >
                     <option value="all">Toutes les notes</option>
-                    <option value="shared">Partagées</option>
-                    <option value="private">Privées</option>
+                    <option value="shared">PartagÃ©es</option>
+                    <option value="private">PrivÃ©es</option>
                   </select>
 
                   {/* Lignes par page */}
@@ -942,8 +942,8 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                       <StickyNote size={24} className="text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-1">Aucune note trouvée</h3>
-                    <p className="text-sm text-gray-500 mb-4">Créez votre première note</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">Aucune note trouvÃ©e</h3>
+                    <p className="text-sm text-gray-500 mb-4">CrÃ©ez votre premiÃ¨re note</p>
                     <button
                       onClick={() => setShowCreateForm(true)}
                       className="inline-flex items-center gap-2 px-5 py-2.5 text-white text-sm font-medium rounded-xl transition-all hover:opacity-90"
@@ -967,7 +967,7 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
                             {note.is_shared && (
                               <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1">
                                 <Share2 size={10} />
-                                Partagée
+                                PartagÃ©e
                               </span>
                             )}
                           </div>
@@ -978,7 +978,7 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
                             </p>
                           )}
 
-                          {/* Métadonnées */}
+                          {/* MÃ©tadonnÃ©es */}
                           <div className="flex flex-wrap items-center gap-3 mt-2">
                             {note.property && (
                               <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -1022,7 +1022,7 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
                             </div>
                           )}
 
-                          {/* Fichiers joints (icônes seulement) */}
+                          {/* Fichiers joints (icÃ´nes seulement) */}
                           {note.file_urls && note.file_urls.length > 0 && (
                             <div className="mt-2 flex gap-1">
                               {note.file_urls.slice(0, 3).map((url, index) => {

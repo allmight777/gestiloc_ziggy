@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+﻿import React, { useMemo, useState } from "react";
 import { Download, AlertCircle, CheckCircle, Clock, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { TenantInvoice } from "@/services/api";
@@ -24,7 +24,7 @@ const formatMonth = (date: string): string => {
 };
 
 const formatDateTime = (date?: string | null): string => {
-  if (!date) return "—";
+  if (!date) return "â€”";
   const d = new Date(date);
   if (Number.isNaN(d.getTime())) return String(date);
   return d.toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" });
@@ -56,7 +56,7 @@ export const TenantInvoicesCard: React.FC<TenantInvoicesCardProps> = ({ invoices
   const getStatusBadge = (status: TenantInvoice["status"]) => {
     switch (status) {
       case "paid":
-        return { bg: "bg-emerald-50", text: "text-emerald-700", ring: "border-emerald-200", label: "Payée", icon: CheckCircle };
+        return { bg: "bg-emerald-50", text: "text-emerald-700", ring: "border-emerald-200", label: "PayÃ©e", icon: CheckCircle };
       case "partially_paid":
         return { bg: "bg-blue-50", text: "text-blue-700", ring: "border-blue-200", label: "En cours", icon: Clock };
       case "pending":
@@ -64,9 +64,9 @@ export const TenantInvoicesCard: React.FC<TenantInvoicesCardProps> = ({ invoices
       case "overdue":
         return { bg: "bg-orange-50", text: "text-orange-700", ring: "border-orange-200", label: "En retard", icon: AlertCircle };
       case "failed":
-        return { bg: "bg-red-50", text: "text-red-700", ring: "border-red-200", label: "Échouée", icon: AlertCircle };
+        return { bg: "bg-red-50", text: "text-red-700", ring: "border-red-200", label: "Ã‰chouÃ©e", icon: AlertCircle };
       default:
-        return { bg: "bg-slate-50", text: "text-slate-700", ring: "border-slate-200", label: String(status || "—"), icon: AlertCircle };
+        return { bg: "bg-slate-50", text: "text-slate-700", ring: "border-slate-200", label: String(status || "â€”"), icon: AlertCircle };
     }
   };
 
@@ -92,7 +92,7 @@ export const TenantInvoicesCard: React.FC<TenantInvoicesCardProps> = ({ invoices
       else p1.push(inv);
     }
 
-    // tri : à payer par échéance desc, payées par date paiement desc
+    // tri : Ã  payer par Ã©chÃ©ance desc, payÃ©es par date paiement desc
     p1.sort((a: any, b: any) => String(b.due_date || "").localeCompare(String(a.due_date || "")));
     p2.sort((a: any, b: any) => String(b._paidAt || "").localeCompare(String(a._paidAt || "")));
 
@@ -149,15 +149,15 @@ export const TenantInvoicesCard: React.FC<TenantInvoicesCardProps> = ({ invoices
         <div>
           <h3 className="text-lg font-extrabold text-slate-900">Factures</h3>
           <p className="mt-1 text-sm font-semibold text-slate-600">
-            Suis tes factures et règle en 1 clic lorsque nécessaire.
+            Suis tes factures et rÃ¨gle en 1 clic lorsque nÃ©cessaire.
           </p>
 
           <div className="mt-3 flex flex-wrap gap-2">
             <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-extrabold text-slate-700">
-              À payer : {stats.payableCount}
+              Ã€ payer : {stats.payableCount}
             </span>
             <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-extrabold text-slate-700">
-              Payées : {stats.paidCount}
+              PayÃ©es : {stats.paidCount}
             </span>
             <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-extrabold text-slate-700">
               Total restant : {formatAmount(stats.totalToPay, stats.cur)}
@@ -171,17 +171,15 @@ export const TenantInvoicesCard: React.FC<TenantInvoicesCardProps> = ({ invoices
           className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-extrabold text-slate-700 hover:bg-slate-50 transition"
         >
           {showPaid ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          {showPaid ? "Masquer payées" : "Afficher payées"}
+          {showPaid ? "Masquer payÃ©es" : "Afficher payÃ©es"}
         </button>
       </div>
 
-      {/* À payer */}
+      {/* Ã€ payer */}
       <div className="mt-6">
         <div className="mb-3 flex items-center justify-between">
-          <div className="text-sm font-extrabold text-slate-900">À payer</div>
-          <span className={cx("text-xs font-extrabold", payable.length ? "text-amber-700" : "text-emerald-700")}>
-            {payable.length ? `${payable.length} en attente` : "Tout est payé ✅"}
-          </span>
+          <div className="text-sm font-extrabold text-slate-900">Ã€ payer</div>
+            {payable.length ? `${payable.length} en attente` : ""}
         </div>
 
         <div className="space-y-3">
@@ -189,7 +187,7 @@ export const TenantInvoicesCard: React.FC<TenantInvoicesCardProps> = ({ invoices
             const badge = getStatusBadge(invoice.status);
             const StatusIcon = badge.icon;
 
-            const month = invoice?.due_date ? formatMonth(invoice.due_date) : "—";
+            const month = invoice?.due_date ? formatMonth(invoice.due_date) : "â€”";
             const total = invoice._total ?? 0;
             const paidAmt = invoice._paid ?? 0;
             const remaining = invoice._remaining ?? total;
@@ -205,13 +203,13 @@ export const TenantInvoicesCard: React.FC<TenantInvoicesCardProps> = ({ invoices
                   <p className="text-sm font-extrabold text-slate-900 capitalize">{month}</p>
                   <p className="text-xs text-slate-500 font-semibold">
                     {invoice.invoice_number ? `Facture ${invoice.invoice_number}` : `Facture #${invoice.id}`}
-                    {invoice?.due_date ? ` · Échéance ${invoice.due_date}` : ""}
+                    {invoice?.due_date ? ` Â· Ã‰chÃ©ance ${invoice.due_date}` : ""}
                   </p>
 
                   {isPartial(invoice.status) && paidAmt > 0 && (
                     <p className="mt-2 text-xs font-semibold text-slate-600">
-                      Déjà payé : <span className="font-extrabold text-emerald-700">{formatAmount(paidAmt, currency)}</span>{" "}
-                      · Restant : <span className="font-extrabold text-slate-900">{formatAmount(remaining, currency)}</span>
+                      DÃ©jÃ  payÃ© : <span className="font-extrabold text-emerald-700">{formatAmount(paidAmt, currency)}</span>{" "}
+                      Â· Restant : <span className="font-extrabold text-slate-900">{formatAmount(remaining, currency)}</span>
                     </p>
                   )}
                 </div>
@@ -247,7 +245,7 @@ export const TenantInvoicesCard: React.FC<TenantInvoicesCardProps> = ({ invoices
                     <button
                       onClick={() => onDownload(invoice.id)}
                       className="p-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition"
-                      title="Télécharger le PDF"
+                      title="TÃ©lÃ©charger le PDF"
                     >
                       <Download size={16} />
                     </button>
@@ -259,29 +257,29 @@ export const TenantInvoicesCard: React.FC<TenantInvoicesCardProps> = ({ invoices
         </div>
       </div>
 
-      {/* Payées */}
+      {/* PayÃ©es */}
       <div className="mt-8">
         <div className="mb-3 flex items-center justify-between">
-          <div className="text-sm font-extrabold text-slate-900">Paiements effectués</div>
-          <span className="text-xs font-extrabold text-slate-600">{paid.length} payé(s)</span>
+          <div className="text-sm font-extrabold text-slate-900">Paiements effectuÃ©s</div>
+          {paid.length > 0 && <span className="text-xs font-extrabold text-slate-600">{paid.length} payÃ©(s)</span>}
         </div>
 
         {!showPaid ? (
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
-            Liste masquée.
+            Liste masquÃ©e.
           </div>
         ) : (
           <div className="space-y-3">
             {paid.length === 0 ? (
               <div className="rounded-2xl border border-slate-200 bg-white p-5">
-                <p className="text-sm font-semibold text-slate-600">Aucun paiement enregistré.</p>
+                <p className="text-sm font-semibold text-slate-600">Aucun paiement enregistrÃ©.</p>
               </div>
             ) : (
               paid.map((invoice: any) => {
                 const badge = getStatusBadge("paid");
                 const StatusIcon = badge.icon;
 
-                const month = invoice?.due_date ? formatMonth(invoice.due_date) : "—";
+                const month = invoice?.due_date ? formatMonth(invoice.due_date) : "â€”";
                 const total = invoice._total ?? 0;
                 const currency = invoice._currency ?? "XOF";
                 const paidAt = invoice._paidAt;
@@ -295,10 +293,10 @@ export const TenantInvoicesCard: React.FC<TenantInvoicesCardProps> = ({ invoices
                       <p className="text-sm font-extrabold text-slate-900 capitalize">{month}</p>
                       <p className="text-xs text-slate-500 font-semibold">
                         {invoice.invoice_number ? `Facture ${invoice.invoice_number}` : `Facture #${invoice.id}`}
-                        {invoice?.due_date ? ` · Échéance ${invoice.due_date}` : ""}
+                        {invoice?.due_date ? ` Â· Ã‰chÃ©ance ${invoice.due_date}` : ""}
                       </p>
                       <p className="mt-2 text-xs font-semibold text-slate-600">
-                        Payé le : <span className="font-extrabold text-slate-900">{formatDateTime(paidAt)}</span>
+                        PayÃ© le : <span className="font-extrabold text-slate-900">{formatDateTime(paidAt)}</span>
                       </p>
                     </div>
 
@@ -310,14 +308,14 @@ export const TenantInvoicesCard: React.FC<TenantInvoicesCardProps> = ({ invoices
                     <div className="flex items-center gap-3 justify-end">
                       <div className={cx("flex items-center gap-2 px-3 py-1 rounded-full border", badge.bg, badge.ring)}>
                         <StatusIcon size={14} className={badge.text} />
-                        <span className={cx("text-xs font-extrabold", badge.text)}>Payée</span>
+                        <span className={cx("text-xs font-extrabold", badge.text)}>PayÃ©e</span>
                       </div>
 
                       {onDownload && (
                         <button
                           onClick={() => onDownload(invoice.id)}
                           className="p-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition"
-                          title="Télécharger la quittance"
+                          title="TÃ©lÃ©charger la quittance"
                         >
                           <Download size={16} />
                         </button>

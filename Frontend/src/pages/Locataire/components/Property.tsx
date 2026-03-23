@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+﻿import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import {
   Building2,
   MapPin,
@@ -56,7 +56,7 @@ const InfoRow: React.FC<{ label: string; value?: React.ReactNode; hideIfEmpty?: 
   return (
     <div className="flex items-start justify-between gap-6 py-2 border-b border-gray-100 last:border-b-0">
       <p className="text-sm text-gray-500">{label}</p>
-      <div className="text-sm font-medium text-gray-900 text-right">{value ?? '—'}</div>
+      <div className="text-sm font-medium text-gray-900 text-right">{value ?? 'â€”'}</div>
     </div>
   );
 };
@@ -105,7 +105,7 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
       } else {
         setLease(null);
         setProperty(null);
-        const msg = 'Aucun bien trouvé pour votre compte.';
+        const msg = 'Aucun bien trouvÃ© pour votre compte.';
         setError(msg);
         notifyRef.current(msg, 'info');
       }
@@ -188,10 +188,10 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
       a.remove();
       window.URL.revokeObjectURL(url);
 
-      notifyRef.current('Contrat téléchargé avec succès', 'success');
+      notifyRef.current('Contrat tÃ©lÃ©chargÃ© avec succÃ¨s', 'success');
     } catch (err) {
       console.error(err);
-      notifyRef.current('Erreur lors du téléchargement du contrat', 'error');
+      notifyRef.current('Erreur lors du tÃ©lÃ©chargement du contrat', 'error');
     }
   };
 
@@ -210,7 +210,7 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
     return (
       <div className="flex flex-col items-center justify-center h-64 space-y-4">
         <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-        <p className="text-gray-600">Chargement des informations…</p>
+        <p className="text-gray-600">Chargement des informationsâ€¦</p>
       </div>
     );
   }
@@ -223,7 +223,7 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
         <p className="mt-1 text-sm text-gray-500">{error}</p>
         <div className="mt-5 flex items-center justify-center gap-3">
           <Button onClick={fetchProperty} disabled={isFetching.current}>
-            {isFetching.current ? 'Chargement…' : 'Réessayer'}
+            {isFetching.current ? 'Chargementâ€¦' : 'RÃ©essayer'}
           </Button>
         </div>
       </div>
@@ -247,14 +247,14 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
             {isFilled(postal) || isFilled(property.city) ? (
               <>
                 {' '}
-                — {postal} {property.city}
+                â€” {postal} {property.city}
               </>
             ) : null}
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
             {leaseInfo?.status ? <Pill>Bail : {leaseInfo.status}</Pill> : null}
-            {isFilled(property.surface) ? <Pill>{property.surface} m²</Pill> : null}
-            {isFilled(property.room_count) ? <Pill>{property.room_count} pièce(s)</Pill> : null}
+            {isFilled(property.surface) ? <Pill>{property.surface} mÂ²</Pill> : null}
+            {isFilled(property.room_count) ? <Pill>{property.room_count} piÃ¨ce(s)</Pill> : null}
           </div>
         </div>
 
@@ -262,7 +262,7 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
           {lease && (
             <Button onClick={handleDownloadContract}>
               <Download className="h-4 w-4 mr-2" />
-              Télécharger le contrat
+              TÃ©lÃ©charger le contrat
             </Button>
           )}
         </div>
@@ -294,7 +294,7 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
                         type="button"
                         onClick={prevPhoto}
                         className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow"
-                        aria-label="Photo précédente"
+                        aria-label="Photo prÃ©cÃ©dente"
                       >
                         <ChevronLeft className="h-5 w-5" />
                       </button>
@@ -316,7 +316,7 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
                               'h-2.5 w-2.5 rounded-full',
                               idx === currentPhotoIndex ? 'bg-white' : 'bg-white/60'
                             )}
-                            aria-label={`Aller à la photo ${idx + 1}`}
+                            aria-label={`Aller Ã  la photo ${idx + 1}`}
                           />
                         ))}
                       </div>
@@ -347,7 +347,7 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
             ) : (
               <div className="mt-6 text-center py-10">
                 <ImageIcon className="mx-auto h-10 w-10 text-gray-400" />
-                <p className="mt-2 text-sm text-gray-500">Aucune photo n’a été ajoutée pour ce bien.</p>
+                <p className="mt-2 text-sm text-gray-500">Aucune photo nâ€™a Ã©tÃ© ajoutÃ©e pour ce bien.</p>
               </div>
             )}
           </div>
@@ -360,19 +360,19 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
             <InfoRow label="Adresse" value={property.address} />
             <InfoRow label="Ville" value={property.city} />
             <InfoRow label="Code postal" value={postal} hideIfEmpty />
-            <InfoRow label="Surface" value={isFilled(property.surface) ? `${property.surface} m²` : '—'} />
+            <InfoRow label="Surface" value={isFilled(property.surface) ? `${property.surface} mÂ²` : 'â€”'} />
             <InfoRow
-              label="Pièces"
-              value={isFilled(property.room_count) ? `${property.room_count}` : '—'}
+              label="PiÃ¨ces"
+              value={isFilled(property.room_count) ? `${property.room_count}` : 'â€”'}
             />
             <InfoRow
               label="Salles de bain"
-              value={property.bathroom_count ?? '—'}
+              value={property.bathroom_count ?? 'â€”'}
             />
           </div>
 
           <div className="mt-6">
-            <SectionTitle icon={MapPin} title="Localisation" subtitle="Adresse complète" />
+            <SectionTitle icon={MapPin} title="Localisation" subtitle="Adresse complÃ¨te" />
             <div className="mt-4">
               <p className="text-sm text-gray-700">
                 {property.address}
@@ -395,13 +395,13 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
         <SectionTitle icon={Layers} title="Bail & paiement" subtitle="Informations de votre contrat de location" />
 
         {!leaseInfo ? (
-          <p className="mt-4 text-sm text-gray-500">Aucun bail actif trouvé.</p>
+          <p className="mt-4 text-sm text-gray-500">Aucun bail actif trouvÃ©.</p>
         ) : (
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="rounded-xl bg-gray-50 p-4">
-              <p className="text-sm text-gray-500">Période</p>
+              <p className="text-sm text-gray-500">PÃ©riode</p>
               <p className="mt-1 text-gray-900 font-semibold">
-                {leaseInfo.startDate} {leaseInfo.endDate ? `→ ${leaseInfo.endDate}` : '→ (sans fin)'}
+                {leaseInfo.startDate} {leaseInfo.endDate ? `â†’ ${leaseInfo.endDate}` : 'â†’ (sans fin)'}
               </p>
             </div>
 
@@ -413,7 +413,7 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
 
             {leaseInfo.deposit && (
               <div className="rounded-xl bg-gray-50 p-4">
-                <p className="text-sm text-gray-500">Dépôt de garantie</p>
+                <p className="text-sm text-gray-500">DÃ©pÃ´t de garantie</p>
                 <p className="mt-1 text-gray-900 font-semibold">{leaseInfo.deposit}</p>
               </div>
             )}
@@ -421,11 +421,11 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
             <div className="rounded-xl bg-gray-50 p-4 flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm text-gray-500">Contrat</p>
-                <p className="mt-1 text-gray-900 font-semibold">Télécharger le PDF</p>
+                <p className="mt-1 text-gray-900 font-semibold">TÃ©lÃ©charger le PDF</p>
               </div>
               <Button type="button" onClick={handleDownloadContract}>
                 <Download className="h-4 w-4 mr-2" />
-                Télécharger
+                TÃ©lÃ©charger
               </Button>
             </div>
           </div>
@@ -434,10 +434,10 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
 
       {/* Owner */}
       <Card className="p-6">
-        <SectionTitle icon={User} title="Propriétaire" subtitle="Contact du propriétaire du logement" />
+        <SectionTitle icon={User} title="PropriÃ©taire" subtitle="Contact du propriÃ©taire du logement" />
 
         {!owner ? (
-          <p className="mt-4 text-sm text-gray-500">Aucune information propriétaire disponible.</p>
+          <p className="mt-4 text-sm text-gray-500">Aucune information propriÃ©taire disponible.</p>
         ) : (
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* left */}
@@ -468,7 +468,7 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
                 <div className="flex items-start gap-3">
                   <Phone className="h-5 w-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="text-xs text-gray-500">Téléphone</p>
+                    <p className="text-xs text-gray-500">TÃ©lÃ©phone</p>
                     <a className="font-semibold text-blue-600 hover:underline" href={`tel:${owner.phone}`}>
                       {owner.phone}
                     </a>
@@ -477,17 +477,17 @@ const Property: React.FC<PropertyProps> = ({ notify }) => {
               ) : null}
 
               {!([owner.full_name, owner.email, owner.phone].some(isFilled)) && (
-                <p className="text-sm text-gray-500">Aucune information renseignée pour le propriétaire.</p>
+                <p className="text-sm text-gray-500">Aucune information renseignÃ©e pour le propriÃ©taire.</p>
               )}
             </div>
 
             {/* right - small helpful text */}
             <div className="rounded-xl border border-gray-200 p-4">
               <p className="text-sm text-gray-700">
-                Besoin d’un contact rapide ? Utilise l’email ou le téléphone ci-dessus.
+                Besoin dâ€™un contact rapide ? Utilise lâ€™email ou le tÃ©lÃ©phone ci-dessus.
                 <br />
                 <span className="text-gray-500 text-xs">
-                  (Les informations non renseignées ne sont pas affichées.)
+                  (Les informations non renseignÃ©es ne sont pas affichÃ©es.)
                 </span>
               </p>
             </div>

@@ -13,8 +13,9 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
     const [nom, setNom] = useState(savedUser.last_name || '');
     const [email, setEmail] = useState(savedUser.email || '');
     const [tel, setTel] = useState(savedUser.phone || '');
-    const [adresse, setAdresse] = useState('');
-    const [companyName, setCompanyName] = useState('');
+    const [adresse, setAdresse] = useState(savedUser.address || ''); // Initialisation correcte
+    const [companyName, setCompanyName] = useState(savedUser.company_name || '');
+    const [birthDate, setBirthDate] = useState(savedUser.birth_date || '');
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -34,6 +35,7 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
                     setTel(u.phone || '');
                     setAdresse(u.address || '');
                     setCompanyName(u.company_name || '');
+                    setBirthDate(u.birth_date || '');
                     
                     // Mettre à jour le localStorage
                     const updatedUser = { ...savedUser, ...u };
@@ -57,15 +59,19 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
                 last_name: nom,
                 phone: tel,
                 address: adresse,
-                company_name: companyName
+                company_name: companyName,
+                birth_date: birthDate
             });
             
-            // Mettre à jour le localStorage
+            // Mettre à jour le localStorage avec TOUTES les informations
             const updatedUser = { 
                 ...savedUser, 
                 first_name: prenom, 
                 last_name: nom, 
-                phone: tel
+                phone: tel,
+                address: adresse,
+                company_name: companyName,
+                birth_date: birthDate
             };
             localStorage.setItem('user', JSON.stringify(updatedUser));
             
@@ -85,8 +91,9 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
         setNom(user.last_name || '');
         setEmail(user.email || '');
         setTel(user.phone || '');
-        setAdresse('');
-        setCompanyName('');
+        setAdresse(user.address || '');
+        setCompanyName(user.company_name || '');
+        setBirthDate(user.birth_date || '');
         notify('Modifications annulées', 'info');
     };
 
@@ -427,6 +434,19 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
                             type="email" 
                             value={email} 
                             readOnly 
+                        />
+                    </div>
+                    
+                    <div className="mc-field">
+                        <div className="mc-field-left">
+                            <p className="mc-field-label">Date de naissance</p>
+                            <p className="mc-field-desc">Pour attester de votre majorité</p>
+                        </div>
+                        <input 
+                            className="mc-input" 
+                            type="date" 
+                            value={birthDate} 
+                            onChange={e => setBirthDate(e.target.value)} 
                         />
                     </div>
                     

@@ -44,7 +44,7 @@ export type RentReceipt = {
 
   pdf_path?: string | null;
 
-  property?: { id: number; address: string; city?: string | null } | null;
+  property?: { id: number; name?: string | null; address: string; city?: string | null } | null;
   lease?: Lease | null;
   landlord?: Landlord | null;
 

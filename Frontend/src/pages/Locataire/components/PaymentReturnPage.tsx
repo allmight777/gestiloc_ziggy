@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   CheckCircle2,
@@ -28,7 +28,7 @@ export default function PaymentReturnPage() {
   const invoiceId = q.get("invoice_id");
 
   const [state, setState] = useState<UiState>("loading");
-  const [message, setMessage] = useState("Vérification du paiement…");
+  const [message, setMessage] = useState("VÃ©rification du paiementâ€¦");
 
   const inferStateFromVerify = (data: any): UiState => {
     const s = String(
@@ -43,34 +43,34 @@ export default function PaymentReturnPage() {
   };
 
   const verify = async () => {
-    // Si annulation => écran échec direct
+    // Si annulation => Ã©cran Ã©chec direct
     if (statusParam === "cancel") {
       setState("failed");
-      setMessage("Paiement annulé. Aucun montant n’a été débité.");
+      setMessage("Paiement annulÃ©. Aucun montant nâ€™a Ã©tÃ© dÃ©bitÃ©.");
       return;
     }
 
     if (!invoiceId) {
       setState("pending");
-      setMessage("Nous avons bien reçu ton retour, mais nous ne pouvons pas confirmer le paiement pour le moment.");
+      setMessage("Nous avons bien reÃ§u ton retour, mais nous ne pouvons pas confirmer le paiement pour le moment.");
       return;
     }
 
     setState("loading");
-    setMessage("Vérification du paiement…");
+    setMessage("VÃ©rification du paiementâ€¦");
 
     try {
       const { data } = await api.get(`/invoices/${invoiceId}/payment/verify`);
       const s = inferStateFromVerify(data);
 
-      if (s === "success") setMessage("Paiement confirmé. Merci !");
-      if (s === "failed") setMessage("Le paiement n’a pas pu être confirmé.");
-      if (s === "pending") setMessage("Paiement en cours de confirmation…");
+      if (s === "success") setMessage("Paiement confirmÃ©. Merci !");
+      if (s === "failed") setMessage("Le paiement nâ€™a pas pu Ãªtre confirmÃ©.");
+      if (s === "pending") setMessage("Paiement en cours de confirmationâ€¦");
 
       setState(s);
     } catch {
       setState("pending");
-      setMessage("Paiement en cours de confirmation… Réessaie dans quelques instants.");
+      setMessage("Paiement en cours de confirmationâ€¦ RÃ©essaie dans quelques instants.");
     }
   };
 
@@ -82,14 +82,14 @@ export default function PaymentReturnPage() {
   const ui = useMemo(() => {
     if (state === "success") {
       return {
-        badge: { label: "Paiement confirmé", cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+        badge: { label: "Paiement confirmÃ©", cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
         box: "border-emerald-200 bg-emerald-50 text-emerald-800",
         icon: <CheckCircle2 size={18} className="text-emerald-700" />,
       };
     }
     if (state === "failed") {
       return {
-        badge: { label: "Paiement annulé", cls: "bg-red-50 text-red-700 border-red-200" },
+        badge: { label: "Paiement annulÃ©", cls: "bg-red-50 text-red-700 border-red-200" },
         box: "border-red-200 bg-red-50 text-red-800",
         icon: <XCircle size={18} className="text-red-700" />,
       };
@@ -102,7 +102,7 @@ export default function PaymentReturnPage() {
       };
     }
     return {
-      badge: { label: "Vérification…", cls: "bg-blue-50 text-blue-700 border-blue-200" },
+      badge: { label: "VÃ©rificationâ€¦", cls: "bg-blue-50 text-blue-700 border-blue-200" },
       box: "border-blue-200 bg-blue-50 text-blue-800",
       icon: <Loader2 size={18} className="animate-spin text-blue-700" />,
     };
@@ -128,7 +128,7 @@ export default function PaymentReturnPage() {
                     Facture <span className="font-extrabold text-gray-900">#{invoiceId}</span>
                   </>
                 ) : (
-                  "Nous finalisons la vérification de ton paiement."
+                  "Nous finalisons la vÃ©rification de ton paiement."
                 )}
               </p>
             </div>
@@ -153,7 +153,7 @@ export default function PaymentReturnPage() {
 
                   {state === "pending" && (
                     <div className="mt-1 text-xs font-bold opacity-90">
-                      Si le paiement vient d’être effectué, il peut apparaître dans quelques instants.
+                      Si le paiement vient dâ€™Ãªtre effectuÃ©, il peut apparaÃ®tre dans quelques instants.
                     </div>
                   )}
                 </div>
@@ -173,7 +173,7 @@ export default function PaymentReturnPage() {
                 "
               >
                 <RefreshCw size={18} />
-                Rafraîchir
+                RafraÃ®chir
               </button>
 
               <button

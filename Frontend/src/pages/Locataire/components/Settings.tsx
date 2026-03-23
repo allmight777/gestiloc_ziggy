@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   Lock,
   Shield,
@@ -140,68 +140,68 @@ interface UserSettings {
 // Dictionnaire de traduction
 const translations = {
   fr: {
-    title: 'Paramètres',
-    subtitle: 'Gérez vos préférences et paramètres de compte',
-    account_security: 'Compte et sécurité',
-    account_security_desc: 'Gérez votre mot de passe et la sécurité de votre compte',
+    title: 'ParamÃ¨tres',
+    subtitle: 'GÃ©rez vos prÃ©fÃ©rences et paramÃ¨tres de compte',
+    account_security: 'Compte et sÃ©curitÃ©',
+    account_security_desc: 'GÃ©rez votre mot de passe et la sÃ©curitÃ© de votre compte',
     current_password: 'Mot de passe actuel',
     new_password: 'Nouveau mot de passe',
     confirm_password: 'Confirmer le mot de passe',
-    password_min: 'Minimum 8 caractères',
-    security_tip: 'Conseil de sécurité',
-    security_tip_text: 'Utilisez un mot de passe fort contenant des lettres majuscules et minuscules, des chiffres et des caractères spéciaux.',
+    password_min: 'Minimum 8 caractÃ¨res',
+    security_tip: 'Conseil de sÃ©curitÃ©',
+    security_tip_text: 'Utilisez un mot de passe fort contenant des lettres majuscules et minuscules, des chiffres et des caractÃ¨res spÃ©ciaux.',
     change_password: 'Changer le mot de passe',
-    two_factor: 'Authentification à deux facteurs',
+    two_factor: 'Authentification Ã  deux facteurs',
     two_factor_desc: 'Activer l\'authentification 2FA',
-    two_factor_subdesc: 'Ajoutez une couche de sécurité supplémentaire à votre compte',
+    two_factor_subdesc: 'Ajoutez une couche de sÃ©curitÃ© supplÃ©mentaire Ã  votre compte',
     last_password_change: 'Dernier changement de mot de passe',
-    preferences: 'Préférences',
-    preferences_desc: 'Personnalisez votre expérience Gestiloc',
+    preferences: 'PrÃ©fÃ©rences',
+    preferences_desc: 'Personnalisez votre expÃ©rience Gestiloc',
     language: 'Langue',
     timezone: 'Fuseau horaire',
     date_format: 'Format de date',
     currency: 'Devise',
     dark_mode: 'Mode sombre',
-    dark_mode_desc: 'Activez le thème sombre pour l\'interface',
+    dark_mode_desc: 'Activez le thÃ¨me sombre pour l\'interface',
     notifications: 'Notifications',
-    notifications_desc: 'Choisissez comment vous souhaitez être notifié',
+    notifications_desc: 'Choisissez comment vous souhaitez Ãªtre notifiÃ©',
     email_notifications: 'Notifications par email',
-    owner_messages: 'Messages du propriétaire',
+    owner_messages: 'Messages du propriÃ©taire',
     owner_messages_desc: 'Recevez un email pour chaque nouveau message',
     payment_reminders: 'Rappels de paiement',
-    payment_reminders_desc: 'Recevez un rappel avant la date d\'échéance du loyer',
+    payment_reminders_desc: 'Recevez un rappel avant la date d\'Ã©chÃ©ance du loyer',
     receipts_available: 'Quittances disponibles',
     receipts_available_desc: 'Notification quand une nouvelle quittance est disponible',
     interventions: 'Interventions',
-    interventions_desc: 'Mises à jour sur vos demandes d\'intervention',
+    interventions_desc: 'Mises Ã  jour sur vos demandes d\'intervention',
     push_notifications: 'Notifications push',
     browser_notifications: 'Notifications sur navigateur',
     browser_notifications_desc: 'Recevez des notifications directement dans votre navigateur',
-    privacy_data: 'Confidentialité et données',
-    privacy_data_desc: 'Gérez vos données et votre confidentialité',
-    data_sharing: 'Partage des données d\'utilisation',
-    data_sharing_desc: 'Aidez-nous à améliorer Gestiloc en partageant des données anonymes',
-    data_management: 'Gestion des données',
-    download_data: 'Télécharger mes données',
-    download_data_desc: 'Téléchargez une copie de toutes vos données personnelles',
+    privacy_data: 'ConfidentialitÃ© et donnÃ©es',
+    privacy_data_desc: 'GÃ©rez vos donnÃ©es et votre confidentialitÃ©',
+    data_sharing: 'Partage des donnÃ©es d\'utilisation',
+    data_sharing_desc: 'Aidez-nous Ã  amÃ©liorer Gestiloc en partageant des donnÃ©es anonymes',
+    data_management: 'Gestion des donnÃ©es',
+    download_data: 'TÃ©lÃ©charger mes donnÃ©es',
+    download_data_desc: 'TÃ©lÃ©chargez une copie de toutes vos donnÃ©es personnelles',
     danger_zone: 'Zone de danger',
     danger_title: 'Attention',
-    danger_desc: 'La suppression de votre compte est irréversible. Toutes vos données seront définitivement supprimées.',
+    danger_desc: 'La suppression de votre compte est irrÃ©versible. Toutes vos donnÃ©es seront dÃ©finitivement supprimÃ©es.',
     delete_account: 'Supprimer mon compte',
     confirm_delete: 'Supprimer le compte',
-    confirm_delete_desc: 'Cette action est irréversible',
-    confirm_delete_text: 'Êtes-vous sûr de vouloir supprimer votre compte ? Toutes vos données seront définitivement effacées.',
+    confirm_delete_desc: 'Cette action est irrÃ©versible',
+    confirm_delete_text: 'ÃŠtes-vous sÃ»r de vouloir supprimer votre compte ? Toutes vos donnÃ©es seront dÃ©finitivement effacÃ©es.',
     cancel: 'Annuler',
     delete: 'Supprimer',
     saving: 'Enregistrement...',
     save: 'Enregistrer',
-    loading: 'Chargement de vos paramètres...',
-    error_loading: 'Impossible de charger les paramètres',
-    retry: 'Réessayer',
+    loading: 'Chargement de vos paramÃ¨tres...',
+    error_loading: 'Impossible de charger les paramÃ¨tres',
+    retry: 'RÃ©essayer',
     two_factor_activate: 'Activer l\'authentification 2FA',
     two_factor_secret: 'Scannez ce code QR avec votre application d\'authentification',
-    recovery_codes: 'Codes de récupération',
-    recovery_codes_desc: 'Conservez ces codes en lieu sûr. Ils vous permettront de récupérer l\'accès à votre compte si vous perdez votre téléphone.',
+    recovery_codes: 'Codes de rÃ©cupÃ©ration',
+    recovery_codes_desc: 'Conservez ces codes en lieu sÃ»r. Ils vous permettront de rÃ©cupÃ©rer l\'accÃ¨s Ã  votre compte si vous perdez votre tÃ©lÃ©phone.',
     confirm: 'Confirmer',
   },
   en: {
@@ -270,21 +270,21 @@ const translations = {
     confirm: 'Confirm',
   },
   es: {
-    title: 'Configuración',
-    subtitle: 'Administre sus preferencias y configuración de cuenta',
+    title: 'ConfiguraciÃ³n',
+    subtitle: 'Administre sus preferencias y configuraciÃ³n de cuenta',
     account_security: 'Cuenta y seguridad',
-    account_security_desc: 'Administre su contraseña y la seguridad de su cuenta',
-    current_password: 'Contraseña actual',
-    new_password: 'Nueva contraseña',
-    confirm_password: 'Confirmar contraseña',
-    password_min: 'Mínimo 8 caracteres',
+    account_security_desc: 'Administre su contraseÃ±a y la seguridad de su cuenta',
+    current_password: 'ContraseÃ±a actual',
+    new_password: 'Nueva contraseÃ±a',
+    confirm_password: 'Confirmar contraseÃ±a',
+    password_min: 'MÃ­nimo 8 caracteres',
     security_tip: 'Consejo de seguridad',
-    security_tip_text: 'Utilice una contraseña segura con letras mayúsculas y minúsculas, números y caracteres especiales.',
-    change_password: 'Cambiar contraseña',
-    two_factor: 'Autenticación de dos factores',
+    security_tip_text: 'Utilice una contraseÃ±a segura con letras mayÃºsculas y minÃºsculas, nÃºmeros y caracteres especiales.',
+    change_password: 'Cambiar contraseÃ±a',
+    two_factor: 'AutenticaciÃ³n de dos factores',
     two_factor_desc: 'Activar 2FA',
     two_factor_subdesc: 'Agregue una capa adicional de seguridad a su cuenta',
-    last_password_change: 'Último cambio de contraseña',
+    last_password_change: 'Ãšltimo cambio de contraseÃ±a',
     preferences: 'Preferencias',
     preferences_desc: 'Personalice su experiencia en Gestiloc',
     language: 'Idioma',
@@ -294,14 +294,14 @@ const translations = {
     dark_mode: 'Modo oscuro',
     dark_mode_desc: 'Active el tema oscuro para la interfaz',
     notifications: 'Notificaciones',
-    notifications_desc: 'Elija cómo desea ser notificado',
+    notifications_desc: 'Elija cÃ³mo desea ser notificado',
     email_notifications: 'Notificaciones por correo',
     owner_messages: 'Mensajes del propietario',
     owner_messages_desc: 'Reciba un correo por cada nuevo mensaje',
     payment_reminders: 'Recordatorios de pago',
     payment_reminders_desc: 'Reciba un recordatorio antes de la fecha de vencimiento del alquiler',
     receipts_available: 'Recibos disponibles',
-    receipts_available_desc: 'Notificación cuando hay un nuevo recibo disponible',
+    receipts_available_desc: 'NotificaciÃ³n cuando hay un nuevo recibo disponible',
     interventions: 'Intervenciones',
     interventions_desc: 'Actualizaciones sobre sus solicitudes de mantenimiento',
     push_notifications: 'Notificaciones push',
@@ -310,28 +310,28 @@ const translations = {
     privacy_data: 'Privacidad y datos',
     privacy_data_desc: 'Administre sus datos y privacidad',
     data_sharing: 'Compartir datos de uso',
-    data_sharing_desc: 'Ayúdenos a mejorar Gestiloc compartiendo datos anónimos',
-    data_management: 'Gestión de datos',
+    data_sharing_desc: 'AyÃºdenos a mejorar Gestiloc compartiendo datos anÃ³nimos',
+    data_management: 'GestiÃ³n de datos',
     download_data: 'Descargar mis datos',
     download_data_desc: 'Descargue una copia de todos sus datos personales',
     danger_zone: 'Zona de peligro',
-    danger_title: 'Atención',
-    danger_desc: 'Eliminar su cuenta es irreversible. Todos sus datos serán eliminados permanentemente.',
+    danger_title: 'AtenciÃ³n',
+    danger_desc: 'Eliminar su cuenta es irreversible. Todos sus datos serÃ¡n eliminados permanentemente.',
     delete_account: 'Eliminar mi cuenta',
     confirm_delete: 'Eliminar cuenta',
-    confirm_delete_desc: 'Esta acción es irreversible',
-    confirm_delete_text: '¿Está seguro de que desea eliminar su cuenta? Todos sus datos serán eliminados permanentemente.',
+    confirm_delete_desc: 'Esta acciÃ³n es irreversible',
+    confirm_delete_text: 'Â¿EstÃ¡ seguro de que desea eliminar su cuenta? Todos sus datos serÃ¡n eliminados permanentemente.',
     cancel: 'Cancelar',
     delete: 'Eliminar',
     saving: 'Guardando...',
     save: 'Guardar',
-    loading: 'Cargando su configuración...',
-    error_loading: 'No se puede cargar la configuración',
+    loading: 'Cargando su configuraciÃ³n...',
+    error_loading: 'No se puede cargar la configuraciÃ³n',
     retry: 'Reintentar',
-    two_factor_activate: 'Activar autenticación de dos factores',
-    two_factor_secret: 'Escanee este código QR con su aplicación de autenticación',
-    recovery_codes: 'Códigos de recuperación',
-    recovery_codes_desc: 'Guarde estos códigos en un lugar seguro. Le permitirán recuperar el acceso a su cuenta si pierde su teléfono.',
+    two_factor_activate: 'Activar autenticaciÃ³n de dos factores',
+    two_factor_secret: 'Escanee este cÃ³digo QR con su aplicaciÃ³n de autenticaciÃ³n',
+    recovery_codes: 'CÃ³digos de recuperaciÃ³n',
+    recovery_codes_desc: 'Guarde estos cÃ³digos en un lugar seguro. Le permitirÃ¡n recuperar el acceso a su cuenta si pierde su telÃ©fono.',
     confirm: 'Confirmar',
   },
 };
@@ -413,7 +413,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
     if (!newPassword) {
       errors.newPassword = t.new_password + ' est requis';
     } else if (newPassword.length < 8) {
-      errors.newPassword = t.new_password + ' doit contenir au moins 8 caractères';
+      errors.newPassword = t.new_password + ' doit contenir au moins 8 caractÃ¨res';
     }
     if (!confirmPassword) {
       errors.confirmPassword = t.confirm_password + ' est requise';
@@ -434,7 +434,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
         new_password: newPassword,
         confirm_password: confirmPassword
       });
-      notify?.(t.change_password + ' avec succès', 'success');
+      notify?.(t.change_password + ' avec succÃ¨s', 'success');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -453,12 +453,12 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
 
   const handleToggleTwoFA = async () => {
     if (twoFAEnabled) {
-      // Désactiver 2FA
+      // DÃ©sactiver 2FA
       setSaving(true);
       try {
         await api.post('/tenant/settings/2fa/disable');
         setTwoFAEnabled(false);
-        notify?.(t.two_factor + ' désactivée', 'success');
+        notify?.(t.two_factor + ' dÃ©sactivÃ©e', 'success');
         await fetchSettings();
       } catch (error) {
         console.warn('2FA disable failed silently');
@@ -484,7 +484,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
   const handleConfirmTwoFA = async () => {
     setTwoFAEnabled(true);
     setShowTwoFAConfirm(false);
-    notify?.(t.two_factor + ' activée', 'success');
+    notify?.(t.two_factor + ' activÃ©e', 'success');
     await fetchSettings();
   };
 
@@ -504,9 +504,9 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
           [key]: newValue
         }
       });
-      notify?.(t.preferences + ' mise à jour', 'success');
+      notify?.(t.preferences + ' mise Ã  jour', 'success');
     } catch (error) {
-      notify?.('Erreur lors de la mise à jour', 'error');
+      notify?.('Erreur lors de la mise Ã  jour', 'error');
     } finally {
       setSaving(false);
     }
@@ -529,7 +529,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
         }
       });
 
-      notify?.(t.dark_mode + ' ' + (newValue ? 'activé' : 'désactivé'), 'success');
+      notify?.(t.dark_mode + ' ' + (newValue ? 'activÃ©' : 'dÃ©sactivÃ©'), 'success');
     } catch (error) {
       console.warn('Dark mode toggle failed silently');
     } finally {
@@ -554,7 +554,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
         }
       });
 
-      notify?.('Préférence de partage mise à jour', 'success');
+      notify?.('PrÃ©fÃ©rence de partage mise Ã  jour', 'success');
     } catch (error) {
       console.warn('Data sharing toggle failed silently');
     } finally {
@@ -566,7 +566,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
     try {
       const response = await api.get('/tenant/settings/download-data');
 
-      // Créer un fichier JSON à télécharger
+      // CrÃ©er un fichier JSON Ã  tÃ©lÃ©charger
       const dataStr = JSON.stringify(response.data, null, 2);
       const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
 
@@ -577,7 +577,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
       linkElement.setAttribute('download', exportFileDefaultName);
       linkElement.click();
 
-      notify?.('Données téléchargées avec succès', 'success');
+      notify?.('DonnÃ©es tÃ©lÃ©chargÃ©es avec succÃ¨s', 'success');
     } catch (error) {
       console.warn('Download data failed silently');
     }
@@ -587,8 +587,8 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
     setDeleting(true);
     try {
       await api.delete('/tenant/settings/account');
-      notify?.('Compte supprimé avec succès', 'success');
-      // Déconnecter l'utilisateur
+      notify?.('Compte supprimÃ© avec succÃ¨s', 'success');
+      // DÃ©connecter l'utilisateur
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
@@ -615,9 +615,9 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
           [field]: value
         }
       });
-      notify?.(t.preferences + ' mise à jour', 'success');
+      notify?.(t.preferences + ' mise Ã  jour', 'success');
     } catch (error) {
-      notify?.('Erreur lors de la mise à jour', 'error');
+      notify?.('Erreur lors de la mise Ã  jour', 'error');
     } finally {
       setSaving(false);
     }
@@ -752,7 +752,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
       {/* Content */}
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-6">
         
-        {/* ── EN-TÊTE ── */}
+        {/* â”€â”€ EN-TÃŠTE â”€â”€ */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">{t.title}</h1>
@@ -760,7 +760,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
           </div>
         </div>
 
-        {/* 1. Compte et sécurité */}
+        {/* 1. Compte et sÃ©curitÃ© */}
         <Card className="overflow-hidden dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 border-b border-gray-100 dark:border-gray-700">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t.account_security}</h2>
@@ -777,7 +777,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
                   type={showPassword ? 'text' : 'password'}
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                   className={`w-full px-4 py-2.5 border ${passwordErrors.currentPassword ? 'border-red-500' : 'border-gray-200'} rounded-lg focus:ring-2 focus:ring-[#70AE48] focus:border-transparent pr-10 bg-white text-gray-900`}
                 />
                 <button
@@ -803,7 +803,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
                   type={showPassword ? 'text' : 'password'}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                   className={`w-full px-4 py-2.5 border ${passwordErrors.newPassword ? 'border-red-500' : 'border-gray-200'} rounded-lg focus:ring-2 focus:ring-[#70AE48] focus:border-transparent bg-white text-gray-900`}
                 />
                 <p className="text-xs text-gray-400 mt-1">{t.password_min}</p>
@@ -819,7 +819,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
                   type={showPassword ? 'text' : 'password'}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                   className={`w-full px-4 py-2.5 border ${passwordErrors.confirmPassword ? 'border-red-500' : 'border-gray-200'} rounded-lg focus:ring-2 focus:ring-[#70AE48] focus:border-transparent bg-white text-gray-900`}
                 />
                 {passwordErrors.confirmPassword && (
@@ -828,7 +828,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
               </div>
             </div>
 
-            {/* Conseil de sécurité */}
+            {/* Conseil de sÃ©curitÃ© */}
             <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 p-4 rounded-r-lg">
               <div className="flex items-start gap-3">
                 <Lightbulb className="h-5 w-5 text-blue-500 dark:text-blue-400 mt-0.5" />
@@ -884,7 +884,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
           </div>
         </Card>
 
-        {/* 2. Préférences */}
+        {/* 2. PrÃ©fÃ©rences */}
         <Card className="overflow-hidden dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 border-b border-gray-100 dark:border-gray-700">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t.preferences}</h2>
@@ -900,9 +900,9 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
                 disabled={saving}
                 className="px-4 py-1.5 border-2 border-gray-100 rounded-xl text-sm font-semibold text-[#1f2d1b] bg-white hover:border-[#70AE48] transition-all cursor-pointer outline-none focus:ring-2 focus:ring-[#70AE48]/20"
               >
-                <option value="fr">Français FR</option>
+                <option value="fr">FranÃ§ais FR</option>
                 <option value="en">English EN</option>
-                <option value="es">Español ES</option>
+                <option value="es">EspaÃ±ol ES</option>
               </select>
             </div>
 
@@ -1021,14 +1021,14 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
           </div>
         </Card>
 
-        {/* 4. Confidentialité et données */}
+        {/* 4. ConfidentialitÃ© et donnÃ©es */}
         <Card className="overflow-hidden dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 border-b border-gray-100 dark:border-gray-700">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t.privacy_data}</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t.privacy_data_desc}</p>
           </div>
           <div className="p-6 space-y-6">
-            {/* Partage des données */}
+            {/* Partage des donnÃ©es */}
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium text-gray-900 dark:text-white">{t.data_sharing}</p>
@@ -1041,7 +1041,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
               />
             </div>
 
-            {/* Gestion des données */}
+            {/* Gestion des donnÃ©es */}
             <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
               <h3 className="font-medium text-gray-900 dark:text-white mb-3">{t.data_management}</h3>
               <button

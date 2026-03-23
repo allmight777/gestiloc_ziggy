@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import {
   FileText,
   Plus,
@@ -25,7 +25,7 @@ import { Tab } from "../types";
 import { PaymentModal } from "./PaymentModal";
 import api from "@/services/api";
 
-// Types pour les données de l'API
+// Types pour les donnÃ©es de l'API
 interface Property {
   id: number;
   name: string;
@@ -158,12 +158,12 @@ interface ApiResponse {
   };
 }
 
-// Données fictives pour les utilisateurs non connectés
+// DonnÃ©es fictives pour les utilisateurs non connectÃ©s
 const mockDashboardData: ApiResponse = {
   user: {
     id: 0,
     email: "invite@example.com",
-    first_name: "Invité",
+    first_name: "InvitÃ©",
     last_name: "",
     phone: "",
     roles: ["guest"]
@@ -186,7 +186,7 @@ const mockDashboardData: ApiResponse = {
         address: "123 Rue de la Paix",
         city: "Dakar",
         postal_code: "12500",
-        country: "Sénégal"
+        country: "SÃ©nÃ©gal"
       },
       landlord: {
         id: 1,
@@ -214,7 +214,7 @@ const mockDashboardData: ApiResponse = {
       address: "123 Rue de la Paix",
       city: "Dakar",
       postal_code: "12500",
-      country: "Sénégal"
+      country: "SÃ©nÃ©gal"
     },
     landlord: {
       id: 1,
@@ -298,7 +298,7 @@ const mockDashboardData: ApiResponse = {
     {
       id: 1,
       title: "Fuite d'eau dans la cuisine",
-      description: "Fuite sous l'évier qui nécessite une intervention rapide",
+      description: "Fuite sous l'Ã©vier qui nÃ©cessite une intervention rapide",
       category: "plomberie",
       priority: "high",
       status: "in_progress",
@@ -372,7 +372,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   // Derived date keys
   const currentYM = useMemo(() => monthKey(new Date()), []);
 
-  // Vérifier l'authentification au chargement
+  // VÃ©rifier l'authentification au chargement
   useEffect(() => {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
@@ -381,13 +381,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
       setIsAuthenticated(true);
     } else {
       setIsAuthenticated(false);
-      // Si non authentifié, utiliser les données fictives
+      // Si non authentifiÃ©, utiliser les donnÃ©es fictives
       setDashboardData(mockDashboardData);
       setLoading(false);
     }
   }, []);
 
-  // Charger les données depuis l'API Laravel (seulement si authentifié)
+  // Charger les donnÃ©es depuis l'API Laravel (seulement si authentifiÃ©)
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -398,23 +398,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
       setError(null);
 
       try {
-        // Appel à l'API Laravel - endpoint dashboard
+        // Appel Ã  l'API Laravel - endpoint dashboard
         const response = await api.get('/tenant/dashboard');
 
         if (cancelled) return;
 
-        console.log('Données reçues:', response.data);
+        console.log('DonnÃ©es reÃ§ues:', response.data);
         setDashboardData(response.data);
 
       } catch (err: any) {
-        console.error('[DASH] Erreur chargement données:', err);
+        console.error('[DASH] Erreur chargement donnÃ©es:', err);
         if (!cancelled) {
-          // En cas d'erreur d'authentification, utiliser les données fictives
+          // En cas d'erreur d'authentification, utiliser les donnÃ©es fictives
           if (err.response?.status === 401) {
             setIsAuthenticated(false);
             setDashboardData(mockDashboardData);
           } else {
-            setError(err.response?.data?.message || 'Erreur lors du chargement des données');
+            setError(err.response?.data?.message || 'Erreur lors du chargement des donnÃ©es');
           }
         }
       } finally {
@@ -457,7 +457,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const lastReceipt = useMemo(() => receiptsSorted[0] || null, [receiptsSorted]);
 
-  // Statistiques depuis l'API ou calculées
+  // Statistiques depuis l'API ou calculÃ©es
   const locationCount = useMemo(() => leases.length || 0, [leases]);
 
   const openIncidents = useMemo(
@@ -503,7 +503,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <Button onClick={() => window.location.reload()} variant="secondary">
-            Réessayer
+            RÃ©essayer
           </Button>
         </div>
       );
@@ -513,10 +513,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
       case 'home':
         return (
           <>
-            {/* Styles injectés pour l'harmonisation */}
+            {/* Styles injectÃ©s pour l'harmonisation */}
             <style>{`
               @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Manrope:wght@400;500;600;700;800&display=swap');
-              .font-merriweather { font-family: 'Merriweather', serif; }
+              
               .font-manrope { font-family: 'Manrope', sans-serif; }
               @keyframes float {
                 0%, 100% { transform: translateY(0); }
@@ -525,7 +525,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               .animate-float { animation: float 3s ease-in-out infinite; }
             `}</style>
 
-            {/* Bannière mode démo si non authentifié */}
+            {/* BanniÃ¨re mode dÃ©mo si non authentifiÃ© */}
             {!isAuthenticated && (
               <div className="bg-gradient-to-r from-amber-400 to-amber-500 rounded-2xl p-4 mb-6 text-white shadow-lg animate-fadeIn">
                 <div className="flex items-center justify-between">
@@ -534,8 +534,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       <HelpCircle size={20} />
                     </div>
                     <div>
-                      <p className="font-medium font-manrope">Mode Démonstration</p>
-                      <p className="text-sm text-white/90 font-manrope">Les données affichées sont fictives. Connectez-vous pour voir vos véritables informations.</p>
+                      <p className="font-medium font-manrope">Mode DÃ©monstration</p>
+                      <p className="text-sm text-white/90 font-manrope">Les donnÃ©es affichÃ©es sont fictives. Connectez-vous pour voir vos vÃ©ritables informations.</p>
                     </div>
                   </div>
                   <button
@@ -552,7 +552,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <div className="relative overflow-hidden rounded-[2rem] p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-8 md:min-h-[200px] mb-8 transition-all duration-500 hover:shadow-2xl hover:shadow-green-500/10"
               style={{ background: 'linear-gradient(135deg, #8CCC63 0%, #529D21 100%)' }}>
               <div className="z-10 text-center md:text-left max-w-xl">
-                <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-black mb-4 font-merriweather leading-tight">
+                <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-black mb-4  leading-tight">
                   {!isAuthenticated
                     ? 'Bienvenue sur Gestiloc !'
                     : dashboardData?.user?.first_name
@@ -561,8 +561,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </h1>
                 <p className="text-white/95 text-sm sm:text-base leading-relaxed font-manrope font-medium">
                   {!isAuthenticated
-                    ? 'Découvrez la gestion locative simplifiée. Testez toutes les fonctionnalités en mode démo.'
-                    : 'Retrouvez ici toutes les informations de votre location. Gérez vos quittances, contactez votre propriétaire et suivez l\'état de votre logement en toute simplicité.'}
+                    ? 'DÃ©couvrez la gestion locative simplifiÃ©e. Testez toutes les fonctionnalitÃ©s en mode dÃ©mo.'
+                    : 'Retrouvez ici toutes les informations de votre location. GÃ©rez vos quittances, contactez votre propriÃ©taire et suivez l\'Ã©tat de votre logement en toute simplicitÃ©.'}
                 </p>
               </div>
               <img
@@ -579,7 +579,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               {[
                 { id: 'receipts', label: 'Mes quittances', icon: '/Ressource_gestiloc/Mes_quittances.png' },
                 { id: 'interventions', label: 'Nouvelle intervention', icon: '/Ressource_gestiloc/Tools.png' },
-                { id: 'tasks', label: 'Nouvelle tâche', icon: '/Ressource_gestiloc/Nouvelles_taches.png' },
+                { id: 'tasks', label: 'Nouvelle tÃ¢che', icon: '/Ressource_gestiloc/Nouvelles_taches.png' },
                 { id: 'notes', label: 'Nouvelle note', icon: '/Ressource_gestiloc/Edit Property.png' },
                 { id: 'documents', label: 'Nouveau document', icon: '/Ressource_gestiloc/Document In Folder.png' },
               ].map(action => (
@@ -602,14 +602,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
               {/* Locations Card */}
               <div className="bg-white rounded-[2rem] border border-gray-100 p-8 flex flex-col h-[300px] relative shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg sm:text-xl font-black text-gray-900 font-merriweather">Locations</h3>
+                  <h3 className="text-lg sm:text-xl font-black text-gray-900 ">Locations</h3>
                   <img src="/Ressource_gestiloc/parametre_loc.png" alt="Settings" className="w-6 h-6 opacity-40 hover:opacity-100 cursor-pointer transition-opacity" />
                 </div>
                 <div className="flex-1 flex flex-col items-center justify-center -mt-2">
                   <div className="flex items-center gap-8">
                     <img src="/Ressource_gestiloc/Key Security.png" alt="Key" className="w-24 h-24 sm:w-28 sm:h-28 object-contain" />
                     <div className="text-center">
-                      <p className="text-6xl sm:text-7xl font-black text-green-600 font-merriweather leading-none drop-shadow-sm">{locationCount}</p>
+                      <p className="text-6xl sm:text-7xl font-black text-green-600  leading-none drop-shadow-sm">{locationCount}</p>
                       <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-2 flex font-manrope justify-center">
                         {locationCount > 1 ? 'Locations' : 'Location'}
                       </p>
@@ -627,14 +627,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
               {/* Loyers en retard Card */}
               <div className="bg-white rounded-[2rem] border border-gray-100 p-8 flex flex-col h-[300px] relative shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg sm:text-xl font-black text-gray-900 font-merriweather">Loyers en retard</h3>
+                  <h3 className="text-lg sm:text-xl font-black text-gray-900 ">Loyers en retard</h3>
                   <img src="/Ressource_gestiloc/parametre_loc.png" alt="Settings" className="w-6 h-6 opacity-40 hover:opacity-100 cursor-pointer transition-opacity" />
                 </div>
                 <div className="flex-1 flex flex-col items-center justify-center -mt-2">
                   <div className="flex items-center gap-8">
                     <img src="/Ressource_gestiloc/Dollar Bag.png" alt="Money" className="w-24 h-24 sm:w-28 sm:h-28 object-contain" />
                     <div className="text-center">
-                      <p className="text-6xl sm:text-7xl font-black text-orange-500 font-merriweather leading-none drop-shadow-sm">{latePayments}</p>
+                      <p className="text-6xl sm:text-7xl font-black text-orange-500  leading-none drop-shadow-sm">{latePayments}</p>
                       <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-2 flex font-manrope justify-center">
                         {latePayments > 1 ? 'Retards' : 'Retard'}
                       </p>
@@ -652,7 +652,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               {/* Interventions Card */}
               <div className="bg-white rounded-[2rem] border border-gray-100 p-8 flex flex-col h-[300px] relative shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg sm:text-xl font-black text-gray-900 font-merriweather">Interventions</h3>
+                  <h3 className="text-lg sm:text-xl font-black text-gray-900 ">Interventions</h3>
                   <img src="/Ressource_gestiloc/parametre_loc.png" alt="Settings" className="w-6 h-6 opacity-40 hover:opacity-100 cursor-pointer transition-opacity" />
                 </div>
                 <div className="flex-1 flex flex-col items-center justify-center -mt-2">
@@ -660,15 +660,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <img src="/Ressource_gestiloc/Tools.png" alt="Tools" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" />
                     <div className="flex flex-1 justify-around">
                       <div className="text-center">
-                        <p className="text-4xl sm:text-5xl font-black text-gray-900 font-merriweather leading-none">{openIncidents}</p>
+                        <p className="text-4xl sm:text-5xl font-black text-gray-900  leading-none">{openIncidents}</p>
                         <p className="text-[0.65rem] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mt-2 font-manrope">Ouvertes</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-4xl sm:text-5xl font-black text-orange-500 font-merriweather leading-none">0</p>
+                        <p className="text-4xl sm:text-5xl font-black text-orange-500  leading-none">0</p>
                         <p className="text-[0.65rem] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mt-2 font-manrope">En retard</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-4xl sm:text-5xl font-black text-green-500 font-merriweather leading-none">{inProgressIncidents}</p>
+                        <p className="text-4xl sm:text-5xl font-black text-green-500  leading-none">{inProgressIncidents}</p>
                         <p className="text-[0.65rem] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mt-2 font-manrope">En cours</p>
                       </div>
                     </div>
@@ -682,10 +682,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </button>
               </div>
 
-              {/* Tâches Card */}
+              {/* TÃ¢ches Card */}
               <div className="bg-white rounded-[2rem] border border-gray-100 p-8 flex flex-col h-[300px] relative shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg sm:text-xl font-black text-gray-900 font-merriweather">Tâches</h3>
+                  <h3 className="text-lg sm:text-xl font-black text-gray-900 ">TÃ¢ches</h3>
                   <img src="/Ressource_gestiloc/parametre_loc.png" alt="Settings" className="w-6 h-6 opacity-40 hover:opacity-100 cursor-pointer transition-opacity" />
                 </div>
                 <div className="flex-1 flex flex-col items-center justify-center -mt-2">
@@ -693,11 +693,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <img src="/Ressource_gestiloc/Inspection.png" alt="Tasks" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" />
                     <div className="flex flex-1 justify-around gap-4">
                       <div className="text-center">
-                        <p className="text-4xl sm:text-5xl font-black text-gray-900 font-merriweather leading-none">0</p>
+                        <p className="text-4xl sm:text-5xl font-black text-gray-900  leading-none">0</p>
                         <p className="text-[0.65rem] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mt-2 font-manrope">Ouvertes</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-4xl sm:text-5xl font-black text-orange-500 font-merriweather leading-none">0</p>
+                        <p className="text-4xl sm:text-5xl font-black text-orange-500  leading-none">0</p>
                         <p className="text-[0.65rem] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mt-2 font-manrope">En retard</p>
                       </div>
                     </div>
@@ -717,15 +717,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
       case 'location':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Ma Location</h2>
+            <h2 className="text-2xl font-black text-gray-900 ">Ma Location</h2>
             {activeLease ? (
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold mb-4">{activeLease.property?.name || 'Détails du logement'}</h3>
+                <h3 className="text-lg font-semibold mb-4">{activeLease.property?.name || 'DÃ©tails du logement'}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-500">Adresse</p>
                     <p className="font-medium">
-                      {activeLease.property?.address || 'Non spécifiée'}
+                      {activeLease.property?.address || 'Non spÃ©cifiÃ©e'}
                       {activeLease.property?.city ? `, ${activeLease.property.city}` : ''}
                     </p>
                   </div>
@@ -742,7 +742,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <p className="font-medium">{fmtMoney(totalMonthly)}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Date de début</p>
+                    <p className="text-sm text-gray-500">Date de dÃ©but</p>
                     <p className="font-medium">{new Date(activeLease.start_date).toLocaleDateString('fr-FR')}</p>
                   </div>
                   <div>
@@ -750,17 +750,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <p className="font-medium">
                       {activeLease.end_date
                         ? new Date(activeLease.end_date).toLocaleDateString('fr-FR')
-                        : 'Non spécifiée'}
+                        : 'Non spÃ©cifiÃ©e'}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Type de bail</p>
                     <p className="font-medium">
-                      {activeLease.type === 'nu' ? 'Location nue' : 'Location meublée'}
+                      {activeLease.type === 'nu' ? 'Location nue' : 'Location meublÃ©e'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Numéro de bail</p>
+                    <p className="text-sm text-gray-500">NumÃ©ro de bail</p>
                     <p className="font-medium">{activeLease.lease_number}</p>
                   </div>
                 </div>
@@ -778,7 +778,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       case 'receipts':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Mes Quittances</h2>
+            <h2 className="text-2xl font-black text-gray-900 ">Mes Quittances</h2>
             <div className="bg-white rounded-lg shadow">
               <div className="p-6">
                 <h3 className="text-lg font-semibold mb-4">Historique des quittances</h3>
@@ -789,7 +789,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         <div>
                           <p className="font-medium">Mois: {receipt.paid_month}</p>
                           <p className="text-sm text-gray-500">
-                            Émis le: {new Date(receipt.issued_date).toLocaleDateString('fr-FR')}
+                            Ã‰mis le: {new Date(receipt.issued_date).toLocaleDateString('fr-FR')}
                           </p>
                           <p className="text-sm text-gray-500">
                             {receipt.property?.name && `Bien: ${receipt.property.name}`}
@@ -799,7 +799,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                           <p className="font-semibold">{fmtMoney(receipt.amount || 0)}</p>
                           <span className={`text-xs px-2 py-1 rounded ${receipt.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                             }`}>
-                            {receipt.status === 'paid' ? 'Payé' : 'En attente'}
+                            {receipt.status === 'paid' ? 'PayÃ©' : 'En attente'}
                           </span>
                           {receipt.pdf_url && (
                             <a
@@ -808,7 +808,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                               rel="noopener noreferrer"
                               className="ml-2 text-xs text-blue-600 hover:underline"
                             >
-                              Télécharger
+                              TÃ©lÃ©charger
                             </a>
                           )}
                         </div>
@@ -829,7 +829,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       case 'interventions':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Mes Interventions</h2>
+            <h2 className="text-2xl font-black text-gray-900 ">Mes Interventions</h2>
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-lg font-semibold mb-4">Historique des interventions</h3>
               {incidents && incidents.length > 0 ? (
@@ -841,7 +841,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         <p className="text-sm text-gray-500">{incident.description.substring(0, 100)}...</p>
                         <p className="text-xs text-gray-400">
                           {new Date(incident.created_at).toLocaleDateString('fr-FR')}
-                          {incident.property?.name && ` • ${incident.property.name}`}
+                          {incident.property?.name && ` â€¢ ${incident.property.name}`}
                         </p>
                       </div>
                       <div className="text-right">
@@ -851,7 +851,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                           }`}>
                           {incident.status === 'open' ? 'Ouvert' :
                             incident.status === 'in_progress' ? 'En cours' :
-                              'Résolu'}
+                              'RÃ©solu'}
                         </span>
                       </div>
                     </div>
@@ -870,7 +870,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       case 'payments':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Paiements</h2>
+            <h2 className="text-2xl font-black text-gray-900 ">Paiements</h2>
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-lg font-semibold mb-4">Historique des paiements</h3>
               {payments && payments.length > 0 ? (
@@ -882,8 +882,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                           {payment.payment_method === 'card' ? 'Paiement par carte' :
                             payment.payment_method === 'mobile_money' ? 'Mobile Money' :
                               payment.payment_method === 'virement' ? 'Virement' :
-                                payment.payment_method === 'especes' ? 'Espèces' :
-                                  payment.payment_method === 'cheque' ? 'Chèque' : 'Paiement'}
+                                payment.payment_method === 'especes' ? 'EspÃ¨ces' :
+                                  payment.payment_method === 'cheque' ? 'ChÃ¨que' : 'Paiement'}
                         </p>
                         <p className="text-sm text-gray-500">
                           Date: {payment.paid_at ? new Date(payment.paid_at).toLocaleDateString('fr-FR') : 'N/A'}
@@ -898,11 +898,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
                             payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                               'bg-red-100 text-red-800'
                           }`}>
-                          {payment.status === 'approved' ? 'Approuvé' :
+                          {payment.status === 'approved' ? 'ApprouvÃ©' :
                             payment.status === 'pending' ? 'En attente' :
-                              payment.status === 'initiated' ? 'Initiatié' :
-                                payment.status === 'cancelled' ? 'Annulé' :
-                                  payment.status === 'failed' ? 'Échoué' : payment.status}
+                              payment.status === 'initiated' ? 'InitiatiÃ©' :
+                                payment.status === 'cancelled' ? 'AnnulÃ©' :
+                                  payment.status === 'failed' ? 'Ã‰chouÃ©' : payment.status}
                         </span>
                       </div>
                     </div>
@@ -911,7 +911,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               ) : (
                 <div className="text-center py-8">
                   <DollarSign className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <p className="text-gray-500">Aucun paiement enregistré</p>
+                  <p className="text-gray-500">Aucun paiement enregistrÃ©</p>
                 </div>
               )}
             </div>
@@ -921,20 +921,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
       case 'notice':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Préavis</h2>
+            <h2 className="text-2xl font-black text-gray-900 ">PrÃ©avis</h2>
             <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold mb-4">Gestion du préavis</h3>
+              <h3 className="text-lg font-semibold mb-4">Gestion du prÃ©avis</h3>
               {notices && notices.length > 0 ? (
                 <div className="space-y-3">
                   {notices.map((notice: Notice) => (
                     <div key={notice.id} className="flex justify-between items-center p-3 border rounded">
                       <div>
-                        <p className="font-medium">Préavis de départ #{notice.notice_number}</p>
+                        <p className="font-medium">PrÃ©avis de dÃ©part #{notice.notice_number}</p>
                         <p className="text-sm text-gray-500">
                           Date: {new Date(notice.notice_date).toLocaleDateString('fr-FR')}
                         </p>
                         <p className="text-sm text-gray-500">
-                          Effectif le: {notice.effective_date ? new Date(notice.effective_date).toLocaleDateString('fr-FR') : 'Non défini'}
+                          Effectif le: {notice.effective_date ? new Date(notice.effective_date).toLocaleDateString('fr-FR') : 'Non dÃ©fini'}
                         </p>
                         {notice.reason && (
                           <p className="text-sm text-gray-500">Motif: {notice.reason}</p>
@@ -942,7 +942,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       </div>
                       <span className={`text-xs px-2 py-1 rounded ${notice.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
                         }`}>
-                        {notice.status === 'pending' ? 'En attente' : 'Confirmé'}
+                        {notice.status === 'pending' ? 'En attente' : 'ConfirmÃ©'}
                       </span>
                     </div>
                   ))}
@@ -950,7 +950,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               ) : (
                 <div className="text-center py-8">
                   <File className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <p className="text-gray-500">Aucun préavis en cours</p>
+                  <p className="text-gray-500">Aucun prÃ©avis en cours</p>
                 </div>
               )}
             </div>
@@ -960,7 +960,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       default:
         return (
           <div className="text-center py-12">
-            <p className="text-gray-500">Onglet non trouvé</p>
+            <p className="text-gray-500">Onglet non trouvÃ©</p>
           </div>
         );
     }

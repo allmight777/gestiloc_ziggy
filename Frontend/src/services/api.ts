@@ -1506,6 +1506,7 @@ export const landlordService = {
     phone?: string;
     address?: string;
     company_name?: string;
+    birth_date?: string;
   }) => {
     try {
       const response = await api.put('/landlord/settings/profile', userData);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { CreditCard, Lock, CheckCircle } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { Button } from './ui/Button';
@@ -23,7 +23,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amo
     // Simulate API call
     setTimeout(() => {
       setStep('success');
-      notify('Paiement effectué avec succès', 'success');
+      notify('Paiement effectuÃ© avec succÃ¨s', 'success');
       
       // Close modal after seeing success message
       setTimeout(() => {
@@ -51,12 +51,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amo
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={step === 'success' ? 'Paiement réussi' : 'Régler mon loyer'}>
+    <Modal isOpen={isOpen} onClose={onClose} title={step === 'success' ? 'Paiement rÃ©ussi' : 'RÃ©gler mon loyer'}>
       {step === 'form' && (
         <form onSubmit={handlePayment} className="space-y-5 animate-fade-in">
           <div className="bg-blue-50 p-4 rounded-xl flex justify-between items-center mb-4 border border-blue-100">
             <div>
-              <p className="text-xs text-blue-600 font-bold uppercase tracking-wide">Montant à régler</p>
+              <p className="text-xs text-blue-600 font-bold uppercase tracking-wide">Montant Ã  rÃ©gler</p>
               <p className="text-2xl font-bold text-blue-900">{amount.toFixed(2)} FCFA</p>
             </div>
             <div className="bg-white p-2 rounded-full shadow-sm">
@@ -66,7 +66,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amo
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Numéro de carte</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">NumÃ©ro de carte</label>
               <div className="relative">
                 <CreditCard className="absolute left-3 top-3 text-gray-400" size={18} />
                 <input 
@@ -112,7 +112,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amo
                <label className="block text-sm font-medium text-gray-700 mb-1.5">Titulaire de la carte</label>
                <input 
                   type="text" 
-                  placeholder="Nom Prénom" 
+                  placeholder="Nom PrÃ©nom" 
                   className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
                   required
                 />
@@ -124,7 +124,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amo
               Payer {amount.toFixed(2)} FCFA
             </Button>
             <p className="text-center text-xs text-gray-400 mt-3 flex items-center justify-center gap-1">
-              <Lock size={10} /> Paiement chiffré SSL 256-bit
+              <Lock size={10} /> Paiement chiffrÃ© SSL 256-bit
             </p>
           </div>
         </form>
@@ -140,7 +140,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amo
           </div>
           <div>
             <h4 className="text-lg font-bold text-gray-900">Traitement en cours</h4>
-            <p className="text-sm text-gray-500">Veuillez ne pas fermer cette fenêtre...</p>
+            <p className="text-sm text-gray-500">Veuillez ne pas fermer cette fenÃªtre...</p>
           </div>
         </div>
       )}
@@ -151,8 +151,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, amo
             <CheckCircle size={40} className="text-green-600" />
           </div>
           <div>
-            <h4 className="text-xl font-bold text-gray-900">Paiement Confirmé !</h4>
-            <p className="text-sm text-gray-500 mt-1">Une quittance a été envoyée à votre email.</p>
+            <h4 className="text-xl font-bold text-gray-900">Paiement ConfirmÃ© !</h4>
+            <p className="text-sm text-gray-500 mt-1">Une quittance a Ã©tÃ© envoyÃ©e Ã  votre email.</p>
           </div>
         </div>
       )}

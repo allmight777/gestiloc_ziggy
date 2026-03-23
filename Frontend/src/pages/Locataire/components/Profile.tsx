@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Save, FileText, MessageSquare, Receipt, CheckCircle, Home, Calendar, Briefcase, Phone, Mail, MapPin, User, Users, Edit2, AlertCircle } from 'lucide-react';
 import { Card } from './ui/Card';
 
@@ -96,7 +96,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({});
 
-  // États pour les formulaires
+  // Ã‰tats pour les formulaires
   const [personalInfo, setPersonalInfo] = useState({
     first_name: '',
     last_name: '',
@@ -171,7 +171,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
     if (response.status === 500) {
       return {
         success: false,
-        message: 'Erreur serveur. Veuillez réessayer plus tard.'
+        message: 'Erreur serveur. Veuillez rÃ©essayer plus tard.'
       };
     }
 
@@ -217,7 +217,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
           complement: data.address.complement || '',
           zip_code: data.address.zip_code || '',
           city: data.address.city || '',
-          country: data.address.country || 'Bénin'
+          country: data.address.country || 'BÃ©nin'
         });
 
         setProfessional({
@@ -279,7 +279,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
 
       const result = await response.json();
       if (result.success) {
-        notify('Informations personnelles enregistrées', 'success');
+        notify('Informations personnelles enregistrÃ©es', 'success');
         await loadProfile();
         setActiveSection(null);
       }
@@ -315,7 +315,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
 
       const result = await response.json();
       if (result.success) {
-        notify('Adresse enregistrée', 'success');
+        notify('Adresse enregistrÃ©e', 'success');
         await loadProfile();
         setActiveSection(null);
       }
@@ -351,7 +351,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
 
       const result = await response.json();
       if (result.success) {
-        notify('Informations professionnelles enregistrées', 'success');
+        notify('Informations professionnelles enregistrÃ©es', 'success');
         await loadProfile();
         setActiveSection(null);
       }
@@ -387,7 +387,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
 
       const result = await response.json();
       if (result.success) {
-        notify('Contact d\'urgence enregistré', 'success');
+        notify('Contact d\'urgence enregistrÃ©', 'success');
         await loadProfile();
         setActiveSection(null);
       }
@@ -423,7 +423,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
 
       const result = await response.json();
       if (result.success) {
-        notify('Informations du garant enregistrées', 'success');
+        notify('Informations du garant enregistrÃ©es', 'success');
         await loadProfile();
         setActiveSection(null);
       }
@@ -458,7 +458,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
         complement: profile.address.complement || '',
         zip_code: profile.address.zip_code || '',
         city: profile.address.city || '',
-        country: profile.address.country || 'Bénin'
+        country: profile.address.country || 'BÃ©nin'
       });
     }
     setValidationErrors({});
@@ -548,7 +548,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
       >
         <div className="flex items-center gap-4">
           <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold border-2 border-white/30 backdrop-blur-sm">
-            {initials || '👤'}
+            {initials || 'ðŸ‘¤'}
           </div>
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-white">{personalInfo.first_name} {personalInfo.last_name}</h1>
@@ -557,7 +557,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
               {profile.stats.verified && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-white/20 rounded-full text-xs text-white border border-white/30">
                   <CheckCircle size={12} className="text-white" />
-                  Locataire vérifié
+                  Locataire vÃ©rifiÃ©
                 </span>
               )}
               {profile.stats.active_leases > 0 && (
@@ -582,7 +582,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
             <Receipt className="text-green-600" size={24} />
           </div>
           <div className="text-3xl font-bold text-green-600">{profile.stats.rents_paid}</div>
-          <div className="text-xs text-gray-500 uppercase tracking-wide mt-1">Loyers payés</div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide mt-1">Loyers payÃ©s</div>
           <div className="text-sm text-gray-600 mt-1 font-semibold">{formatCurrency(profile.stats.total_paid_amount)}</div>
         </Card>
 
@@ -601,7 +601,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
           </div>
           <div className="text-3xl font-bold text-purple-600">{profile.stats.messages}</div>
           <div className="text-xs text-gray-500 uppercase tracking-wide mt-1">Messages</div>
-          <div className="text-sm text-gray-600 mt-1">Notes et échanges</div>
+          <div className="text-sm text-gray-600 mt-1">Notes et Ã©changes</div>
         </Card>
       </div>
 
@@ -613,22 +613,13 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
               <User size={20} className="text-green-600" />
               Informations personnelles
             </h2>
-            <p className="text-sm text-gray-500">Vos informations de contact et identité</p>
+            <p className="text-sm text-gray-500">Vos informations de contact et identitÃ©</p>
           </div>
-          {activeSection !== 'personal' && (
-            <button
-              onClick={() => setActiveSection('personal')}
-              className="flex items-center gap-1 px-3 py-1 text-sm text-green-600 hover:text-green-700 transition-colors"
-            >
-              <Edit2 size={16} />
-              Modifier
-            </button>
-          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">PrÃ©nom</label>
             <input
               type="text"
               value={personalInfo.first_name}
@@ -640,8 +631,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'personal'}
-              placeholder="Votre prénom"
+              placeholder="Votre prÃ©nom"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.first_name ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
@@ -665,7 +655,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'personal'}
               placeholder="Votre nom"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.last_name ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -687,12 +676,12 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
             disabled
             className="w-full px-3 py-2 bg-gray-50 text-gray-600 border border-gray-200 rounded-lg text-sm cursor-not-allowed"
           />
-          <p className="text-xs text-gray-400 mt-1">Utilisé pour la connexion et les notifications</p>
+          <p className="text-xs text-gray-400 mt-1">UtilisÃ© pour la connexion et les notifications</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">TÃ©lÃ©phone</label>
             <input
               type="tel"
               value={personalInfo.phone}
@@ -704,8 +693,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'personal'}
-              placeholder="Votre numéro de téléphone"
+              placeholder="Votre numÃ©ro de tÃ©lÃ©phone"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.phone ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
@@ -728,16 +716,15 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'personal'}
               className={`w-full px-3 py-2 bg-white text-gray-900 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.marital_status ? 'border-red-500' : 'border-gray-300'
                 }`}
             >
-              <option value="" className="text-gray-500">Sélectionnez</option>
-              <option value="single" className="text-gray-900">Célibataire</option>
-              <option value="married" className="text-gray-900">Marié(e)</option>
-              <option value="divorced" className="text-gray-900">Divorcé(e)</option>
+              <option value="" className="text-gray-500">SÃ©lectionnez</option>
+              <option value="single" className="text-gray-900">CÃ©libataire</option>
+              <option value="married" className="text-gray-900">MariÃ©(e)</option>
+              <option value="divorced" className="text-gray-900">DivorcÃ©(e)</option>
               <option value="widowed" className="text-gray-900">Veuf/Veuve</option>
-              <option value="pacsed" className="text-gray-900">Pacsé(e)</option>
+              <option value="pacsed" className="text-gray-900">PacsÃ©(e)</option>
             </select>
             {validationErrors.marital_status && (
               <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
@@ -826,17 +813,8 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
               <MapPin size={20} className="text-green-600" />
               Adresse actuelle
             </h2>
-            <p className="text-sm text-gray-500">Votre adresse de résidence</p>
+            <p className="text-sm text-gray-500">Votre adresse de rÃ©sidence</p>
           </div>
-          {activeSection !== 'address' && (
-            <button
-              onClick={() => setActiveSection('address')}
-              className="flex items-center gap-1 px-3 py-1 text-sm text-green-600 hover:text-green-700 transition-colors"
-            >
-              <Edit2 size={16} />
-              Modifier
-            </button>
-          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -853,7 +831,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'address'}
               placeholder="Votre adresse"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.street ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -866,7 +843,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Complément</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">ComplÃ©ment</label>
             <input
               type="text"
               value={address.complement}
@@ -878,8 +855,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'address'}
-              placeholder="Appartement, étage, etc."
+              placeholder="Appartement, Ã©tage, etc."
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.complement ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
@@ -892,32 +868,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Code postal</label>
-            <input
-              type="text"
-              value={address.zip_code}
-              onChange={(e) => {
-                setAddress({ ...address, zip_code: e.target.value });
-                if (validationErrors.zip_code) {
-                  const newErrors = { ...validationErrors };
-                  delete newErrors.zip_code;
-                  setValidationErrors(newErrors);
-                }
-              }}
-              disabled={activeSection !== 'address'}
-              placeholder="Code postal"
-              className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.zip_code ? 'border-red-500' : 'border-gray-300'
-                }`}
-            />
-            {validationErrors.zip_code && (
-              <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
-                <AlertCircle size={12} />
-                {validationErrors.zip_code[0]}
-              </p>
-            )}
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Ville</label>
             <input
@@ -931,7 +882,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'address'}
               placeholder="Votre ville"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.city ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -943,32 +893,31 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
               </p>
             )}
           </div>
-        </div>
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Pays</label>
-          <input
-            type="text"
-            value={address.country}
-            onChange={(e) => {
-              setAddress({ ...address, country: e.target.value });
-              if (validationErrors.country) {
-                const newErrors = { ...validationErrors };
-                delete newErrors.country;
-                setValidationErrors(newErrors);
-              }
-            }}
-            disabled={activeSection !== 'address'}
-            placeholder="Pays"
-            className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.country ? 'border-red-500' : 'border-gray-300'
-              }`}
-          />
-          {validationErrors.country && (
-            <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
-              <AlertCircle size={12} />
-              {validationErrors.country[0]}
-            </p>
-          )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Pays</label>
+            <input
+              type="text"
+              value={address.country}
+              onChange={(e) => {
+                setAddress({ ...address, country: e.target.value });
+                if (validationErrors.country) {
+                  const newErrors = { ...validationErrors };
+                  delete newErrors.country;
+                  setValidationErrors(newErrors);
+                }
+              }}
+              placeholder="Pays"
+              className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.country ? 'border-red-500' : 'border-gray-300'
+                }`}
+            />
+            {validationErrors.country && (
+              <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                <AlertCircle size={12} />
+                {validationErrors.country[0]}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="flex gap-3">
@@ -999,15 +948,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
             </h2>
             <p className="text-sm text-gray-500">Votre situation professionnelle</p>
           </div>
-          {activeSection !== 'professional' && (
-            <button
-              onClick={() => setActiveSection('professional')}
-              className="flex items-center gap-1 px-3 py-1 text-sm text-green-600 hover:text-green-700 transition-colors"
-            >
-              <Edit2 size={16} />
-              Modifier
-            </button>
-          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -1024,7 +964,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'professional'}
               placeholder="Votre profession"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.profession ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -1049,7 +988,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'professional'}
               placeholder="Nom de l'employeur"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.employer ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -1076,7 +1014,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                 setValidationErrors(newErrors);
               }
             }}
-            disabled={activeSection !== 'professional'}
             placeholder="Adresse de l'employeur"
             className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.employer_address ? 'border-red-500' : 'border-gray-300'
               }`}
@@ -1101,18 +1038,17 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                 setValidationErrors(newErrors);
               }
             }}
-            disabled={activeSection !== 'professional'}
             className={`w-full px-3 py-2 bg-white text-gray-900 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.contract_type ? 'border-red-500' : 'border-gray-300'
               }`}
           >
-            <option value="" className="text-gray-500">Sélectionnez</option>
+            <option value="" className="text-gray-500">SÃ©lectionnez</option>
             <option value="cdi" className="text-gray-900">CDI</option>
             <option value="cdd" className="text-gray-900">CDD</option>
-            <option value="interim" className="text-gray-900">Intérim</option>
+            <option value="interim" className="text-gray-900">IntÃ©rim</option>
             <option value="freelance" className="text-gray-900">Freelance</option>
-            <option value="retired" className="text-gray-900">Retraité</option>
+            <option value="retired" className="text-gray-900">RetraitÃ©</option>
             <option value="unemployed" className="text-gray-900">Sans emploi</option>
-            <option value="student" className="text-gray-900">Étudiant</option>
+            <option value="student" className="text-gray-900">Ã‰tudiant</option>
           </select>
           {validationErrors.contract_type && (
             <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
@@ -1120,16 +1056,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
               {validationErrors.contract_type[0]}
             </p>
           )}
-        </div>
-
-        <div className="flex gap-3">
-          <button
-            onClick={handleSaveProfessional}
-            className="flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-            style={{ background: 'rgba(82, 157, 33, 1)' }}
-          >
-            Enregistrer
-          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -1146,7 +1072,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'professional'}
               placeholder="Revenu annuel"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.annual_income ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -1171,7 +1096,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'professional'}
               placeholder="Revenu mensuel"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.monthly_income ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -1185,26 +1109,24 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
           </div>
         </div>
 
-        {activeSection === 'professional' && (
-          <div className="flex gap-3 animate-fadeIn">
-            <button
-              onClick={handleSaveProfessional}
-              disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
-              style={{ background: 'rgba(82, 157, 33, 0.82)' }}
-            >
-              <Save size={16} />
-              Enregistrer
-            </button>
-            <button
-              onClick={cancelProfessional}
-              disabled={saving}
-              className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all duration-300 disabled:opacity-50"
-            >
-              Annuler
-            </button>
-          </div>
-        )}
+        <div className="flex gap-3 animate-fadeIn">
+          <button
+            onClick={handleSaveProfessional}
+            disabled={saving}
+            className="flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+            style={{ background: 'rgba(82, 157, 33, 0.82)' }}
+          >
+            <Save size={16} />
+            Enregistrer
+          </button>
+          <button
+            onClick={cancelProfessional}
+            disabled={saving}
+            className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all duration-300 disabled:opacity-50"
+          >
+            Annuler
+          </button>
+        </div>
       </Card>
 
       {/* Emergency Contact */}
@@ -1215,7 +1137,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
               <Phone size={20} className="text-green-600" />
               Contact d'urgence
             </h2>
-            <p className="text-sm text-gray-500">Personne à contacter en cas d'urgence</p>
+            <p className="text-sm text-gray-500">Personne Ã  contacter en cas d'urgence</p>
           </div>
           {activeSection !== 'emergency' && (
             <button
@@ -1243,7 +1165,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                 }
               }}
               disabled={activeSection !== 'emergency'}
-              placeholder="Nom de la personne à contacter"
+              placeholder="Nom de la personne Ã  contacter"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.full_name ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
@@ -1255,7 +1177,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Lien de parenté</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Lien de parentÃ©</label>
             <input
               type="text"
               value={emergency.relationship}
@@ -1268,7 +1190,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                 }
               }}
               disabled={activeSection !== 'emergency'}
-              placeholder="Ex: Époux, Parent, Ami..."
+              placeholder="Ex: Ã‰poux, Parent, Ami..."
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.relationship ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
@@ -1283,7 +1205,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">TÃ©lÃ©phone</label>
             <input
               type="tel"
               value={emergency.phone}
@@ -1296,7 +1218,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                 }
               }}
               disabled={activeSection !== 'emergency'}
-              placeholder="Numéro de téléphone"
+              placeholder="NumÃ©ro de tÃ©lÃ©phone"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.phone ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
@@ -1362,15 +1284,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
             </h2>
             <p className="text-sm text-gray-500">Personne se portant garant pour votre location</p>
           </div>
-          {activeSection !== 'guarantor' && (
-            <button
-              onClick={() => setActiveSection('guarantor')}
-              className="flex items-center gap-1 px-3 py-1 text-sm text-green-600 hover:text-green-700 transition-colors"
-            >
-              <Edit2 size={16} />
-              Modifier
-            </button>
-          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -1387,7 +1300,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'guarantor'}
               placeholder="Nom du garant"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.name ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -1412,7 +1324,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'guarantor'}
               placeholder="Profession du garant"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.profession ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -1428,7 +1339,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">TÃ©lÃ©phone</label>
             <input
               type="tel"
               value={guarantor.phone}
@@ -1440,8 +1351,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'guarantor'}
-              placeholder="Téléphone du garant"
+              placeholder="TÃ©lÃ©phone du garant"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.phone ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
@@ -1465,7 +1375,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'guarantor'}
               placeholder="Email du garant"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.email ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -1492,7 +1401,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                 setValidationErrors(newErrors);
               }
             }}
-            disabled={activeSection !== 'guarantor'}
             placeholder="Adresse du garant"
             className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.address ? 'border-red-500' : 'border-gray-300'
               }`}
@@ -1519,7 +1427,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'guarantor'}
+              placeholder="Date de naissance"
               className={`w-full px-3 py-2 bg-white text-gray-900 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.birth_date ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
@@ -1543,7 +1451,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'guarantor'}
               placeholder="Lieu de naissance"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.birth_place ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -1571,7 +1478,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'guarantor'}
               placeholder="Revenu annuel"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.income ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -1596,7 +1502,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
                   setValidationErrors(newErrors);
                 }
               }}
-              disabled={activeSection !== 'guarantor'}
               placeholder="Revenu mensuel"
               className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.monthly_income ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -1610,26 +1515,24 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
           </div>
         </div>
 
-        {activeSection === 'guarantor' && (
-          <div className="flex gap-3 animate-fadeIn">
-            <button
-              onClick={handleSaveGuarantor}
-              disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
-              style={{ background: 'rgba(82, 157, 33, 0.82)' }}
-            >
-              <Save size={16} />
-              Enregistrer
-            </button>
-            <button
-              onClick={cancelGuarantor}
-              disabled={saving}
-              className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all duration-300 disabled:opacity-50"
-            >
-              Annuler
-            </button>
-          </div>
-        )}
+        <div className="flex gap-3 animate-fadeIn">
+          <button
+            onClick={handleSaveGuarantor}
+            disabled={saving}
+            className="flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+            style={{ background: 'rgba(82, 157, 33, 0.82)' }}
+          >
+            <Save size={16} />
+            Enregistrer
+          </button>
+          <button
+            onClick={cancelGuarantor}
+            disabled={saving}
+            className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all duration-300 disabled:opacity-50"
+          >
+            Annuler
+          </button>
+        </div>
       </Card>
 
       <style>{`
