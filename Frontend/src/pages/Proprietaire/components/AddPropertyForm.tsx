@@ -64,17 +64,17 @@ export const AddPropertyForm: React.FC<AddPropertyFormProps> = ({ onSuccess }) =
             
             <div className="space-y-2">
               <Label htmlFor="surface">Surface (m²)</Label>
-              <Input id="surface" type="number" placeholder="Ex: 75" required />
+              <Input id="surface" type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="Ex: 75" required />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="rooms">Nombre de pièces</Label>
-              <Input id="rooms" type="number" placeholder="Ex: 3" required />
+              <Input id="rooms" type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="Ex: 3" required />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="rent">Loyer (FCFA)</Label>
-              <Input id="rent" type="number" placeholder="Ex: 850" required />
+              <Input id="rent" type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="Ex: 850" required />
             </div>
             
             <div className="space-y-2">

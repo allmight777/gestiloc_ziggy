@@ -123,20 +123,16 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
     setChartLoading(true);
     try {
       const r = await api.get("/tenant/payments/dashboard");
-      console.log("[Dashboard] response:", r.data);
       if (r.data.success) {
         const cd = r.data.data.chart_data || [];
         const st = r.data.data.stats || null;
-        console.log("[Dashboard] chart_data:", cd);
-        console.log("[Dashboard] stats:", st);
         setChartData(cd);
         setDashStats(st);
       } else {
-        // Essai fallback: construire des données depuis les factures payées
-        console.warn("[Dashboard] success=false, data:", r.data);
+        console.warn("[Dashboard] success=false");
       }
     } catch (e: any) {
-      console.error("[Dashboard] error:", e?.response?.status, e?.response?.data, e?.message);
+      console.error("[Dashboard] error:", e?.message);
     }
     finally { setChartLoading(false); }
   }, []);
@@ -206,10 +202,10 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
   return (
     <div className="min-h-screen bg-white p-4 sm:p-6">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
-        .payments-page { font-family: 'DM Sans', sans-serif; }
-        .mono { font-family: 'DM Mono', monospace; }
-        @keyframes slideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         .animate-slideUp { animation: slideUp 0.25s cubic-bezier(.16,1,.3,1); }
         .stat-card { transition: transform 0.2s ease; }
         .stat-card:hover { transform: translateY(-2px); }
@@ -219,25 +215,24 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
         .invoice-card:hover { box-shadow: 0 8px 24px rgba(112,174,72,0.15); border-color: #b6dfa0; transform: translateY(-2px); }
       `}</style>
 
-      <div className="max-w-7xl mx-auto space-y-8 payments-page">
+      <div className="max-w-7xl mx-auto space-y-8">
 
         {/* ── EN-TÊTE ── */}
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
           <div>
-       
-            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Mes factures</h1>
-            <p className="mt-1 text-sm font-semibold text-gray-500">
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Mes factures</h1>
+            <p className="text-sm text-gray-400 mt-1 font-medium">
               Consulte tes loyers/charges et paie en 1 clic via FedaPay.
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => setShowPaid(v => !v)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+              className="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
               <FileText size={16} />
               {showPaid ? "Masquer les payées" : "Afficher les payées"}
             </button>
             <button onClick={() => { load(); loadDashboard(); }} disabled={loading}
-              className="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-60 transition-colors">
+              className="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-60 transition-colors">
               {loading ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
               Actualiser
             </button>
@@ -259,8 +254,8 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                   {s.icon}
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-500">{s.label}</p>
-                  <p className="text-xl font-extrabold text-gray-900 mono">{s.value}</p>
+                  <p className="text-xs font-medium text-gray-500">{s.label}</p>
+                  <p className="text-xl font-bold text-gray-900">{s.value}</p>
                 </div>
               </div>
             </div>
@@ -274,7 +269,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
           <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-base font-extrabold text-gray-900">Évolution des paiements</h3>
+                <h3 className="text-base font-semibold text-gray-900">Évolution des paiements</h3>
                 <p className="text-xs text-gray-400 mt-0.5">Montants des 12 derniers mois</p>
               </div>
               <div className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -290,7 +285,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
             ) : !hasBarData ? (
               <div className="h-64 flex flex-col items-center justify-center text-center">
                 <TrendingUp size={36} className="text-gray-100 mb-3" />
-                <p className="text-sm font-semibold text-gray-400">Aucun paiement enregistré</p>
+                <p className="text-sm font-medium text-gray-400">Aucun paiement enregistré</p>
                 <p className="text-xs text-gray-300 mt-1">Les données apparaîtront ici après ton premier paiement</p>
               </div>
             ) : (
@@ -323,7 +318,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
           <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-base font-extrabold text-gray-900">Répartition</h3>
+                <h3 className="text-base font-semibold text-gray-900">Répartition</h3>
                 <p className="text-xs text-gray-400 mt-0.5">Par statut</p>
               </div>
               <div className="w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center">
@@ -338,7 +333,7 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
             ) : pieData.length === 0 ? (
               <div className="h-64 flex flex-col items-center justify-center text-center">
                 <DollarSign size={36} className="text-gray-100 mb-3" />
-                <p className="text-sm font-semibold text-gray-400">Aucune donnée</p>
+                <p className="text-sm font-medium text-gray-400">Aucune donnée</p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={256}>
@@ -351,9 +346,9 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                   </Pie>
                   <Tooltip
                     formatter={(v: number) => [formatMoney(v), "Montant"]}
-                    contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 8px 24px rgba(0,0,0,0.1)", fontFamily: "DM Sans" }} />
+                    contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 8px 24px rgba(0,0,0,0.1)" }} />
                   <Legend iconType="circle" iconSize={8}
-                    wrapperStyle={{ fontSize: "12px", fontFamily: "DM Sans", paddingTop: "12px" }} />
+                    wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }} />
                 </PieChart>
               </ResponsiveContainer>
             )}
@@ -364,14 +359,14 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
         {err && (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-5 flex items-center gap-3">
             <AlertTriangle size={20} className="text-red-500 shrink-0" />
-            <p className="text-sm font-bold text-red-700">{err}</p>
+            <p className="text-sm font-medium text-red-700">{err}</p>
           </div>
         )}
 
         {loading && (
           <div className="rounded-2xl border border-gray-100 p-8 text-center">
             <Loader2 size={32} className="animate-spin mx-auto mb-3 text-gray-300" />
-            <p className="text-sm font-semibold text-gray-400">Chargement des factures…</p>
+            <p className="text-sm font-medium text-gray-400">Chargement des factures…</p>
           </div>
         )}
 
@@ -381,18 +376,18 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
             {/* ── À PAYER ── */}
             <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
               <div className="flex flex-wrap items-center gap-3 mb-6">
-                <h2 className="text-xl font-extrabold text-gray-900">À payer</h2>
-                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold border ${
-                  payable.length ? "bg-amber-50 text-amber-700 border-amber-200" : "bg-emerald-50 text-emerald-700 border-emerald-200"
-                }`}>
-                  {payable.length ? `${payable.length} en attente` : "Tout est réglé ✅"}
-                </span>
+                <h2 className="text-xl font-bold text-gray-900">À payer</h2>
+                {payable.length > 0 && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border bg-amber-50 text-amber-700 border-amber-200">
+                    {payable.length} en attente
+                  </span>
+                )}
               </div>
 
               {payable.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-gray-200 p-12 text-center">
                   <CheckCircle2 size={48} className="mx-auto mb-3 text-emerald-300" />
-                  <p className="text-base font-semibold text-gray-500">Aucune facture à payer — tu es à jour ✅</p>
+                  <p className="text-base font-medium text-gray-500">Aucune facture à payer — tu es à jour </p>
                 </div>
               ) : (
                 <div className="invoice-grid">
@@ -409,8 +404,8 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                           {/* En-tête */}
                           <div className="flex items-start justify-between mb-4">
                             <div>
-                              <p className="text-xs font-semibold text-gray-400 mb-1">Facture</p>
-                              <p className="text-base font-extrabold text-gray-900">{inv.invoice_number || `#${inv.id}`}</p>
+                              <p className="text-xs font-medium text-gray-400 mb-1">Facture</p>
+                              <p className="text-base font-semibold text-gray-900">{inv.invoice_number || `#${inv.id}`}</p>
                             </div>
                             <StatusBadge inv={inv} />
                           </div>
@@ -418,21 +413,21 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                           {/* Détails */}
                           <div className="space-y-2.5 mb-4">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-semibold text-gray-400">Échéance</span>
-                              <span className="text-sm font-bold text-gray-800">{formatDateLong(inv.due_date)}</span>
+                              <span className="text-xs font-medium text-gray-400">Échéance</span>
+                              <span className="text-sm font-medium text-gray-800">{formatDateLong(inv.due_date)}</span>
                             </div>
                             {inv.type && (
                               <div className="flex items-center justify-between">
-                                <span className="text-xs font-semibold text-gray-400">Type</span>
-                                <span className="text-sm font-bold text-gray-800 capitalize">
+                                <span className="text-xs font-medium text-gray-400">Type</span>
+                                <span className="text-sm font-medium text-gray-800 capitalize">
                                   {inv.type === "rent" ? "Loyer" : inv.type === "deposit" ? "Caution" : inv.type}
                                 </span>
                               </div>
                             )}
                             {(inv.period_start || inv.period_end) && (
                               <div className="flex items-start justify-between gap-4">
-                                <span className="text-xs font-semibold text-gray-400 shrink-0">Période</span>
-                                <span className="text-sm font-bold text-gray-800 text-right">
+                                <span className="text-xs font-medium text-gray-400 shrink-0">Période</span>
+                                <span className="text-sm font-medium text-gray-800 text-right">
                                   {formatDate(inv.period_start)} → {formatDate(inv.period_end)}
                                 </span>
                               </div>
@@ -448,15 +443,15 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                           {/* Montant + bouton */}
                           <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-100">
                             <div>
-                              <p className="text-xs font-semibold text-gray-400 mb-0.5">
+                              <p className="text-xs font-medium text-gray-400 mb-0.5">
                                 {isPartial(inv) ? "Reste à payer" : "Montant"}
                               </p>
-                              <p className="text-2xl font-extrabold text-gray-900 mono leading-none">
+                              <p className="text-2xl font-bold text-gray-900">
                                 {formatMoney(isPartial(inv) ? remaining : total, currency)}
                               </p>
                             </div>
                             <button onClick={() => handlePay(inv.id)} disabled={payingId === inv.id}
-                              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed transition-all hover:opacity-90 hover:scale-[1.02]"
+                              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-medium text-white whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed transition-all hover:opacity-90 hover:scale-[1.02]"
                               style={{ background: `linear-gradient(135deg, ${PRIMARY}, #5a9038)`, boxShadow: "0 2px 10px rgba(112,174,72,0.35)" }}>
                               {payingId === inv.id
                                 ? <><Loader2 size={14} className="animate-spin" /> Redirection…</>
@@ -474,22 +469,20 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
             {/* ── PAYÉES ── */}
             <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
               <div className="flex flex-wrap items-center gap-3 mb-6">
-                <h2 className="text-xl font-extrabold text-gray-900">Paiements effectués</h2>
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-200">
-                  {paid.length} payé(s)
-                </span>
+                <h2 className="text-xl font-bold text-gray-900">Paiements effectués</h2>
+         
                 <button onClick={() => setShowPaid(v => !v)}
-                  className="ml-auto text-xs font-semibold text-gray-400 hover:text-gray-600 transition-colors">
+                  className="ml-auto text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors">
                   {showPaid ? "Masquer" : "Afficher"}
                 </button>
               </div>
 
               {!showPaid ? (
-                <p className="text-sm font-semibold text-gray-400 text-center py-8">Liste masquée</p>
+                <p className="text-sm font-medium text-gray-400 text-center py-8">Liste masquée</p>
               ) : paid.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-gray-200 p-12 text-center">
                   <DollarSign size={48} className="mx-auto mb-3 text-gray-200" />
-                  <p className="text-base font-semibold text-gray-500">Aucun paiement enregistré</p>
+                  <p className="text-base font-medium text-gray-500">Aucun paiement enregistré</p>
                   <p className="text-sm text-gray-400 mt-2">Quand tu paieras une facture, elle apparaîtra ici.</p>
                 </div>
               ) : (
@@ -506,10 +499,10 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                           {/* En-tête */}
                           <div className="flex items-start justify-between mb-4">
                             <div>
-                              <p className="text-xs font-semibold text-gray-400 mb-1">Facture</p>
-                              <p className="text-base font-extrabold text-gray-900">{inv.invoice_number || `#${inv.id}`}</p>
+                              <p className="text-xs font-medium text-gray-400 mb-1">Facture</p>
+                              <p className="text-base font-semibold text-gray-900">{inv.invoice_number || `#${inv.id}`}</p>
                             </div>
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border bg-emerald-50 text-emerald-700 border-emerald-200">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border bg-emerald-50 text-emerald-700 border-emerald-200">
                               <CheckCircle2 size={10} /> Payée
                             </span>
                           </div>
@@ -517,12 +510,12 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                           {/* Détails */}
                           <div className="space-y-2.5 mb-4">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-semibold text-gray-400">Échéance</span>
-                              <span className="text-sm font-bold text-gray-800">{formatDateLong(inv.due_date)}</span>
+                              <span className="text-xs font-medium text-gray-400">Échéance</span>
+                              <span className="text-sm font-medium text-gray-800">{formatDateLong(inv.due_date)}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-semibold text-gray-400">Payée le</span>
-                              <span className="text-sm font-bold text-gray-800">{paidAt ? formatDateLong(String(paidAt)) : "—"}</span>
+                              <span className="text-xs font-medium text-gray-400">Payée le</span>
+                              <span className="text-sm font-medium text-gray-800">{paidAt ? formatDateLong(String(paidAt)) : "—"}</span>
                             </div>
                             {inv.lease?.property?.name && (
                               <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
@@ -535,11 +528,11 @@ export const Payments: React.FC<PaymentsProps> = ({ notify }) => {
                           {/* Montant + bouton */}
                           <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-100">
                             <div>
-                              <p className="text-xs font-semibold text-gray-400 mb-0.5">Montant</p>
-                              <p className="text-2xl font-extrabold text-gray-900 mono leading-none">{formatMoney(total, currency)}</p>
+                              <p className="text-xs font-medium text-gray-400 mb-0.5">Montant</p>
+                              <p className="text-2xl font-bold text-gray-900">{formatMoney(total, currency)}</p>
                             </div>
                             <button onClick={() => handleReceipt(inv.id)}
-                              className="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                              className="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                               <FileText size={15} /> Quittance
                             </button>
                           </div>

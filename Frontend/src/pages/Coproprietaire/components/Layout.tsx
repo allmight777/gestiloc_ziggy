@@ -127,7 +127,8 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
         children: [
           { id: "lease-contracts",    label: "Contrats de bail",             icon: "File",      path: "/coproprietaire/leases",          isLaravel: true },
           { id: "condition-reports",  label: "Etats de lieux",               icon: "Clipboard", path: "/coproprietaire/etats-des-lieux", isLaravel: true },
-          { id: "due-notices",        label: "Avis d'échéance",              icon: "File",      path: "/coproprietaire/notices",         isLaravel: true },
+          { id: "due-notices",        label: "Préavis",              icon: "File",      path: "/coproprietaire/notices",         isLaravel: true },
+             { id: "due-notices",        label: "Avis d'échéance",              icon: "File",      path: "/coproprietaire/avis-echeance",         isLaravel: true },
           { id: "rent-receipts",      label: "Quittances de loyers",         icon: "Clipboard", path: "/coproprietaire/quittances",      isLaravel: true },
           { id: "invoices",           label: "Factures et documents divers", icon: "File",      path: "/coproprietaire/factures",        isLaravel: true },
           { id: "document-archiving", label: "Archivage de documents",       icon: "File",      path: "/coproprietaire/documents",       isReact: true  },

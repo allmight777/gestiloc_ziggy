@@ -595,7 +595,7 @@ const CreerTransaction: React.FC<CreerTransactionProps> = ({ notify }) => {
                     </label>
                     <div style={styles.inputWithIcon}>
                       <input 
-                        type="number" 
+                        type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                         style={styles.formControl}
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}

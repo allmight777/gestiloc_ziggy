@@ -132,7 +132,7 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
         children: [
           { id: "baux",         label: "Contrats de bail",             icon: "File",      path: "/proprietaire/baux",         isReact: true },
           { id: "etats-lieux",  label: "États de lieux",               icon: "Clipboard", path: "/proprietaire/etats-lieux",  isReact: true },
-          { id: "avis-echeance",label: "Avis d'échéance",              icon: "File",      path: "/proprietaire/avis-echeance",isReact: true },
+          { id: "avis-echeance",label: "Préavis",              icon: "File",      path: "/proprietaire/avis-echeance",isReact: true },
           { id: "quittances",   label: "Quittances de loyers",         icon: "Clipboard", path: "/proprietaire/quittances",   isReact: true },
           { id: "factures",     label: "Factures et docs divers",      icon: "File",      path: "/proprietaire/factures",     isReact: true },
           { id: "archives",     label: "Archivage de documents",       icon: "File",      path: "/proprietaire/archives",     isReact: true },

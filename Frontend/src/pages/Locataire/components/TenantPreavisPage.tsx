@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { Calendar, Loader2, Send, FileText, X, Plus, Trash2, ChevronDown, Search, ArrowLeft, History, AlertOctagon, CheckCircle, Home } from "lucide-react";
 import { noticeService } from "../../../services/noticeService";
-import tenantApi, { TenantLease } from "../services/tenantApi";
+import tenantApi from "../services/tenantApi";
 import { Card } from "./ui/Card";
 
 type NoticeStatus = "pending" | "confirmed" | "cancelled";
@@ -55,7 +55,7 @@ type FormErrors = Partial<{
 }>;
 
 interface PreavisFormData {
-  propertyId: string; // Changé de typeLocation à propertyId
+  propertyId: string;
   dateDepart: string;
   dateEnvoi: string;
   commentaires: string;
@@ -182,7 +182,7 @@ export default function TenantPreavisPage({
 }) {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
-  const [leases, setLeases] = useState<TenantLease[]>([]);
+  const [leases, setLeases] = useState<any[]>([]);
   const [notices, setNotices] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [properties, setProperties] = useState<any[]>([]);
@@ -199,7 +199,7 @@ export default function TenantPreavisPage({
   const [searchQuery, setSearchQuery] = useState('');
 
   const [formData, setFormData] = useState<PreavisFormData>({
-    propertyId: '', // Changé de typeLocation à propertyId
+    propertyId: '',
     dateDepart: '',
     dateEnvoi: '',
     commentaires: '',
@@ -288,53 +288,27 @@ export default function TenantPreavisPage({
     try {
       const l = await tenantApi.getLeases();
       setLeases(l);
-      
+
       // Extraire les propriétés uniques des baux
-      const uniqueProperties = l.map(lease => lease.property)
-        .filter((prop, index, self) => 
-          prop && self.findIndex(p => p?.id === prop.id) === index
+      const uniqueProperties = l.map((lease: any) => lease.property)
+        .filter((prop: any, index: number, self: any[]) =>
+          prop && self.findIndex((p: any) => p?.id === prop.id) === index
         );
       setProperties(uniqueProperties);
-      
+
       const n = await noticeService.list();
       setNotices(Array.isArray(n) ? n.filter((item: any) => item.status !== 'cancelled') : []);
       if (l?.[0]?.id) setLeaseId(l[0].id);
     } catch (e: any) {
-      // Utilise des données mockées si le backend n'est pas disponible
-      const mockLeases: TenantLease[] = [
-        {
-          id: 1,
-          property: {
-            id: 1,
-            name: "Appartement F3",
-            address: "123 Rue de l'Exemple",
-            city: "Paris",
-          },
-        } as TenantLease,
-        {
-          id: 2,
-          property: {
-            id: 2,
-            name: "Studio",
-            address: "45 Avenue des Fleurs",
-            city: "Lyon",
-          },
-        } as TenantLease,
-      ];
-      
-      const mockProperties = [
-        { id: 1, name: "Appartement F3", address: "123 Rue de l'Exemple", city: "Paris" },
-        { id: 2, name: "Studio", address: "45 Avenue des Fleurs", city: "Lyon" },
-      ];
-
-      setLeases(mockLeases);
-      setProperties(mockProperties);
+      const err = e as ApiErr;
+      setError(normalizeApiError(err, "Impossible de charger les données."));
+      setLeases([]);
+      setProperties([]);
       setNotices([]);
-      setLeaseId(mockLeases[0].id);
     } finally {
       setLoading(false);
     }
-  }, [notify]);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -425,7 +399,7 @@ export default function TenantPreavisPage({
     try {
       // Trouver le bail correspondant au bien sélectionné
       const selectedLease = leases.find(l => l.property?.id === parseInt(formData.propertyId));
-      
+
       await noticeService.create({
         lease_id: selectedLease?.id || leases[0]?.id || 1,
         end_date: formData.dateDepart,
@@ -617,7 +591,7 @@ export default function TenantPreavisPage({
           </h2>
 
           <div className="space-y-5">
-            {/* Bien concerné - REMPLACE Type de location */}
+            {/* Bien concerné */}
             <div>
               <label className="block text-sm text-gray-900 mb-1.5">Bien concerné</label>
               <div className="relative">
@@ -770,7 +744,7 @@ export default function TenantPreavisPage({
 
       <Card className="p-4">
         <h3 className="text-sm font-medium text-gray-900 mb-4">Filtre</h3>
-        
+
         {/* FILTRES SUR LA MÊME LIGNE */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Filtre par nombre de lignes */}
@@ -798,7 +772,7 @@ export default function TenantPreavisPage({
             )}
           </div>
 
-          {/* Barre de recherche - flex-1 pour prendre l'espace restant */}
+          {/* Barre de recherche */}
           <div className="flex-1 relative min-w-[200px]">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search size={14} className="text-gray-400" />
@@ -844,7 +818,7 @@ export default function TenantPreavisPage({
                 filteredNotices.map((notice) => {
                   const lease = leases.find(l => l.id === notice.lease_id);
                   const propertyName = lease?.property?.name || lease?.property?.address || 'Bien';
-                  
+
                   return (
                     <tr key={notice.id} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50">
                       <td className="px-4 py-3 text-sm text-gray-900">

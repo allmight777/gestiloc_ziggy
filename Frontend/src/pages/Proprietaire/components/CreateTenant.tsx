@@ -496,7 +496,7 @@ export const CreateTenant: React.FC<CreateTenantProps> = ({ onBack, notify }) =>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">REVENUS MENSUELS</label>
                   <input
-                    type="number"
+                    type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     placeholder=""
                     value={formData.revenusMenuels}
                     onChange={(e) => handleInputChange('revenusMenuels', e.target.value)}

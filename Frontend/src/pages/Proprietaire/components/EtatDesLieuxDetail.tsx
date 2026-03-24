@@ -1025,7 +1025,7 @@ const EtatDesLieuxDetail: React.FC<EtatDesLieuxDetailProps> = ({ notify }) => {
                                     <div className="signature-content">
                                         <div className="signature-title">Document signé</div>
                                         <div className="signature-date">
-                                            Signé par <strong>{report.signed_by_name || 'Co-propriétaire'}</strong><br />
+                                            Signé par <strong>{report.signed_by_name || 'Propriétaire'}</strong><br />
                                             le {report.signed_at_formatted}
                                         </div>
                                     </div>

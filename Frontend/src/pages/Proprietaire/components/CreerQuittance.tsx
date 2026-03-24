@@ -57,7 +57,6 @@ const CreerQuittance: React.FC<CreerQuittanceProps> = ({ notify }) => {
     const fetchLeases = async () => {
       try {
         setIsLoadingLeases(true);
-        // Utiliser la méthode pour récupérer les baux pour le formulaire
         const data = await rentReceiptService.getLeasesForForm?.() || await apiService.getLeases();
         setLeases(data || []);
       } catch (error) {
@@ -78,8 +77,11 @@ const CreerQuittance: React.FC<CreerQuittanceProps> = ({ notify }) => {
       setSelectedLease(lease || null);
       
       if (lease) {
-        // Pré-remplir le montant avec le loyer
-        const totalAmount = (lease.rent_amount + (lease.charges_amount || 0));
+        // Calculer le total (loyer + charges) - s'assurer que ce sont des nombres
+        const rent = typeof lease.rent_amount === 'number' ? lease.rent_amount : Number(lease.rent_amount) || 0;
+        const charges = typeof lease.charges_amount === 'number' ? lease.charges_amount : Number(lease.charges_amount) || 0;
+        const totalAmount = rent + charges;
+        // Utiliser toString() pour éviter l'erreur toFixed
         setAmountPaid(totalAmount.toString());
       }
     } else {
@@ -167,6 +169,17 @@ const CreerQuittance: React.FC<CreerQuittanceProps> = ({ notify }) => {
       }
     }
     return 'Locataire inconnu';
+  };
+
+  const getTotalAmount = (lease: Lease): number => {
+    const rent = typeof lease.rent_amount === 'number' ? lease.rent_amount : Number(lease.rent_amount) || 0;
+    const charges = typeof lease.charges_amount === 'number' ? lease.charges_amount : Number(lease.charges_amount) || 0;
+    return rent + charges;
+  };
+
+  const formatAmount = (amount: number): string => {
+    if (isNaN(amount)) return '0';
+    return amount.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   };
 
   return (
@@ -601,11 +614,8 @@ const CreerQuittance: React.FC<CreerQuittanceProps> = ({ notify }) => {
                     <option
                       key={lease.id}
                       value={lease.id}
-                      data-property={lease.property?.name}
-                      data-tenant={getTenantName(lease)}
-                      data-rent={lease.rent_amount}
                     >
-                      {lease.property?.name || 'Bien'} - {getTenantName(lease)}
+                      {lease.property?.name || 'Bien'} - {getTenantName(lease)} - {formatAmount(getTotalAmount(lease))} FCFA
                     </option>
                   ))}
                 </select>
@@ -631,7 +641,19 @@ const CreerQuittance: React.FC<CreerQuittanceProps> = ({ notify }) => {
                     <p>
                       <CreditCard size={16} />
                       <strong>Loyer mensuel:</strong> <span id="rent-amount">
-                        {selectedLease ? (selectedLease.rent_amount + (selectedLease.charges_amount || 0)).toLocaleString() : '-'}
+                        {selectedLease ? formatAmount(selectedLease.rent_amount || 0) : '-'}
+                      </span> FCFA
+                    </p>
+                    <p>
+                      <DollarSign size={16} />
+                      <strong>Charges mensuelles:</strong> <span id="charges-amount">
+                        {selectedLease ? formatAmount(selectedLease.charges_amount || 0) : '-'}
+                      </span> FCFA
+                    </p>
+                    <p>
+                      <FileText size={16} />
+                      <strong>Total mensuel:</strong> <span id="total-amount" style={{ color: '#70AE48', fontWeight: 'bold' }}>
+                        {selectedLease ? formatAmount(getTotalAmount(selectedLease)) : '-'}
                       </span> FCFA
                     </p>
                   </div>
@@ -680,18 +702,29 @@ const CreerQuittance: React.FC<CreerQuittanceProps> = ({ notify }) => {
                   Montant payé (FCFA) *
                 </label>
                 <input
-                  type="number"
-                  step="0.01"
-                  min="0"
+                  type="text"
+                  inputMode="numeric"
                   id="amount_paid"
                   name="amount_paid"
                   className="form-control"
                   placeholder="0.00"
                   value={amountPaid}
-                  onChange={(e) => setAmountPaid(e.target.value)}
+                  onChange={(e) => {
+                    // Nettoyer la valeur pour éviter les duplications
+                    let value = e.target.value;
+                    // Remplacer les virgules par des points
+                    value = value.replace(/,/g, '.');
+                    // Si la valeur contient un point et semble dupliquée (ex: 25.0025.00)
+                    if (value.includes('.') && value.split('.').length > 2) {
+                      // Garder seulement le premier nombre
+                      const parts = value.split('.');
+                      value = `${parts[0]}.${parts[1]}`;
+                    }
+                    setAmountPaid(value);
+                  }}
                   required
                 />
-                <div className="form-text">Montant effectivement payé par le locataire</div>
+                <div className="form-text">Montant effectivement payé par le locataire (loyer + charges)</div>
               </div>
             </div>
 

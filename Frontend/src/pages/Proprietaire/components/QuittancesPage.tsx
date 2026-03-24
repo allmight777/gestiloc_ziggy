@@ -101,7 +101,6 @@ const QuittancesLoyersPage: React.FC<QuittancesLoyersPageProps> = ({ notify }) =
         try {
             setLoading(true);
             
-            // Construire les paramètres de requête
             const params: any = {
                 per_page: pagination.per_page,
                 page: pagination.current_page
@@ -121,20 +120,17 @@ const QuittancesLoyersPage: React.FC<QuittancesLoyersPageProps> = ({ notify }) =
             
             const response = await rentReceiptService.listIndependent(params);
             
-            // Extraire les données selon la structure de la réponse
             let data = [];
             let totalCount = 0;
             let currentPage = 1;
             let lastPage = 1;
             
             if (response && response.data) {
-                // Si c'est une réponse paginée avec propriété 'data'
                 data = response.data;
                 totalCount = response.total || 0;
                 currentPage = response.current_page || 1;
                 lastPage = response.last_page || 1;
             } else if (Array.isArray(response)) {
-                // Si c'est directement un tableau
                 data = response;
                 totalCount = response.length;
             }
@@ -145,12 +141,18 @@ const QuittancesLoyersPage: React.FC<QuittancesLoyersPageProps> = ({ notify }) =
             const now = new Date();
 
             const mapped = data.map((q: any) => {
-                const amount = parseFloat(q.amount_paid || 0);
-                totalCollected += amount;
-                
+                // 🔥 CORRECTION : Récupérer correctement le loyer et les charges depuis le bail
+                const totalPaye = parseFloat(q.amount_paid || 0);
+                const rentAmount = parseFloat(q.lease?.rent_amount || 0);
                 const chargesAmount = parseFloat(q.lease?.charges_amount || 0);
-                const loyerAmount = amount - chargesAmount;
-
+                
+                // Le loyer payé correspond au total - les charges
+                // Si le total payé est différent de rent + charges, on garde la différence
+                const loyerPaye = rentAmount;
+                const chargesPaye = chargesAmount;
+                
+                totalCollected += totalPaye;
+                
                 const createdAt = new Date(q.created_at);
                 if (createdAt.getMonth() === now.getMonth() && createdAt.getFullYear() === now.getFullYear()) {
                     thisMonthCount++;
@@ -163,7 +165,6 @@ const QuittancesLoyersPage: React.FC<QuittancesLoyersPageProps> = ({ notify }) =
                 const tenantFullName = q.tenant?.user?.name || `${tenantFirstName} ${tenantLastName}`.trim() || 'Locataire';
                 const propertyCity = q.property?.city || '';
                 
-                // Formater la période en français
                 let periodeFormatted = q.paid_month || '—';
                 if (q.paid_month) {
                     const [year, month] = q.paid_month.split('-');
@@ -183,10 +184,11 @@ const QuittancesLoyersPage: React.FC<QuittancesLoyersPageProps> = ({ notify }) =
                     periode: q.paid_month || '—',
                     periodeFormatted: periodeFormatted,
                     paiementRecu: q.issued_date ? new Date(q.issued_date).toLocaleDateString('fr-FR') : '—',
-                    loyer: loyerAmount,
-                    charges: chargesAmount,
-                    totalPaye: amount,
-                    totalPayeFormatted: `${(amount * EXCHANGE_RATE).toLocaleString('fr-FR')} FCFA`,
+                    // 🔥 CORRECTION : Utiliser les bonnes valeurs
+                    loyer: loyerPaye,
+                    charges: chargesPaye,
+                    totalPaye: totalPaye,
+                    totalPayeFormatted: `${totalPaye.toLocaleString('fr-FR')} FCFA`,
                     creeLe: q.created_at,
                     creeLeFormatted: new Date(q.created_at).toLocaleDateString('fr-FR'),
                     paidMonth: q.paid_month,
@@ -291,7 +293,7 @@ const QuittancesLoyersPage: React.FC<QuittancesLoyersPageProps> = ({ notify }) =
     };
 
     const formatCurrency = (amount: number): string => {
-        return (amount * EXCHANGE_RATE).toLocaleString('fr-FR') + ' FCFA';
+        return amount.toLocaleString('fr-FR') + ' FCFA';
     };
 
     return (
@@ -504,30 +506,33 @@ const QuittancesLoyersPage: React.FC<QuittancesLoyersPageProps> = ({ notify }) =
                                             color: '#9CA3AF'
                                         }}
                                     />
-                                    <input
-                                        type="text"
-                                        name="search"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        placeholder="Locataire, bien, mois..."
-                                        style={{
-                                            width: '100%',
-                                            padding: '12px 16px 12px 42px',
-                                            border: '1px solid #E5E7EB',
-                                            borderRadius: '12px',
-                                            fontSize: '0.9rem',
-                                            color: '#1F2937',
-                                            transition: 'all 0.2s'
-                                        }}
-                                        onFocus={(e) => {
-                                            e.currentTarget.style.borderColor = '#70AE48';
-                                            e.currentTarget.style.boxShadow = '0 0 0 3px rgba(112, 174, 72, 0.1)';
-                                        }}
-                                        onBlur={(e) => {
-                                            e.currentTarget.style.borderColor = '#E5E7EB';
-                                            e.currentTarget.style.boxShadow = 'none';
-                                        }}
-                                    />
+                                <input
+    type="text"
+    name="search"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    placeholder="Locataire, bien, mois..."
+    style={{
+        width: '100%',
+        padding: '12px 16px 12px 42px',
+        border: '1px solid #E5E7EB',
+        borderRadius: '12px',
+        fontSize: '0.9rem',
+        color: '#1F2937',          // Texte gris foncé (presque noir)
+        background: '#FFFFFF',      // Fond blanc
+        transition: 'all 0.2s'
+    }}
+    onFocus={(e) => {
+        e.currentTarget.style.borderColor = '#70AE48';
+        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(112, 174, 72, 0.1)';
+        e.currentTarget.style.background = '#FFFFFF';
+    }}
+    onBlur={(e) => {
+        e.currentTarget.style.borderColor = '#E5E7EB';
+        e.currentTarget.style.boxShadow = 'none';
+        e.currentTarget.style.background = '#FFFFFF';
+    }}
+/>
                                 </div>
                             </div>
 
@@ -649,7 +654,6 @@ const QuittancesLoyersPage: React.FC<QuittancesLoyersPageProps> = ({ notify }) =
                     </div>
                 ) : (
                     <>
-                        {/* MODIFICATION ICI : 2 colonnes fixes au lieu de auto-fill */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
                             {quittanceList.map((q) => (
                                 <div

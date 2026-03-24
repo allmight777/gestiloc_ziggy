@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Settings, Loader2, Camera, Download, Eye, MoreVertical } from 'lucide-react';
+import { Plus, Search, Settings, Loader2, Camera, Download, Eye } from 'lucide-react';
 import { conditionReportService } from '@/services/api';
 
 interface EdlData {
@@ -56,16 +56,14 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                 page: pagination.current_page,
                 per_page: pagination.per_page
             };
-            
+
             if (activeFilter !== 'all') params.type = activeFilter;
             if (propertyFilter) params.property_id = propertyFilter;
             if (searchTerm) params.search = searchTerm;
 
             const response = await conditionReportService.listAll(params);
-            
-            // La réponse peut être directement un tableau ou un objet avec data
             const reports = response.data || response || [];
-            
+
             const mapped = reports.map((e: any) => ({
                 id: String(e.id),
                 type: e.type,
@@ -82,12 +80,11 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
             }));
 
             setEdlList(mapped);
-            
+
             if (response.pagination) {
                 setPagination(response.pagination);
             }
 
-            // Charger les propriétés pour le filtre
             await fetchProperties();
 
         } catch (error) {
@@ -127,7 +124,7 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
     };
 
     const handleView = (id: string) => {
-        navigate(`/proprietaire/etats-lieux/${id}`); 
+        navigate(`/proprietaire/etats-lieux/${id}`);
     };
 
     const handleDownload = async (id: string) => {
@@ -157,28 +154,24 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     margin: 0 auto;
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 }
-
                 .header-section {
                     display: flex;
                     justify-content: space-between;
                     align-items: flex-start;
                     margin-bottom: 2rem;
                 }
-
                 .header-content h1 {
                     font-size: 2rem;
                     font-weight: 700;
                     color: #1f2937;
                     margin: 0 0 0.5rem 0;
                 }
-
                 .header-description {
                     color: #6b7280;
                     font-size: 1rem;
                     line-height: 1.5;
                     margin: 0;
                 }
-
                 .create-btn {
                     background: #70AE48;
                     color: white;
@@ -194,12 +187,10 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     gap: 0.5rem;
                     text-decoration: none;
                 }
-
                 .create-btn:hover {
                     background: #5a8f3a;
                     transform: translateY(-1px);
                 }
-
                 .tabs-container {
                     background: #f3f4f6;
                     border-radius: 0.75rem;
@@ -208,7 +199,6 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     gap: 0.5rem;
                     margin-bottom: 2rem;
                 }
-
                 .tab-btn {
                     padding: 0.75rem 1.5rem;
                     border-radius: 0.5rem;
@@ -223,16 +213,13 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     align-items: center;
                     gap: 0.5rem;
                 }
-
                 .tab-btn.active {
                     background: #70AE48;
                     color: white;
                 }
-
                 .tab-btn:not(.active):hover {
                     color: #70AE48;
                 }
-
                 .filter-section {
                     background: white;
                     border: 1px solid #e5e7eb;
@@ -240,7 +227,6 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     padding: 1.5rem;
                     margin-bottom: 2rem;
                 }
-
                 .filter-title {
                     font-size: 0.875rem;
                     font-weight: 600;
@@ -249,7 +235,6 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     text-transform: uppercase;
                     letter-spacing: 0.025em;
                 }
-
                 .property-select {
                     width: 100%;
                     padding: 0.875rem 1rem;
@@ -265,18 +250,15 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     background-repeat: no-repeat;
                     background-position: right 1rem center;
                 }
-
                 .filter-row {
                     display: flex;
                     gap: 1rem;
                     align-items: center;
                 }
-
                 .search-input-wrapper {
                     position: relative;
                     flex: 1;
                 }
-
                 .search-input {
                     width: 100%;
                     padding: 0.875rem 1rem 0.875rem 2.5rem;
@@ -286,12 +268,10 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     color: #374151;
                     background: white;
                 }
-
                 .search-input:focus {
                     outline: none;
                     border-color: #5a8f3a;
                 }
-
                 .search-icon {
                     position: absolute;
                     left: 0.875rem;
@@ -301,7 +281,6 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     width: 18px;
                     height: 18px;
                 }
-
                 .display-btn {
                     padding: 0.875rem 1.25rem;
                     border: 1px solid #70AE48;
@@ -316,13 +295,11 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     gap: 0.5rem;
                     white-space: nowrap;
                 }
-
                 .reports-grid {
                     display: grid;
                     grid-template-columns: repeat(2, 1fr);
                     gap: 1.5rem;
                 }
-
                 .report-card {
                     background: white;
                     border-radius: 1rem;
@@ -331,55 +308,70 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     border: 1px solid #e5e7eb;
                     border-left: 4px solid transparent;
                 }
-
-                .report-card.entry {
-                    border-left-color: #70AE48;
-                }
-
-                .report-card.exit {
-                    border-left-color: #ef4444;
-                }
-
-                .report-card.intermediate {
-                    border-left-color: #3b82f6;
-                }
-
+                .report-card.entry  { border-left-color: #70AE48; }
+                .report-card.exit   { border-left-color: #ef4444; }
+                .report-card.intermediate { border-left-color: #3b82f6; }
                 .report-card:hover {
                     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
                 }
-
                 .report-header {
                     padding: 1.5rem;
                     border-bottom: 1px solid #f3f4f6;
                 }
 
+                /* ── Ligne badge type + badge statut ── */
+                .report-badge-row {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 0.5rem;
+                    margin-bottom: 0.75rem;
+                }
                 .report-badge {
                     display: inline-flex;
                     align-items: center;
                     gap: 0.5rem;
                     padding: 0.375rem 0.75rem;
                     border-radius: 0.375rem;
-                    font-size: 0.85rem;
+                    font-size: 0.8rem;
                     font-weight: 600;
                     text-transform: uppercase;
                     letter-spacing: 0.025em;
-                    margin-bottom: 0.75rem;
                 }
+                .report-badge.entry        { background: #ecfdf5; color: #059669; }
+                .report-badge.exit         { background: #fef2f2; color: #dc2626; }
+                .report-badge.intermediate { background: #eff6ff; color: #2563eb; }
 
-                .report-badge.entry {
+                /* ── Badge Actif / Inactif ── */
+                .status-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.35rem;
+                    padding: 0.3rem 0.8rem;
+                    border-radius: 2rem;
+                    font-size: 0.78rem;
+                    font-weight: 700;
+                    white-space: nowrap;
+                    flex-shrink: 0;
+                }
+                .status-badge.actif {
                     background: #ecfdf5;
                     color: #059669;
+                    border: 1px solid #a7f3d0;
                 }
-
-                .report-badge.exit {
-                    background: #fef2f2;
-                    color: #dc2626;
+                .status-badge.inactif {
+                    background: #f3f4f6;
+                    color: #6b7280;
+                    border: 1px solid #d1d5db;
                 }
-
-                .report-badge.intermediate {
-                    background: #eff6ff;
-                    color: #2563eb;
+                .status-dot {
+                    width: 7px;
+                    height: 7px;
+                    border-radius: 50%;
+                    flex-shrink: 0;
                 }
+                .status-dot.actif   { background: #059669; }
+                .status-dot.inactif { background: #9ca3af; }
 
                 .report-title {
                     font-size: 1.25rem;
@@ -387,7 +379,6 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     color: #111827;
                     margin-bottom: 0.5rem;
                 }
-
                 .report-location {
                     display: flex;
                     align-items: center;
@@ -396,24 +387,18 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     font-size: 0.9rem;
                     font-weight: 500;
                 }
-
-                .report-body {
-                    padding: 1.5rem;
-                }
-
+                .report-body { padding: 1.5rem; }
                 .report-info-grid {
                     display: grid;
                     grid-template-columns: 1fr 1fr;
                     gap: 1rem 2rem;
                     margin-bottom: 1rem;
                 }
-
                 .info-item {
                     display: flex;
                     flex-direction: column;
                     gap: 0.25rem;
                 }
-
                 .info-label {
                     font-size: 0.8rem;
                     font-weight: 600;
@@ -421,13 +406,11 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
                 }
-
                 .info-value {
                     font-size: 1rem;
                     font-weight: 600;
                     color: #111827;
                 }
-
                 .photo-count {
                     display: flex;
                     align-items: center;
@@ -438,7 +421,6 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     font-size: 0.9rem;
                     color: #374151;
                 }
-
                 .report-footer {
                     padding: 0.875rem 1.5rem;
                     background: #f9fafb;
@@ -447,17 +429,11 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     align-items: center;
                     border-top: 1px solid #f3f4f6;
                 }
-
                 .creation-date {
                     font-size: 0.85rem;
                     color: #6b7280;
                 }
-
-                .action-buttons {
-                    display: flex;
-                    gap: 0.5rem;
-                }
-
+                .action-buttons { display: flex; gap: 0.5rem; }
                 .action-btn {
                     width: 36px;
                     height: 36px;
@@ -471,19 +447,9 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     background: transparent;
                     color: #6b7280;
                 }
-
-                .action-btn:hover {
-                    background: #e5e7eb;
-                }
-
-                .action-btn.download:hover {
-                    color: #70AE48;
-                }
-
-                .action-btn.view:hover {
-                    color: #3b82f6;
-                }
-
+                .action-btn:hover           { background: #e5e7eb; }
+                .action-btn.download:hover  { color: #70AE48; }
+                .action-btn.view:hover      { color: #3b82f6; }
                 .empty-state {
                     text-align: center;
                     padding: 4rem 2rem;
@@ -492,7 +458,6 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     border: 2px dashed #e5e7eb;
                     grid-column: 1 / -1;
                 }
-
                 .empty-icon {
                     width: 64px;
                     height: 64px;
@@ -503,14 +468,12 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     justify-content: center;
                     margin: 0 auto 1.5rem;
                 }
-
                 .pagination-container {
                     margin-top: 2rem;
                     display: flex;
                     justify-content: center;
                     gap: 0.5rem;
                 }
-
                 .pagination-btn {
                     padding: 0.5rem 1rem;
                     border: 1px solid #e5e7eb;
@@ -520,17 +483,17 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     cursor: pointer;
                     transition: all 0.2s;
                 }
-
                 .pagination-btn.active {
                     background: #70AE48;
                     color: white;
                     border-color: #70AE48;
                 }
-
+                .pagination-btn:disabled {
+                    opacity: 0.4;
+                    cursor: not-allowed;
+                }
                 @media (max-width: 1024px) {
-                    .reports-grid {
-                        grid-template-columns: 1fr;
-                    }
+                    .reports-grid { grid-template-columns: 1fr; }
                 }
             `}</style>
 
@@ -570,21 +533,19 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
             {/* Filters */}
             <div className="filter-section">
                 <h3 className="filter-title">Filtrer par bien</h3>
-
                 <select className="property-select" value={propertyFilter} onChange={handlePropertyChange}>
                     <option value="">Tous les biens</option>
                     {properties.map((prop) => (
                         <option key={prop.id} value={prop.id}>{prop.name}</option>
                     ))}
                 </select>
-
                 <div className="filter-row">
                     <div className="search-input-wrapper">
                         <Search size={18} className="search-icon" />
-                        <input 
-                            className="search-input" 
-                            placeholder="Rechercher locataire, bien..." 
-                            value={searchTerm} 
+                        <input
+                            className="search-input"
+                            placeholder="Rechercher locataire, bien..."
+                            value={searchTerm}
                             onChange={handleSearch}
                         />
                     </div>
@@ -604,77 +565,91 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
             ) : edlList.length > 0 ? (
                 <>
                     <div className="reports-grid">
-                        {edlList.map((report) => (
-                            <div className={`report-card ${report.type}`} key={report.id}>
-                                <div className="report-header">
-                                    <div className={`report-badge ${report.type}`}>
-                                        {report.type === 'entry' ? '→' : report.type === 'exit' ? '←' : '↔'}
-                                        {report.typeBadge}
+                        {edlList.map((report) => {
+                            // Actif  = les 2 ont signé  → is_signed true
+                            // Inactif = 0 ou 1 signature → is_signed false
+                            const isActif = report.is_signed;
+
+                            return (
+                                <div className={`report-card ${report.type}`} key={report.id}>
+                                    <div className="report-header">
+
+                                        {/* Badge type  +  badge statut sur la même ligne */}
+                                        <div className="report-badge-row">
+                                            <div className={`report-badge ${report.type}`}>
+                                                {report.type === 'entry' ? '→' : report.type === 'exit' ? '←' : '↔'}
+                                                {report.typeBadge}
+                                            </div>
+
+                                            <span className={`status-badge ${isActif ? 'actif' : 'inactif'}`}>
+                                                <span className={`status-dot ${isActif ? 'actif' : 'inactif'}`} />
+                                                {isActif ? 'Actif' : 'Inactif'}
+                                            </span>
+                                        </div>
+
+                                        <h3 className="report-title">{report.title}</h3>
+                                        <div className="report-location">
+                                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                                <circle cx="12" cy="10" r="3"/>
+                                            </svg>
+                                            {report.property_name}
+                                        </div>
                                     </div>
-                                    <h3 className="report-title">{report.title}</h3>
-                                    <div className="report-location">
-                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                            <circle cx="12" cy="10" r="3"/>
-                                        </svg>
-                                        {report.property_name}
+
+                                    <div className="report-body">
+                                        <div className="report-info-grid">
+                                            <div className="info-item">
+                                                <span className="info-label">Locataire</span>
+                                                <span className="info-value">{report.tenant_name}</span>
+                                            </div>
+                                            <div className="info-item">
+                                                <span className="info-label">Date</span>
+                                                <span className="info-value">{report.report_date_formatted}</span>
+                                            </div>
+                                            <div className="info-item">
+                                                <span className="info-label">État</span>
+                                                <span className="info-value">{report.general_condition}</span>
+                                            </div>
+                                            <div className="info-item">
+                                                <span className="info-label">Signé</span>
+                                                <span className="info-value">{report.is_signed ? '✓ Oui' : '✗ Non'}</span>
+                                            </div>
+                                        </div>
+                                        <div className="photo-count">
+                                            <Camera size={16} />
+                                            <span>{report.photos_count} photos</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="report-footer">
+                                        <span className="creation-date">Créé le {report.created_at_formatted}</span>
+                                        <div className="action-buttons">
+                                            <button
+                                                className="action-btn download"
+                                                title="Télécharger PDF"
+                                                onClick={() => handleDownload(report.id)}
+                                            >
+                                                <Download size={16} />
+                                            </button>
+                                            <button
+                                                className="action-btn view"
+                                                title="Voir"
+                                                onClick={() => handleView(report.id)}
+                                            >
+                                                <Eye size={16} />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <div className="report-body">
-                                    <div className="report-info-grid">
-                                        <div className="info-item">
-                                            <span className="info-label">Locataire</span>
-                                            <span className="info-value">{report.tenant_name}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Date</span>
-                                            <span className="info-value">{report.report_date_formatted}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">État</span>
-                                            <span className="info-value">{report.general_condition}</span>
-                                        </div>
-                                        <div className="info-item">
-                                            <span className="info-label">Signé</span>
-                                            <span className="info-value">{report.is_signed ? '✓ Oui' : '✗ Non'}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="photo-count">
-                                        <Camera size={16} />
-                                        <span>{report.photos_count} photos</span>
-                                    </div>
-                                </div>
-
-                                <div className="report-footer">
-                                    <span className="creation-date">Créé le {report.created_at_formatted}</span>
-                                    <div className="action-buttons">
-                                        <button 
-                                            className="action-btn download" 
-                                            title="Télécharger PDF"
-                                            onClick={() => handleDownload(report.id)}
-                                        >
-                                            <Download size={16} />
-                                        </button>
-                                        <button 
-                                            className="action-btn view" 
-                                            title="Voir"
-                                            onClick={() => handleView(report.id)}
-                                        >
-                                            <Eye size={16} />
-                                        </button>
-
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
                     {/* Pagination */}
                     {pagination.last_page > 1 && (
                         <div className="pagination-container">
-                            <button 
+                            <button
                                 className="pagination-btn"
                                 disabled={pagination.current_page === 1}
                                 onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page - 1 }))}
@@ -690,7 +665,7 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                                     {i + 1}
                                 </button>
                             ))}
-                            <button 
+                            <button
                                 className="pagination-btn"
                                 disabled={pagination.current_page === pagination.last_page}
                                 onClick={() => setPagination(prev => ({ ...prev, current_page: prev.current_page + 1 }))}
@@ -701,18 +676,20 @@ const EtatsDesLieux: React.FC<EtatsDesLieuxProps> = ({ notify }) => {
                     )}
                 </>
             ) : (
-                <div className="empty-state">
-                    <div className="empty-icon">
-                        <Camera size={32} color="#70AE48" />
+                <div className="reports-grid">
+                    <div className="empty-state">
+                        <div className="empty-icon">
+                            <Camera size={32} color="#70AE48" />
+                        </div>
+                        <h3>Aucun état des lieux</h3>
+                        <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+                            Vous n'avez pas encore d'états des lieux enregistrés.
+                        </p>
+                        <button className="create-btn" onClick={() => navigate('/proprietaire/etats-lieux/nouveau')}>
+                            <Plus size={18} />
+                            Créer un état des lieux
+                        </button>
                     </div>
-                    <h3 className="empty-title">Aucun état des lieux</h3>
-                    <p className="empty-description">
-                        Vous n'avez pas encore d'états des lieux enregistrés.
-                    </p>
-                    <button className="create-btn" onClick={() => navigate('/proprietaire/etats-des-lieux/nouveau')}>
-                        <Plus size={18} />
-                        Créer un état des lieux
-                    </button>
                 </div>
             )}
         </div>

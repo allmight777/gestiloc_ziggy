@@ -20,7 +20,6 @@ const AjouterLocataire = () => {
     phone: "",
     email: "",
     address: "",
-    zip_code: "",
     city: "",
     country: "France",
     emergency_contact_name: "",
@@ -59,7 +58,6 @@ const AjouterLocataire = () => {
         return newErrors;
       });
     }
-    // Effacer les erreurs API quand l'utilisateur modifie le champ
     if (apiErrors[name]) {
       setApiErrors(prev => {
         const newErrors = { ...prev };
@@ -103,7 +101,6 @@ const AjouterLocataire = () => {
     setApiErrors({});
 
     try {
-      // Préparer les données pour l'API - correspond à InviteTenantRequest
       const payload: any = {
         email: formData.email,
         first_name: formData.first_name,
@@ -126,7 +123,6 @@ const AjouterLocataire = () => {
         has_guarantor: hasGuarantor,
       };
 
-      // Ajouter les infos du garant si nécessaire
       if (hasGuarantor) {
         payload.guarantor_name = formData.guarantor_name;
         payload.guarantor_phone = formData.guarantor_phone;
@@ -146,12 +142,10 @@ const AjouterLocataire = () => {
 
       console.log("Envoi des données:", payload);
 
-      // Appel API pour inviter le locataire
       const response = await api.post('/tenants/invite', payload);
 
       console.log("Réponse API:", response.data);
 
-      // Si un fichier est sélectionné, on l'uploadera après la création du locataire
       if (selectedFile && response.data.tenant?.id) {
         const formDataFile = new FormData();
         formDataFile.append('documents[]', selectedFile);
@@ -163,20 +157,14 @@ const AjouterLocataire = () => {
         });
       }
 
-      // ✅ SOLUTION SIMPLE : Utiliser sessionStorage pour passer le message
       sessionStorage.setItem('tenant_success', 'Locataire invité avec succès ! Un email a été envoyé.');
-      
-      // ✅ Redirection vers la page de liste
       window.location.href = "/proprietaire/tenants";
 
     } catch (error: any) {
       console.error("Erreur lors de l'envoi:", error);
       
       if (error.response?.data?.errors) {
-        // Afficher les erreurs de validation
         setApiErrors(error.response.data.errors);
-        
-        // Afficher un message d'erreur général
         const errorMessages = Object.values(error.response.data.errors).flat();
         alert("Erreur de validation:\n" + errorMessages.join("\n"));
       } else if (error.response?.data?.message) {
@@ -195,7 +183,6 @@ const AjouterLocataire = () => {
     }
   };
 
-  // Fonction pour afficher les erreurs API d'un champ
   const getFieldError = (fieldName: string) => {
     return apiErrors[fieldName] ? apiErrors[fieldName][0] : null;
   };
@@ -415,7 +402,7 @@ const AjouterLocataire = () => {
           border-radius: 10px;
           font-size: 0.85rem;
           color: var(--ink);
-          background: rgba(255,255,255,.92);
+          background: #ffffff;
           transition: all 0.2s ease;
           font-family: 'Manrope', sans-serif;
           font-weight: 600;
@@ -644,7 +631,6 @@ const AjouterLocataire = () => {
       <div className="form-container">
         <div className="form-card">
           <div className="form-body">
-            {/* Top actions */}
             <div className="top-actions">
               <a href="#" className="button button-secondary" onClick={(e) => { e.preventDefault(); window.location.href = "/proprietaire/tenants"; }}>
                 <svg className="icon-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -683,7 +669,6 @@ const AjouterLocataire = () => {
               </div>
             </div>
 
-            {/* Affichage des erreurs API générales */}
             {Object.keys(apiErrors).length > 0 && (
               <div className="api-error-banner">
                 <strong>Erreurs de validation :</strong>
@@ -697,13 +682,10 @@ const AjouterLocataire = () => {
               </div>
             )}
 
-            {/* Tab navigation - sans icônes */}
+            {/* Tab navigation */}
             <div className="tab-nav">
               <button type="button" className={`tab-button ${activeTab === 'infos' ? 'active' : ''}`} onClick={() => showTab('infos')}>
                 Informations personnelles
-              </button>
-              <button type="button" className={`tab-button ${activeTab === 'contact' ? 'active' : ''}`} onClick={() => showTab('contact')}>
-                Coordonnées
               </button>
               <button type="button" className={`tab-button ${activeTab === 'pro' ? 'active' : ''}`} onClick={() => showTab('pro')}>
                 Situation professionnelle
@@ -717,13 +699,12 @@ const AjouterLocataire = () => {
             </div>
 
             <form id="tenantForm" onSubmit={handleSubmit} encType="multipart/form-data">
-              {/* Tab 1: Informations personnelles */}
+              {/* Tab 1: Informations personnelles + Coordonnées */}
               {activeTab === 'infos' && (
                 <div className="section">
                   <h2 className="section-title">Informations personnelles</h2>
 
                   <div className="form-grid form-grid-2">
-                    {/* Type de locataire - full width */}
                     <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                       <label className="form-label">
                         Type de locataire <span className="required">*</span>
@@ -843,65 +824,8 @@ const AjouterLocataire = () => {
                     </div>
                   </div>
 
-                  {/* Contact d'urgence */}
-                  <div style={{ marginTop: '1.2rem' }}>
-                    <h3 className="form-label" style={{ marginBottom: '0.6rem', fontSize: '0.8rem' }}>
-                      Contact d'urgence
-                    </h3>
-                    <div className="form-grid form-grid-3">
-                      <div className="form-group">
-                        <label className="form-label">Nom et prénom</label>
-                        <input className="form-input" type="text" name="emergency_contact_name" value={formData.emergency_contact_name} onChange={handleChange} placeholder="Nom et prénom" />
-                      </div>
-
-                      <div className="form-group">
-                        <label className="form-label">Téléphone</label>
-                        <div className="form-input-icon">
-                          <div className="icon-wrapper">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8 10a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0 1 22 16.92z"/>
-                            </svg>
-                          </div>
-                          <input className="form-input" type="tel" name="emergency_contact_phone" value={formData.emergency_contact_phone} onChange={handleChange} placeholder="06 12 34 56 78" />
-                        </div>
-                      </div>
-
-                      <div className="form-group">
-                        <label className="form-label">Email</label>
-                        <div className="form-input-icon">
-                          <div className="icon-wrapper">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                              <polyline points="22,6 12,13 2,6"/>
-                            </svg>
-                          </div>
-                          <input className="form-input" type="email" name="emergency_contact_email" value={formData.emergency_contact_email} onChange={handleChange} placeholder="email@exemple.com" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Notes */}
-                  <div style={{ marginTop: '1.2rem' }}>
-                    <label className="form-label">Notes et commentaires</label>
-                    <textarea className="form-textarea" name="notes" value={formData.notes} onChange={handleChange} placeholder="Informations complémentaires sur le locataire..." rows={2} />
-                  </div>
-
-                  <div className="bottom-actions">
-                    <button type="button" className="button button-primary" onClick={() => validateAndGo('infos', 'contact')}>
-                      Suivant : Coordonnées
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Tab 2: Coordonnées */}
-              {activeTab === 'contact' && (
-                <div className="section">
-                  <h2 className="section-title">Coordonnées</h2>
+                  {/* Section Coordonnées */}
+                  <h2 className="section-title" style={{ marginTop: '1.5rem' }}>Coordonnées</h2>
 
                   <div className="form-grid form-grid-2">
                     <div className="form-group">
@@ -983,24 +907,6 @@ const AjouterLocataire = () => {
 
                     <div className="form-group">
                       <label className="form-label">
-                        Code postal <span className="required">*</span>
-                      </label>
-                      <input 
-                        className={`form-input ${apiErrors.zip_code ? 'error' : ''}`} 
-                        type="text" 
-                        name="zip_code" 
-                        value={formData.zip_code} 
-                        onChange={handleChange} 
-                        placeholder="75000" 
-                        required 
-                      />
-                      {getFieldError('zip_code') && (
-                        <div className="field-error">{getFieldError('zip_code')}</div>
-                      )}
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">
                         Ville <span className="required">*</span>
                       </label>
                       <input 
@@ -1036,14 +942,52 @@ const AjouterLocataire = () => {
                     </div>
                   </div>
 
+                  {/* Contact d'urgence */}
+                  <div style={{ marginTop: '1.5rem' }}>
+                    <h3 className="form-label" style={{ marginBottom: '0.8rem', fontSize: '1rem', fontWeight: 800 }}>
+                      Contact d'urgence
+                    </h3>
+                    <div className="form-grid form-grid-3">
+                      <div className="form-group">
+                        <label className="form-label">Nom et prénom</label>
+                        <input className="form-input" type="text" name="emergency_contact_name" value={formData.emergency_contact_name} onChange={handleChange} placeholder="Nom et prénom" />
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Téléphone</label>
+                        <div className="form-input-icon">
+                          <div className="icon-wrapper">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8 10a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                          </div>
+                          <input className="form-input" type="tel" name="emergency_contact_phone" value={formData.emergency_contact_phone} onChange={handleChange} placeholder="06 12 34 56 78" />
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Email</label>
+                        <div className="form-input-icon">
+                          <div className="icon-wrapper">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                              <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                          </div>
+                          <input className="form-input" type="email" name="emergency_contact_email" value={formData.emergency_contact_email} onChange={handleChange} placeholder="email@exemple.com" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Notes */}
+                  <div style={{ marginTop: '1.2rem' }}>
+                    <label className="form-label">Notes et commentaires</label>
+                    <textarea className="form-textarea" name="notes" value={formData.notes} onChange={handleChange} placeholder="Informations complémentaires sur le locataire..." rows={2} />
+                  </div>
+
                   <div className="bottom-actions">
-                    <button type="button" className="button button-secondary" onClick={() => showTab('infos')}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M19 12H5M12 5l-7 7 7 7"/>
-                      </svg>
-                      Précédent
-                    </button>
-                    <button type="button" className="button button-primary" onClick={() => validateAndGo('contact', 'pro')}>
+                    <button type="button" className="button button-primary" onClick={() => validateAndGo('infos', 'pro')}>
                       Suivant : Situation professionnelle
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -1053,7 +997,7 @@ const AjouterLocataire = () => {
                 </div>
               )}
 
-              {/* Tab 3: Situation professionnelle */}
+              {/* Tab 2: Situation professionnelle */}
               {activeTab === 'pro' && (
                 <div className="section">
                   <h2 className="section-title">Situation professionnelle</h2>
@@ -1092,7 +1036,15 @@ const AjouterLocataire = () => {
                             <path d="M12 6v2M12 16v2"/>
                           </svg>
                         </div>
-                        <input className="form-input" type="number" name="annual_income" value={formData.annual_income} onChange={handleChange} placeholder="45000" min="0" step="0.01" />
+                        <input 
+                          className="form-input" 
+                          type="text" 
+                          inputMode="numeric" 
+                          name="annual_income" 
+                          value={formData.annual_income} 
+                          onChange={handleChange} 
+                          placeholder="45000" 
+                        />
                       </div>
                       <p className="helper-text">Optionnel</p>
                     </div>
@@ -1107,7 +1059,15 @@ const AjouterLocataire = () => {
                             <path d="M12 6v2M12 16v2"/>
                           </svg>
                         </div>
-                        <input className="form-input" type="number" name="monthly_income" value={formData.monthly_income} onChange={handleChange} placeholder="3750" min="0" step="0.01" />
+                        <input 
+                          className="form-input" 
+                          type="text" 
+                          inputMode="numeric" 
+                          name="monthly_income" 
+                          value={formData.monthly_income} 
+                          onChange={handleChange} 
+                          placeholder="3750" 
+                        />
                       </div>
                       <p className="helper-text">Optionnel</p>
                     </div>
@@ -1128,7 +1088,7 @@ const AjouterLocataire = () => {
                   </div>
 
                   <div className="bottom-actions">
-                    <button type="button" className="button button-secondary" onClick={() => showTab('contact')}>
+                    <button type="button" className="button button-secondary" onClick={() => showTab('infos')}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M19 12H5M12 5l-7 7 7 7"/>
                       </svg>
@@ -1144,7 +1104,7 @@ const AjouterLocataire = () => {
                 </div>
               )}
 
-              {/* Tab 4: Garant */}
+              {/* Tab 3: Garant */}
               {activeTab === 'garant' && (
                 <div className="section">
                   <h2 className="section-title">Garant</h2>
@@ -1303,14 +1263,13 @@ const AjouterLocataire = () => {
                                 </svg>
                               </div>
                               <input 
-                                className={`form-input ${apiErrors.guarantor_annual_income ? 'error' : ''}`} 
-                                type="number" 
+                                className="form-input" 
+                                type="text" 
+                                inputMode="numeric" 
                                 name="guarantor_income" 
                                 value={formData.guarantor_income} 
                                 onChange={handleChange} 
                                 placeholder="60000" 
-                                min="0" 
-                                step="0.01" 
                               />
                             </div>
                             {getFieldError('guarantor_annual_income') && (
@@ -1331,14 +1290,13 @@ const AjouterLocataire = () => {
                                 </svg>
                               </div>
                               <input 
-                                className={`form-input ${apiErrors.guarantor_monthly_income ? 'error' : ''}`} 
-                                type="number" 
+                                className="form-input" 
+                                type="text" 
+                                inputMode="numeric" 
                                 name="guarantor_monthly_income" 
                                 value={formData.guarantor_monthly_income} 
                                 onChange={handleChange} 
                                 placeholder="5000" 
-                                min="0" 
-                                step="0.01" 
                               />
                             </div>
                             {getFieldError('guarantor_monthly_income') && (
@@ -1384,7 +1342,7 @@ const AjouterLocataire = () => {
                 </div>
               )}
 
-              {/* Tab 5: Documents */}
+              {/* Tab 4: Documents */}
               {activeTab === 'documents' && (
                 <div className="section">
                   <h2 className="section-title">Documents</h2>

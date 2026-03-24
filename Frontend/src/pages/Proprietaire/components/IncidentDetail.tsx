@@ -850,7 +850,7 @@ const IncidentDetail: React.FC<IncidentDetailProps> = ({ notify }) => {
                                 <div className="form-group">
                                     <label className="form-label">Coût estimé (FCFA)</label>
                                     <input 
-                                        type="number" 
+                                        type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                                         className="form-input" 
                                         value={estimatedCost}
                                         onChange={(e) => setEstimatedCost(e.target.value)}
@@ -900,7 +900,7 @@ const IncidentDetail: React.FC<IncidentDetailProps> = ({ notify }) => {
                                 <div className="form-group">
                                     <label className="form-label">Coût final (FCFA)</label>
                                     <input 
-                                        type="number" 
+                                        type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                                         className="form-input" 
                                         value={actualCost}
                                         onChange={(e) => setActualCost(e.target.value)}

@@ -47,7 +47,7 @@ const NouvelleLocation = () => {
   const [bien, setBien] = useState("");
   const [locataire, setLocataire] = useState("");
   const [typeBail, setTypeBail] = useState("nu");
-  const [statutBail, setStatutBail] = useState("active");
+  const [tacitRenewal, setTacitRenewal] = useState(true); // NOUVEAU : case à cocher
   const [loyer, setLoyer] = useState("");
   const [charges, setCharges] = useState("");
   const [depot, setDepot] = useState("");
@@ -60,12 +60,6 @@ const NouvelleLocation = () => {
   const [modePaiement, setModePaiement] = useState("Espèce");
   const [details, setDetails] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const statuts = [
-    { value: "active", label: "Actif", color: "#22c55e" },
-    { value: "pending_signature", label: "En attente", color: "#94a3b8" },
-    { value: "terminated", label: "Résilié", color: "#f97316" },
-  ];
 
   // Charger les données au montage
   useEffect(() => {
@@ -94,7 +88,6 @@ const NouvelleLocation = () => {
   const fetchProperties = async () => {
     try {
       setLoadingData(true);
-      // Récupérer UNIQUEMENT les biens NON LOUÉS du propriétaire connecté
       const response = await api.get('/landlord/properties/available');
       setProperties(response.data || []);
     } catch (error) {
@@ -106,7 +99,6 @@ const NouvelleLocation = () => {
 
   const fetchTenants = async () => {
     try {
-      // Récupérer UNIQUEMENT les locataires du propriétaire connecté
       const response = await api.get('/landlord/tenants');
       setTenants(response.data || []);
     } catch (error) {
@@ -149,7 +141,6 @@ const NouvelleLocation = () => {
         property_id: parseInt(bien),
         tenant_id: parseInt(locataire),
         lease_type: typeBail,
-        lease_status: statutBail,
         start_date: dateDebut,
         duration_months: parseInt(dureeMois),
         end_date: dateFin,
@@ -159,12 +150,12 @@ const NouvelleLocation = () => {
         billing_day: parseInt(jourPaiement),
         payment_frequency: periodicite,
         payment_mode: modePaiement,
-        special_conditions: details
+        special_conditions: details,
+        tacit_renewal: tacitRenewal // NOUVEAU CHAMP
       };
 
       await api.post('/landlord/leases', formData);
       
-      // Rediriger vers la liste des baux
       navigate("/proprietaire/baux");
     } catch (error: any) {
       console.error("Erreur lors de la création du bail:", error);
@@ -205,7 +196,7 @@ const NouvelleLocation = () => {
       border: "1.5px solid #d1d5db",
       borderRadius: "8px",
       padding: "9px 18px",
-      fontSize: "15px", // ↑ was 13px
+      fontSize: "15px",
       color: "#374151",
       cursor: "pointer",
       fontWeight: 500,
@@ -224,7 +215,7 @@ const NouvelleLocation = () => {
       border: "1.5px solid #ef4444",
       borderRadius: "8px",
       padding: "9px 20px",
-      fontSize: "15px", // ↑ was 13px
+      fontSize: "15px",
       color: "#ef4444",
       cursor: "pointer",
       fontWeight: 600,
@@ -239,7 +230,7 @@ const NouvelleLocation = () => {
       border: "none",
       borderRadius: "8px",
       padding: "9px 22px",
-      fontSize: "15px", // ↑ was 13px
+      fontSize: "15px",
       color: "white",
       cursor: "pointer",
       fontWeight: 600,
@@ -263,7 +254,7 @@ const NouvelleLocation = () => {
       letterSpacing: "-0.3px",
     },
     subtitle: {
-      fontSize: "17px", // ↑ was 16px
+      fontSize: "17px",
       color: "#6b7280",
       margin: 0,
       fontFamily: SMALL_FONT,
@@ -277,7 +268,7 @@ const NouvelleLocation = () => {
       boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
     },
     cardTitle: {
-      fontSize: "19px", // ↑ was 17px
+      fontSize: "19px",
       fontWeight: 700,
       color: "#111827",
       marginBottom: "28px",
@@ -298,7 +289,7 @@ const NouvelleLocation = () => {
       gap: "6px",
     },
     label: {
-      fontSize: "15px", // ↑ was 13px
+      fontSize: "15px",
       fontWeight: 600,
       color: "#374151",
       fontFamily: SMALL_FONT,
@@ -312,7 +303,7 @@ const NouvelleLocation = () => {
       padding: "10px 14px",
       borderRadius: "8px",
       border: "1.5px solid #d1d5db",
-      fontSize: "15px", // ↑ was 13px
+      fontSize: "15px",
       color: "#111827",
       background: "white",
       appearance: "none",
@@ -329,7 +320,7 @@ const NouvelleLocation = () => {
       padding: "10px 14px",
       borderRadius: "8px",
       border: "1.5px solid #d1d5db",
-      fontSize: "15px", // ↑ was 13px
+      fontSize: "15px",
       color: "#111827",
       background: "white",
       boxSizing: "border-box",
@@ -351,24 +342,18 @@ const NouvelleLocation = () => {
       display: "flex",
       alignItems: "center",
       gap: "6px",
-      fontSize: "15px", // ↑ was 13px
+      fontSize: "15px",
       color: "#374151",
       cursor: "pointer",
       fontWeight: 500,
       fontFamily: SMALL_FONT,
-    },
-    statutGroup: {
-      display: "flex",
-      gap: "16px",
-      flexWrap: "wrap",
-      marginTop: "4px",
     },
     textarea: {
       width: "100%",
       padding: "12px 14px",
       borderRadius: "8px",
       border: "1.5px solid #d1d5db",
-      fontSize: "15px", // ↑ was 13px
+      fontSize: "15px",
       color: "#111827",
       background: "white",
       boxSizing: "border-box",
@@ -379,7 +364,7 @@ const NouvelleLocation = () => {
       transition: "border-color 0.15s",
     },
     helpText: {
-      fontSize: "13px", // ↑ was 12px
+      fontSize: "13px",
       color: "#9ca3af",
       marginTop: "4px",
       display: "flex",
@@ -415,10 +400,33 @@ const NouvelleLocation = () => {
       gridColumn: "1 / -1",
     },
     errorText: {
-      fontSize: "13px", // ↑ was 12px
+      fontSize: "13px",
       color: "#dc2626",
       marginTop: "4px",
     },
+    checkboxRow: {
+      display: "flex",
+      alignItems: "center",
+      gap: "12px",
+      marginTop: "8px",
+      marginBottom: "16px",
+    },
+    checkboxLabel: {
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+      fontSize: "15px",
+      color: "#374151",
+      cursor: "pointer",
+      fontWeight: 500,
+      fontFamily: SMALL_FONT,
+    },
+    checkbox: {
+      width: "18px",
+      height: "18px",
+      accentColor: "#16a34a",
+      cursor: "pointer",
+    }
   };
 
   return (
@@ -443,7 +451,7 @@ const NouvelleLocation = () => {
             style={styles.backBtn}
             onClick={() => navigate("/proprietaire/dashboard")}
           >
-            ← Retour au tableau de bord
+            Retour au tableau de bord
           </button>
           <div style={styles.topActions}>
             <button
@@ -560,8 +568,8 @@ const NouvelleLocation = () => {
               </div>
             </div>
 
+            {/* Type de bail - seul champ restant (statut retiré) */}
             <div style={styles.grid2}>
-              {/* Type de bail */}
               <div style={styles.fieldGroup}>
                 <label style={styles.label}>
                   Type de bail <span style={styles.requiredStar}>*</span>
@@ -593,28 +601,8 @@ const NouvelleLocation = () => {
                 {errors.lease_type && <div style={styles.errorText}>{errors.lease_type}</div>}
               </div>
 
-              {/* Statut du bail */}
-              <div style={styles.fieldGroup}>
-                <label style={styles.label}>
-                  Statut du bail <span style={styles.requiredStar}>*</span>
-                </label>
-                <div style={styles.statutGroup}>
-                  {statuts.map(s => (
-                    <label key={s.value} style={styles.radioLabel}>
-                      <input
-                        type="radio"
-                        name="statutBail"
-                        value={s.value}
-                        checked={statutBail === s.value}
-                        onChange={() => setStatutBail(s.value)}
-                        style={{ accentColor: s.color }}
-                      />
-                      {s.label}
-                    </label>
-                  ))}
-                </div>
-                {errors.lease_status && <div style={styles.errorText}>{errors.lease_status}</div>}
-              </div>
+              {/* Champ vide pour garder la grille */}
+              <div></div>
             </div>
 
             <div style={styles.grid2}>
@@ -624,14 +612,12 @@ const NouvelleLocation = () => {
                   Loyer mensuel (FCFA) <span style={styles.requiredStar}>*</span>
                 </label>
                 <input
-                  type="number"
+                  type="text" inputMode="numeric"
                   style={{...styles.input, ...(errors.rent_amount ? { borderColor: "#dc2626" } : {})}}
                   placeholder="40.000"
                   value={loyer}
                   onChange={e => setLoyer(e.target.value)}
                   required
-                  min="1"
-                  step="0.01"
                 />
                 {errors.rent_amount && <div style={styles.errorText}>{errors.rent_amount}</div>}
               </div>
@@ -642,13 +628,11 @@ const NouvelleLocation = () => {
                   Charges mensuelles (FCFA)
                 </label>
                 <input
-                  type="number"
+                  type="text" inputMode="numeric"
                   style={styles.input}
                   placeholder="5.000"
                   value={charges}
                   onChange={e => setCharges(e.target.value)}
-                  min="0"
-                  step="0.01"
                 />
               </div>
             </div>
@@ -660,13 +644,11 @@ const NouvelleLocation = () => {
                   Dépôt de garantie (FCFA)
                 </label>
                 <input
-                  type="number"
+                  type="text" inputMode="numeric"
                   style={styles.input}
                   placeholder="20.000"
                   value={depot}
                   onChange={e => setDepot(e.target.value)}
-                  min="0"
-                  step="0.01"
                 />
               </div>
 
@@ -694,22 +676,13 @@ const NouvelleLocation = () => {
                   Durée du bail (en mois) <span style={styles.requiredStar}>*</span>
                 </label>
                 <input
-                  type="number"
+                  type="text" inputMode="numeric"
                   style={{...styles.input, ...(errors.duration_months ? { borderColor: "#dc2626" } : {})}}
                   placeholder="12"
                   value={dureeMois}
                   onChange={e => setDureeMois(e.target.value)}
                   required
-                  min="1"
-                  max="120"
-                  step="1"
                 />
-                <div style={styles.helpText}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-                  </svg>
-                  Renouvellement par tacite reconduction
-                </div>
                 {errors.duration_months && <div style={styles.errorText}>{errors.duration_months}</div>}
               </div>
 
@@ -725,6 +698,27 @@ const NouvelleLocation = () => {
                   readOnly
                   placeholder="Sélectionnez une durée"
                 />
+              </div>
+            </div>
+
+            {/* NOUVELLE CASE À COCHER : Reconduire le bail automatiquement */}
+            <div style={styles.fullWidth}>
+              <div style={styles.checkboxRow}>
+                <label style={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    style={styles.checkbox}
+                    checked={tacitRenewal}
+                    onChange={(e) => setTacitRenewal(e.target.checked)}
+                  />
+                  Reconduire le bail automatiquement
+                </label>
+              </div>
+              <div style={styles.helpText}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                </svg>
+                Le bail sera reconduit pour la même durée
               </div>
             </div>
 

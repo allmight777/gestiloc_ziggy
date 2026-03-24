@@ -456,7 +456,7 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                   <div>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Surface (m²)</label>
                     <input
-                      type="number"
+                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       name="surface"
                       value={formData.surface}
                       onChange={handleChange}
@@ -487,7 +487,7 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                   <div>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Étage</label>
                     <input
-                      type="number"
+                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       name="floor"
                       value={formData.floor}
                       onChange={handleChange}
@@ -499,7 +499,7 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                   <div>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Chambres</label>
                     <input
-                      type="number"
+                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       name="bedroom_count"
                       value={formData.bedroom_count}
                       onChange={handleChange}
@@ -514,7 +514,7 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                   <div>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Salles de bain</label>
                     <input
-                      type="number"
+                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       name="bathroom_count"
                       value={formData.bathroom_count}
                       onChange={handleChange}
@@ -526,7 +526,7 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                   <div>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Pièces totales</label>
                     <input
-                      type="number"
+                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       name="room_count"
                       value={formData.room_count}
                       onChange={handleChange}
@@ -612,7 +612,7 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                   <div style={{ marginBottom: 14 }}>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Loyer hors charges (FCFA)</label>
                     <input
-                      type="number"
+                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       name="rent_amount"
                       value={formData.rent_amount}
                       onChange={handleChange}
@@ -626,7 +626,7 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                   <div style={{ marginBottom: 14 }}>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Loyer charges locatives (FCFA)</label>
                     <input
-                      type="number"
+                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       name="charges_amount"
                       value={formData.charges_amount}
                       onChange={handleChange}
@@ -642,7 +642,7 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                   <div>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Caution / Dépôt de garantie (FCFA)</label>
                     <input
-                      type="number"
+                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       name="caution"
                       value={formData.caution}
                       onChange={handleChange}

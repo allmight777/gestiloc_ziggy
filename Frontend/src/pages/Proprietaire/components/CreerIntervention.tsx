@@ -1500,7 +1500,7 @@ const CreerIntervention: React.FC<CreerInterventionProps> = ({
                     <line x1="15" y1="9" x2="15.01" y2="9" />
                   </svg>
                   <input 
-                    type="number"
+                    type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     style={{
                       width: "100%",
                       padding: "1.2rem 1.5rem 1.2rem 3.5rem",

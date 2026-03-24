@@ -291,7 +291,7 @@ export const CreateImmeubles: React.FC<CreateImmeublesProps> = ({ onBack, notify
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">SUPERFICIE M²</label>
               <input
-                type="number"
+                type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder=""
                 value={formData.superficieMetersCarre}
                 onChange={(e) => handleInputChange('superficieMetersCarre', e.target.value)}
@@ -304,7 +304,7 @@ export const CreateImmeubles: React.FC<CreateImmeublesProps> = ({ onBack, notify
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">ANNÉE DE CONSTRUCTION</label>
               <input
-                type="number"
+                type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder=""
                 value={formData.anneeConstruction}
                 onChange={(e) => handleInputChange('anneeConstruction', e.target.value)}
@@ -363,7 +363,7 @@ export const CreateImmeubles: React.FC<CreateImmeublesProps> = ({ onBack, notify
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">PRIX D'ACQUISITION (FCFA)</label>
               <input
-                type="number"
+                type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="Exemple: 250000"
                 value={formData.prixAcquisition}
                 onChange={(e) => handleInputChange('prixAcquisition', e.target.value)}
@@ -376,7 +376,7 @@ export const CreateImmeubles: React.FC<CreateImmeublesProps> = ({ onBack, notify
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">FRAIS D'ACQUISITION (FCFA)</label>
               <input
-                type="number"
+                type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="Frais de notaire, droits d'enregistrement, etc."
                 value={formData.fraisAcquisition}
                 onChange={(e) => handleInputChange('fraisAcquisition', e.target.value)}
@@ -389,7 +389,7 @@ export const CreateImmeubles: React.FC<CreateImmeublesProps> = ({ onBack, notify
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">TAXE FONCIÈRE ANNUELLE (FCFA)</label>
               <input
-                type="number"
+                type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="Montant annuel"
                 value={formData.taxeFonciere}
                 onChange={(e) => handleInputChange('taxeFonciere', e.target.value)}

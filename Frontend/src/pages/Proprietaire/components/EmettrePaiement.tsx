@@ -508,7 +508,7 @@ export default function EmettrePaiement({ onCreated, notify }: Props) {
                   <FieldLabel>Montant (XOF)</FieldLabel>
                   <div className="mt-2">
                     <Input
-                      type="number"
+                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       min={0}
                       step="1"
                       value={amountTotal}

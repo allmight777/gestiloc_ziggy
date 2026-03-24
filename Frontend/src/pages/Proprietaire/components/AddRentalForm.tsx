@@ -97,22 +97,22 @@ export const AddRentalForm: React.FC<AddRentalFormProps> = ({ onSuccess }) => {
             
             <div className="space-y-2">
               <Label htmlFor="rent">Loyer mensuel (FCFA)</Label>
-              <Input id="rent" type="number" placeholder="850" required />
+              <Input id="rent" type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="850" required />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="deposit">Dépôt de garantie (FCFA)</Label>
-              <Input id="deposit" type="number" placeholder="850" required />
+              <Input id="deposit" type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="850" required />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="charges">Charges mensuelles (FCFA)</Label>
-              <Input id="charges" type="number" placeholder="100" required />
+              <Input id="charges" type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" placeholder="100" required />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="paymentDay">Jour de paiement</Label>
-              <Input id="paymentDay" type="number" min="1" max="31" defaultValue="5" required />
+              <Input id="paymentDay" type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" min="1" max="31" defaultValue="5" required />
             </div>
           </div>
           

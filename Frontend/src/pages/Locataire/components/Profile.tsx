@@ -160,7 +160,6 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
       const errorData = await response.json();
       setValidationErrors(errorData.errors || {});
 
-      // Formater les messages d'erreur pour la notification
       const errorMessages = Object.values(errorData.errors || {}).flat();
       return {
         success: false,
@@ -800,22 +799,26 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
           </div>
         </div>
 
-        <div className="flex gap-3">
-          <button
-            onClick={handleSavePersonal}
-            className="flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-            style={{ background: 'rgba(82, 157, 33, 1)' }}
-          >
-            <Save size={16} />
-            Enregistrer les modifications
-          </button>
-          <button
-            onClick={cancelPersonal}
-            className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
-          >
-            Annuler
-          </button>
-        </div>
+        {activeSection === 'personal' && (
+          <div className="flex gap-3 animate-fadeIn">
+            <button
+              onClick={handleSavePersonal}
+              disabled={saving}
+              className="flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+              style={{ background: 'rgba(82, 157, 33, 0.82)' }}
+            >
+              <Save size={16} />
+              Enregistrer
+            </button>
+            <button
+              onClick={cancelPersonal}
+              disabled={saving}
+              className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all duration-300 disabled:opacity-50"
+            >
+              Annuler
+            </button>
+          </div>
+        )}
       </Card>
 
       {/* Current Address */}
@@ -971,22 +974,26 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
           )}
         </div>
 
-        <div className="flex gap-3">
-          <button
-            onClick={handleSaveAddress}
-            className="flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-            style={{ background: 'rgba(82, 157, 33, 1)' }}
-          >
-            <Save size={16} />
-            Enregistrer
-          </button>
-          <button
-            onClick={cancelAddress}
-            className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
-          >
-            Annuler
-          </button>
-        </div>
+        {activeSection === 'address' && (
+          <div className="flex gap-3 animate-fadeIn">
+            <button
+              onClick={handleSaveAddress}
+              disabled={saving}
+              className="flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+              style={{ background: 'rgba(82, 157, 33, 0.82)' }}
+            >
+              <Save size={16} />
+              Enregistrer
+            </button>
+            <button
+              onClick={cancelAddress}
+              disabled={saving}
+              className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all duration-300 disabled:opacity-50"
+            >
+              Annuler
+            </button>
+          </div>
+        )}
       </Card>
 
       {/* Professional Information */}
@@ -1122,21 +1129,12 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
           )}
         </div>
 
-        <div className="flex gap-3">
-          <button
-            onClick={handleSaveProfessional}
-            className="flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-            style={{ background: 'rgba(82, 157, 33, 1)' }}
-          >
-            Enregistrer
-          </button>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Revenu annuel (FCFA)</label>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               value={professional.annual_income}
               onChange={(e) => {
                 setProfessional({ ...professional, annual_income: e.target.value });
@@ -1148,7 +1146,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
               }}
               disabled={activeSection !== 'professional'}
               placeholder="Revenu annuel"
-              className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.annual_income ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${validationErrors.annual_income ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
             {validationErrors.annual_income && (
@@ -1161,7 +1159,8 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Revenu mensuel (FCFA)</label>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               value={professional.monthly_income}
               onChange={(e) => {
                 setProfessional({ ...professional, monthly_income: e.target.value });
@@ -1173,7 +1172,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
               }}
               disabled={activeSection !== 'professional'}
               placeholder="Revenu mensuel"
-              className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.monthly_income ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${validationErrors.monthly_income ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
             {validationErrors.monthly_income && (
@@ -1334,22 +1333,26 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
           </div>
         </div>
 
-        <div className="flex gap-3">
-          <button
-            onClick={handleSaveEmergency}
-            className="flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-            style={{ background: 'rgba(82, 157, 33, 1)' }}
-          >
-            <Save size={16} />
-            Enregistrer
-          </button>
-          <button
-            onClick={cancelEmergency}
-            className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
-          >
-            Annuler
-          </button>
-        </div>
+        {activeSection === 'emergency' && (
+          <div className="flex gap-3 animate-fadeIn">
+            <button
+              onClick={handleSaveEmergency}
+              disabled={saving}
+              className="flex items-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+              style={{ background: 'rgba(82, 157, 33, 0.82)' }}
+            >
+              <Save size={16} />
+              Enregistrer
+            </button>
+            <button
+              onClick={cancelEmergency}
+              disabled={saving}
+              className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all duration-300 disabled:opacity-50"
+            >
+              Annuler
+            </button>
+          </div>
+        )}
       </Card>
 
       {/* Guarantor Information */}
@@ -1561,7 +1564,8 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Revenu annuel (FCFA)</label>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               value={guarantor.income}
               onChange={(e) => {
                 setGuarantor({ ...guarantor, income: e.target.value });
@@ -1573,7 +1577,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
               }}
               disabled={activeSection !== 'guarantor'}
               placeholder="Revenu annuel"
-              className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.income ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${validationErrors.income ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
             {validationErrors.income && (
@@ -1586,7 +1590,8 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Revenu mensuel (FCFA)</label>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
               value={guarantor.monthly_income}
               onChange={(e) => {
                 setGuarantor({ ...guarantor, monthly_income: e.target.value });
@@ -1598,7 +1603,7 @@ export const Profile: React.FC<ProfileProps> = ({ notify }) => {
               }}
               disabled={activeSection !== 'guarantor'}
               placeholder="Revenu mensuel"
-              className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 ${validationErrors.monthly_income ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 bg-white text-gray-900 placeholder-gray-500 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 disabled:bg-white disabled:text-gray-600 disabled:border-gray-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${validationErrors.monthly_income ? 'border-red-500' : 'border-gray-300'
                 }`}
             />
             {validationErrors.monthly_income && (

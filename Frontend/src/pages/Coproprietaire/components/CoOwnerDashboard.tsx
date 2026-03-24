@@ -47,6 +47,35 @@ interface CoOwnerDashboardProps {
 const fcfa = (n: number) =>
   new Intl.NumberFormat("fr-FR").format(isFinite(n) ? n : 0) + " FCFA";
 
+// Configuration pour les redirections Laravel/React
+const CONFIG = {
+  LARAVEL_URL: 'http://localhost:8000',
+  REACT_URL:   'http://localhost:8080',
+  LOGIN_URL:   '/login',
+};
+
+const getToken = () => {
+  let t = localStorage.getItem('token');
+  if (t) return t;
+  t = new URLSearchParams(window.location.search).get('api_token');
+  if (t) { localStorage.setItem('token', t); return t; }
+  return sessionStorage.getItem('token');
+};
+
+const goToLaravel = (path: string) => {
+  const token = getToken();
+  if (!token) { window.location.href = `${CONFIG.LARAVEL_URL}${CONFIG.LOGIN_URL}`; return; }
+  const sep = path.includes('?') ? '&' : '?';
+  window.location.href = `${CONFIG.LARAVEL_URL}${path.startsWith('/') ? path : '/' + path}${sep}api_token=${encodeURIComponent(token)}&_t=${Date.now()}`;
+};
+
+const goToReact = (path: string) => {
+  const token = getToken();
+  if (!token) { window.location.href = `${CONFIG.LARAVEL_URL}${CONFIG.LOGIN_URL}`; return; }
+  const sep = path.includes('?') ? '&' : '?';
+  window.location.href = `${CONFIG.REACT_URL}${path.startsWith('/') ? path : '/' + path}${sep}api_token=${encodeURIComponent(token)}&_t=${Date.now()}`;
+};
+
 // Données fictives pour le mode démo SEULEMENT
 const mockDashboardData = {
   subscription: { plan: "Premium GestiLoc (Démo)", renewal_date: "15 Juin 2026" },
@@ -67,9 +96,9 @@ const mockDashboardData = {
     { name: 'Quittance – Martin', date: '25 janvier 2026', type: 'receipt' },
   ],
   quick_actions: [
-    { id: 1, title: 'Créer un bien', description: 'Créez la fiche de votre bien', icon: 'home' },
-    { id: 2, title: 'Créer un locataire', description: 'Ajoutez vos locataires', icon: 'users' },
-    { id: 3, title: 'Créer une Location', description: 'Liez le bien et le locataire', icon: 'handshake' },
+    { id: 1, title: 'Créer un bien', description: 'Créez la fiche de votre bien', icon: 'home', path: '/coproprietaire/biens/create', isLaravel: true },
+    { id: 2, title: 'Créer un locataire', description: 'Ajoutez vos locataires', icon: 'users', path: '/coproprietaire/tenants/create', isLaravel: true },
+    { id: 3, title: 'Créer une Location', description: 'Liez le bien et le locataire', icon: 'handshake', path: '/coproprietaire/assign-property/create', isLaravel: true },
   ],
   kpis: {
     expected_rent: 500000,
@@ -138,7 +167,25 @@ export const CoOwnerDashboard: React.FC<CoOwnerDashboardProps> = ({ onNavigate, 
     recent_documents,
     rent_data,
     graph_max,
+    quick_actions,
   } = dashboardData;
+
+  // Fonction de navigation pour les étapes de démarrage
+  const handleStepClick = (stepType: string) => {
+    switch(stepType) {
+      case 'creer-bien':
+        goToLaravel('/coproprietaire/biens/create');
+        break;
+      case 'creer-locataire':
+        goToLaravel('/coproprietaire/tenants/create');
+        break;
+      case 'creer-location':
+        goToLaravel('/coproprietaire/assign-property/create');
+        break;
+      default:
+        break;
+    }
+  };
 
   // Chart.js - Bar Chart (Loyers)
   useEffect(() => {
@@ -256,15 +303,11 @@ export const CoOwnerDashboard: React.FC<CoOwnerDashboardProps> = ({ onNavigate, 
     };
   }, [occupancy_data, loading]);
 
-  // ✅ CORRECTION : Filtrer pour n'afficher que les documents qui existent réellement
+  // Filtrer pour n'afficher que les documents qui existent réellement
   const displayedDocs = useMemo(() => {
     if (!isAuthenticated) {
-      // Mode démo : afficher les documents fictifs
       return mockDashboardData.recent_documents;
     }
-    
-    // Mode connecté : afficher uniquement les documents de l'API
-    // Si recent_documents est vide, on n'affiche rien
     return recent_documents && recent_documents.length > 0 ? recent_documents : [];
   }, [isAuthenticated, recent_documents]);
 
@@ -370,20 +413,22 @@ export const CoOwnerDashboard: React.FC<CoOwnerDashboardProps> = ({ onNavigate, 
         </div>
       </div>
 
-      {/* Getting Started */}
+      {/* Getting Started - Version avec les textes demandés */}
       <div className="bg-white rounded-[2rem] border border-gray-100 p-6 sm:p-8 shadow-sm overflow-hidden">
         <h2 className="text-xl sm:text-2xl font-black text-gray-900 mb-8 font-merriweather">
-          {isAuthenticated ? 'Pour démarrer la gestion des délégations…' : 'Pour démarrer, c’est simple…'}
+          Pour démarrer, c'est simple…
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center">
           <div className="lg:col-span-3 space-y-4">
+            {/* Étapes pour tous les utilisateurs (même texte) */}
             {[
-              { id: 1, title: 'Accepter une délégation', desc: 'Rejoignez la gestion d\'un bien avec un lien d\'invitation' },
-              { id: 2, title: 'Vérifier vos contrats', desc: 'Consultez les baux délégués pour vérifier les montants' },
-              { id: 3, title: 'Suivre les revenus', desc: 'Suivez et collectez les revenus générés par les biens' }
+              { id: 1, title: 'Créer un bien', desc: 'Créez la fiche de votre premier bien immobilier', type: 'creer-bien' },
+              { id: 2, title: 'Créer un locataire', desc: 'Ajoutez les informations de vos locataires', type: 'creer-locataire' },
+              { id: 3, title: 'Créer une Location', desc: 'Liez votre bien à un locataire en quelques clics', type: 'creer-location' }
             ].map((step) => (
               <div
                 key={step.id}
+                onClick={() => handleStepClick(step.type)}
                 className="group cursor-pointer rounded-2xl border border-gray-50 bg-gray-50/30 p-4 sm:p-5 flex items-center gap-4 sm:gap-6 transition-all hover:bg-white hover:border-green-100 hover:shadow-xl hover:shadow-green-500/5 active:scale-[0.98]"
               >
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 text-white font-black text-lg sm:text-xl font-merriweather shadow-lg shadow-green-500/20 group-hover:scale-110 transition-transform">
@@ -482,7 +527,7 @@ export const CoOwnerDashboard: React.FC<CoOwnerDashboardProps> = ({ onNavigate, 
         </div>
       </div>
 
-      {/* Documents Section - CORRIGÉE */}
+      {/* Documents Section */}
       <div className="bg-gray-100/40 rounded-[2.5rem] p-6 sm:p-10 transition-all border border-gray-100/50">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10">
           <div className="flex items-center gap-4">
@@ -534,7 +579,6 @@ export const CoOwnerDashboard: React.FC<CoOwnerDashboardProps> = ({ onNavigate, 
                 ))}
               </div>
             ) : (
-              // Message quand aucun document n'est disponible
               <div className="text-center py-12 bg-white/50 rounded-2xl">
                 <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                 <p className="text-gray-500 font-medium font-manrope">Aucun document récent</p>
@@ -544,8 +588,6 @@ export const CoOwnerDashboard: React.FC<CoOwnerDashboardProps> = ({ onNavigate, 
           </>
         )}
       </div>
-
-     
 
       <PropertyModal
         property={selectedProperty}
