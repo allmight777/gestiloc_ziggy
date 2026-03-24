@@ -190,216 +190,219 @@ class CoOwnerTenantController extends Controller
     /**
      * Enregistrement locataire
      */
-    public function store(Request $request)
-    {
-        $user = $this->getAuthenticatedUser($request);
+/**
+ * Enregistrement locataire
+ */
+public function store(Request $request)
+{
+    $user = $this->getAuthenticatedUser($request);
 
-        Log::info('=== ENREGISTREMENT LOCATAIRE LARAVEL (COPRIO) ===', [
-            'data_keys' => array_keys($request->all()),
-            'user_id' => $user ? $user->id : null,
-            'user_email' => $user ? $user->email : null,
-            'user_roles' => $user ? $user->getRoleNames() : null,
-        ]);
+    Log::info('=== ENREGISTREMENT LOCATAIRE LARAVEL (COPRIO) ===', [
+        'data_keys' => array_keys($request->all()),
+        'user_id' => $user ? $user->id : null,
+        'user_email' => $user ? $user->email : null,
+        'user_roles' => $user ? $user->getRoleNames() : null,
+    ]);
 
-        if (!$user) {
-            Log::error('Aucun utilisateur authentifié trouvé');
-            return back()
-                ->with('error', 'Vous devez être connecté pour créer un locataire')
-                ->withInput();
-        }
-
-        if (!$user->hasRole('co_owner')) {
-            Log::error('Utilisateur non autorisé', [
-                'user_id' => $user->id,
-                'roles' => $user->getRoleNames()
-            ]);
-            return back()
-                ->with('error', 'Accès réservé aux co-propriétaires')
-                ->withInput();
-        }
-
-        $coOwner = $user->coOwner;
-        if (!$coOwner) {
-            return back()
-                ->with('error', 'Profil co-propriétaire non trouvé')
-                ->withInput();
-        }
-
-        // Validation
-        $validated = $request->validate([
-            'tenant_type' => 'required|string|max:50',
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'nullable|string|max:20|unique:users,phone',
-            'birth_date' => 'required|date',
-            'birth_place' => 'required|string|max:200',
-            'marital_status' => 'nullable|string',
-            'profession' => 'required|string|max:200',
-            'employer' => 'nullable|string|max:200',
-            'annual_income' => 'nullable|numeric|min:0',
-            'monthly_income' => 'nullable|numeric|min:0',
-            'contract_type' => 'nullable|string',
-            'address' => 'required|string|max:255',
-            'zip_code' => 'required|string|max:10',
-            'city' => 'required|string|max:100',
-            'country' => 'required|string|max:100',
-            'emergency_contact_name' => 'nullable|string|max:200',
-            'emergency_contact_phone' => 'nullable|string|max:20',
-            'emergency_contact_email' => 'nullable|email|max:200',
-            'notes' => 'nullable|string',
-            'guarantor_name' => 'nullable|string|max:200',
-            'guarantor_phone' => 'nullable|string|max:20',
-            'guarantor_email' => 'nullable|email',
-            'guarantor_profession' => 'nullable|string|max:200',
-            'guarantor_income' => 'nullable|numeric|min:0',
-            'guarantor_monthly_income' => 'nullable|numeric|min:0',
-            'guarantor_address' => 'nullable|string|max:255',
-            'guarantor_birth_date' => 'nullable|date',
-            'guarantor_birth_place' => 'nullable|string|max:200',
-            'document_type' => 'nullable|string|max:50',
-            'document_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-        ], [
-            'email.unique' => 'Cet email est déjà utilisé par un autre utilisateur.',
-            'phone.unique' => 'Ce numéro de téléphone est déjà utilisé par un autre utilisateur.',
-        ]);
-
-        try {
-            return DB::transaction(function () use ($validated, $user, $coOwner, $request) {
-                Log::info('Début création locataire par co-propriétaire', [
-                    'co_owner_id' => $coOwner->id,
-                    'co_owner_email' => $user->email,
-                    'tenant_email' => $validated['email']
-                ]);
-
-                // Gestion du fichier document
-                $documentPath = null;
-                if ($request->hasFile('document_file')) {
-                    $documentPath = $request->file('document_file')->store('tenant_documents', 'public');
-                }
-
-                // 1. Vérifier si l'email existe déjà
-                $existingUser = User::where('email', $validated['email'])->first();
-
-                if ($existingUser) {
-                    $tenantUser = $existingUser;
-                } else {
-                    // Créer un user temporaire
-                    $tempPassword = Hash::make(bin2hex(random_bytes(16)));
-
-                    $tenantUser = User::create([
-                        'email' => $validated['email'],
-                        'phone' => $validated['phone'] ?? null,
-                        'password' => $tempPassword,
-                        'status' => 'pending',
-                        'email_verified_at' => null,
-                    ]);
-
-                    $tenantUser->assignRole('tenant');
-                }
-
-                // 2. Créer l'invitation
-                $invitation = TenantInvitation::create([
-                    'landlord_id'    => $coOwner->landlord_id,
-                    'tenant_user_id' => $tenantUser->id,
-                    'email'          => $validated['email'],
-                    'name'           => trim($validated['first_name'] . ' ' . $validated['last_name']),
-                    'token'          => TenantInvitation::makeToken(),
-                    'expires_at'     => now()->addDays(7),
-                    'meta'           => [
-                        'first_name' => $validated['first_name'],
-                        'last_name'  => $validated['last_name'],
-                        'phone'      => $validated['phone'] ?? null,
-                        'invited_by' => 'co_owner',
-                        'co_owner_id' => $coOwner->id,
-                    ],
-                ]);
-
-                // 3. Créer le locataire
-                $tenant = Tenant::create([
-                    'user_id' => $tenantUser->id,
-                    'tenant_type' => $validated['tenant_type'],
-                    'first_name' => $validated['first_name'],
-                    'last_name' => $validated['last_name'],
-                    'birth_date' => $validated['birth_date'],
-                    'birth_place' => $validated['birth_place'],
-                    'marital_status' => $validated['marital_status'] ?? 'single',
-                    'profession' => $validated['profession'],
-                    'employer' => $validated['employer'] ?? null,
-                    'annual_income' => $validated['annual_income'] ?? null,
-                    'monthly_income' => $validated['monthly_income'] ?? null,
-                    'contract_type' => $validated['contract_type'] ?? null,
-                    'emergency_contact_name' => $validated['emergency_contact_name'] ?? null,
-                    'emergency_contact_phone' => $validated['emergency_contact_phone'] ?? null,
-                    'emergency_contact_email' => $validated['emergency_contact_email'] ?? null,
-                    'notes' => $validated['notes'] ?? null,
-                    'status' => 'candidate',
-                    'address' => $validated['address'],
-                    'zip_code' => $validated['zip_code'],
-                    'city' => $validated['city'],
-                    'country' => $validated['country'],
-                    'guarantor_name' => $validated['guarantor_name'] ?? null,
-                    'guarantor_phone' => $validated['guarantor_phone'] ?? null,
-                    'guarantor_email' => $validated['guarantor_email'] ?? null,
-                    'guarantor_profession' => $validated['guarantor_profession'] ?? null,
-                    'guarantor_income' => $validated['guarantor_income'] ?? null,
-                    'guarantor_monthly_income' => $validated['guarantor_monthly_income'] ?? null,
-                    'guarantor_address' => $validated['guarantor_address'] ?? null,
-                    'guarantor_birth_date' => $validated['guarantor_birth_date'] ?? null,
-                    'guarantor_birth_place' => $validated['guarantor_birth_place'] ?? null,
-                    'document_type' => $validated['document_type'] ?? null,
-                    'document_path' => $documentPath,
-                    'meta' => [
-                        'landlord_id' => $coOwner->landlord_id,
-                        'invitation_email' => $validated['email'],
-                        'phone' => $validated['phone'] ?? null,
-                        'invitation_id' => $invitation->id,
-                        'invitation_status' => 'pending',
-                        'invited_by_co_owner' => $coOwner->id,
-                        'co_owner_id' => $coOwner->id,
-                        'email' => $validated['email'],
-                    ],
-                ]);
-
-                // 4. Générer le lien d'invitation
-                $signedUrl = URL::temporarySignedRoute(
-                    'api.auth.accept-invitation',
-                    now()->addDays(7),
-                    ['invitationId' => $invitation->id]
-                );
-
-                Log::info('Locataire créé avec succès par co-propriétaire', [
-                    'tenant_id' => $tenant->id,
-                    'tenant_email' => $validated['email'],
-                    'tenant_user_id' => $tenant->user_id,
-                    'co_owner_id' => $coOwner->id,
-                    'co_owner_email' => $user->email,
-                    'invitation_id' => $invitation->id,
-                ]);
-
-                // 5. Envoyer l'email d'invitation
-                $this->sendInvitationEmail($tenant, $invitation, $signedUrl, $user, $validated['email']);
-
-                return redirect()
-                    ->route('co-owner.tenants.index')
-                    ->with('success', 'Locataire créé avec succès ! Un email d\'invitation a été envoyé.');
-
-            });
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            throw $e;
-        } catch (\Exception $e) {
-            Log::error('Erreur création locataire par co-propriétaire', [
-                'error' => $e->getMessage(),
-                'co_owner_id' => $user->id,
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return back()
-                ->with('error', 'Erreur lors de la création du locataire: ' . $e->getMessage())
-                ->withInput();
-        }
+    if (!$user) {
+        Log::error('Aucun utilisateur authentifié trouvé');
+        return back()
+            ->with('error', 'Vous devez être connecté pour créer un locataire')
+            ->withInput();
     }
+
+    if (!$user->hasRole('co_owner')) {
+        Log::error('Utilisateur non autorisé', [
+            'user_id' => $user->id,
+            'roles' => $user->getRoleNames()
+        ]);
+        return back()
+            ->with('error', 'Accès réservé aux co-propriétaires')
+            ->withInput();
+    }
+
+    $coOwner = $user->coOwner;
+    if (!$coOwner) {
+        return back()
+            ->with('error', 'Profil co-propriétaire non trouvé')
+            ->withInput();
+    }
+
+    // Validation - zip_code rendu optionnel
+    $validated = $request->validate([
+        'tenant_type' => 'required|string|max:50',
+        'first_name' => 'required|string|max:100',
+        'last_name' => 'required|string|max:100',
+        'email' => 'required|email|unique:users,email',
+        'phone' => 'nullable|string|max:20|unique:users,phone',
+        'birth_date' => 'required|date',
+        'birth_place' => 'required|string|max:200',
+        'marital_status' => 'nullable|string',
+        'profession' => 'required|string|max:200',
+        'employer' => 'nullable|string|max:200',
+        'annual_income' => 'nullable|numeric|min:0',
+        'monthly_income' => 'nullable|numeric|min:0',
+        'contract_type' => 'nullable|string',
+        'address' => 'required|string|max:255',
+        'zip_code' => 'nullable|string|max:10',  // CHANGÉ : de 'required' à 'nullable'
+        'city' => 'required|string|max:100',
+        'country' => 'required|string|max:100',
+        'emergency_contact_name' => 'nullable|string|max:200',
+        'emergency_contact_phone' => 'nullable|string|max:20',
+        'emergency_contact_email' => 'nullable|email|max:200',
+        'notes' => 'nullable|string',
+        'guarantor_name' => 'nullable|string|max:200',
+        'guarantor_phone' => 'nullable|string|max:20',
+        'guarantor_email' => 'nullable|email',
+        'guarantor_profession' => 'nullable|string|max:200',
+        'guarantor_income' => 'nullable|numeric|min:0',
+        'guarantor_monthly_income' => 'nullable|numeric|min:0',
+        'guarantor_address' => 'nullable|string|max:255',
+        'guarantor_birth_date' => 'nullable|date',
+        'guarantor_birth_place' => 'nullable|string|max:200',
+        'document_type' => 'nullable|string|max:50',
+        'document_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+    ], [
+        'email.unique' => 'Cet email est déjà utilisé par un autre utilisateur.',
+        'phone.unique' => 'Ce numéro de téléphone est déjà utilisé par un autre utilisateur.',
+    ]);
+
+    try {
+        return DB::transaction(function () use ($validated, $user, $coOwner, $request) {
+            Log::info('Début création locataire par co-propriétaire', [
+                'co_owner_id' => $coOwner->id,
+                'co_owner_email' => $user->email,
+                'tenant_email' => $validated['email']
+            ]);
+
+            // Gestion du fichier document
+            $documentPath = null;
+            if ($request->hasFile('document_file')) {
+                $documentPath = $request->file('document_file')->store('tenant_documents', 'public');
+            }
+
+            // 1. Vérifier si l'email existe déjà
+            $existingUser = User::where('email', $validated['email'])->first();
+
+            if ($existingUser) {
+                $tenantUser = $existingUser;
+            } else {
+                // Créer un user temporaire
+                $tempPassword = Hash::make(bin2hex(random_bytes(16)));
+
+                $tenantUser = User::create([
+                    'email' => $validated['email'],
+                    'phone' => $validated['phone'] ?? null,
+                    'password' => $tempPassword,
+                    'status' => 'pending',
+                    'email_verified_at' => null,
+                ]);
+
+                $tenantUser->assignRole('tenant');
+            }
+
+            // 2. Créer l'invitation
+            $invitation = TenantInvitation::create([
+                'landlord_id'    => $coOwner->landlord_id,
+                'tenant_user_id' => $tenantUser->id,
+                'email'          => $validated['email'],
+                'name'           => trim($validated['first_name'] . ' ' . $validated['last_name']),
+                'token'          => TenantInvitation::makeToken(),
+                'expires_at'     => now()->addDays(7),
+                'meta'           => [
+                    'first_name' => $validated['first_name'],
+                    'last_name'  => $validated['last_name'],
+                    'phone'      => $validated['phone'] ?? null,
+                    'invited_by' => 'co_owner',
+                    'co_owner_id' => $coOwner->id,
+                ],
+            ]);
+
+            // 3. Créer le locataire - zip_code optionnel
+            $tenant = Tenant::create([
+                'user_id' => $tenantUser->id,
+                'tenant_type' => $validated['tenant_type'],
+                'first_name' => $validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'birth_date' => $validated['birth_date'],
+                'birth_place' => $validated['birth_place'],
+                'marital_status' => $validated['marital_status'] ?? 'single',
+                'profession' => $validated['profession'],
+                'employer' => $validated['employer'] ?? null,
+                'annual_income' => $validated['annual_income'] ?? null,
+                'monthly_income' => $validated['monthly_income'] ?? null,
+                'contract_type' => $validated['contract_type'] ?? null,
+                'emergency_contact_name' => $validated['emergency_contact_name'] ?? null,
+                'emergency_contact_phone' => $validated['emergency_contact_phone'] ?? null,
+                'emergency_contact_email' => $validated['emergency_contact_email'] ?? null,
+                'notes' => $validated['notes'] ?? null,
+                'status' => 'candidate',
+                'address' => $validated['address'],
+                'zip_code' => $validated['zip_code'] ?? null,  // CHANGÉ : valeur par défaut null
+                'city' => $validated['city'],
+                'country' => $validated['country'],
+                'guarantor_name' => $validated['guarantor_name'] ?? null,
+                'guarantor_phone' => $validated['guarantor_phone'] ?? null,
+                'guarantor_email' => $validated['guarantor_email'] ?? null,
+                'guarantor_profession' => $validated['guarantor_profession'] ?? null,
+                'guarantor_income' => $validated['guarantor_income'] ?? null,
+                'guarantor_monthly_income' => $validated['guarantor_monthly_income'] ?? null,
+                'guarantor_address' => $validated['guarantor_address'] ?? null,
+                'guarantor_birth_date' => $validated['guarantor_birth_date'] ?? null,
+                'guarantor_birth_place' => $validated['guarantor_birth_place'] ?? null,
+                'document_type' => $validated['document_type'] ?? null,
+                'document_path' => $documentPath,
+                'meta' => [
+                    'landlord_id' => $coOwner->landlord_id,
+                    'invitation_email' => $validated['email'],
+                    'phone' => $validated['phone'] ?? null,
+                    'invitation_id' => $invitation->id,
+                    'invitation_status' => 'pending',
+                    'invited_by_co_owner' => $coOwner->id,
+                    'co_owner_id' => $coOwner->id,
+                    'email' => $validated['email'],
+                ],
+            ]);
+
+            // 4. Générer le lien d'invitation
+            $signedUrl = URL::temporarySignedRoute(
+                'api.auth.accept-invitation',
+                now()->addDays(7),
+                ['invitationId' => $invitation->id]
+            );
+
+            Log::info('Locataire créé avec succès par co-propriétaire', [
+                'tenant_id' => $tenant->id,
+                'tenant_email' => $validated['email'],
+                'tenant_user_id' => $tenant->user_id,
+                'co_owner_id' => $coOwner->id,
+                'co_owner_email' => $user->email,
+                'invitation_id' => $invitation->id,
+            ]);
+
+            // 5. Envoyer l'email d'invitation
+            $this->sendInvitationEmail($tenant, $invitation, $signedUrl, $user, $validated['email']);
+
+            return redirect()
+                ->route('co-owner.tenants.index')
+                ->with('success', 'Locataire créé avec succès ! Un email d\'invitation a été envoyé.');
+
+        });
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        throw $e;
+    } catch (\Exception $e) {
+        Log::error('Erreur création locataire par co-propriétaire', [
+            'error' => $e->getMessage(),
+            'co_owner_id' => $user->id,
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return back()
+            ->with('error', 'Erreur lors de la création du locataire: ' . $e->getMessage())
+            ->withInput();
+    }
+}
 
     /**
      * Envoyer l'email d'invitation

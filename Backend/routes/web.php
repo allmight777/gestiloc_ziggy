@@ -258,6 +258,16 @@ Route::get('/coproprietaire/etats-des-lieux/get-leases/{propertyId}', [CoOwnerCo
         Route::post('/{maintenance}/cancel', [CoOwnerMaintenanceController::class, 'cancel'])->name('cancel');
     });
 
+// Routes pour les avis d'échéance
+Route::prefix('coproprietaire/avis-echeance')->name('co-owner.rent-due-notices.')->group(function () {
+    Route::get('/', [App\Http\Controllers\CoOwner\RentDueNoticeController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\CoOwner\RentDueNoticeController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\CoOwner\RentDueNoticeController::class, 'store'])->name('store');
+    Route::post('/generate', [App\Http\Controllers\CoOwner\RentDueNoticeController::class, 'generate'])->name('generate');
+    Route::post('/{id}/send', [App\Http\Controllers\CoOwner\RentDueNoticeController::class, 'send'])->name('send');
+    Route::post('/{id}/resend', [App\Http\Controllers\CoOwner\RentDueNoticeController::class, 'resend'])->name('resend'); // NOUVELLE ROUTE
+    Route::delete('/{id}', [App\Http\Controllers\CoOwner\RentDueNoticeController::class, 'destroy'])->name('destroy'); // NOUVELLE ROUTE
+});
     // Routes baux
 Route::prefix('coproprietaire/leases')->name('co-owner.leases.')->group(function () {
     // Liste des baux

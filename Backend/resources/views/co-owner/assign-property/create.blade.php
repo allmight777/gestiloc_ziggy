@@ -392,20 +392,25 @@
         align-items: center;
         gap: 10px;
         margin-top: 8px;
+        margin-bottom: 16px;
     }
 
     .checkbox-label {
-        font-size: 0.85rem;
-        color: #6b7280;
+        font-size: 0.9rem;
+        color: #374151;
         cursor: pointer;
         font-family: 'Manrope', sans-serif;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .checkbox-label input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
         accent-color: #16a34a;
-        margin-right: 6px;
+        cursor: pointer;
     }
 
     /* ===== BOUTONS BAS ===== */
@@ -567,7 +572,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 12H5M12 19l-7-7 7-7"/>
                 </svg>
-                <span>← Retour au tableau de bord</span>
+                <span> Retour au tableau de bord</span>
             </a>
 
             <h1 class="page-title">Nouveau contrat de location</h1>
@@ -743,32 +748,8 @@
                     </div>
                 </div>
 
-                <!-- Statut du bail -->
-                <div class="form-group">
-                    <label class="form-label">
-                        Statut du bail <span class="required-star">*</span>
-                    </label>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="lease_status" value="active"
-                                   {{ old('lease_status', 'active') == 'active' ? 'checked' : '' }}
-                                   style="accent-color: #22c55e;">
-                            Actif
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="lease_status" value="pending_signature"
-                                   {{ old('lease_status') == 'pending_signature' ? 'checked' : '' }}
-                                   style="accent-color: #94a3b8;">
-                            En attente
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="lease_status" value="terminated"
-                                   {{ old('lease_status') == 'terminated' ? 'checked' : '' }}
-                                   style="accent-color: #f97316;">
-                            Résilié
-                        </label>
-                    </div>
-                </div>
+                <!-- Champ vide pour garder la grille (statut retiré) -->
+                <div></div>
             </div>
 
             <div class="grid-2">
@@ -861,12 +842,6 @@
                     <input type="number" name="duration_months" id="duration_months" required min="1" max="120" step="1"
                            value="{{ old('duration_months', 12) }}" placeholder="12"
                            class="form-control @error('duration_months') error @enderror">
-                    <div class="form-help">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-                        </svg>
-                        Renouvellement par tacite reconduction
-                    </div>
                     @error('duration_months')
                         <div class="form-error">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -888,6 +863,22 @@
                            placeholder="Sélectionnez une durée"
                            class="form-control">
                     <input type="hidden" name="end_date" id="end_date" value="{{ old('end_date') }}">
+                </div>
+            </div>
+
+            <!-- Case à cocher Reconduire le bail automatiquement -->
+            <div class="full-width" style="margin-top: 16px; margin-bottom: 16px;">
+                <div class="checkbox-row">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="tacit_renewal" value="1" {{ old('tacit_renewal', '1') == '1' ? 'checked' : '' }}>
+                        Reconduire le bail automatiquement
+                    </label>
+                </div>
+                <div class="form-help" style="margin-left: 28px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                    </svg>
+                   Le bail sera reconduit pour la même durée
                 </div>
             </div>
 

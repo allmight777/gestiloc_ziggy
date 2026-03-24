@@ -63,7 +63,7 @@
                     TOTAL ENCAISSÉ
                 </div>
                 <div style="font-size: 2.6rem; font-weight: 700; color: #70AE48;">
-                    {{ number_format($totalCollected * 655, 0, ',', ' ') }} FCFA
+                    {{ number_format($totalCollected, 0, ',', ' ') }} FCFA
                 </div>
             </div>
         </div>
@@ -124,7 +124,7 @@
                                 <path d="m21 21-4.35-4.35"></path>
                             </svg>
                             <input type="text" name="search" value="{{ $searchTerm }}" placeholder="Locataire, bien, mois..."
-                                   style="width: 100%; padding: 16px 20px 16px 50px; border: 1px solid #E5E7EB; border-radius: 12px; font-size: 1rem; color: #1F2937; transition: all 0.2s;"
+                                   style="width: 100%; padding: 16px 20px 16px 50px; border: 1px solid #E5E7EB; border-radius: 12px; font-size: 1rem; color: #1F2937; background: white; transition: all 0.2s;"
                                    onfocus="this.style.borderColor='#70AE48'; this.style.boxShadow='0 0 0 3px rgba(112, 174, 72, 0.1)'"
                                    onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
                         </div>
@@ -132,9 +132,9 @@
 
                     <div style="flex: 0 0 auto;">
                         <button type="submit"
-                                style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; background: #70AE48; color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(112, 174, 72, 0.2);"
-                                onmouseover="this.style.background='#5d8f3a'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(112, 174, 72, 0.3)'"
-                                onmouseout="this.style.background='#70AE48'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(112, 174, 72, 0.2)'">
+                                style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; background: white; color: #70AE48; border: 2px solid #70AE48; border-radius: 12px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05);"
+                                onmouseover="this.style.background='#F0F9F0'; this.style.borderColor='#5d8f3a'; this.style.color='#5d8f3a'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(112, 174, 72, 0.2)'"
+                                onmouseout="this.style.background='white'; this.style.borderColor='#70AE48'; this.style.color='#70AE48'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)'">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <path d="m21 21-4.35-4.35"></path>
@@ -212,6 +212,16 @@
         @else
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 2rem;">
                 @foreach($receipts as $receipt)
+                    @php
+                        // Récupérer les bonnes valeurs depuis le bail
+                        $rentAmount = $receipt->lease->rent_amount ?? 0;
+                        $chargesAmount = $receipt->lease->charges_amount ?? 0;
+                        $totalMensuel = $rentAmount + $chargesAmount;
+
+                        // Le montant payé dans la quittance
+                        $amountPaid = $receipt->amount_paid;
+                    @endphp
+
                     <div style="background: white; border-radius: 20px; padding: 2rem; border: 1px solid #E5E7EB; transition: all 0.3s ease; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.02);"
                          onmouseover="this.style.boxShadow='0 8px 24px rgba(112, 174, 72, 0.15)'; this.style.transform='translateY(-2px)'; this.style.borderColor='#70AE48'"
                          onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.02)'; this.style.transform='translateY(0)'; this.style.borderColor='#E5E7EB'">
@@ -259,20 +269,20 @@
                             </div>
                         </div>
 
-                        <!-- Détails financiers -->
+                        <!-- Détails financiers - CORRECTION : pas de multiplication par 655 -->
                         <div style="background: #F9FAFB; border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                 <span style="color: #6B7280; font-size: 0.95rem;">Loyer</span>
-                                <span style="font-weight: 600; color: #1F2937; font-size: 1rem;">{{ number_format(($receipt->amount_paid - ($receipt->lease->charges_amount ?? 0)) * 655, 0, ',', ' ') }} FCFA</span>
+                                <span style="font-weight: 600; color: #1F2937; font-size: 1rem;">{{ number_format($rentAmount, 0, ',', ' ') }} FCFA</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                 <span style="color: #6B7280; font-size: 0.95rem;">Charges</span>
-                                <span style="font-weight: 600; color: #1F2937; font-size: 1rem;">{{ number_format(($receipt->lease->charges_amount ?? 0) * 655, 0, ',', ' ') }} FCFA</span>
+                                <span style="font-weight: 600; color: #1F2937; font-size: 1rem;">{{ number_format($chargesAmount, 0, ',', ' ') }} FCFA</span>
                             </div>
                             <div style="height: 1px; background: #E5E7EB; margin: 1rem 0;"></div>
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <span style="color: #6B7280; font-size: 0.95rem; font-weight: 600;">Total payé</span>
-                                <span style="font-size: 1.4rem; font-weight: 700; color: #70AE48;">{{ number_format($receipt->amount_paid * 655, 0, ',', ' ') }} FCFA</span>
+                                <span style="font-size: 1.4rem; font-weight: 700; color: #70AE48;">{{ number_format($totalMensuel, 0, ',', ' ') }} FCFA</span>
                             </div>
                         </div>
 

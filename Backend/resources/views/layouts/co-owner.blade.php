@@ -935,8 +935,12 @@
                         </button>
                         <button class="submenu-item" data-path="/coproprietaire/notices" onclick="navigateTo('/coproprietaire/notices')">
                             <span class="sub-icon"><img src="/Ressource_gestiloc/document.png" alt="Avis"></span>
-                            <span>Avis d'échéance</span>
+                            <span>Préavis</span>
                         </button>
+                        <button class="submenu-item" data-path="/coproprietaire/avis-echeance" onclick="navigateTo('/coproprietaire/avis-echeance')">
+    <span class="sub-icon"><img src="/Ressource_gestiloc/document.png" alt="Avis"></span>
+    <span>Avis d'échéance</span>
+</button>
                         <button class="submenu-item" data-path="/coproprietaire/quittances" onclick="navigateTo('/coproprietaire/quittances')">
                             <span class="sub-icon"><img src="/Ressource_gestiloc/Mes_quittances.png" alt="Quittance"></span>
                             <span>Quittances de loyers</span>

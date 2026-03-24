@@ -56,7 +56,6 @@ class CoOwnerAssignPropertyController extends Controller
             });
 
         $tenants = Tenant::where('meta->landlord_id', $coOwner->landlord_id)
-           
             ->with('user')
             ->get();
 
@@ -143,6 +142,7 @@ class CoOwnerAssignPropertyController extends Controller
             'payment_frequency'  => 'required|in:monthly,quarterly,annually',
             'payment_mode'       => 'nullable|string|max:100',
             'special_conditions' => 'nullable|string|max:5000',
+            'tacit_renewal'      => 'nullable|boolean',  // NOUVEAU CHAMP
         ]);
 
         try {
@@ -156,7 +156,10 @@ class CoOwnerAssignPropertyController extends Controller
             $leaseNumber = 'BAIL-' . date('Y') . '-' . str_pad(Lease::count() + 1, 4, '0', STR_PAD_LEFT);
             $endDate = $validated['end_date'] ?? null;
 
-            // Statut forcé à pending_signature
+            // Récupérer la valeur de tacit_renewal (true par défaut si coché)
+            $tacitRenewal = isset($validated['tacit_renewal']) ? (bool)$validated['tacit_renewal'] : true;
+
+            // Statut forcé à pending_signature (inchangé par rapport à l'original)
             $lease = Lease::create([
                 'uuid'               => Str::uuid(),
                 'property_id'        => $validated['property_id'],
@@ -165,7 +168,7 @@ class CoOwnerAssignPropertyController extends Controller
                 'type'               => $validated['lease_type'],
                 'start_date'         => $validated['start_date'],
                 'end_date'           => $endDate,
-                'tacit_renewal'      => true,
+                'tacit_renewal'      => $tacitRenewal,  // NOUVEAU CHAMP
                 'rent_amount'        => $validated['rent_amount'],
                 'charges_amount'     => $validated['charges_amount'] ?? 0,
                 'guarantee_amount'   => $validated['guarantee_amount'] ?? 0,
@@ -173,7 +176,7 @@ class CoOwnerAssignPropertyController extends Controller
                 'billing_day'        => $validated['billing_day'],
                 'payment_frequency'  => $validated['payment_frequency'],
                 'penalty_rate'       => 0,
-                'status'             => 'pending_signature',
+                'status'             => 'pending_signature',  // INCHANGÉ
                 'landlord_signature' => null,
                 'tenant_signature'   => null,
                 'signed_at'          => null,
@@ -195,10 +198,11 @@ class CoOwnerAssignPropertyController extends Controller
                 'share_percentage' => 100,
                 'start_date'       => $validated['start_date'],
                 'end_date'         => $endDate,
-                'status'           => 'pending',
+                'status'           => 'pending',  // INCHANGÉ
             ]);
 
-            // Le bien reste disponible jusqu'à la signature complète
+            // Le bien reste disponible jusqu'à la signature complète (inchangé)
+            // Donc on ne met pas à jour le statut du bien ici
 
             DB::commit();
 
@@ -209,6 +213,7 @@ class CoOwnerAssignPropertyController extends Controller
                 'tenant_id'   => $validated['tenant_id'],
                 'co_owner_id' => $coOwner->id,
                 'status'      => 'pending_signature',
+                'tacit_renewal' => $tacitRenewal,
             ]);
 
             return redirect()

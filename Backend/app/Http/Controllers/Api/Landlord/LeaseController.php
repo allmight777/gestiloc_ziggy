@@ -109,147 +109,149 @@ class LeaseController extends Controller
     /**
      * Créer un nouveau bail
      */
-    public function store(Request $request)
-    {
-        $user = $request->user();
+/**
+ * Créer un nouveau bail
+ */
+public function store(Request $request)
+{
+    $user = $request->user();
 
-        if (!$user || !$user->hasRole('landlord')) {
-            return response()->json(['message' => 'Accès interdit'], 403);
-        }
+    if (!$user || !$user->hasRole('landlord')) {
+        return response()->json(['message' => 'Accès interdit'], 403);
+    }
 
-        $landlord = Landlord::where('user_id', $user->id)->first();
+    $landlord = Landlord::where('user_id', $user->id)->first();
 
-        if (!$landlord) {
-            return response()->json(['message' => 'Profil propriétaire non trouvé'], 404);
-        }
+    if (!$landlord) {
+        return response()->json(['message' => 'Profil propriétaire non trouvé'], 404);
+    }
 
-        $validated = $request->validate([
-            'property_id' => [
-                'required',
-                'exists:properties,id',
-                function ($attribute, $value, $fail) use ($user) {
-                    $property = Property::find($value);
+    $validated = $request->validate([
+        'property_id' => [
+            'required',
+            'exists:properties,id',
+            function ($attribute, $value, $fail) use ($user) {
+                $property = Property::find($value);
 
-                    // Vérifier que le bien a été créé par cet utilisateur
-                    if (!$property || $property->user_id != $user->id) {
-                        $fail('Ce bien ne vous appartient pas.');
-                    }
-                    if ($property->status === 'rented') {
-                        $fail('Ce bien est déjà loué.');
-                    }
+                if (!$property || $property->user_id != $user->id) {
+                    $fail('Ce bien ne vous appartient pas.');
                 }
-            ],
-            'tenant_id' => [
-                'required',
-                'exists:tenants,id',
-                function ($attribute, $value, $fail) use ($landlord) {
-                    $tenant = Tenant::find($value);
-                    if (!$tenant || ($tenant->meta['landlord_id'] ?? null) != $landlord->id) {
-                        $fail('Ce locataire ne vous est pas associé.');
-                    }
+                if ($property->status === 'rented') {
+                    $fail('Ce bien est déjà loué.');
                 }
+            }
+        ],
+        'tenant_id' => [
+            'required',
+            'exists:tenants,id',
+            function ($attribute, $value, $fail) use ($landlord) {
+                $tenant = Tenant::find($value);
+                if (!$tenant || ($tenant->meta['landlord_id'] ?? null) != $landlord->id) {
+                    $fail('Ce locataire ne vous est pas associé.');
+                }
+            }
+        ],
+        'lease_type' => 'required|in:nu,meuble',
+        // LE STATUT EST RETIRÉ DE LA VALIDATION
+        'start_date' => 'required|date',
+        'duration_months' => 'required|integer|min:1|max:120',
+        'end_date' => 'nullable|date',
+        'rent_amount' => 'required|numeric|min:1',
+        'charges_amount' => 'nullable|numeric|min:0',
+        'guarantee_amount' => 'nullable|numeric|min:0',
+        'billing_day' => 'required|integer|min:1|max:28',
+        'payment_frequency' => 'required|in:monthly,quarterly,annually',
+        'payment_mode' => 'nullable|string|max:100',
+        'special_conditions' => 'nullable|string|max:5000',
+        'tacit_renewal' => 'nullable|boolean', // NOUVEAU CHAMP
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        $property = Property::find($validated['property_id']);
+
+        $leaseNumber = 'BAIL-' . date('Y') . '-' . str_pad(Lease::count() + 1, 4, '0', STR_PAD_LEFT);
+
+        // Récupérer la valeur de tacit_renewal (true par défaut)
+        $tacitRenewal = isset($validated['tacit_renewal']) ? (bool)$validated['tacit_renewal'] : true;
+
+        $lease = Lease::create([
+            'uuid' => Str::uuid(),
+            'property_id' => $validated['property_id'],
+            'tenant_id' => $validated['tenant_id'],
+            'lease_number' => $leaseNumber,
+            'type' => $validated['lease_type'],
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'] ?? null,
+            'tacit_renewal' => $tacitRenewal, // NOUVEAU CHAMP
+            'rent_amount' => $validated['rent_amount'],
+            'charges_amount' => $validated['charges_amount'] ?? 0,
+            'guarantee_amount' => $validated['guarantee_amount'] ?? 0,
+            'prepaid_rent_months' => 0,
+            'billing_day' => $validated['billing_day'],
+            'payment_frequency' => $validated['payment_frequency'],
+            'penalty_rate' => 0,
+            'status' => 'pending_signature', // FORCÉ À pending_signature
+            'terms' => [
+                'payment_mode' => $validated['payment_mode'] ?? 'Espèce',
+                'special_conditions' => $validated['special_conditions'] ?? null,
             ],
-            'lease_type' => 'required|in:nu,meuble',
-            'lease_status' => 'sometimes|in:active,pending_signature,terminated',
-            'start_date' => 'required|date',
-            'duration_months' => 'required|integer|min:1|max:120',
-            'end_date' => 'nullable|date',
-            'rent_amount' => 'required|numeric|min:1',
-            'charges_amount' => 'nullable|numeric|min:0',
-            'guarantee_amount' => 'nullable|numeric|min:0',
-            'billing_day' => 'required|integer|min:1|max:28',
-            'payment_frequency' => 'required|in:monthly,quarterly,annually',
-            'payment_mode' => 'nullable|string|max:100',
-            'special_conditions' => 'nullable|string|max:5000',
+            'landlord_signature' => null,
+            'tenant_signature' => null,
+            'signed_at' => null,
         ]);
 
-        try {
-            DB::beginTransaction();
+        $tenant = Tenant::find($validated['tenant_id']);
 
-            $property = Property::find($validated['property_id']);
+        PropertyUser::create([
+            'property_id' => $validated['property_id'],
+            'user_id' => $tenant->user_id,
+            'tenant_id' => $validated['tenant_id'],
+            'lease_id' => $lease->id,
+            'role' => 'tenant',
+            'share_percentage' => 100,
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'] ?? null,
+            'status' => 'pending',
+        ]);
 
-            // Générer un numéro de bail unique
-            $leaseNumber = 'BAIL-' . date('Y') . '-' . str_pad(Lease::count() + 1, 4, '0', STR_PAD_LEFT);
+        // Le bien reste disponible jusqu'à signature
+        // NE PAS mettre à jour le statut du bien ici
 
-            // 1. Créer le bail - FORCER LE STATUT À pending_signature
-            $lease = Lease::create([
-                'uuid' => Str::uuid(),
-                'property_id' => $validated['property_id'],
-                'tenant_id' => $validated['tenant_id'],
-                'lease_number' => $leaseNumber,
-                'type' => $validated['lease_type'],
-                'start_date' => $validated['start_date'],
-                'end_date' => $validated['end_date'] ?? null,
-                'tacit_renewal' => true,
-                'rent_amount' => $validated['rent_amount'],
-                'charges_amount' => $validated['charges_amount'] ?? 0,
-                'guarantee_amount' => $validated['guarantee_amount'] ?? 0,
-                'prepaid_rent_months' => 0,
-                'billing_day' => $validated['billing_day'],
-                'payment_frequency' => $validated['payment_frequency'],
-                'penalty_rate' => 0,
-                // FORCER LE STATUT À pending_signature
-                'status' => 'pending_signature',
-                'terms' => [
-                    'payment_mode' => $validated['payment_mode'] ?? 'Espèce',
-                    'special_conditions' => $validated['special_conditions'] ?? null,
-                ],
-                'landlord_signature' => null,
-                'tenant_signature' => null,
-                'signed_at' => null,
-            ]);
+        DB::commit();
 
-            // 2. Assigner la propriété au locataire avec statut pending
-            $tenant = Tenant::find($validated['tenant_id']);
+        Log::info('=== BAIL CRÉÉ EN ATTENTE DE SIGNATURE ===', [
+            'lease_id' => $lease->id,
+            'lease_number' => $leaseNumber,
+            'property_id' => $validated['property_id'],
+            'tenant_id' => $validated['tenant_id'],
+            'landlord_id' => $landlord->id,
+            'tacit_renewal' => $tacitRenewal,
+            'status' => 'pending_signature',
+        ]);
 
-            PropertyUser::create([
-                'property_id' => $validated['property_id'],
-                'user_id' => $tenant->user_id,
-                'tenant_id' => $validated['tenant_id'],
-                'lease_id' => $lease->id,
-                'role' => 'tenant',
-                'share_percentage' => 100,
-                'start_date' => $validated['start_date'],
-                'end_date' => $validated['end_date'] ?? null,
-                'status' => 'pending',
-            ]);
+        $this->sendSignatureInvitationToTenant($lease);
 
-            // 3. NE PAS mettre à jour le statut du bien car pas encore signé
-            // On garde le bien en 'available' jusqu'à la signature
+        return response()->json([
+            'message' => 'Contrat de location créé avec succès. Un email a été envoyé au locataire pour signature.',
+            'lease' => $lease->load(['property', 'tenant']),
+        ], 201);
 
-            DB::commit();
+    } catch (\Exception $e) {
+        DB::rollBack();
 
-            Log::info('=== BAIL CRÉÉ EN ATTENTE DE SIGNATURE ===', [
-                'lease_id' => $lease->id,
-                'lease_number' => $leaseNumber,
-                'property_id' => $validated['property_id'],
-                'tenant_id' => $validated['tenant_id'],
-                'landlord_id' => $landlord->id,
-                'status' => 'pending_signature',
-            ]);
+        Log::error('Erreur création bail', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ]);
 
-            // ✅ ENVOYER UN EMAIL AU LOCATAIRE POUR L'INVITER À SIGNER
-            $this->sendSignatureInvitationToTenant($lease);
-
-            return response()->json([
-                'message' => 'Contrat de location créé avec succès. Un email a été envoyé au locataire pour signature.',
-                'lease' => $lease->load(['property', 'tenant']),
-            ], 201);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            Log::error('Erreur création bail', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return response()->json([
-                'message' => 'Erreur lors de la création du contrat',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'message' => 'Erreur lors de la création du contrat',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Afficher la liste des baux

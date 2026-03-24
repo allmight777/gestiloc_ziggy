@@ -23,102 +23,120 @@ class CoOwnerRentReceiptController extends Controller
     /**
      * Liste des quittances avec filtres
      */
-    public function index(Request $request)
-    {
-        $user = $this->getAuthenticatedUser($request);
+ /**
+ * Liste des quittances avec filtres
+ */
+public function index(Request $request)
+{
+    $user = $this->getAuthenticatedUser($request);
 
-        if (!$user || !$user->hasRole('co_owner')) {
-            return redirect()->route('login')->with('error', 'Veuillez vous connecter');
-        }
-
-        $coOwner = $user->coOwner;
-        if (!$coOwner) {
-            return view('co-owner.unauthorized')->with('error', 'Profil co-propriétaire non trouvé');
-        }
-
-        // Récupérer les IDs des propriétés déléguées
-        $delegatedPropertyIds = PropertyDelegation::where('co_owner_id', $coOwner->id)
-            ->where('status', 'active')
-            ->pluck('property_id');
-
-        // Statistiques globales
-        $totalReceipts = RentReceipt::whereIn('property_id', $delegatedPropertyIds)->count();
-
-        $thisMonthReceipts = RentReceipt::whereIn('property_id', $delegatedPropertyIds)
-            ->whereMonth('issued_date', now()->month)
-            ->whereYear('issued_date', now()->year)
-            ->count();
-
-        $totalCollected = RentReceipt::whereIn('property_id', $delegatedPropertyIds)
-            ->sum('amount_paid');
-
-        $pendingReceipts = RentReceipt::whereIn('property_id', $delegatedPropertyIds)
-            ->where('status', 'pending')
-            ->count();
-
-        // Query de base pour les quittances
-        $query = RentReceipt::whereIn('property_id', $delegatedPropertyIds)
-            ->with(['property', 'lease', 'tenant.user']);
-
-        // Appliquer les filtres
-        $statusFilter = $request->get('status', 'all');
-        $searchTerm = $request->get('search', '');
-        $propertyFilter = $request->get('property_id', '');
-
-        // Filtre par statut
-        if ($statusFilter !== 'all') {
-            if ($statusFilter === 'sent') {
-                $query->where('status', 'issued');
-            } elseif ($statusFilter === 'pending') {
-                $query->where('status', 'pending');
-            } elseif ($statusFilter === 'year') {
-                $query->whereYear('issued_date', now()->year);
-            }
-        }
-
-        // Filtre par bien
-        if ($propertyFilter) {
-            $query->where('property_id', $propertyFilter);
-        }
-
-        // Filtre par recherche
-        if ($searchTerm) {
-            $query->where(function($q) use ($searchTerm) {
-                $q->where('reference', 'like', "%{$searchTerm}%")
-                  ->orWhereHas('tenant', function($tenantQuery) use ($searchTerm) {
-                      $tenantQuery->where('first_name', 'like', "%{$searchTerm}%")
-                                  ->orWhere('last_name', 'like', "%{$searchTerm}%");
-                  })
-                  ->orWhereHas('property', function($propertyQuery) use ($searchTerm) {
-                      $propertyQuery->where('name', 'like', "%{$searchTerm}%")
-                                    ->orWhere('city', 'like', "%{$searchTerm}%");
-                  });
-            });
-        }
-
-        // Récupérer les quittances avec pagination
-        $receipts = $query->orderBy('issued_date', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->paginate(9);
-
-        // Liste des propriétés pour le filtre
-        $properties = Property::whereIn('id', $delegatedPropertyIds)
-            ->orderBy('name')
-            ->get();
-
-        return view('co-owner.quittances.index', compact(
-            'receipts',
-            'user',
-            'totalReceipts',
-            'thisMonthReceipts',
-            'pendingReceipts',
-            'totalCollected',
-            'properties',
-            'statusFilter',
-            'searchTerm',
-            'propertyFilter'
-        ));
+    if (!$user || !$user->hasRole('co_owner')) {
+        return redirect()->route('login')->with('error', 'Veuillez vous connecter');
     }
+
+    $coOwner = $user->coOwner;
+    if (!$coOwner) {
+        return view('co-owner.unauthorized')->with('error', 'Profil co-propriétaire non trouvé');
+    }
+
+    // Récupérer les IDs des propriétés déléguées
+    $delegatedPropertyIds = PropertyDelegation::where('co_owner_id', $coOwner->id)
+        ->where('status', 'active')
+        ->pluck('property_id');
+
+    // Statistiques globales
+    $totalReceipts = RentReceipt::whereIn('property_id', $delegatedPropertyIds)->count();
+
+    $thisMonthReceipts = RentReceipt::whereIn('property_id', $delegatedPropertyIds)
+        ->whereMonth('issued_date', now()->month)
+        ->whereYear('issued_date', now()->year)
+        ->count();
+
+    $totalCollected = RentReceipt::whereIn('property_id', $delegatedPropertyIds)
+        ->sum('amount_paid');
+
+    $pendingReceipts = RentReceipt::whereIn('property_id', $delegatedPropertyIds)
+        ->where('status', 'pending')
+        ->count();
+
+    // Query de base pour les quittances
+    $query = RentReceipt::whereIn('property_id', $delegatedPropertyIds)
+        ->with(['property', 'lease', 'tenant.user']);
+
+    // Appliquer les filtres
+    $statusFilter = $request->get('status', 'all');
+    $searchTerm = $request->get('search', '');
+    $propertyFilter = $request->get('property_id', '');
+
+    // Filtre par statut
+    if ($statusFilter !== 'all') {
+        if ($statusFilter === 'sent') {
+            $query->where('status', 'issued');
+        } elseif ($statusFilter === 'pending') {
+            $query->where('status', 'pending');
+        } elseif ($statusFilter === 'year') {
+            $query->whereYear('issued_date', now()->year);
+        }
+    }
+
+    // Filtre par bien
+    if ($propertyFilter) {
+        $query->where('property_id', $propertyFilter);
+    }
+
+    // Filtre par recherche
+    if ($searchTerm) {
+        $query->where(function($q) use ($searchTerm) {
+            $q->where('reference', 'like', "%{$searchTerm}%")
+              ->orWhereHas('tenant', function($tenantQuery) use ($searchTerm) {
+                  $tenantQuery->where('first_name', 'like', "%{$searchTerm}%")
+                              ->orWhere('last_name', 'like', "%{$searchTerm}%");
+              })
+              ->orWhereHas('property', function($propertyQuery) use ($searchTerm) {
+                  $propertyQuery->where('name', 'like', "%{$searchTerm}%")
+                                ->orWhere('city', 'like', "%{$searchTerm}%");
+              });
+        });
+    }
+
+    // Récupérer les quittances avec pagination
+    $receipts = $query->orderBy('issued_date', 'desc')
+        ->orderBy('created_at', 'desc')
+        ->paginate(9);
+
+    // Transformer les quittances pour afficher les bons montants
+    $receipts->getCollection()->transform(function ($receipt) {
+        $lease = $receipt->lease;
+        if ($lease) {
+            $receipt->loyer = $lease->rent_amount ?? 0;
+            $receipt->charges = $lease->charges_amount ?? 0;
+            $receipt->total_mensuel = ($lease->rent_amount ?? 0) + ($lease->charges_amount ?? 0);
+        } else {
+            $receipt->loyer = 0;
+            $receipt->charges = 0;
+            $receipt->total_mensuel = 0;
+        }
+        return $receipt;
+    });
+
+    // Liste des propriétés pour le filtre
+    $properties = Property::whereIn('id', $delegatedPropertyIds)
+        ->orderBy('name')
+        ->get();
+
+    return view('co-owner.quittances.index', compact(
+        'receipts',
+        'user',
+        'totalReceipts',
+        'thisMonthReceipts',
+        'pendingReceipts',
+        'totalCollected',
+        'properties',
+        'statusFilter',
+        'searchTerm',
+        'propertyFilter'
+    ));
+}
 
     /**
      * Formulaire création quittance

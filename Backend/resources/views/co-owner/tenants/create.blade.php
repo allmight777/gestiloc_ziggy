@@ -47,9 +47,6 @@
                 <button type="button" class="tab-button active" onclick="showTab('infos')">
                     Informations personnelles
                 </button>
-                <button type="button" class="tab-button" onclick="showTab('contact')">
-                    Coordonnées
-                </button>
                 <button type="button" class="tab-button" onclick="showTab('pro')">
                     Situation professionnelle
                 </button>
@@ -64,7 +61,7 @@
             <form id="tenantForm" method="POST" action="{{ route('co-owner.tenants.store') }}" enctype="multipart/form-data">
                 @csrf
 
-                <!-- Tab 1: Informations personnelles -->
+                <!-- Tab 1: Informations personnelles + Coordonnées -->
                 <div id="tab-infos" class="section">
                     <h2 class="section-title">
                         <i data-lucide="user" style="width: 20px; height: 20px;"></i>
@@ -184,70 +181,7 @@
                         </div>
                     </div>
 
-                    <div style="margin-top: 1.5rem;">
-                        <h3 class="form-label" style="margin-bottom: 0.75rem;">
-                            Contact d'urgence
-                        </h3>
-                        <div class="form-grid form-grid-3">
-                            <div class="form-group">
-                                <label class="form-label">Nom et prénom</label>
-                                <input class="form-input"
-                                       type="text"
-                                       name="emergency_contact_name"
-                                       value="{{ old('emergency_contact_name') }}"
-                                       placeholder="Nom et prénom">
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">Téléphone</label>
-                                <div class="form-input-icon">
-                                    <div class="icon-wrapper">
-                                        <i data-lucide="phone" style="width: 16px; height: 16px;"></i>
-                                    </div>
-                                    <input class="form-input"
-                                           type="tel"
-                                           name="emergency_contact_phone"
-                                           value="{{ old('emergency_contact_phone') }}"
-                                           placeholder="06 12 34 56 78">
-                                </div>
-                            </div>
-
-                            <!-- Email contact d'urgence -->
-                            <div class="form-group">
-                                <label class="form-label">Email</label>
-                                <div class="form-input-icon">
-                                    <div class="icon-wrapper">
-                                        <i data-lucide="mail" style="width: 16px; height: 16px;"></i>
-                                    </div>
-                                    <input class="form-input"
-                                           type="email"
-                                           name="emergency_contact_email"
-                                           value="{{ old('emergency_contact_email') }}"
-                                           placeholder="email@exemple.com">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 1.5rem;">
-                        <label class="form-label">Notes et commentaires</label>
-                        <textarea class="form-textarea"
-                                  name="notes"
-                                  placeholder="Informations complémentaires sur le locataire..."
-                                  rows="3">{{ old('notes') }}</textarea>
-                    </div>
-
-                    <div class="bottom-actions" style="border-top: none; padding-top: 1.5rem;">
-                        <button type="button" class="button button-primary" onclick="validateAndGo('infos', 'contact')">
-                            Suivant : Coordonnées
-                            <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Tab 2: Coordonnées -->
-                <div id="tab-contact" class="section" style="display: none;">
-                    <h2 class="section-title">
+                    <h2 class="section-title" style="margin-top: 2rem;">
                         <i data-lucide="mail" style="width: 20px; height: 20px;"></i>
                         Coordonnées
                     </h2>
@@ -324,24 +258,6 @@
 
                         <div class="form-group">
                             <label class="form-label">
-                                Code postal <span class="required">*</span>
-                            </label>
-                            <input class="form-input @error('zip_code') input-error @enderror"
-                                   type="text"
-                                   name="zip_code"
-                                   value="{{ old('zip_code') }}"
-                                   placeholder="75000"
-                                   required>
-                            @error('zip_code')
-                                <div class="field-error">
-                                    <i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>
-                                    <span>{{ $message }}</span>
-                                </div>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">
                                 Ville <span class="required">*</span>
                             </label>
                             <input class="form-input @error('city') input-error @enderror"
@@ -377,19 +293,67 @@
                         </div>
                     </div>
 
+                    <div style="margin-top: 2rem;">
+                        <h3 class="form-label" style="margin-bottom: 0.75rem; font-size: 1.1rem;">
+                            Contact d'urgence
+                        </h3>
+                        <div class="form-grid form-grid-3">
+                            <div class="form-group">
+                                <label class="form-label">Nom et prénom</label>
+                                <input class="form-input"
+                                       type="text"
+                                       name="emergency_contact_name"
+                                       value="{{ old('emergency_contact_name') }}"
+                                       placeholder="Nom et prénom">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Téléphone</label>
+                                <div class="form-input-icon">
+                                    <div class="icon-wrapper">
+                                        <i data-lucide="phone" style="width: 16px; height: 16px;"></i>
+                                    </div>
+                                    <input class="form-input"
+                                           type="tel"
+                                           name="emergency_contact_phone"
+                                           value="{{ old('emergency_contact_phone') }}"
+                                           placeholder="06 12 34 56 78">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <div class="form-input-icon">
+                                    <div class="icon-wrapper">
+                                        <i data-lucide="mail" style="width: 16px; height: 16px;"></i>
+                                    </div>
+                                    <input class="form-input"
+                                           type="email"
+                                           name="emergency_contact_email"
+                                           value="{{ old('emergency_contact_email') }}"
+                                           placeholder="email@exemple.com">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <label class="form-label">Notes et commentaires</label>
+                        <textarea class="form-textarea"
+                                  name="notes"
+                                  placeholder="Informations complémentaires sur le locataire..."
+                                  rows="3">{{ old('notes') }}</textarea>
+                    </div>
+
                     <div class="bottom-actions" style="border-top: none; padding-top: 1.5rem;">
-                        <button type="button" class="button button-secondary" onclick="showTab('infos')">
-                            <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
-                            Précédent
-                        </button>
-                        <button type="button" class="button button-primary" onclick="validateAndGo('contact', 'pro')">
+                        <button type="button" class="button button-primary" onclick="validateAndGo('infos', 'pro')">
                             Suivant : Situation professionnelle
                             <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Tab 3: Situation professionnelle -->
+                <!-- Tab 2: Situation professionnelle -->
                 <div id="tab-pro" class="section" style="display: none;">
                     <h2 class="section-title">
                         <i data-lucide="briefcase" style="width: 20px; height: 20px;"></i>
@@ -428,7 +392,7 @@
                             <label class="form-label">Revenu annuel (FCFA)</label>
                             <div class="form-input-icon">
                                 <div class="icon-wrapper">
-                                    <i data-lucide="fcfa" style="width: 16px; height: 16px;"></i>
+                                    <i data-lucide="dollar-sign" style="width: 16px; height: 16px;"></i>
                                 </div>
                                 <input class="form-input"
                                        type="number"
@@ -441,12 +405,11 @@
                             <p class="helper-text">Optionnel</p>
                         </div>
 
-                        <!-- Revenu mensuel -->
                         <div class="form-group">
                             <label class="form-label">Revenu mensuel (FCFA)</label>
                             <div class="form-input-icon">
                                 <div class="icon-wrapper">
-                                    <i data-lucide="fcfa" style="width: 16px; height: 16px;"></i>
+                                    <i data-lucide="dollar-sign" style="width: 16px; height: 16px;"></i>
                                 </div>
                                 <input class="form-input"
                                        type="number"
@@ -475,7 +438,7 @@
                     </div>
 
                     <div class="bottom-actions" style="border-top: none; padding-top: 1.5rem;">
-                        <button type="button" class="button button-secondary" onclick="showTab('contact')">
+                        <button type="button" class="button button-secondary" onclick="showTab('infos')">
                             <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
                             Précédent
                         </button>
@@ -486,7 +449,7 @@
                     </div>
                 </div>
 
-                <!-- Tab 4: Garant -->
+                <!-- Tab 3: Garant -->
                 <div id="tab-garant" class="section" style="display: none;">
                     <h2 class="section-title">
                         <i data-lucide="user-check" style="width: 20px; height: 20px;"></i>
@@ -550,7 +513,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Date de naissance garant -->
                                 <div class="form-group">
                                     <label class="form-label">
                                         Date de naissance <span class="required guarantor-required" style="display:none;">*</span>
@@ -566,7 +528,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Lieu de naissance garant -->
                                 <div class="form-group">
                                     <label class="form-label">
                                         Lieu de naissance <span class="required guarantor-required" style="display:none;">*</span>
@@ -595,7 +556,7 @@
                                     </label>
                                     <div class="form-input-icon">
                                         <div class="icon-wrapper">
-                                            <i data-lucide="fcfa" style="width: 16px; height: 16px;"></i>
+                                            <i data-lucide="dollar-sign" style="width: 16px; height: 16px;"></i>
                                         </div>
                                         <input class="form-input guarantor-input"
                                                type="number"
@@ -607,14 +568,13 @@
                                     </div>
                                 </div>
 
-                                <!-- Revenu mensuel garant -->
                                 <div class="form-group">
                                     <label class="form-label">
                                         Revenu mensuel (FCFA) <span class="required guarantor-required" style="display:none;">*</span>
                                     </label>
                                     <div class="form-input-icon">
                                         <div class="icon-wrapper">
-                                            <i data-lucide="fcfa" style="width: 16px; height: 16px;"></i>
+                                            <i data-lucide="dollar-sign" style="width: 16px; height: 16px;"></i>
                                         </div>
                                         <input class="form-input guarantor-input"
                                                type="number"
@@ -652,7 +612,7 @@
                     </div>
                 </div>
 
-                <!-- Tab 5: Documents -->
+                <!-- Tab 4: Documents -->
                 <div id="tab-documents" class="section" style="display: none;">
                     <h2 class="section-title">
                         <i data-lucide="file-text" style="width: 20px; height: 20px;"></i>
@@ -1139,7 +1099,6 @@
     // Confirmation d'annulation
     function confirmCancel() {
         if (confirm('Êtes-vous sûr de vouloir annuler ? Les modifications seront perdues.')) {
-            // Utilise la fonction navigateTo du layout
             if (typeof navigateTo !== 'undefined') {
                 navigateTo('/coproprietaire/tenants');
             } else {
@@ -1150,7 +1109,7 @@
 
     // Gestion des onglets
     function showTab(tabName) {
-        ['infos', 'contact', 'pro', 'garant', 'documents'].forEach(tab => {
+        ['infos', 'pro', 'garant', 'documents'].forEach(tab => {
             const element = document.getElementById(`tab-${tab}`);
             if (element) element.style.display = 'none';
         });
@@ -1164,7 +1123,6 @@
 
         const tabLabels = {
             'infos': 'Informations',
-            'contact': 'Coordonnées',
             'pro': 'professionnelle',
             'garant': 'Garant',
             'documents': 'Documents'
@@ -1248,7 +1206,7 @@
 
         if (documentType) {
             uploadSection.style.display = 'block';
-            document.getElementById('documentFile').removeAttribute('required'); // Pas obligatoire
+            document.getElementById('documentFile').removeAttribute('required');
         } else {
             uploadSection.style.display = 'none';
             document.getElementById('documentFile').removeAttribute('required');

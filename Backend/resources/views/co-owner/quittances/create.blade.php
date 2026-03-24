@@ -56,7 +56,9 @@
                                 <option value="{{ $lease->id }}"
                                     data-property="{{ $lease->property->name }}"
                                     data-tenant="{{ $lease->tenant->first_name }} {{ $lease->tenant->last_name }}"
-                                    data-rent="{{ number_format($lease->rent_amount, 2, ',', ' ') }}"
+                                    data-rent="{{ $lease->rent_amount }}"
+                                    data-charges="{{ $lease->charges_amount ?? 0 }}"
+                                    data-total="{{ $lease->rent_amount + ($lease->charges_amount ?? 0) }}"
                                     {{ old('lease_id') == $lease->id ? 'selected' : '' }}>
                                     {{ $lease->property->name }} - {{ $lease->tenant->first_name }} {{ $lease->tenant->last_name }}
                                 </option>
@@ -76,6 +78,8 @@
                                 <p><i data-lucide="home" style="width: 20px; height: 20px;"></i> <strong>Bien:</strong> <span id="property-name">-</span></p>
                                 <p><i data-lucide="user" style="width: 20px; height: 20px;"></i> <strong>Locataire:</strong> <span id="tenant-name">-</span></p>
                                 <p><i data-lucide="credit-card" style="width: 20px; height: 20px;"></i> <strong>Loyer mensuel:</strong> <span id="rent-amount">-</span> FCFA</p>
+                                <p><i data-lucide="activity" style="width: 20px; height: 20px;"></i> <strong>Charges mensuelles:</strong> <span id="charges-amount">-</span> FCFA</p>
+                                <p><i data-lucide="dollar-sign" style="width: 20px; height: 20px;"></i> <strong>Total mensuel:</strong> <span id="total-amount" style="color: #70AE48; font-weight: 800;">-</span> FCFA</p>
                             </div>
                         </div>
                     </div>
@@ -127,7 +131,7 @@
                         @error('amount_paid')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <div class="form-text">Montant effectivement payé par le locataire</div>
+                        <div class="form-text">Montant effectivement payé par le locataire (loyer + charges)</div>
                     </div>
                 </div>
 
@@ -546,6 +550,8 @@
         const propertyName = document.getElementById('property-name');
         const tenantName = document.getElementById('tenant-name');
         const rentAmount = document.getElementById('rent-amount');
+        const chargesAmount = document.getElementById('charges-amount');
+        const totalAmountSpan = document.getElementById('total-amount');
         const amountPaid = document.getElementById('amount_paid');
 
         if (leaseSelect) {
@@ -554,17 +560,24 @@
                 const selectedOption = this.options[this.selectedIndex];
 
                 if (selectedOption.value) {
-                    propertyName.textContent = selectedOption.getAttribute('data-property');
-                    tenantName.textContent = selectedOption.getAttribute('data-tenant');
-                    rentAmount.textContent = selectedOption.getAttribute('data-rent');
+                    const rent = parseFloat(selectedOption.getAttribute('data-rent')) || 0;
+                    const charges = parseFloat(selectedOption.getAttribute('data-charges')) || 0;
+                    const total = rent + charges;
 
-                    // Pré-remplir le montant payé avec le loyer
-                    const rentValue = selectedOption.getAttribute('data-rent').replace(/\s/g, '').replace(',', '.');
-                    amountPaid.value = parseFloat(rentValue) || '';
+                    propertyName.textContent = selectedOption.getAttribute('data-property') || '-';
+                    tenantName.textContent = selectedOption.getAttribute('data-tenant') || '-';
+                    rentAmount.textContent = rent.toLocaleString('fr-FR');
+                    chargesAmount.textContent = charges.toLocaleString('fr-FR');
+                    totalAmountSpan.textContent = total.toLocaleString('fr-FR');
+
+                    // Pré-remplir le montant payé avec le total (loyer + charges)
+                    amountPaid.value = total;
                 } else {
                     propertyName.textContent = '-';
                     tenantName.textContent = '-';
                     rentAmount.textContent = '-';
+                    chargesAmount.textContent = '-';
+                    totalAmountSpan.textContent = '-';
                     amountPaid.value = '';
                 }
             });
