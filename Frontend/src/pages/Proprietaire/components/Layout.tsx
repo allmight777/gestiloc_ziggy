@@ -132,7 +132,8 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
         children: [
           { id: "baux",         label: "Contrats de bail",             icon: "File",      path: "/proprietaire/baux",         isReact: true },
           { id: "etats-lieux",  label: "États de lieux",               icon: "Clipboard", path: "/proprietaire/etats-lieux",  isReact: true },
-          { id: "avis-echeance",label: "Préavis",              icon: "File",      path: "/proprietaire/avis-echeance",isReact: true },
+          { id: "preavis",      label: "Préavis",                      icon: "File",      path: "/proprietaire/avis-echeance",       isReact: true },
+          { id: "avis-echeance",label: "Avis d'échéance",              icon: "File",      path: "/proprietaire/echeance", isReact: true },
           { id: "quittances",   label: "Quittances de loyers",         icon: "Clipboard", path: "/proprietaire/quittances",   isReact: true },
           { id: "factures",     label: "Factures et docs divers",      icon: "File",      path: "/proprietaire/factures",     isReact: true },
           { id: "archives",     label: "Archivage de documents",       icon: "File",      path: "/proprietaire/archives",     isReact: true },
@@ -195,14 +196,21 @@ const NavItem: React.FC<{
 }> = ({ item, activeTab, onNavigate, onLogout }) => {
   const [hovered, setHovered] = useState(false);
   const hasChildren = item.children && item.children.length > 0;
-  const isChildActive = hasChildren && item.children!.some(child => child.id === activeTab || (child.children?.some(c => c.id === activeTab)));
+  
+  // 🔥 NOUVELLE LOGIQUE DE DÉTECTION D'ACTIVATION BASÉE SUR LE PATH
+  const currentPath = window.location.pathname;
+  const isActive = item.path ? currentPath === item.path : activeTab === item.id;
+  
+  const isChildActive = hasChildren && item.children!.some(child => 
+    child.path ? currentPath === child.path : child.id === activeTab
+  );
+  
   const [isExpanded, setIsExpanded] = useState(isChildActive);
 
   useEffect(() => {
     if (isChildActive) setIsExpanded(true);
   }, [isChildActive]);
 
-  const isActive = activeTab === item.id;
   const Ico = Icons[item.icon as keyof typeof Icons];
 
   const handleClick = () => {
@@ -348,7 +356,6 @@ export const Layout: React.FC<LayoutProps> = ({
       const response = await api.get('/landlord/notifications');
       const fetched = response.data.notifications || [];
 
-      // Détecter les nouvelles notifications non lues pour afficher un toast
       if (!isFirstLoad.current && notify) {
         fetched.forEach((n: any) => {
           if (!n.is_read && !lastNotifIds.current.has(n.id)) {
@@ -367,7 +374,7 @@ export const Layout: React.FC<LayoutProps> = ({
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 60000); // 1 min pour plus de réactivité
+    const interval = setInterval(fetchNotifications, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -393,7 +400,6 @@ export const Layout: React.FC<LayoutProps> = ({
 
   const removeNotif = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    // Simulate removal or just mark as read
     markAsRead(id);
   };
 
@@ -435,12 +441,10 @@ export const Layout: React.FC<LayoutProps> = ({
       className="min-h-screen h-screen w-screen overflow-hidden flex flex-col"
       style={{ background: '#fff', fontFamily: "'Merriweather', serif" }}
     >
-      {/* ── HEADER ── */}
       <header
         className="fixed top-0 left-0 right-0 z-[100] h-[72px] flex items-center justify-between px-6 sm:px-12"
         style={{ background: GRADIENT_GREEN }}
       >
-        {/* Logo + burger */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsMobileMenuOpen(true)}
@@ -460,9 +464,7 @@ export const Layout: React.FC<LayoutProps> = ({
           </span>
         </div>
 
-        {/* Boutons header */}
         <div className="flex items-center gap-2 sm:gap-4">
-          {/* Notifications */}
           <button
             onClick={() => { setShowNotifications(!showNotifications); setShowHelp(false); }}
             className="flex items-center gap-2 py-2 px-6 rounded-full text-white text-xs sm:text-sm font-semibold transition-all hover:bg-white/20 relative"
@@ -477,7 +479,6 @@ export const Layout: React.FC<LayoutProps> = ({
             )}
           </button>
 
-          {/* Aide */}
           <button
             onClick={() => { setShowHelp(!showHelp); setShowNotifications(false); }}
             className="flex items-center gap-2 py-2 px-6 rounded-full text-white text-xs sm:text-sm font-semibold transition-all hover:bg-white/20"
@@ -487,7 +488,6 @@ export const Layout: React.FC<LayoutProps> = ({
             <span className="hidden sm:inline">Aide</span>
           </button>
 
-          {/* Mon compte */}
           <button
             onClick={() => handleNavigate('profil' as Tab)}
             className="flex items-center gap-2 py-2 px-6 rounded-full text-white text-xs sm:text-sm font-semibold transition-all hover:bg-white/20"
@@ -503,9 +503,7 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
       </header>
 
-      {/* ── ZONE PRINCIPALE ── */}
       <div className="flex flex-1 h-[calc(100vh-72px)] relative pt-[72px]">
-        {/* Backdrop mobile */}
         {isMobileMenuOpen && (
           <div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] lg:hidden"
@@ -513,7 +511,6 @@ export const Layout: React.FC<LayoutProps> = ({
           />
         )}
 
-        {/* ── SIDEBAR ── */}
         <aside
           className={`
             fixed h-auto z-[120] bg-white flex flex-col
@@ -536,7 +533,6 @@ export const Layout: React.FC<LayoutProps> = ({
               }
           }
         >
-          {/* Bouton fermeture mobile */}
           {isMobileMenuOpen && (
             <div
               className="flex items-center justify-between p-4 border-b border-gray-200 lg:hidden"
@@ -562,7 +558,6 @@ export const Layout: React.FC<LayoutProps> = ({
           />
         </aside>
 
-        {/* ── CONTENU ── */}
         <div className="flex-1 lg:ml-[460px] bg-white">
           <div
             id="app-scroll-container"
@@ -578,7 +573,6 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
       </div>
 
-      {/* ── TOASTS ── */}
       <div className="fixed bottom-4 right-4 z-[300] space-y-2">
         {toasts.map((toast) => (
           <Toast
@@ -589,7 +583,6 @@ export const Layout: React.FC<LayoutProps> = ({
         ))}
       </div>
 
-      {/* ── NOTIFICATIONS DROPDOWN ── */}
       {showNotifications && (
         <div className="fixed inset-0 sm:inset-auto sm:top-20 sm:right-6 sm:w-96 bg-white sm:rounded-xl shadow-2xl border-t sm:border border-gray-200 z-[110] flex flex-col h-full sm:h-auto">
           <div className="p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
@@ -636,7 +629,6 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
       )}
 
-      {/* ── AIDE DROPDOWN ── */}
       {showHelp && (
         <div className="fixed inset-0 sm:inset-auto sm:top-20 sm:right-6 sm:w-96 bg-white sm:rounded-xl shadow-2xl border-t sm:border border-gray-200 z-[110] flex flex-col h-full sm:h-auto">
           <div className="p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">

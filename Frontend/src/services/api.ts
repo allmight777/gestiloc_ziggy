@@ -1411,6 +1411,7 @@ export const maintenanceService = {
   }
 };
 
+
 // ================= DOCUMENT ARCHIVE SERVICE =================
 
 export const documentArchiveService = {
@@ -1422,6 +1423,58 @@ export const documentArchiveService = {
     const response = await api.get('/archives/stats');
     return response.data;
   }
+};
+
+// Ajouter ces méthodes dans votre service API
+
+export const rentDueNoticeService = {
+    // Liste des avis
+    list: async (params?: any) => {
+        const response = await api.get('/rent-due-notices', { params });
+        return response.data;
+    },
+    
+    // Statistiques
+    stats: async () => {
+        const response = await api.get('/rent-due-notices/stats');
+        return response.data;
+    },
+    
+    // Propriétés pour le filtre
+    getProperties: async () => {
+        const response = await api.get('/rent-due-notices/properties');
+        return response.data;
+    },
+    
+    // Baux pour le formulaire
+    getLeasesForForm: async () => {
+        const response = await api.get('/rent-due-notices/leases-form');
+        return response.data;
+    },
+    
+    // Créer un avis
+    create: async (data: any) => {
+        const response = await api.post('/rent-due-notices', data);
+        return response.data;
+    },
+    
+    // Envoyer un avis
+    send: async (id: number) => {
+        const response = await api.post(`/rent-due-notices/${id}/send`);
+        return response.data;
+    },
+    
+    // Renvoyer un avis
+    resend: async (id: number) => {
+        const response = await api.post(`/rent-due-notices/${id}/resend`);
+        return response.data;
+    },
+    
+    // Supprimer un avis
+    delete: async (id: number) => {
+        const response = await api.delete(`/rent-due-notices/${id}`);
+        return response.data;
+    }
 };
 
 // ================= DOCUMENTS SERVICE (UNIFIÉ) =================

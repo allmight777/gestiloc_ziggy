@@ -223,6 +223,15 @@
         border-bottom: 1px solid #f3f4f6;
     }
 
+    /* Ligne badge type + badge statut */
+    .report-badge-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+
     .report-badge {
         display: inline-flex;
         align-items: center;
@@ -233,7 +242,6 @@
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.025em;
-        margin-bottom: 1.25rem;
     }
 
     .report-badge.entry {
@@ -245,6 +253,41 @@
         background: #fef2f2;
         color: #dc2626;
     }
+
+    /* Badge Actif / Inactif */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.8rem;
+        border-radius: 2rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .status-badge.actif {
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+    }
+
+    .status-badge.inactif {
+        background: #f3f4f6;
+        color: #6b7280;
+        border: 1px solid #d1d5db;
+    }
+
+    .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .status-dot.actif   { background: #059669; }
+    .status-dot.inactif { background: #9ca3af; }
 
     .report-title {
         font-size: 1.4rem;
@@ -371,6 +414,14 @@
         background: rgba(55, 125, 244, 0.1);
     }
 
+    .action-btn.show {
+        color: #6b7280;
+    }
+
+    .action-btn.show:hover {
+        background: #e5e7eb;
+    }
+
     .action-btn.edit {
         color: #f59e0b;
     }
@@ -441,15 +492,15 @@
         }
     }
 
-    /* Augmenter l'espacement général */
     .condition-reports-container {
         padding: 1.25rem !important;
     }
 
-    /* Titres plus grands */
     .header-content h1 {
         font-size: 2rem !important;
         margin-bottom: 0.5rem !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
     }
 
     .header-description {
@@ -457,10 +508,14 @@
         line-height: 1.7 !important;
     }
 
-    /* Bouton créer plus grand */
+    .header-section {
+        margin-bottom: 1.5rem !important;
+        padding-top: 0 !important;
+    }
+
     .create-btn {
-        padding: 1.2rem 2.5rem !important;
-        font-size: 0.9rem !important;
+        padding: 0.875rem 1.5rem !important;
+        font-size: 0.95rem !important;
         border-radius: 3rem !important;
     }
 
@@ -469,7 +524,6 @@
         height: 24px !important;
     }
 
-    /* Tabs plus grands */
     .tabs-container {
         padding: 0.5rem !important;
         gap: 0.5rem !important;
@@ -477,11 +531,10 @@
     }
 
     .tab-btn {
-        padding: 0.875rem 1.75rem !important;
+        padding: 0.625rem 1.25rem !important;
         font-size: 0.9rem !important;
     }
 
-    /* Section filtres plus grande */
     .filter-section {
         padding: 1.5rem !important;
         margin-bottom: 1.5rem !important;
@@ -493,13 +546,13 @@
     }
 
     .property-select {
-        padding: 1.2rem 1.5rem !important;
+        padding: 0.875rem 1rem !important;
         font-size: 0.9rem !important;
         margin-bottom: 1.5rem !important;
     }
 
     .search-input {
-        padding: 1.2rem 1.5rem 1.2rem 3rem !important;
+        padding: 0.875rem 1rem 0.875rem 2.5rem !important;
         font-size: 0.9rem !important;
     }
 
@@ -510,17 +563,16 @@
     }
 
     .display-btn {
-        padding: 1.2rem 1.75rem !important;
+        padding: 0.875rem 1.25rem !important;
         font-size: 0.9rem !important;
     }
 
-    /* Cartes d'état des lieux plus grandes et espacées */
     .reports-grid {
         gap: 1.5rem !important;
     }
 
     .report-card {
-        border-radius: 1.5rem !important;
+        border-radius: 1rem !important;
         border-left-width: 6px !important;
     }
 
@@ -531,11 +583,10 @@
     .report-badge {
         padding: 0.625rem 1rem !important;
         font-size: 0.9rem !important;
-        margin-bottom: 1.25rem !important;
     }
 
     .report-title {
-        font-size: 1.6rem !important;
+        font-size: 1.25rem !important;
         margin-bottom: 0.75rem !important;
     }
 
@@ -553,8 +604,8 @@
     }
 
     .report-info-grid {
-        gap: 1.5rem 3rem !important;
-        margin-bottom: 1.5rem !important;
+        gap: 1rem 2rem !important;
+        margin-bottom: 1rem !important;
     }
 
     .info-label {
@@ -577,7 +628,7 @@
     }
 
     .report-footer {
-        padding: 1.25rem 2rem !important;
+        padding: 0.875rem 1.25rem !important;
     }
 
     .creation-date {
@@ -594,7 +645,6 @@
         height: 20px !important;
     }
 
-    /* Empty state plus grand */
     .empty-state {
         padding: 6rem 3rem !important;
     }
@@ -614,93 +664,15 @@
         margin-bottom: 2rem !important;
     }
 
-    /* Responsive pour mobile */
+    .condition-reports-container {
+        padding: 1.5rem 2rem !important;
+    }
+
     @media (max-width: 1024px) {
         .reports-grid {
             grid-template-columns: 1fr !important;
         }
     }
-
-
-    /* Réduire l'espace en haut du titre principal */
-    .header-content h1 {
-        margin-top: 0 !important;
-        padding-top: 0 !important;
-    }
-
-    /* Réduire l'espacement du header-section */
-    .header-section {
-        margin-bottom: 1.5rem !important;
-        padding-top: 0 !important;
-    }
-
-    /* Réduire la taille du titre dans la carte */
-    .report-title {
-        font-size: 1.25rem !important;
-    }
-
-    /* Réduire le padding des cartes */
-    .report-card {
-        border-radius: 1rem !important;
-    }
-
-    .report-header {
-        padding: 1.25rem !important;
-    }
-
-    .report-body {
-        padding: 1.25rem !important;
-    }
-
-    .report-footer {
-        padding: 0.875rem 1.25rem !important;
-    }
-
-    /* Réduire le gap de la grille d'info */
-    .report-info-grid {
-        gap: 1rem 2rem !important;
-        margin-bottom: 1rem !important;
-    }
-
-    /* Réduire le padding des boutons */
-    .create-btn {
-        padding: 0.875rem 1.5rem !important;
-        font-size: 0.95rem !important;
-    }
-
-    /* Réduire le padding des tabs */
-    .tab-btn {
-        padding: 0.625rem 1.25rem !important;
-        font-size: 0.9rem !important;
-    }
-
-    /* Réduire le padding des inputs */
-    .search-input {
-        padding: 0.875rem 1rem 0.875rem 2.5rem !important;
-        font-size: 0.9rem !important;
-    }
-
-    .property-select {
-        padding: 0.875rem 1rem !important;
-        font-size: 0.9rem !important;
-    }
-
-    .display-btn {
-        padding: 0.875rem 1.25rem !important;
-        font-size: 0.9rem !important;
-    }
-
-    /* Réduire le padding de la section filtre */
-    .filter-section {
-        padding: 1.5rem !important;
-        margin-bottom: 1.5rem !important;
-    }
-
-    /* Réduire le margin du container principal */
-    .condition-reports-container {
-        padding: 1.5rem 2rem !important;
-    }
-
 </style>
 
 <div class="condition-reports-container">
@@ -793,16 +765,34 @@
             <div class="report-card {{ $report->type }}">
                 <!-- Header -->
                 <div class="report-header">
-                    <div class="report-badge {{ $report->type }}">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <path d="M12 5v14M5 12h14"/>
-                        </svg>
-                        @if($report->type == 'entry')
-                            État des lieux d'entrée
+
+                    {{-- Ligne badge type + badge Actif/Inactif --}}
+                    <div class="report-badge-row">
+                        <div class="report-badge {{ $report->type }}">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+                            @if($report->type == 'entry')
+                                État des lieux d'entrée
+                            @else
+                                État des lieux de sortie
+                            @endif
+                        </div>
+
+                        {{-- Actif = les 2 ont signé (is_signed true) | Inactif = 0 ou 1 seul --}}
+                        @if($report->is_signed)
+                            <span class="status-badge actif">
+                                <span class="status-dot actif"></span>
+                                Actif
+                            </span>
                         @else
-                            État des lieux de sortie
+                            <span class="status-badge inactif">
+                                <span class="status-dot inactif"></span>
+                                Inactif
+                            </span>
                         @endif
                     </div>
+
                     <h3 class="report-title">EDL - {{ $report->tenant_name }}</h3>
                     <div class="report-location">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -857,13 +847,12 @@
                                 <line x1="12" y1="15" x2="12" y2="3"/>
                             </svg>
                         </a>
-                       <a href="{{ route('co-owner.condition-reports.show', $report->id) }}" class="action-btn show" title="Voir">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-        <circle cx="12" cy="12" r="3"/>
-    </svg>
-</a>
-                      
+                        <a href="{{ route('co-owner.condition-reports.show', $report->id) }}" class="action-btn show" title="Voir">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -884,7 +873,6 @@ function filterByType(type) {
 }
 
 function showOptions(reportId) {
-    // Afficher un menu contextuel avec options supplémentaires
     console.log('Options for report:', reportId);
 }
 </script>

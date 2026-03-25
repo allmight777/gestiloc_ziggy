@@ -51,7 +51,10 @@ class RentDueNotice extends Model
                 $model->uuid = (string) Str::uuid();
             }
             if (empty($model->reference)) {
-                $model->reference = 'AVIS-' . date('Y') . '-' . str_pad(($model->id ?? 0) + 1, 6, '0', STR_PAD_LEFT);
+                // 🔥 Générer une référence UNIQUE avec timestamp + random
+                $date = now()->format('Ymd');
+                $random = Str::upper(Str::random(6));
+                $model->reference = 'AVIS-' . $date . '-' . $random;
             }
         });
     }

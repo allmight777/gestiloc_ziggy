@@ -10,7 +10,7 @@ use App\Models\Property;
 use App\Models\Lease;
 use App\Models\User;
 use App\Models\PropertyDelegation;
-use App\Models\ConditionReport;
+use App\Models\PropertyConditionReport;
 use App\Mail\DocumentSharedMail;
 use App\Mail\ContractSignatureRequestMail;
 use App\Mail\ContractSignedMail;
@@ -167,60 +167,97 @@ class DocumentController extends Controller
     /**
      * GET /api/tenant/leases - Liste des baux du locataire
      */
-    public function getLeases(Request $request)
-    {
-        try {
-            $tenant = $this->getTenant();
+/**
+ * GET /api/tenant/leases - Liste des baux du locataire
+ */
+public function getLeases(Request $request)
+{
+    try {
+        $tenant = $this->getTenant();
 
-            if (!$tenant) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Accès réservé aux locataires'
-                ], 403);
-            }
-
-            $query = Lease::where('tenant_id', $tenant->id)
-                ->with(['property']);
-
-            // Filtres
-            if ($request->has('property_id') && !empty($request->property_id)) {
-                $query->where('property_id', $request->property_id);
-            }
-
-            if ($request->has('status') && !empty($request->status)) {
-                $query->where('status', $request->status);
-            }
-
-            // Recherche
-            if ($request->has('search') && !empty($request->search)) {
-                $search = $request->search;
-                $query->where(function($q) use ($search) {
-                    $q->whereHas('property', function($subQ) use ($search) {
-                        $subQ->where('name', 'like', "%{$search}%")
-                             ->orWhere('address', 'like', "%{$search}%");
-                    });
-                });
-            }
-
-            $leases = $query->orderBy('created_at', 'desc')->get();
-
-            return response()->json([
-                'success' => true,
-                'data' => $leases,
-                'total' => $leases->count()
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Erreur getLeases: ' . $e->getMessage());
+        if (!$tenant) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors du chargement des baux'
-            ], 500);
+                'message' => 'Accès réservé aux locataires'
+            ], 403);
         }
+
+        $query = Lease::where('tenant_id', $tenant->id)
+            ->with(['property']);
+
+        // Filtres
+        if ($request->has('property_id') && !empty($request->property_id)) {
+            $query->where('property_id', $request->property_id);
+        }
+
+        if ($request->has('status') && !empty($request->status)) {
+            $query->where('status', $request->status);
+        }
+
+        // Recherche
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('property', function($subQ) use ($search) {
+                    $subQ->where('name', 'like', "%{$search}%")
+                         ->orWhere('address', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $leases = $query->orderBy('created_at', 'desc')->get();
+
+        // Transformer les données pour inclure signed_document et les signatures
+        $formattedLeases = $leases->map(function($lease) {
+            // Vérifier si un document signé existe
+            $hasSignedDocument = !empty($lease->signed_document);
+
+            // Si un document signé existe, les signatures sont considérées comme présentes
+            $landlordSignature = $hasSignedDocument ? 'signed' : $lease->landlord_signature;
+            $tenantSignature = $hasSignedDocument ? 'signed' : $lease->tenant_signature;
+
+            return [
+                'id' => $lease->id,
+                'uuid' => $lease->uuid,
+                'property_id' => $lease->property_id,
+                'property' => $lease->property ? [
+                    'id' => $lease->property->id,
+                    'name' => $lease->property->name,
+                    'address' => $lease->property->address,
+                ] : null,
+                'start_date' => $lease->start_date,
+                'end_date' => $lease->end_date,
+                'rent_amount' => $lease->rent_amount,
+                'deposit' => $lease->guarantee_amount ?? 0,
+                'type' => $lease->type,
+                'status' => $lease->status,
+                'tenant_id' => $lease->tenant_id,
+                'created_at' => $lease->created_at,
+                'landlord_signature' => $landlordSignature,
+                'tenant_signature' => $tenantSignature,
+                'signed_document' => $lease->signed_document,
+                'signed_at' => $lease->signed_at,
+                'has_signed_document' => $hasSignedDocument, // Ajout d'un flag explicite
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $formattedLeases,
+            'total' => $formattedLeases->count()
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Erreur getLeases: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors du chargement des baux'
+        ], 500);
     }
+}
 
     /**
-     * GET /api/tenant/condition-reports - Liste des états des lieux du locataire
+     * GET /api/tenant/condition-reports
      */
     public function getConditionReports(Request $request)
     {
@@ -234,51 +271,213 @@ class DocumentController extends Controller
                 ], 403);
             }
 
-            $query = ConditionReport::whereHas('lease', function($q) use ($tenant) {
+            $query = PropertyConditionReport::whereHas('lease', function ($q) use ($tenant) {
                     $q->where('tenant_id', $tenant->id);
                 })
                 ->with(['property', 'lease', 'creator']);
 
-            // Filtres
-            if ($request->has('property_id') && !empty($request->property_id)) {
+            if ($request->filled('property_id')) {
                 $query->where('property_id', $request->property_id);
             }
 
-            if ($request->has('type') && !empty($request->type) && $request->type !== 'all') {
+            if ($request->filled('type') && $request->type !== 'all') {
                 $query->where('type', $request->type);
             }
 
-            // Recherche
-            if ($request->has('search') && !empty($request->search)) {
+            if ($request->filled('search')) {
                 $search = $request->search;
-                $query->where(function($q) use ($search) {
-                    $q->whereHas('property', function($subQ) use ($search) {
-                        $subQ->where('name', 'like', "%{$search}%")
-                             ->orWhere('address', 'like', "%{$search}%");
-                    })
-                    ->orWhere('comments', 'like', "%{$search}%");
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('property', function ($sub) use ($search) {
+                        $sub->where('name', 'like', "%{$search}%")
+                            ->orWhere('address', 'like', "%{$search}%");
+                    })->orWhere('notes', 'like', "%{$search}%");
                 });
             }
 
             $reports = $query->orderBy('created_at', 'desc')->get();
 
-            // Ajouter les URLs des photos
-            $reports->each(function($report) {
-                $report->photos = $report->getPhotosWithUrls();
+            $data = $reports->map(function ($report) {
+                return [
+                    'id'                   => $report->id,
+                    'uuid'                 => $report->uuid ?? $report->id,
+                    'type'                 => $report->type,
+                    'report_date'          => $report->report_date,
+                    'status'               => $report->status ?? 'draft',
+                    'notes'                => $report->notes,
+
+                    // Infos propriété / bail
+                    'property'             => $report->property ? [
+                        'id'      => $report->property->id,
+                        'name'    => $report->property->name,
+                        'address' => $report->property->address,
+                    ] : null,
+                    'lease'                => $report->lease ? [
+                        'id'   => $report->lease->id,
+                        'uuid' => $report->lease->uuid,
+                    ] : null,
+
+                    // Créateur
+                    'created_by'           => $report->created_by,
+                    'created_by_name'      => $report->creator?->name ?? 'Propriétaire',
+
+                    // Signature locataire
+                    'signature_tenant'     => $report->isTenantSigned(),
+                    'tenant_signed_at'     => $report->tenant_signed_at?->format('d/m/Y H:i'),
+
+                    // Signature propriétaire
+                    'signature_landlord'   => $report->isLandlordSigned(),
+                    'landlord_signed_at'   => $report->landlord_signed_at?->format('d/m/Y H:i'),
+
+                    // Validé = les 2 ont signé
+                    'is_signed'            => $report->isSigned(),
+
+                    // Photos
+                    'photos'               => $report->photos->map(function ($photo) {
+                        return [
+                            'id'      => $photo->id,
+                            'url'     => \Illuminate\Support\Facades\Storage::url($photo->path),
+                            'caption' => $photo->original_filename,
+                            'room'    => $photo->condition_status,
+                        ];
+                    }),
+                ];
             });
 
             return response()->json([
                 'success' => true,
-                'data' => $reports,
-                'total' => $reports->count()
+                'data'    => $data,
+                'total'   => $data->count(),
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Erreur getConditionReports: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Erreur getConditionReports: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors du chargement des états des lieux'
             ], 500);
+        }
+    }
+
+    /**
+     * POST /api/tenant/condition-reports/{id}/sign
+     * Le locataire signe l'état des lieux.
+     * L'EDL passe à 'signed' seulement si le propriétaire a déjà signé.
+     */
+    public function signConditionReport(Request $request, string $id)
+    {
+        try {
+            $tenant = $this->getTenant();
+            $user   = auth()->user();
+
+            if (!$tenant) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Accès réservé aux locataires'
+                ], 403);
+            }
+
+            // Récupérer l'EDL appartenant au bail du locataire
+            $report = PropertyConditionReport::where('id', $id)
+                ->whereHas('lease', function ($q) use ($tenant) {
+                    $q->where('tenant_id', $tenant->id);
+                })
+                ->with(['property', 'lease.tenant'])
+                ->firstOrFail();
+
+            // Déjà signé par le locataire
+            if ($report->isTenantSigned()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vous avez déjà signé cet état des lieux'
+                ], 400);
+            }
+
+            // Enregistrer la signature
+            $signatureData = [
+                'type'       => 'electronic',
+                'signed_at'  => now()->toDateTimeString(),
+                'ip'         => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'user_id'    => $user->id,
+                'tenant_id'  => $tenant->id,
+            ];
+
+            $report->signAsTenant($signatureData, $user->id);
+
+            // Notifier le propriétaire
+            $this->sendConditionReportTenantSignedNotification($report);
+
+            $message = $report->isSigned()
+                ? 'État des lieux signé et validé par les deux parties'
+                : 'Signature enregistrée. En attente de la signature du propriétaire.';
+
+            return response()->json([
+                'success'          => true,
+                'message'          => $message,
+                'status'           => $report->status,
+                'signature_tenant' => true,
+                'is_signed'        => $report->isSigned(),
+            ]);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'État des lieux non trouvé'
+            ], 404);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Erreur signature EDL locataire: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la signature'
+            ], 500);
+        }
+    }
+
+    /**
+     * Notifie le propriétaire que le locataire a signé l'EDL
+     */
+    private function sendConditionReportTenantSignedNotification($report): void
+    {
+        try {
+            $property = $report->property;
+            $tenant   = $report->lease?->tenant;
+            $landlord = $property?->user;
+
+            if (!$landlord || !$landlord->email) return;
+
+            $appName = config('app.name', 'Gestiloc');
+            $type    = $report->type === 'entry' ? "d'entrée" : 'de sortie';
+            $subject = "L'état des lieux a été signé par le locataire - {$appName}";
+
+            $html = "
+            <!DOCTYPE html><html><head><meta charset='utf-8'>
+            <style>
+                body{font-family:Arial,sans-serif;line-height:1.6;color:#333}
+                .container{max-width:600px;margin:0 auto;padding:20px;border:1px solid #ddd;border-radius:10px}
+                .header{background:#70AE48;color:white;padding:20px;text-align:center;border-radius:10px 10px 0 0}
+                .content{padding:20px}
+                .footer{margin-top:20px;font-size:12px;color:#999;text-align:center}
+            </style></head><body>
+            <div class='container'>
+                <div class='header'><h2>État des lieux signé par le locataire</h2></div>
+                <div class='content'>
+                    <p>Bonjour,</p>
+                    <p>Le locataire <strong>{$tenant->first_name} {$tenant->last_name}</strong> a signé l'état des lieux <strong>{$type}</strong> pour le bien :</p>
+                    <p><strong>{$property->name}</strong><br>{$property->address}</p>
+                    " . ($report->isSigned()
+                        ? "<p>✅ Les deux parties ont signé. L'état des lieux est maintenant <strong>validé</strong>.</p>"
+                        : "<p>Il reste votre signature pour valider l'état des lieux. Connectez-vous à votre espace pour finaliser.</p>"
+                    ) . "
+                </div>
+                <div class='footer'><p>Email automatique - {$appName}</p></div>
+            </div></body></html>";
+
+            \Illuminate\Support\Facades\Mail::html($html, function ($message) use ($landlord, $subject) {
+                $message->to($landlord->email)->subject($subject);
+            });
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Erreur notification EDL signé: ' . $e->getMessage());
         }
     }
 
@@ -473,9 +672,9 @@ class DocumentController extends Controller
     }
 
     /**
-     * GET /api/tenant/condition-reports/{uuid}/download - Télécharger l'état des lieux
+     * GET /api/tenant/condition-reports/{id}/download - Télécharger l'état des lieux
      */
-    public function downloadConditionReport($uuid)
+    public function downloadConditionReport($id)
     {
         try {
             $tenant = $this->getTenant();
@@ -487,11 +686,11 @@ class DocumentController extends Controller
                 ], 403);
             }
 
-            $report = ConditionReport::where('uuid', $uuid)
+            $report = PropertyConditionReport::where('id', $id)
                 ->whereHas('lease', function($q) use ($tenant) {
                     $q->where('tenant_id', $tenant->id);
                 })
-                ->with(['property', 'lease', 'creator'])
+                ->with(['property', 'lease', 'creator', 'photos'])
                 ->firstOrFail();
 
             // Vérifier si l'état des lieux a un fichier
@@ -500,7 +699,10 @@ class DocumentController extends Controller
             }
 
             // Ajouter les URLs des photos
-            $report->photos = $report->getPhotosWithUrls();
+            $report->photos = $report->photos->map(function ($photo) {
+                $photo->url = Storage::url($photo->path);
+                return $photo;
+            });
 
             // Générer le PDF de l'état des lieux
             $pdf = Pdf::loadView('pdf.condition-report', [
@@ -532,9 +734,9 @@ class DocumentController extends Controller
     }
 
     /**
-     * GET /api/tenant/condition-reports/{uuid}/view - Voir l'état des lieux
+     * GET /api/tenant/condition-reports/{id}/view - Voir l'état des lieux
      */
-    public function viewConditionReport($uuid)
+    public function viewConditionReport($id)
     {
         try {
             $tenant = $this->getTenant();
@@ -546,7 +748,7 @@ class DocumentController extends Controller
                 ], 403);
             }
 
-            $report = ConditionReport::where('uuid', $uuid)
+            $report = PropertyConditionReport::where('id', $id)
                 ->whereHas('lease', function($q) use ($tenant) {
                     $q->where('tenant_id', $tenant->id);
                 })

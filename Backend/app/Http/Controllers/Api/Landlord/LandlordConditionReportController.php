@@ -18,8 +18,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class LandlordConditionReportController extends Controller
 {
-
-
     /**
      * API: Liste tous les états des lieux (pour React)
      */
@@ -90,9 +88,11 @@ class LandlordConditionReportController extends Controller
                 'report_date_formatted' => \Carbon\Carbon::parse($report->report_date)->format('d M Y'),
                 'notes' => $report->notes,
                 'general_condition' => $this->getGeneralCondition($report),
-                'is_signed' => !is_null($report->signed_at),
-                'signed_at' => $report->signed_at,
-                'signed_at_formatted' => $report->signed_at ? \Carbon\Carbon::parse($report->signed_at)->format('d/m/Y H:i') : null,
+                'is_signed' => $report->isSigned(),
+                'landlord_signed' => $report->isLandlordSigned(),
+                'tenant_signed' => $report->isTenantSigned(),
+                'signed_at' => $report->landlord_signed_at,
+                'signed_at_formatted' => $report->landlord_signed_at ? \Carbon\Carbon::parse($report->landlord_signed_at)->format('d/m/Y H:i') : null,
                 'photos_count' => $report->photos->count(),
                 'photos' => $report->photos->map(function($photo) {
                     return [
@@ -178,11 +178,17 @@ class LandlordConditionReportController extends Controller
             'report_date_formatted' => \Carbon\Carbon::parse($report->report_date)->format('d/m/Y'),
             'notes' => $report->notes,
             'general_condition' => $this->getGeneralCondition($report),
-            'is_signed' => !is_null($report->signed_at),
-            'signed_at' => $report->signed_at,
-            'signed_at_formatted' => $report->signed_at ? \Carbon\Carbon::parse($report->signed_at)->format('d/m/Y H:i') : null,
-            'signed_by' => $report->signed_by,
-            'signature_data' => $report->signature_data,
+            'is_signed' => $report->isSigned(),
+            'landlord_signed' => $report->isLandlordSigned(),
+            'landlord_signed_at' => $report->landlord_signed_at,
+            'landlord_signed_at_formatted' => $report->landlord_signed_at ? \Carbon\Carbon::parse($report->landlord_signed_at)->format('d/m/Y H:i') : null,
+            'landlord_signed_by' => $report->landlord_signed_by,
+            'landlord_signature_data' => $report->landlord_signature_data,
+            'tenant_signed' => $report->isTenantSigned(),
+            'tenant_signed_at' => $report->tenant_signed_at,
+            'tenant_signed_at_formatted' => $report->tenant_signed_at ? \Carbon\Carbon::parse($report->tenant_signed_at)->format('d/m/Y H:i') : null,
+            'tenant_signed_by' => $report->tenant_signed_by,
+            'tenant_signature_data' => $report->tenant_signature_data,
             'photos' => $report->photos->map(function($photo) {
                 return [
                     'id' => $photo->id,
@@ -200,55 +206,55 @@ class LandlordConditionReportController extends Controller
         ]);
     }
 
-   /**
- * API: Liste des propriétés pour le filtre
- */
-public function apiProperties(Request $request)
-{
-    $user = Auth::user();
+    /**
+     * API: Liste des propriétés pour le filtre
+     */
+    public function apiProperties(Request $request)
+    {
+        $user = Auth::user();
 
-    if (!$user || !$user->hasRole('landlord')) {
-        return response()->json(['error' => 'Non autorisé'], 403);
+        if (!$user || !$user->hasRole('landlord')) {
+            return response()->json(['error' => 'Non autorisé'], 403);
+        }
+
+        $properties = Property::where('landlord_id', $user->id)
+            ->orWhere('user_id', $user->id)
+            ->orderBy('name')
+            ->get(['id', 'name', 'address']);
+
+        return response()->json($properties);
     }
 
-    $properties = Property::where('landlord_id', $user->id)
-        ->orWhere('user_id', $user->id)
-        ->orderBy('name')
-        ->get(['id', 'name', 'address']);
+    /**
+     * API: Récupère les baux pour une propriété
+     */
+    public function apiLeasesForProperty($propertyId)
+    {
+        $user = Auth::user();
 
-    return response()->json($properties);
-}
+        if (!$user || !$user->hasRole('landlord')) {
+            return response()->json(['error' => 'Non autorisé'], 403);
+        }
 
-/**
- * API: Récupère les baux pour une propriété
- */
-public function apiLeasesForProperty($propertyId)
-{
-    $user = Auth::user();
+        // Vérifier que la propriété appartient au propriétaire
+        $property = Property::where('id', $propertyId)
+            ->where(function($query) use ($user) {
+                $query->where('landlord_id', $user->id)
+                      ->orWhere('user_id', $user->id);
+            })
+            ->first();
 
-    if (!$user || !$user->hasRole('landlord')) {
-        return response()->json(['error' => 'Non autorisé'], 403);
+        if (!$property) {
+            return response()->json(['error' => 'Propriété non trouvée'], 404);
+        }
+
+        $leases = Lease::where('property_id', $propertyId)
+            ->where('status', 'active')
+            ->with('tenant')
+            ->get();
+
+        return response()->json($leases);
     }
-
-    // Vérifier que la propriété appartient au propriétaire
-    $property = Property::where('id', $propertyId)
-        ->where(function($query) use ($user) {
-            $query->where('landlord_id', $user->id)
-                  ->orWhere('user_id', $user->id);
-        })
-        ->first();
-
-    if (!$property) {
-        return response()->json(['error' => 'Propriété non trouvée'], 404);
-    }
-
-    $leases = Lease::where('property_id', $propertyId)
-        ->where('status', 'active')
-        ->with('tenant')
-        ->get();
-
-    return response()->json($leases);
-}
 
     /**
      * API: Créer un état des lieux
@@ -287,6 +293,7 @@ public function apiLeasesForProperty($propertyId)
                 'type' => $validated['type'],
                 'report_date' => $validated['report_date'],
                 'notes' => $validated['notes'] ?? null,
+                'status' => 'draft',
             ]);
 
             if ($request->hasFile('photos')) {
@@ -314,19 +321,34 @@ public function apiLeasesForProperty($propertyId)
     }
 
     /**
-     * API: Signer un état des lieux
+     * API: Signer un état des lieux (pour le propriétaire)
      */
     public function apiSign(Request $request, $id)
     {
         $user = Auth::user();
 
         if (!$user || !$user->hasRole('landlord')) {
-            return response()->json(['error' => 'Non autorisé'], 403);
+            Log::warning('Tentative de signature par un utilisateur non autorisé', [
+                'user_id' => $user ? $user->id : null,
+                'role' => $user ? $user->getRoleNames() : null
+            ]);
+            return response()->json([
+                'error' => 'Non autorisé',
+                'message' => 'Vous devez être connecté en tant que propriétaire pour signer un état des lieux'
+            ], 403);
         }
 
         $report = PropertyConditionReport::findOrFail($id);
 
-        // Vérifier l'accès
+        Log::info('Tentative de signature EDL', [
+            'report_id' => $id,
+            'user_id' => $user->id,
+            'landlord_signed' => $report->isLandlordSigned(),
+            'tenant_signed' => $report->isTenantSigned(),
+            'is_signed' => $report->isSigned()
+        ]);
+
+        // Vérifier l'accès au bien
         $hasAccess = Property::where('id', $report->property_id)
             ->where(function($query) use ($user) {
                 $query->where('landlord_id', $user->id)
@@ -335,28 +357,72 @@ public function apiLeasesForProperty($propertyId)
             ->exists();
 
         if (!$hasAccess) {
-            return response()->json(['error' => 'Accès non autorisé'], 403);
+            Log::warning('Accès non autorisé à l\'EDL', [
+                'report_id' => $id,
+                'property_id' => $report->property_id,
+                'user_id' => $user->id
+            ]);
+            return response()->json([
+                'error' => 'Accès non autorisé',
+                'message' => 'Vous n\'avez pas accès à cet état des lieux'
+            ], 403);
         }
 
-        if ($report->signed_at) {
-            return response()->json(['error' => 'Déjà signé'], 400);
+        // Vérifier si déjà signé par le propriétaire
+        if ($report->isLandlordSigned()) {
+            $message = $report->isSigned()
+                ? 'Cet état des lieux est déjà signé par les deux parties. Il est finalisé.'
+                : 'Vous avez déjà signé cet état des lieux. En attente de la signature du locataire.';
+
+            Log::info('Tentative de signature sur EDL déjà signé par propriétaire', [
+                'report_id' => $id,
+                'landlord_signed_at' => $report->landlord_signed_at
+            ]);
+
+            return response()->json([
+                'error' => 'Déjà signé',
+                'message' => $message,
+                'is_signed' => $report->isSigned(),
+                'landlord_signed' => true,
+                'tenant_signed' => $report->isTenantSigned()
+            ], 400);
         }
 
         $signature = $request->input('signature');
 
         if (!$signature) {
-            return response()->json(['error' => 'Signature manquante'], 400);
+            return response()->json([
+                'error' => 'Signature manquante',
+                'message' => 'Veuillez fournir une signature électronique'
+            ], 400);
         }
 
         try {
             // Décoder la signature base64
             $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $signature));
 
+            if (!$imageData) {
+                return response()->json([
+                    'error' => 'Signature invalide',
+                    'message' => 'Le format de la signature est invalide'
+                ], 400);
+            }
+
+            // Créer le dossier si nécessaire
+            $signatureDir = storage_path('app/public/signatures/' . $report->id);
+            if (!file_exists($signatureDir)) {
+                mkdir($signatureDir, 0755, true);
+            }
+
             // Générer un nom de fichier unique
             $filename = 'signatures/' . $report->id . '/' . Str::uuid() . '.png';
 
             // Sauvegarder l'image
-            Storage::disk('public')->put($filename, $imageData);
+            $saved = Storage::disk('public')->put($filename, $imageData);
+
+            if (!$saved) {
+                throw new \Exception('Impossible de sauvegarder la signature');
+            }
 
             // Préparer les données de signature
             $signatureData = [
@@ -364,38 +430,73 @@ public function apiLeasesForProperty($propertyId)
                 'image_path' => $filename,
                 'signed_at' => now()->toDateTimeString(),
                 'ip' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
+                'user_id' => $user->id,
             ];
 
-            $report->signature_data = $signatureData;
-            $report->signed_at = now();
-            $report->signed_by = $user->id;
-            $report->save();
+            // Utiliser la méthode du modèle
+            $report->signAsLandlord($signatureData, $user->id);
+
+            $isFullySigned = $report->isSigned();
+            $message = $isFullySigned
+                ? 'État des lieux signé et validé par les deux parties avec succès !'
+                : 'Votre signature a été enregistrée. En attente de la signature du locataire pour finaliser.';
+
+            Log::info('Signature EDL réussie', [
+                'report_id' => $id,
+                'user_id' => $user->id,
+                'is_fully_signed' => $isFullySigned,
+                'signed_at' => $report->landlord_signed_at
+            ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'État des lieux signé avec succès',
-                'signed_at' => $report->signed_at->format('d/m/Y H:i')
+                'message' => $message,
+                'signed_at' => $report->landlord_signed_at->format('d/m/Y H:i'),
+                'is_signed' => $isFullySigned,
+                'landlord_signed' => true,
+                'tenant_signed' => $report->isTenantSigned(),
+                'status' => $report->status,
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Erreur signature: ' . $e->getMessage());
-            return response()->json(['error' => 'Erreur lors de la signature'], 500);
+            Log::error('Erreur signature EDL: ' . $e->getMessage(), [
+                'report_id' => $id,
+                'user_id' => $user->id,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'error' => 'Erreur technique',
+                'message' => 'Une erreur est survenue lors de la signature: ' . $e->getMessage()
+            ], 500);
         }
     }
 
     /**
-     * API: Uploader un document signé
+     * API: Uploader un document signé (pour le propriétaire)
      */
     public function apiUploadSigned(Request $request, $id)
     {
         $user = Auth::user();
 
         if (!$user || !$user->hasRole('landlord')) {
-            return response()->json(['error' => 'Non autorisé'], 403);
+            Log::warning('Tentative d\'upload par un utilisateur non autorisé', [
+                'user_id' => $user ? $user->id : null
+            ]);
+            return response()->json([
+                'error' => 'Non autorisé',
+                'message' => 'Vous devez être connecté en tant que propriétaire pour uploader un document signé'
+            ], 403);
         }
 
         $report = PropertyConditionReport::findOrFail($id);
+
+        Log::info('Tentative d\'upload document signé', [
+            'report_id' => $id,
+            'user_id' => $user->id,
+            'landlord_signed' => $report->isLandlordSigned()
+        ]);
 
         // Vérifier l'accès
         $hasAccess = Property::where('id', $report->property_id)
@@ -406,11 +507,24 @@ public function apiLeasesForProperty($propertyId)
             ->exists();
 
         if (!$hasAccess) {
-            return response()->json(['error' => 'Accès non autorisé'], 403);
+            return response()->json([
+                'error' => 'Accès non autorisé',
+                'message' => 'Vous n\'avez pas accès à cet état des lieux'
+            ], 403);
         }
 
-        if ($report->signed_at) {
-            return response()->json(['error' => 'Déjà signé'], 400);
+        // Vérifier si déjà signé par le propriétaire
+        if ($report->isLandlordSigned()) {
+            $message = $report->isSigned()
+                ? 'Cet état des lieux est déjà signé par les deux parties. Il est finalisé.'
+                : 'Vous avez déjà signé cet état des lieux. En attente de la signature du locataire.';
+
+            return response()->json([
+                'error' => 'Déjà signé',
+                'message' => $message,
+                'is_signed' => $report->isSigned(),
+                'landlord_signed' => true
+            ], 400);
         }
 
         $request->validate([
@@ -428,22 +542,42 @@ public function apiLeasesForProperty($propertyId)
                 'file_path' => $path,
                 'file_name' => $request->file('signed_file')->getClientOriginalName(),
                 'file_size' => $request->file('signed_file')->getSize(),
-                'uploaded_at' => now()->toDateTimeString()
+                'uploaded_at' => now()->toDateTimeString(),
+                'user_id' => $user->id,
             ];
 
-            $report->signature_data = $signatureData;
-            $report->signed_at = now();
-            $report->signed_by = $user->id;
-            $report->save();
+            // Utiliser la méthode du modèle
+            $report->signAsLandlord($signatureData, $user->id);
+
+            $isFullySigned = $report->isSigned();
+            $message = $isFullySigned
+                ? 'Document signé et validé par les deux parties avec succès !'
+                : 'Document signé par le propriétaire. En attente de la signature du locataire.';
+
+            Log::info('Upload document signé réussi', [
+                'report_id' => $id,
+                'user_id' => $user->id,
+                'file_path' => $path
+            ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Document signé téléchargé avec succès'
+                'message' => $message,
+                'is_signed' => $isFullySigned,
+                'landlord_signed' => true,
+                'tenant_signed' => $report->isTenantSigned(),
+                'status' => $report->status,
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Erreur upload: ' . $e->getMessage());
-            return response()->json(['error' => 'Erreur lors du téléchargement'], 500);
+            Log::error('Erreur upload document signé: ' . $e->getMessage(), [
+                'report_id' => $id,
+                'user_id' => $user->id
+            ]);
+            return response()->json([
+                'error' => 'Erreur technique',
+                'message' => 'Erreur lors du téléchargement du document: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -508,8 +642,11 @@ public function apiLeasesForProperty($propertyId)
             return response()->json(['error' => 'Accès non autorisé'], 403);
         }
 
-        if ($report->signed_at) {
-            return response()->json(['error' => 'Impossible de supprimer un document signé'], 400);
+        if ($report->isSigned()) {
+            return response()->json([
+                'error' => 'Impossible de supprimer',
+                'message' => 'Impossible de supprimer un état des lieux déjà signé'
+            ], 400);
         }
 
         DB::beginTransaction();
@@ -520,20 +657,32 @@ public function apiLeasesForProperty($propertyId)
                 $photo->delete();
             }
 
-            if ($report->signature_data && isset($report->signature_data['image_path'])) {
-                Storage::disk('public')->delete($report->signature_data['image_path']);
+            // Supprimer la signature du propriétaire si elle existe
+            if ($report->landlord_signature_data && isset($report->landlord_signature_data['image_path'])) {
+                Storage::disk('public')->delete($report->landlord_signature_data['image_path']);
+            }
+
+            // Supprimer la signature du locataire si elle existe
+            if ($report->tenant_signature_data && isset($report->tenant_signature_data['image_path'])) {
+                Storage::disk('public')->delete($report->tenant_signature_data['image_path']);
             }
 
             $report->delete();
 
             DB::commit();
 
-            return response()->json(['success' => true, 'message' => 'État des lieux supprimé']);
+            return response()->json([
+                'success' => true,
+                'message' => 'État des lieux supprimé avec succès'
+            ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Erreur suppression: ' . $e->getMessage());
-            return response()->json(['error' => 'Erreur lors de la suppression'], 500);
+            return response()->json([
+                'error' => 'Erreur technique',
+                'message' => 'Erreur lors de la suppression: ' . $e->getMessage()
+            ], 500);
         }
     }
 

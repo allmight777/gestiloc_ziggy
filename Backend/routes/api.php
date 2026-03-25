@@ -68,6 +68,17 @@ Route::get('auth/co-owner/accept-invitation/{invitationId}', [AuthController::cl
 |  PUBLIC PAYMENT
 |========================= */
 
+// Routes pour les avis d'échéance (landlord)
+Route::middleware(['auth:sanctum', 'role:landlord'])->prefix('rent-due-notices')->group(function () {
+    Route::get('/', [App\Http\Controllers\Api\Landlord\RentDueNoticeController::class, 'index']);
+    Route::get('/stats', [App\Http\Controllers\Api\Landlord\RentDueNoticeController::class, 'stats']);
+    Route::get('/properties', [App\Http\Controllers\Api\Landlord\RentDueNoticeController::class, 'getProperties']);
+    Route::get('/leases-form', [App\Http\Controllers\Api\Landlord\RentDueNoticeController::class, 'getLeasesForForm']);
+    Route::post('/', [App\Http\Controllers\Api\Landlord\RentDueNoticeController::class, 'store']);
+    Route::post('/{id}/send', [App\Http\Controllers\Api\Landlord\RentDueNoticeController::class, 'send']);
+    Route::post('/{id}/resend', [App\Http\Controllers\Api\Landlord\RentDueNoticeController::class, 'resend']);
+    Route::delete('/{id}', [App\Http\Controllers\Api\Landlord\RentDueNoticeController::class, 'destroy']);
+});
 
 
 // webhook: pas d'auth (public)
@@ -145,6 +156,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // pay-link creation (proprio/admin)
     Route::post('/invoices/{id}/pay-link', [PaymentLinkController::class, 'create']);
+
 
     /* ========= PDF ========= */
     Route::prefix('pdf')->group(function () {
@@ -330,6 +342,9 @@ Route::get('leases/{uuid}/signed', [\App\Http\Controllers\Api\Tenant\DocumentCon
 
 // Routes pour visualiser les états des lieux
 Route::get('condition-reports/{uuid}/view', [\App\Http\Controllers\Api\Tenant\DocumentController::class, 'viewConditionReport']);
+Route::post('condition-reports/{uuid}/sign', [\App\Http\Controllers\Api\Tenant\DocumentController::class, 'signConditionReport']);
+
+
 
         // ✅ Ces routes HORS du prefix documents → /tenant/leases et /tenant/condition-reports
         Route::get('leases', [\App\Http\Controllers\Api\Tenant\DocumentController::class, 'getLeases']);

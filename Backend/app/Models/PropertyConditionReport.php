@@ -16,16 +16,30 @@ class PropertyConditionReport extends Model
         'type',
         'report_date',
         'notes',
-        'signature_data',
-        'signed_by',
-        'signed_at'
+        'status',
+
+        // Signature propriétaire
+        'landlord_signature_data',
+        'landlord_signed_by',
+        'landlord_signed_at',
+
+        // Signature locataire
+        'tenant_signature_data',
+        'tenant_signed_by',
+        'tenant_signed_at',
     ];
 
     protected $casts = [
-        'report_date' => 'date',
-        'signed_at' => 'datetime',
-        'signature_data' => 'array'
+        'report_date'             => 'date',
+        'landlord_signed_at'      => 'datetime',
+        'landlord_signature_data' => 'array',
+        'tenant_signed_at'        => 'datetime',
+        'tenant_signature_data'   => 'array',
     ];
+
+    // ──────────────────────────────────────────
+    // Relations
+    // ──────────────────────────────────────────
 
     public function property(): BelongsTo
     {
@@ -47,7 +61,10 @@ class PropertyConditionReport extends Model
         return $this->hasMany(PropertyConditionPhoto::class, 'report_id');
     }
 
+    // ──────────────────────────────────────────
     // Scopes
+    // ──────────────────────────────────────────
+
     public function scopeEntry(Builder $query): Builder
     {
         return $query->where('type', 'entry');
@@ -63,17 +80,57 @@ class PropertyConditionReport extends Model
         return $query->where('lease_id', $leaseId);
     }
 
+    // ──────────────────────────────────────────
+    // Helpers
+    // ──────────────────────────────────────────
+
+    /**
+     * EDL totalement validé = les 2 parties ont signé
+     */
     public function isSigned(): bool
     {
-        return $this->signed_at !== null;
+        return $this->landlord_signed_at !== null && $this->tenant_signed_at !== null;
     }
 
+    public function isTenantSigned(): bool
+    {
+        return $this->tenant_signed_at !== null;
+    }
+
+    public function isLandlordSigned(): bool
+    {
+        return $this->landlord_signed_at !== null;
+    }
+
+    /**
+     * Signature propriétaire — passe à 'signed' si le locataire a déjà signé
+     */
+    public function signAsLandlord(array $signatureData, int $userId): bool
+    {
+        $this->landlord_signature_data = $signatureData;
+        $this->landlord_signed_by      = $userId;
+        $this->landlord_signed_at      = now();
+        $this->status = $this->isTenantSigned() ? 'signed' : 'pending_tenant';
+        return $this->save();
+    }
+
+    /**
+     * Signature locataire — passe à 'signed' si le propriétaire a déjà signé
+     */
+    public function signAsTenant(array $signatureData, int $userId): bool
+    {
+        $this->tenant_signature_data = $signatureData;
+        $this->tenant_signed_by      = $userId;
+        $this->tenant_signed_at      = now();
+        $this->status = $this->isLandlordSigned() ? 'signed' : 'pending_landlord';
+        return $this->save();
+    }
+
+    /**
+     * Compatibilité rétro avec l'ancien sign()
+     */
     public function sign(string $signatureData, string $signedBy): bool
     {
-        return $this->update([
-            'signature_data' => $signatureData,
-            'signed_by' => $signedBy,
-            'signed_at' => now()
-        ]);
+        return $this->signAsLandlord(['raw' => $signatureData], (int) $signedBy);
     }
 }

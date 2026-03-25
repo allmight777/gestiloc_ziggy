@@ -90,7 +90,7 @@ class CoOwnerConditionReportController extends Controller
                 'property_name' => $report->property->name ?? 'Bien #' . $report->property_id,
                 'report_date' => $report->report_date,
                 'general_condition' => $this->getGeneralCondition($report),
-                'is_signed' => !is_null($report->signed_at),
+                'is_signed' => $report->isSigned(),
                 'photos_count' => $report->photos->count(),
                 'created_at' => $report->created_at,
             ];
@@ -232,8 +232,7 @@ class CoOwnerConditionReportController extends Controller
                     'type'           => $validated['type'],
                     'report_date'    => $validated['report_date'],
                     'notes'          => $validated['notes'] ?? null,
-                    'signed_at'      => null,
-                    'signed_by'      => null,
+                    'status'         => 'draft',
                 ]);
 
                 // Enregistrer les photos
@@ -394,7 +393,7 @@ class CoOwnerConditionReportController extends Controller
             abort(403, 'Accès non autorisé.');
         }
 
-        if ($report->signed_at) {
+        if ($report->isSigned()) {
             return redirect()->back()
                 ->with('error', 'Impossible de supprimer un état des lieux signé.');
         }
@@ -581,6 +580,7 @@ class CoOwnerConditionReportController extends Controller
 
     /**
      * Ajoute une signature à l'état des lieux (signature électronique)
+     * Pour le copropriétaire - signe en tant que propriétaire
      */
     public function sign(Request $request, $id)
     {
@@ -603,8 +603,9 @@ class CoOwnerConditionReportController extends Controller
             return response()->json(['error' => 'Accès non autorisé'], 403);
         }
 
-        if ($report->signed_at) {
-            return response()->json(['error' => 'Cet état des lieux est déjà signé'], 400);
+        // Vérifier si déjà signé par le propriétaire
+        if ($report->isLandlordSigned()) {
+            return response()->json(['error' => 'Cet état des lieux est déjà signé par le propriétaire'], 400);
         }
 
         try {
@@ -629,21 +630,27 @@ class CoOwnerConditionReportController extends Controller
                 'image_path' => $filename,
                 'signed_at' => now()->toDateTimeString(),
                 'ip' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
+                'user_id' => $user->id,
+                'co_owner_id' => $coOwnerProfile->id,
             ];
 
-            $report->signature_data = $signatureData;
-            $report->signed_at = now();
-            $report->signed_by = $user->id;
-            $report->save();
+            // Utiliser la méthode du modèle
+            $report->signAsLandlord($signatureData, $user->id);
 
             // Envoyer une notification au locataire
             $this->sendSignedNotification($report);
 
+            $message = $report->isSigned()
+                ? 'État des lieux signé et validé par les deux parties'
+                : 'État des lieux signé par le propriétaire. En attente de la signature du locataire.';
+
             return response()->json([
                 'success' => true,
-                'message' => 'État des lieux signé avec succès',
-                'signed_at' => $report->signed_at->format('d/m/Y H:i')
+                'message' => $message,
+                'signed_at' => $report->landlord_signed_at->format('d/m/Y H:i'),
+                'is_signed' => $report->isSigned(),
+                'status' => $report->status,
             ]);
 
         } catch (\Exception $e) {
@@ -654,7 +661,7 @@ class CoOwnerConditionReportController extends Controller
     }
 
     /**
-     * Uploader un document signé (PDF)
+     * Uploader un document signé (PDF) - pour le copropriétaire
      */
     public function uploadSignedDocument(Request $request, $id)
     {
@@ -676,8 +683,8 @@ class CoOwnerConditionReportController extends Controller
             return redirect()->back()->with('error', 'Accès non autorisé');
         }
 
-        if ($report->signed_at) {
-            return redirect()->back()->with('error', 'Cet état des lieux est déjà signé');
+        if ($report->isLandlordSigned()) {
+            return redirect()->back()->with('error', 'Cet état des lieux est déjà signé par le propriétaire');
         }
 
         $request->validate([
@@ -697,20 +704,23 @@ class CoOwnerConditionReportController extends Controller
                 'file_path' => $path,
                 'file_name' => $request->file('signed_file')->getClientOriginalName(),
                 'file_size' => $request->file('signed_file')->getSize(),
-                'uploaded_at' => now()->toDateTimeString()
+                'uploaded_at' => now()->toDateTimeString(),
+                'user_id' => $user->id,
+                'co_owner_id' => $coOwnerProfile->id,
             ];
 
             // Mettre à jour le rapport avec les informations de signature
-            $report->signature_data = $signatureData;
-            $report->signed_at = now();
-            $report->signed_by = $user->id;
-            $report->save();
+            $report->signAsLandlord($signatureData, $user->id);
 
             // Envoyer une notification au locataire
             $this->sendSignedNotification($report);
 
+            $message = $report->isSigned()
+                ? 'Document signé et validé par les deux parties'
+                : 'Document signé par le propriétaire. En attente de la signature du locataire.';
+
             return redirect()->route('co-owner.condition-reports.show', $report->id)
-                ->with('success', 'Document signé téléchargé avec succès');
+                ->with('success', $message);
 
         } catch (\Exception $e) {
             Log::error('Erreur upload document signé: ' . $e->getMessage());
@@ -744,8 +754,8 @@ class CoOwnerConditionReportController extends Controller
         }
 
         // Si c'est un upload de PDF
-        if ($report->signature_data && $report->signature_data['type'] === 'upload') {
-            $path = storage_path('app/public/' . $report->signature_data['file_path']);
+        if ($report->landlord_signature_data && $report->landlord_signature_data['type'] === 'upload') {
+            $path = storage_path('app/public/' . $report->landlord_signature_data['file_path']);
 
             if (file_exists($path)) {
                 return response()->file($path, [
@@ -789,8 +799,9 @@ class CoOwnerConditionReportController extends Controller
             return redirect()->back()->with('error', 'Accès non autorisé');
         }
 
-        if ($report->signed_at) {
-            return redirect()->back()->with('error', 'Cet état des lieux est déjà signé');
+        // Vérifier si déjà signé
+        if ($report->isSigned()) {
+            return redirect()->back()->with('error', 'Cet état des lieux est déjà signé par les deux parties');
         }
 
         $tenant = $report->lease->tenant;
@@ -805,7 +816,7 @@ class CoOwnerConditionReportController extends Controller
             $subject = "Invitation à signer l'état des lieux - $appName";
 
             // Générer un lien pour que le locataire puisse signer
-            $signatureLink = config('app.frontend_url') . "/tenant/sign-condition-report/" . $report->id . "?token=" . $request->get('api_token', '');
+            $signatureLink = config('app.frontend_url') . "/tenant/sign-condition-report/" . $report->id . "?token=" . ($request->get('api_token', ''));
 
             $type = $report->type === 'entry' ? "d'entrée" : ($report->type === 'exit' ? 'de sortie' : 'intermédiaire');
 
@@ -887,6 +898,15 @@ class CoOwnerConditionReportController extends Controller
             $subject = "État des lieux signé - $appName";
             $type = $report->type === 'entry' ? "d'entrée" : ($report->type === 'exit' ? 'de sortie' : 'intermédiaire');
 
+            $signStatus = '';
+            if ($report->isSigned()) {
+                $signStatus = "<p style='color: green;'><strong>✓ L'état des lieux a été signé par les deux parties.</strong></p>";
+            } elseif ($report->isLandlordSigned()) {
+                $signStatus = "<p>✓ Le propriétaire a signé. Il manque votre signature pour finaliser.</p>";
+            } elseif ($report->isTenantSigned()) {
+                $signStatus = "<p>✓ Vous avez signé. Il manque la signature du propriétaire pour finaliser.</p>";
+            }
+
             $html = "
             <!DOCTYPE html>
             <html>
@@ -908,6 +928,7 @@ class CoOwnerConditionReportController extends Controller
                     <div class='content'>
                         <p>Bonjour <strong>{$tenant->first_name} {$tenant->last_name}</strong>,</p>
                         <p>L'état des lieux <strong>{$type}</strong> pour le bien <strong>{$property->name}</strong> a été signé.</p>
+                        {$signStatus}
                         <p>Vous pouvez télécharger le document depuis votre espace locataire.</p>
                     </div>
                     <div class='footer'>

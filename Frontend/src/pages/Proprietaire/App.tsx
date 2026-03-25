@@ -6,9 +6,11 @@ import Bureau from './components/Bureau';
 import Dashboard from './components/Dashboard';
 import { Payments } from './components/Payments';
 import { Messages } from './components/Messages';
+import CreateAvisEcheance from './components/CreateAvisEcheance';
 import { Interventions } from './components/Interventions';
 import PreavisDetail from './components/PreavisDetail';
 import { Documents } from './components/Documents';
+import Echeance from './components/Echeance';
 import { Property } from './components/Property';
 import EditPreavis from './components/EditPreavis';
 import { Profile } from './components/Profile';
@@ -609,6 +611,38 @@ const ProprietaireApp: React.FC = () => {
             <EtatsDesLieux notify={notify} />
           </Layout>
         } />
+        
+
+
+<Route path="echeance" element={
+    <Layout
+        activeTab="echeance"
+        onNavigate={handleNavigation}
+        toasts={toasts}
+        removeToast={removeToast}
+        onLogout={handleLogout}
+        isDarkMode={false}
+        toggleTheme={() => { }}
+        notify={notify}
+    >
+        <Echeance notify={notify} />
+    </Layout>
+} />
+
+<Route path="avis-echeance/nouveau" element={
+    <Layout
+        activeTab="avis-echeance"
+        onNavigate={handleNavigation}
+        toasts={toasts}
+        removeToast={removeToast}
+        onLogout={handleLogout}
+        isDarkMode={false}
+        toggleTheme={() => { }}
+        notify={notify}
+    >
+        <CreateAvisEcheance notify={notify} />
+    </Layout>
+} />
 
         {/* Route pour les baux - aligne avec le menu */}
         <Route path="baux/*" element={
