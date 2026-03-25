@@ -61,6 +61,7 @@ interface Lease {
   tenant_signature?: string | null;
   signed_document?: string | null;
   signed_at?: string | null;
+  has_signed_document?: boolean;
 }
 
 interface ConditionReport {
@@ -263,28 +264,33 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
 }) => {
   if (!isOpen || !lease) return null;
 
-  const hasSignedDocument = !!lease.signed_document;
+  // ✅ FIX : Un contrat est signé si signed_document existe OU si les deux signatures sont présentes
+  const hasSignedDocument = !!(lease.signed_document || lease.has_signed_document);
   const hasTenantSigned = !!lease.tenant_signature;
   const hasLandlordSigned = !!lease.landlord_signature;
-  
-  // Si un document signé existe, les deux signatures sont considérées comme signées
+
   const showTenantSigned = hasSignedDocument || hasTenantSigned;
   const showLandlordSigned = hasSignedDocument || hasLandlordSigned;
   const isFullySigned = hasSignedDocument || (hasTenantSigned && hasLandlordSigned);
+
+  // On peut signer seulement si le bail est pending_signature ET pas encore signé
   const canSign = lease.status === 'pending_signature' && !hasTenantSigned && !hasSignedDocument;
+
+  // ✅ FIX : Un bail actif sans document signé = on ne demande pas de signature
+  const isActiveWithoutSignature = lease.status === 'active' && !hasSignedDocument && !hasTenantSigned && !hasLandlordSigned;
 
   const formatDate = (d: string) => new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
   const formatMoney = (n: number) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', minimumFractionDigits: 0 }).format(n);
 
-  const getStatusBadge = (status: string, isSigned: boolean) => {
-    if (isSigned) {
+  const getStatusBadge = () => {
+    if (isFullySigned) {
       return <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1"><CheckCircle size={12} /> Contrat signé</span>;
     }
-    switch(status) {
+    switch(lease.status) {
       case 'active': return <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Actif</span>;
       case 'pending_signature': return <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">En attente de signature</span>;
       case 'terminated': return <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Résilié</span>;
-      default: return <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">{status}</span>;
+      default: return <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">{lease.status}</span>;
     }
   };
 
@@ -307,7 +313,7 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
                 <h3 className="text-lg font-bold text-gray-900">{lease.property?.name || 'Bien'}</h3>
                 <p className="text-sm text-gray-600 mt-1">{lease.property?.address || ''}</p>
               </div>
-              {getStatusBadge(lease.status, isFullySigned)}
+              {getStatusBadge()}
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div><p className="text-xs text-gray-500">Début</p><p className="text-sm font-semibold">{formatDate(lease.start_date)}</p></div>
@@ -317,37 +323,40 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
             </div>
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-              <Signature size={16} className="text-[#70AE48]" />
-              Statut des signatures
-            </h4>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Votre signature</span>
-                {showTenantSigned ? (
-                  <span className="text-sm text-green-600 flex items-center gap-1"><CheckCircle size={16} /> Signé</span>
-                ) : (
-                  <span className="text-sm text-yellow-600 flex items-center gap-1"><AlertCircle size={16} /> En attente</span>
-                )}
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Signature du propriétaire</span>
-                {showLandlordSigned ? (
-                  <span className="text-sm text-green-600 flex items-center gap-1"><CheckCircle size={16} /> Signé</span>
-                ) : (
-                  <span className="text-sm text-yellow-600 flex items-center gap-1"><AlertCircle size={16} /> En attente</span>
-                )}
-              </div>
-              {hasSignedDocument && (
-                <div className="mt-2 pt-2 border-t border-gray-200">
-                  <span className="text-xs text-blue-600 flex items-center gap-1">
-                    <FileCheck size={12} /> Document signé uploadé
-                  </span>
+          {/* ✅ FIX : Afficher le bloc signatures seulement si pertinent */}
+          {!isActiveWithoutSignature && (
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                <Signature size={16} className="text-[#70AE48]" />
+                Statut des signatures
+              </h4>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Votre signature</span>
+                  {showTenantSigned ? (
+                    <span className="text-sm text-green-600 flex items-center gap-1"><CheckCircle size={16} /> Signé</span>
+                  ) : (
+                    <span className="text-sm text-yellow-600 flex items-center gap-1"><AlertCircle size={16} /> En attente</span>
+                  )}
                 </div>
-              )}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Signature du propriétaire</span>
+                  {showLandlordSigned ? (
+                    <span className="text-sm text-green-600 flex items-center gap-1"><CheckCircle size={16} /> Signé</span>
+                  ) : (
+                    <span className="text-sm text-yellow-600 flex items-center gap-1"><AlertCircle size={16} /> En attente</span>
+                  )}
+                </div>
+                {hasSignedDocument && (
+                  <div className="mt-2 pt-2 border-t border-gray-200">
+                    <span className="text-xs text-blue-600 flex items-center gap-1">
+                      <FileCheck size={12} /> Document signé uploadé
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
             <button onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">Fermer</button>
@@ -510,25 +519,25 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
 
   // Dossier form
   const [dossierForm, setDossierForm] = useState({
-    nom: '', 
-    prenoms: '', 
-    date_naissance: '', 
-    a_propos: '', 
+    nom: '',
+    prenoms: '',
+    date_naissance: '',
+    a_propos: '',
     email: '',
-    telephone: '', 
-    adresse: '', 
+    telephone: '',
+    adresse: '',
     complement: '',
-    ville: '', 
-    pays: '', 
+    ville: '',
+    pays: '',
     region: '',
-    type_activite: '', 
-    profession: '', 
+    type_activite: '',
+    profession: '',
     revenus_mensuels: '',
-    has_garant: false, 
-    garant_type: '', 
+    has_garant: false,
+    garant_type: '',
     garant_description: '',
-    is_shared: false, 
-    shared_with: [] as number[], 
+    is_shared: false,
+    shared_with: [] as number[],
     shared_with_emails: [] as string[],
   });
 
@@ -679,25 +688,25 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         setDossier(response.data.data);
         const d = response.data.data;
         setDossierForm({
-          nom: d.nom || '', 
-          prenoms: d.prenoms || '', 
+          nom: d.nom || '',
+          prenoms: d.prenoms || '',
           date_naissance: d.date_naissance || '',
-          a_propos: d.a_propos || '', 
-          email: d.email || '', 
+          a_propos: d.a_propos || '',
+          email: d.email || '',
           telephone: d.telephone || '',
-          adresse: d.adresse || '', 
+          adresse: d.adresse || '',
           complement: d.complement || '',
           ville: d.ville || '',
-          pays: d.pays || '', 
-          region: d.region || '', 
+          pays: d.pays || '',
+          region: d.region || '',
           type_activite: d.type_activite || '',
-          profession: d.profession || '', 
+          profession: d.profession || '',
           revenus_mensuels: d.revenus_mensuels?.toString() || '',
-          has_garant: d.has_garant || false, 
+          has_garant: d.has_garant || false,
           garant_type: d.garant_type || '',
-          garant_description: d.garant_description || '', 
+          garant_description: d.garant_description || '',
           is_shared: d.is_shared || false,
-          shared_with: d.shared_with || [], 
+          shared_with: d.shared_with || [],
           shared_with_emails: d.shared_with_emails || [],
         });
       }
@@ -1214,11 +1223,25 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                 ownerDocuments.length === 0 ? (<Card className="p-12 text-center"><div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><Building2 size={24} className="text-gray-400" /></div><h3 className="text-lg font-medium text-gray-900 mb-1">Aucun document du propriétaire</h3><p className="text-sm text-gray-500">Votre propriétaire n'a pas encore partagé de documents avec vous</p></Card>) : ownerDocuments.map(doc => (<Card key={doc.id} className="p-4 hover:shadow-md transition-all duration-300"><div className="flex items-start justify-between gap-3"><div className="flex-1"><div className="flex items-center gap-2 mb-1">{getFileIcon(doc.file_type)}<h3 className="text-base font-semibold text-gray-900">{doc.name}</h3>{doc.created_by_name && <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">{doc.created_by_name}</span>}</div><div className="flex flex-wrap items-center gap-3 mt-2">{doc.property && <div className="flex items-center gap-1 text-xs text-gray-500"><Home size={12} /><span>{doc.property.name}</span></div>}<div className="flex items-center gap-1 text-xs text-gray-500"><Calendar size={12} /><span>{formatDate(doc.created_at)}</span></div><div className="flex items-center gap-1 text-xs text-gray-500"><FileText size={12} /><span>{doc.file_size_formatted}</span></div></div></div><div className="flex items-center gap-1"><button onClick={() => handleViewDocument(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group" title="Voir"><Eye size={16} className="text-gray-500 group-hover:text-blue-600" /></button><button onClick={() => handleDownload(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group" title="Télécharger"><Download size={16} className="text-gray-500 group-hover:text-[#70AE48]" /></button></div></div></Card>))
               ) : activeFilter === 'contrats' ? (
                 leases.length === 0 ? (<Card className="p-12 text-center"><div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><FileSignature size={24} className="text-gray-400" /></div><h3 className="text-lg font-medium text-gray-900 mb-1">Aucun contrat de bail</h3></Card>) : leases.map(lease => {
-                  const hasSignedDocument = !!lease.signed_document;
-                  const isFullySigned = hasSignedDocument || (!!lease.tenant_signature && !!lease.landlord_signature);
-                  const canSign = lease.status === 'pending_signature' && !lease.tenant_signature && !hasSignedDocument;
-                  
-                  // Déterminer la couleur de la bordure
+                  // ✅ FIX PRINCIPAL : Vérifier signed_document ET has_signed_document
+                  const hasSignedDocument = !!(lease.signed_document || lease.has_signed_document);
+                  const hasTenantSigned = !!lease.tenant_signature;
+                  const hasLandlordSigned = !!lease.landlord_signature;
+
+                  // ✅ Un contrat est "fully signed" si un document signé existe OU si les deux ont signé
+                  const isFullySigned = hasSignedDocument || (hasTenantSigned && hasLandlordSigned);
+
+                  // ✅ Afficher "signé" si signed_document existe OU signature individuelle
+                  const showTenantSigned = hasSignedDocument || hasTenantSigned;
+                  const showLandlordSigned = hasSignedDocument || hasLandlordSigned;
+
+                  // ✅ On peut signer seulement si pending_signature ET pas encore signé
+                  const canSign = lease.status === 'pending_signature' && !hasTenantSigned && !hasSignedDocument;
+
+                  // ✅ Bail actif sans aucune trace de signature = pas besoin d'afficher les indicateurs
+                  const isActiveWithoutSignature = lease.status === 'active' && !hasSignedDocument && !hasTenantSigned && !hasLandlordSigned;
+
+                  // Couleur de la bordure
                   let borderColor = '#ef4444';
                   if (isFullySigned) borderColor = '#10b981';
                   else if (lease.status === 'active') borderColor = '#10b981';
@@ -1231,6 +1254,7 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
                             {getLeaseIcon(lease.status, hasSignedDocument, isFullySigned)}
                             <h3 className="text-base font-semibold text-gray-900">Contrat de bail - {lease.property?.name || 'Bien'}</h3>
+                            {/* ✅ Badge de statut */}
                             {isFullySigned ? (
                               <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1"><CheckCircle size={10} /> Contrat signé</span>
                             ) : lease.status === 'active' ? (
@@ -1246,18 +1270,23 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                             <div className="flex items-center gap-1 text-xs text-gray-500"><Calendar size={12} /><span>Début: {formatDate(lease.start_date)}</span></div>
                             <div className="flex items-center gap-1 text-xs text-gray-500"><Calendar size={12} /><span>Fin: {lease.end_date ? formatDate(lease.end_date) : 'Indéterminée'}</span></div>
                           </div>
-                          <div className="flex items-center gap-3 mt-2">
-                            {hasSignedDocument || lease.tenant_signature ? (
-                              <span className="text-xs text-green-600 flex items-center gap-1"><UserCheck size={12} /> Vous avez signé</span>
-                            ) : (
-                              <span className="text-xs text-yellow-600 flex items-center gap-1"><UserX size={12} /> En attente de votre signature</span>
-                            )}
-                            {hasSignedDocument || lease.landlord_signature ? (
-                              <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle size={12} /> Propriétaire a signé</span>
-                            ) : (
-                              <span className="text-xs text-gray-400 flex items-center gap-1"><AlertCircle size={12} /> Propriétaire n'a pas encore signé</span>
-                            )}
-                          </div>
+
+                          {/* ✅ FIX : Afficher les indicateurs de signature seulement si pertinent */}
+                          {!isActiveWithoutSignature && (
+                            <div className="flex items-center gap-3 mt-2">
+                              {showTenantSigned ? (
+                                <span className="text-xs text-green-600 flex items-center gap-1"><UserCheck size={12} /> Vous avez signé</span>
+                              ) : (
+                                <span className="text-xs text-yellow-600 flex items-center gap-1"><UserX size={12} /> En attente de votre signature</span>
+                              )}
+                              {showLandlordSigned ? (
+                                <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle size={12} /> Propriétaire a signé</span>
+                              ) : (
+                                <span className="text-xs text-gray-400 flex items-center gap-1"><AlertCircle size={12} /> Propriétaire n'a pas encore signé</span>
+                              )}
+                            </div>
+                          )}
+
                           {hasSignedDocument && (
                             <div className="mt-2">
                               <span className="text-xs text-blue-600 flex items-center gap-1"><FileCheck size={10} /> Document signé uploadé</span>
