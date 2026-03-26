@@ -1,3 +1,5 @@
+// src/services/leaseService.ts
+
 import api from './api';
 
 export const leaseService = {
@@ -12,10 +14,10 @@ export const leaseService = {
         }
     },
 
-    // Ajoutez cette méthode
-viewSignedContract: async (uuid: string) => {
-    window.open(`/api/landlord/leases/${uuid}/signed`, '_blank');
-},
+    // Voir le contrat signé
+    viewSignedContract: async (uuid: string) => {
+        window.open(`/api/landlord/leases/${uuid}/signed`, '_blank');
+    },
 
     // Récupérer les propriétés pour le filtre
     getProperties: async () => {
@@ -43,6 +45,7 @@ viewSignedContract: async (uuid: string) => {
             document.body.appendChild(link);
             link.click();
             link.remove();
+            window.URL.revokeObjectURL(url);
             
             return true;
         } catch (error) {
@@ -51,7 +54,7 @@ viewSignedContract: async (uuid: string) => {
         }
     },
 
-    // Signer électroniquement
+    // Signer électroniquement (ancienne méthode - signature simple)
     signContract: async (leaseId: string) => {
         try {
             const response = await api.post(`/landlord/leases/${leaseId}/sign`);
@@ -60,6 +63,30 @@ viewSignedContract: async (uuid: string) => {
             console.error('Erreur signContract:', error);
             throw error;
         }
+    },
+
+    // ✅ NOUVELLE MÉTHODE - Signature électronique avec canvas
+    signContractElectronic: async (uuid: string, signatureDataUrl: string) => {
+        const token = localStorage.getItem('token');
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+        const baseUrl = apiUrl.replace('/api', '');
+        
+        const response = await fetch(`${baseUrl}/api/landlord/leases/${uuid}/sign-electronic`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ signature: signatureDataUrl }),
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Erreur lors de la signature');
+        }
+        
+        return response.json();
     },
 
     // Uploader un contrat signé manuellement
@@ -79,6 +106,6 @@ viewSignedContract: async (uuid: string) => {
             throw error;
         }
     },
-
-    
 };
+
+export default leaseService;

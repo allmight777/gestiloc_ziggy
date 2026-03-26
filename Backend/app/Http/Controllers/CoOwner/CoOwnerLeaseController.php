@@ -452,4 +452,81 @@ class CoOwnerLeaseController extends Controller
 
         return null;
     }
+
+    /**
+ * POST /coproprietaire/leases/{uuid}/sign-electronic
+ * Signature électronique via canvas (appelée en AJAX depuis le modal)
+ */
+public function signContractElectronic(Request $request, $uuid)
+{
+    $user = $this->getAuthenticatedUser($request);
+
+    if (!$user || !$user->hasRole('co_owner')) {
+        return response()->json(['error' => 'Accès non autorisé'], 403);
+    }
+
+    $coOwner = $user->coOwner;
+    if (!$coOwner) {
+        return response()->json(['error' => 'Profil co-propriétaire non trouvé'], 403);
+    }
+
+    $lease = Lease::where('uuid', $uuid)->firstOrFail();
+
+    $isDelegated = PropertyDelegation::where('property_id', $lease->property_id)
+        ->where('co_owner_id', $coOwner->id)
+        ->where('status', 'active')
+        ->exists();
+
+    if (!$isDelegated) {
+        return response()->json(['error' => 'Accès non autorisé'], 403);
+    }
+
+    if ($lease->status !== 'pending_signature') {
+        return response()->json(['error' => 'Ce bail n\'est pas en attente de signature'], 400);
+    }
+
+    if (!empty($lease->landlord_signature)) {
+        return response()->json(['error' => 'Vous avez déjà signé ce contrat'], 400);
+    }
+
+    $signature = $request->input('signature');
+    if (!$signature) {
+        return response()->json(['error' => 'Signature manquante'], 400);
+    }
+
+    try {
+        $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $signature));
+        $filename  = 'lease-signatures/' . $lease->id . '/' . \Illuminate\Support\Str::uuid() . '.png';
+        \Illuminate\Support\Facades\Storage::disk('public')->put($filename, $imageData);
+
+        $lease->landlord_signature = json_encode([
+            'signed_at'     => now(),
+            'ip'            => $request->ip(),
+            'user_agent'    => $request->userAgent(),
+            'signed_by'     => 'co_owner',
+            'co_owner_id'   => $coOwner->id,
+            'signature_path'=> $filename,
+        ]);
+
+        if (!empty($lease->tenant_signature)) {
+            $lease->status    = 'active';
+            $lease->signed_at = now();
+            $this->sendContractActivatedNotification($lease);
+        } else {
+            $this->sendSignatureInvitationToTenant($lease);
+        }
+
+        $lease->save();
+
+        $msg = ($lease->status === 'active')
+            ? 'Contrat activé — les deux parties ont signé.'
+            : 'Signature enregistrée. En attente de la signature du locataire.';
+
+        return response()->json(['success' => true, 'message' => $msg]);
+
+    } catch (\Exception $e) {
+        \Illuminate\Support\Facades\Log::error('Erreur signature électronique bail: ' . $e->getMessage());
+        return response()->json(['error' => 'Erreur lors de la signature : ' . $e->getMessage()], 500);
+    }
+}
 }

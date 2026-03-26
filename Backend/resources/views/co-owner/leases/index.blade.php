@@ -142,18 +142,19 @@
 
                         @if($isPendingSignature)
 
-                            {{-- Signer --}}
+                            {{-- ✅ SIGNER : ouvre le modal de signature électronique --}}
                             @if(!$landlordSigned)
-                                <form method="POST"
-                                      action="{{ route('co-owner.leases.sign', $lease->uuid) }}"
-                                      style="display:inline;"
-                                      onsubmit="this.action=this.action+'?api_token='+(localStorage.getItem('token')||'');return confirm('Confirmer la signature électronique de ce contrat ?')">
-                                    @csrf
-                                    <button type="submit" class="action-btn btn-sign" title="Signer électroniquement">
-                                        <i data-lucide="pen-square" style="width:14px;height:14px;"></i>
-                                        <span>Signer</span>
-                                    </button>
-                                </form>
+                                <button type="button"
+                                        class="action-btn btn-sign"
+                                        title="Signer électroniquement"
+                                        onclick="openSignatureModal(
+                                            '{{ $lease->uuid }}',
+                                            '{{ addslashes('Contrat - ' . $lease->tenant->first_name . ' ' . $lease->tenant->last_name) }}',
+                                            '{{ addslashes($lease->property->name ?? '') }}'
+                                        )">
+                                    <i data-lucide="pen-square" style="width:14px;height:14px;"></i>
+                                    <span>Signer</span>
+                                </button>
                             @endif
 
                             {{-- Upload --}}
@@ -229,7 +230,73 @@
     </div>
 </div>
 
-<!-- Modal Upload -->
+{{-- =====================================================================
+     MODAL SIGNATURE ÉLECTRONIQUE
+     ===================================================================== --}}
+<div id="signatureModal" class="sig-modal-overlay" style="display:none;" onclick="closeSignatureModal()">
+    <div class="sig-modal-content" onclick="event.stopPropagation()">
+
+        {{-- Header --}}
+        <div class="sig-modal-header">
+            <div class="sig-modal-title">
+                <div class="sig-modal-icon">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 22L10 14M14 2L22 10M16 8L6 18M18 6L8 16"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3>Signer le contrat</h3>
+                    <p id="sigModalSubtitle" class="sig-modal-subtitle"></p>
+                </div>
+            </div>
+            <button class="sig-modal-close" onclick="closeSignatureModal()">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+
+        {{-- Avertissement --}}
+        <div class="sig-warning">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <p>En signant ce contrat, vous reconnaissez avoir lu et accepté toutes les conditions du bail. Cette action est irréversible.</p>
+        </div>
+
+        {{-- Zone de signature --}}
+        <div class="sig-canvas-label">Dessinez votre signature ci-dessous</div>
+        <div class="sig-canvas-container">
+            <canvas id="lease-signature-pad"></canvas>
+        </div>
+
+        {{-- Actions canvas --}}
+        <div class="sig-canvas-actions">
+            <button class="sig-btn sig-btn-clear" onclick="clearLeaseSignature()">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+                Effacer
+            </button>
+            <div style="display:flex;gap:0.5rem;">
+                <button class="sig-btn sig-btn-cancel" onclick="closeSignatureModal()">Annuler</button>
+                <button class="sig-btn sig-btn-confirm" id="sigConfirmBtn" onclick="submitLeaseSignature(this)">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    <span id="sigConfirmText">Signer le contrat</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{{-- =====================================================================
+     MODAL UPLOAD (inchangé)
+     ===================================================================== --}}
 <div id="uploadModal" class="upload-modal-overlay" style="display:none;" onclick="closeUploadModal()">
     <div class="upload-modal-content" onclick="event.stopPropagation()">
         <div class="upload-modal-header">
@@ -257,6 +324,7 @@
 </div>
 
 <style>
+    /* ── LAYOUT ── */
     .leases-container { max-width:1400px; margin:0 auto; padding:2rem; background:#f8fafc; min-height:100vh; }
 
     .leases-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2rem; gap:2rem; }
@@ -286,9 +354,8 @@
     .btn-display { display:inline-flex; align-items:center; gap:0.5rem; padding:0.75rem 1.25rem; border:1px solid #d1d5db; border-radius:8px; background:white; color:#374151; font-size:1rem; font-weight:500; cursor:pointer; transition:all 0.2s; white-space:nowrap; flex:1; }
     .btn-display:hover { background:#f9fafb; border-color:#9ca3af; }
 
-    /* ── CARTES AGRANDIES ── */
+    /* ── CARTES ── */
     .contracts-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(500px, 1fr)); gap:1.5rem; }
-
     .contract-card { background:white; border-radius:12px; border:1px solid #e2e8f0; padding:2rem; box-shadow:0 1px 3px rgba(0,0,0,0.05); transition:all 0.2s ease; display:flex; flex-direction:column; gap:0.9rem; }
     .contract-card:hover { box-shadow:0 4px 12px rgba(0,0,0,0.1); transform:translateY(-2px); }
 
@@ -322,7 +389,6 @@
     .btn-view:hover     { background:#e5e7eb; }
 
     .contract-date { font-size:0.925rem; color:#94a3b8; margin-top:0.25rem; }
-
     .signature-info { display:flex; align-items:center; gap:0.3rem; font-size:0.75rem; color:#64748b; }
     .signature-badge { display:inline-flex; align-items:center; gap:0.2rem; font-size:0.75rem; color:#64748b; }
     .signature-badge.signed { color:#166534; }
@@ -331,7 +397,171 @@
     .empty-state h3 { font-size:1.3rem; font-weight:600; color:#374151; margin:1rem 0 0.5rem 0; }
     .empty-state p  { color:#6b7280; font-size:1.125rem; margin-bottom:1.5rem; }
 
-    /* Modal upload */
+    /* ── MODAL SIGNATURE ── */
+    .sig-modal-overlay {
+        position: fixed; top:0; left:0; right:0; bottom:0;
+        background: rgba(0,0,0,0.55);
+        backdrop-filter: blur(4px);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 500;
+        padding: 1rem;
+    }
+
+    .sig-modal-content {
+        background: white;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 560px;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+        overflow: hidden;
+        animation: sigSlideUp 0.25s ease-out;
+    }
+
+    @keyframes sigSlideUp {
+        from { opacity:0; transform:translateY(24px); }
+        to   { opacity:1; transform:translateY(0); }
+    }
+
+    .sig-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.5rem 1.75rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .sig-modal-title {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+    }
+
+    .sig-modal-icon {
+        width: 44px; height: 44px;
+        background: #f0f7eb;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        color: #70AE48;
+        flex-shrink: 0;
+    }
+
+    .sig-modal-title h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 0.2rem 0;
+    }
+
+    .sig-modal-subtitle {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .sig-modal-close {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.4rem;
+        border-radius: 8px;
+        color: #6b7280;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .sig-modal-close:hover { background: #f3f4f6; }
+
+    .sig-warning {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        background: #fffbeb;
+        border-left: 4px solid #f59e0b;
+        padding: 1rem 1.75rem;
+        margin: 1.25rem 1.75rem 0;
+        border-radius: 0 8px 8px 0;
+    }
+
+    .sig-warning p {
+        font-size: 0.9rem;
+        color: #92400e;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .sig-canvas-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #374151;
+        padding: 1.25rem 1.75rem 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .sig-canvas-container {
+        margin: 0 1.75rem;
+        border: 2px dashed #d1d5db;
+        border-radius: 12px;
+        background: #fafafa;
+        overflow: hidden;
+        transition: border-color 0.2s;
+    }
+    .sig-canvas-container:hover { border-color: #70AE48; }
+
+    #lease-signature-pad {
+        width: 100%;
+        height: 200px;
+        display: block;
+        background: white;
+        cursor: crosshair;
+        touch-action: none;
+    }
+
+    .sig-canvas-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.75rem 1.75rem;
+    }
+
+    .sig-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.65rem 1.2rem;
+        border-radius: 10px;
+        border: none;
+        font-size: 0.925rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .sig-btn-clear {
+        background: #f3f4f6;
+        color: #6b7280;
+        border: 1px solid #e5e7eb;
+    }
+    .sig-btn-clear:hover { background: #e5e7eb; }
+
+    .sig-btn-cancel {
+        background: white;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+    .sig-btn-cancel:hover { background: #f9fafb; }
+
+    .sig-btn-confirm {
+        background: #70AE48;
+        color: white;
+        border: none;
+        box-shadow: 0 2px 8px rgba(112,174,72,0.3);
+    }
+    .sig-btn-confirm:hover:not(:disabled) { background: #5a8f3a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(112,174,72,0.35); }
+    .sig-btn-confirm:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* ── MODAL UPLOAD (inchangé) ── */
     .upload-modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:500; }
     .upload-modal-content { background:white; border-radius:12px; padding:1.5rem; max-width:500px; width:90%; max-height:90vh; overflow-y:auto; }
     .upload-modal-header  { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
@@ -350,20 +580,172 @@
         .header-content h1 { font-size:2rem; }
         .subtitle          { font-size:1rem; }
         .contract-actions  { flex-wrap:wrap; }
+        .sig-modal-content { border-radius:16px; }
+        .sig-canvas-actions { flex-direction:column-reverse; gap:0.75rem; align-items:stretch; }
+        .sig-btn-clear { width:100%; justify-content:center; }
+        .sig-canvas-actions > div { display:flex; gap:0.5rem; }
+        .sig-canvas-actions > div .sig-btn { flex:1; justify-content:center; }
     }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script>
-    // Appel lucide après que tout le DOM soit prêt, y compris les éléments générés dynamiquement
+    // ── Lucide ──
     function initLucide() {
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        } else {
-            setTimeout(initLucide, 100);
-        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        else setTimeout(initLucide, 100);
     }
     document.addEventListener('DOMContentLoaded', initLucide);
 
+    // ── SignaturePad pour le bail ──
+    let leaseSignaturePad = null;
+    let currentLeaseUuid  = null;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const canvas = document.getElementById('lease-signature-pad');
+        if (!canvas) return;
+
+        leaseSignaturePad = new SignaturePad(canvas, {
+            penColor: '#111827',
+            backgroundColor: 'rgb(255,255,255)',
+        });
+
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            const w = canvas.offsetWidth;
+            const h = canvas.offsetHeight;
+            canvas.width  = w * ratio;
+            canvas.height = h * ratio;
+            canvas.getContext('2d').scale(ratio, ratio);
+            leaseSignaturePad.clear();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+    });
+
+    // ── Ouvrir modal signature ──
+function openSignatureModal(uuid, contractTitle, propertyName) {
+    currentLeaseUuid = uuid;
+
+    document.getElementById('sigModalSubtitle').textContent =
+        contractTitle + (propertyName ? ' — ' + propertyName : '');
+
+    document.getElementById('signatureModal').style.display = 'flex';
+
+    // ✅ FIX : redimensionner le canvas APRÈS que le modal soit visible
+    setTimeout(function () {
+        const canvas = document.getElementById('lease-signature-pad');
+        if (!canvas || !leaseSignaturePad) return;
+
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width  = canvas.offsetWidth  * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext('2d').scale(ratio, ratio);
+        leaseSignaturePad.clear();
+    }, 50);
+
+    document.getElementById('sigConfirmText').textContent = 'Signer le contrat';
+    document.getElementById('sigConfirmBtn').disabled = false;
+}
+
+    // ── Fermer modal signature ──
+    function closeSignatureModal() {
+        document.getElementById('signatureModal').style.display = 'none';
+        currentLeaseUuid = null;
+        if (leaseSignaturePad) leaseSignaturePad.clear();
+    }
+
+    // ── Effacer la signature ──
+    function clearLeaseSignature() {
+        if (leaseSignaturePad) leaseSignaturePad.clear();
+    }
+
+    // ── Soumettre la signature ──
+    async function submitLeaseSignature(btn) {
+        if (!leaseSignaturePad || leaseSignaturePad.isEmpty()) {
+            alert('Veuillez dessiner votre signature avant de valider.');
+            return;
+        }
+
+        if (!currentLeaseUuid) {
+            alert('Erreur : contrat introuvable.');
+            return;
+        }
+
+        // Feedback visuel
+        btn.disabled = true;
+        document.getElementById('sigConfirmText').textContent = 'Signature en cours…';
+
+        const token = localStorage.getItem('token') || '';
+
+        try {
+            const response = await fetch('/coproprietaire/leases/' + currentLeaseUuid + '/sign-electronic?api_token=' + token, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]') ?
+                        document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    signature: leaseSignaturePad.toDataURL('image/png'),
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                closeSignatureModal();
+                // Afficher un message de succès et recharger
+                showToast(data.message || 'Contrat signé avec succès !', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast(data.error || 'Erreur lors de la signature.', 'error');
+                btn.disabled = false;
+                document.getElementById('sigConfirmText').textContent = 'Signer le contrat';
+            }
+
+        } catch (err) {
+            console.error(err);
+            showToast('Erreur de connexion. Veuillez réessayer.', 'error');
+            btn.disabled = false;
+            document.getElementById('sigConfirmText').textContent = 'Signer le contrat';
+        }
+    }
+
+    // ── Toast notification ──
+    function showToast(message, type) {
+        const existing = document.getElementById('lease-toast');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'lease-toast';
+        toast.style.cssText = `
+            position:fixed; bottom:2rem; right:2rem; z-index:9999;
+            padding:1rem 1.5rem; border-radius:12px; font-size:0.95rem; font-weight:600;
+            box-shadow:0 8px 24px rgba(0,0,0,0.15); max-width:360px;
+            animation:toastIn 0.3s ease-out;
+            background:${type === 'success' ? '#ecfdf5' : '#fef2f2'};
+            color:${type === 'success' ? '#065f46' : '#991b1b'};
+            border-left:4px solid ${type === 'success' ? '#10b981' : '#ef4444'};
+        `;
+        toast.textContent = message;
+
+        const style = document.createElement('style');
+        style.textContent = '@keyframes toastIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }';
+        document.head.appendChild(style);
+
+        document.body.appendChild(toast);
+        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 4000);
+    }
+
+    // ── Fermer modal signature avec Echap ──
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeSignatureModal();
+    });
+
+    // ── Modal Upload (inchangé) ──
     function openUploadModal(uuid, title) {
         var token = localStorage.getItem('token') || '';
         document.getElementById('modalContractTitle').textContent = title;

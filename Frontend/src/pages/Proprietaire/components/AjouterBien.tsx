@@ -847,7 +847,7 @@ export const AjouterBien = ({
 
               <div className="ab-fields one" style={{ marginBottom: 14 }}>
                 <div className="ab-field">
-                  <label className="ab-label">Loyer charges locatives (FCFA)</label>
+                  <label className="ab-label">Charges locatives (FCFA)</label>
                   <input
                     type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     name="charges_amount"

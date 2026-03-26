@@ -11,6 +11,7 @@ use App\Models\PropertyUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
@@ -682,4 +683,84 @@ public function store(Request $request)
             Log::error('Erreur envoi email activation: ' . $e->getMessage());
         }
     }
+
+    /**
+ * Signature électronique avec canvas (signature dessinée)
+ * POST /api/landlord/leases/{uuid}/sign-electronic
+ */
+public function signContractElectronic(Request $request, $uuid)
+{
+    try {
+        $lease = Lease::where('uuid', $uuid)->firstOrFail();
+        $user = $request->user();
+
+        // Vérifier que l'utilisateur est bien le propriétaire
+        if ($user->id != $lease->property->user_id) {
+            return response()->json(['message' => 'Non autorisé'], 403);
+        }
+
+        // Vérifier que le contrat n'est pas déjà signé
+        if ($lease->landlord_signature) {
+            return response()->json(['message' => 'Vous avez déjà signé ce contrat'], 400);
+        }
+
+        $signature = $request->input('signature');
+
+        if (!$signature) {
+            return response()->json(['message' => 'Signature manquante'], 400);
+        }
+
+        // Décoder la signature base64
+        $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $signature));
+
+        // Créer le dossier si nécessaire
+        $signatureDir = storage_path('app/public/signatures/' . $lease->id);
+        if (!file_exists($signatureDir)) {
+            mkdir($signatureDir, 0755, true);
+        }
+
+        // Générer un nom de fichier unique
+        $filename = 'signatures/' . $lease->id . '/' . Str::uuid() . '.png';
+
+        // Sauvegarder l'image
+        Storage::disk('public')->put($filename, $imageData);
+
+        // Enregistrer la signature
+        $lease->landlord_signature = json_encode([
+            'type' => 'electronic',
+            'image_path' => $filename,
+            'signed_at' => now(),
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        // Vérifier si le locataire a déjà signé
+        if ($lease->tenant_signature) {
+            $lease->status = 'active';
+            $lease->signed_at = now();
+
+            // Notifier les deux parties
+            $this->sendContractActivatedNotification($lease);
+        } else {
+            $lease->status = 'pending_signature';
+
+            // Envoyer une invitation au locataire
+            $this->sendSignatureInvitationToTenant($lease);
+        }
+
+        $lease->save();
+
+        return response()->json([
+            'message' => 'Signature enregistrée avec succès',
+            'lease' => $lease->load(['property', 'tenant']),
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Erreur signature électronique: ' . $e->getMessage());
+        return response()->json([
+            'message' => 'Erreur lors de la signature',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 }

@@ -1043,6 +1043,8 @@ export interface RentalContractData {
   };
 }
 
+
+
 export const contractService = {
   async downloadLeaseContract(uuid: string): Promise<Blob> {
     try {

@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Co-propriétaire')</title>
     <link rel="shortcut icon" href="{{ asset('images/logo.webp') }}" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -635,6 +636,16 @@
         .alert-error { background: rgba(254,242,242,.92); border-color: rgba(248,113,113,.30); color: #991b1b; }
         .alert-success { background: rgba(240,253,244,.92); border-color: rgba(74,222,128,.30); color: #166534; }
         .hidden { display: none !important; }
+
+        /* ─── CACHE LES SPINNERS SUR TOUS LES INPUT NUMBER ─── */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
         .input-error { border-color: rgba(225,29,72,.72) !important; box-shadow: 0 0 0 4px rgba(225,29,72,.10) !important; }
         .field-error { display: flex; gap: 8px; align-items: flex-start; color: #be123c; font-weight: 900; font-size: .8rem; line-height: 1.2; margin-top: 2px; font-family: var(--font-merri); }
 

@@ -49,12 +49,21 @@ class CoOwnerAssignPropertyController extends Controller
                 if (!$delegation->property) {
                     return false;
                 }
-                return $delegation->property->status !== 'rented';
+                // Un bien peut être loué plusieurs fois (différents baux), mais on vérifie juste s'il n'est pas en cours de location active
+                // On ne bloque pas la location si le bien a déjà un bail actif - un bien peut avoir plusieurs baux successifs
+                $hasActiveLease = Lease::where('property_id', $delegation->property->id)
+                    ->where('status', 'active')
+                    ->exists();
+
+                // On autorise toujours la création d'un nouveau bail, même si le bien a déjà été loué
+                // On ne filtre que les biens qui n'ont pas de bail actif (car un bien ne peut pas avoir 2 baux actifs en même temps)
+                return !$hasActiveLease;
             })
             ->map(function ($delegation) {
                 return $delegation->property;
             });
 
+        // Récupérer TOUS les locataires (pas seulement ceux sans bail actif)
         $tenants = Tenant::where('meta->landlord_id', $coOwner->landlord_id)
             ->with('user')
             ->get();
@@ -71,6 +80,7 @@ class CoOwnerAssignPropertyController extends Controller
 
     /**
      * Assigner un bien à un locataire — statut forcé à pending_signature
+     * Un locataire peut avoir plusieurs baux actifs (louer plusieurs biens)
      */
     public function store(Request $request)
     {
@@ -101,15 +111,17 @@ class CoOwnerAssignPropertyController extends Controller
 
                     $property = Property::find($value);
                     if ($property && $property->status === 'rented') {
-                        $fail('Ce bien est déjà loué.');
+                        // Le bien peut être en statut "loué" mais cela n'empêche pas de créer un nouveau bail
+                        // On continue quand même, le statut sera mis à jour lors de la signature
                     }
 
-                    $isRented = Lease::where('property_id', $value)
+                    // Vérifier si le bien a déjà un bail ACTIF (pas en attente, pas résilié)
+                    $hasActiveLease = Lease::where('property_id', $value)
                         ->where('status', 'active')
                         ->exists();
 
-                    if ($isRented) {
-                        $fail('Ce bien a déjà un bail actif.');
+                    if ($hasActiveLease) {
+                        $fail('Ce bien a déjà un bail actif. Vous ne pouvez pas créer un nouveau bail tant que le bail actif n\'est pas résilié.');
                     }
                 }
             ],
@@ -122,13 +134,9 @@ class CoOwnerAssignPropertyController extends Controller
                         $fail('Ce locataire ne vous est pas associé.');
                     }
 
-                    $hasActiveLease = Lease::where('tenant_id', $value)
-                        ->where('status', 'active')
-                        ->exists();
-
-                    if ($hasActiveLease) {
-                        $fail('Ce locataire a déjà un bail actif.');
-                    }
+                    // SUPPRESSION DE LA VÉRIFICATION DU BAIL ACTIF
+                    // Un locataire peut avoir plusieurs baux actifs (louer plusieurs biens)
+                    // On ne bloque donc plus la création si le locataire a déjà un bail actif
                 }
             ],
             'lease_type'         => 'required|in:nu,meuble',
@@ -142,24 +150,21 @@ class CoOwnerAssignPropertyController extends Controller
             'payment_frequency'  => 'required|in:monthly,quarterly,annually',
             'payment_mode'       => 'nullable|string|max:100',
             'special_conditions' => 'nullable|string|max:5000',
-            'tacit_renewal'      => 'nullable|boolean',  // NOUVEAU CHAMP
+            'tacit_renewal'      => 'nullable|boolean',
         ]);
 
         try {
             DB::beginTransaction();
 
             $property = Property::find($validated['property_id']);
-            if ($property->status === 'rented') {
-                throw new \Exception('Ce bien est déjà loué. Veuillez rafraîchir la page.');
-            }
+
+            // Le bien peut être déjà en statut "rented", on continue
+            // Le statut sera mis à jour lors de la signature du bail
 
             $leaseNumber = 'BAIL-' . date('Y') . '-' . str_pad(Lease::count() + 1, 4, '0', STR_PAD_LEFT);
             $endDate = $validated['end_date'] ?? null;
-
-            // Récupérer la valeur de tacit_renewal (true par défaut si coché)
             $tacitRenewal = isset($validated['tacit_renewal']) ? (bool)$validated['tacit_renewal'] : true;
 
-            // Statut forcé à pending_signature (inchangé par rapport à l'original)
             $lease = Lease::create([
                 'uuid'               => Str::uuid(),
                 'property_id'        => $validated['property_id'],
@@ -168,7 +173,7 @@ class CoOwnerAssignPropertyController extends Controller
                 'type'               => $validated['lease_type'],
                 'start_date'         => $validated['start_date'],
                 'end_date'           => $endDate,
-                'tacit_renewal'      => $tacitRenewal,  // NOUVEAU CHAMP
+                'tacit_renewal'      => $tacitRenewal,
                 'rent_amount'        => $validated['rent_amount'],
                 'charges_amount'     => $validated['charges_amount'] ?? 0,
                 'guarantee_amount'   => $validated['guarantee_amount'] ?? 0,
@@ -176,7 +181,7 @@ class CoOwnerAssignPropertyController extends Controller
                 'billing_day'        => $validated['billing_day'],
                 'payment_frequency'  => $validated['payment_frequency'],
                 'penalty_rate'       => 0,
-                'status'             => 'pending_signature',  // INCHANGÉ
+                'status'             => 'pending_signature',
                 'landlord_signature' => null,
                 'tenant_signature'   => null,
                 'signed_at'          => null,
@@ -189,20 +194,33 @@ class CoOwnerAssignPropertyController extends Controller
 
             $tenant = Tenant::find($validated['tenant_id']);
 
-            PropertyUser::create([
-                'property_id'      => $validated['property_id'],
-                'user_id'          => $tenant->user_id,
-                'tenant_id'        => $validated['tenant_id'],
-                'lease_id'         => $lease->id,
-                'role'             => 'tenant',
-                'share_percentage' => 100,
-                'start_date'       => $validated['start_date'],
-                'end_date'         => $endDate,
-                'status'           => 'pending',  // INCHANGÉ
-            ]);
+            // Vérifier si le lien PropertyUser existe déjà
+            $existingPropertyUser = PropertyUser::where('property_id', $validated['property_id'])
+                ->where('tenant_id', $validated['tenant_id'])
+                ->first();
 
-            // Le bien reste disponible jusqu'à la signature complète (inchangé)
-            // Donc on ne met pas à jour le statut du bien ici
+            if ($existingPropertyUser) {
+                // Mettre à jour le lien existant
+                $existingPropertyUser->update([
+                    'lease_id'         => $lease->id,
+                    'start_date'       => $validated['start_date'],
+                    'end_date'         => $endDate,
+                    'status'           => 'pending',
+                ]);
+            } else {
+                // Créer un nouveau lien
+                PropertyUser::create([
+                    'property_id'      => $validated['property_id'],
+                    'user_id'          => $tenant->user_id,
+                    'tenant_id'        => $validated['tenant_id'],
+                    'lease_id'         => $lease->id,
+                    'role'             => 'tenant',
+                    'share_percentage' => 100,
+                    'start_date'       => $validated['start_date'],
+                    'end_date'         => $endDate,
+                    'status'           => 'pending',
+                ]);
+            }
 
             DB::commit();
 

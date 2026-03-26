@@ -624,7 +624,7 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                   </div>
 
                   <div style={{ marginBottom: 14 }}>
-                    <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Loyer charges locatives (FCFA)</label>
+                    <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Charges locatives (FCFA)</label>
                     <input
                       type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       name="charges_amount"

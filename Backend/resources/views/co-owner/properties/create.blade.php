@@ -544,7 +544,7 @@
 
                     <div class="ab-fields one" style="margin-bottom: 18px;">
                         <div class="ab-field">
-                            <label class="ab-label">Loyer charges locatives (FCFA)</label>
+                            <label class="ab-label">Charges locatives (FCFA)</label>
                             <input type="number" name="charges_amount" value="{{ old('charges_amount') }}" class="ab-input-warm" min="0" step="0.01">
                             <span class="ab-help">Charges mensuelles (eau, électricité, entretien...)</span>
                         </div>

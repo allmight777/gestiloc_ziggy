@@ -388,6 +388,10 @@ Route::post('condition-reports/{uuid}/sign', [\App\Http\Controllers\Api\Tenant\D
         // Dashboard bailleur
         Route::get('dashboard', [LandlordDashboardController::class, 'stats']);
 
+
+    // ✅ Signature électronique avec canvas - avec préfixe landlord
+    Route::post('/landlord/leases/{uuid}/sign-electronic', [App\Http\Controllers\Api\Landlord\LeaseController::class, 'signContractElectronic']);
+
         // Tenants
         Route::post('tenants/invite', [TenantController::class, 'invite']);
         Route::get('tenants', [TenantController::class, 'index']);

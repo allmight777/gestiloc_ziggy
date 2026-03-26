@@ -104,7 +104,8 @@ Route::middleware([\App\Http\Middleware\AuthenticateWithToken::class])->group(fu
     | ROUTES COPROPRIÉTAIRE - PROTÉGÉES
     |--------------------------------------------------------------------------
     */
-
+Route::post('/coproprietaire/leases/{uuid}/sign-electronic', [CoOwnerLeaseController::class, 'signContractElectronic'])
+    ->name('co-owner.leases.sign-electronic');
     /*
 |--------------------------------------------------------------------------
 | ROUTES MÉTHODES DE PAIEMENT (COMMUNES)
