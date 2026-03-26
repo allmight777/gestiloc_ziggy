@@ -482,16 +482,20 @@ Route::post('/rent-receipts/{id}/send-email', [RentReceiptController::class, 'se
         Route::post('notifications/read-all', [LandlordNotificationController::class, 'markAllAsRead']);
 
         // ✅ Paramètres du landlord
-        Route::get('settings', [SettingsController::class, 'index']);
-        Route::put('settings/profile', [SettingsController::class, 'updateProfile']);
-        Route::put('settings/password', [SettingsController::class, 'updatePassword']);
-        Route::put('settings/preferences', [SettingsController::class, 'updatePreferences']);
-        Route::put('settings/notifications', [SettingsController::class, 'updateNotifications']);
-        Route::put('settings/privacy', [SettingsController::class, 'updatePrivacy']);
-        Route::post('settings/2fa/enable', [SettingsController::class, 'enableTwoFactor']);
-        Route::post('settings/2fa/disable', [SettingsController::class, 'disableTwoFactor']);
-        Route::get('settings/download-data', [SettingsController::class, 'downloadData']);
-        Route::delete('settings/account', [SettingsController::class, 'deleteAccount']);
+  // ✅ PARAMÈTRES DU LANDLORD - SANS PRÉFIXE SUPPLÉMENTAIRE
+    Route::get('settings', [SettingsController::class, 'index']);
+    Route::put('settings/notifications', [SettingsController::class, 'updateNotifications']);
+    Route::put('settings/preferences', [SettingsController::class, 'updatePreferences']);
+    Route::put('settings/password', [SettingsController::class, 'updatePassword']);
+    Route::post('settings/2fa/enable', [SettingsController::class, 'enableTwoFactor']);
+    Route::post('settings/2fa/disable', [SettingsController::class, 'disableTwoFactor']);
+    Route::post('settings/payment-method/add', [SettingsController::class, 'addPaymentMethod']);
+    Route::delete('settings/payment-method/{id}', [SettingsController::class, 'deletePaymentMethod']);
+    Route::put('settings/payment-method/{id}/set-default', [SettingsController::class, 'setDefaultPaymentMethod']);
+    Route::put('settings/advanced', [SettingsController::class, 'updateAdvanced']);
+    Route::get('settings/export-data', [SettingsController::class, 'exportData']);
+    Route::post('settings/deactivate', [SettingsController::class, 'deactivateAccount']);
+    Route::delete('settings/account', [SettingsController::class, 'deleteAccount']);
 
         // Routes préfixées landlord
         Route::prefix('landlord')->group(function () {

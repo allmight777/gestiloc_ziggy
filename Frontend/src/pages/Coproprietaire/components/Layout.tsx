@@ -157,7 +157,7 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
         label: 'Configuration',
         icon: "ConfigCat",
         children: [
-          { id: "settings", label: "Paramètres",  icon: "Settings", path: "/coproprietaire/parametres", isReact: true },
+          { id: "settings", label: "Paramètres",  icon: "Settings", path: "/coproprietaire/settings", isLaravel: true },
           { id: "logout",   label: "Déconnexion", icon: "LogOut",   isLogout: true },
         ]
       },

@@ -1032,7 +1032,7 @@
                         </span>
                     </button>
                     <div class="submenu" id="config-sub">
-                        <button class="submenu-item" data-path="/coproprietaire/parametres" data-react="true" onclick="goToReact('/coproprietaire/parametres')">
+                        <button class="submenu-item" data-path="/coproprietaire/parametres" data-react="true" onclick="navigateTo('/coproprietaire/settings')">
                             <span class="sub-icon">
                                 <img src="/Ressource_gestiloc/parametres.png" alt="Paramètres"
                                      onerror="this.src='/Ressource_gestiloc/customer.png'">

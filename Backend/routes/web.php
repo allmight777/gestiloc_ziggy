@@ -99,6 +99,23 @@ Route::get('/redirect/{path?}', [ReactRedirectController::class, 'redirect'])
 Route::middleware([\App\Http\Middleware\AuthenticateWithToken::class])->group(function () {
 
 
+// Routes paramètres
+// Routes paramètres co-propriétaire
+Route::prefix('coproprietaire/settings')->name('co-owner.settings.')->group(function () {
+    Route::get('/', [App\Http\Controllers\CoOwner\CoOwnerSettingController::class, 'index'])->name('index');
+    Route::put('/notifications', [App\Http\Controllers\CoOwner\CoOwnerSettingController::class, 'updateNotifications'])->name('notifications.update');
+    Route::put('/appearance', [App\Http\Controllers\CoOwner\CoOwnerSettingController::class, 'updateAppearance'])->name('appearance.update');
+    Route::put('/password', [App\Http\Controllers\CoOwner\CoOwnerSettingController::class, 'updatePassword'])->name('password.update');
+    Route::post('/2fa/enable', [App\Http\Controllers\CoOwner\CoOwnerSettingController::class, 'enableTwoFactor'])->name('2fa.enable');
+    Route::post('/2fa/disable', [App\Http\Controllers\CoOwner\CoOwnerSettingController::class, 'disableTwoFactor'])->name('2fa.disable');
+    Route::post('/payment-method/add', [App\Http\Controllers\CoOwner\CoOwnerSettingController::class, 'addPaymentMethod'])->name('payment-method.add');
+    Route::delete('/payment-method/{id}', [App\Http\Controllers\CoOwner\CoOwnerSettingController::class, 'deletePaymentMethod'])->name('payment-method.delete');
+    Route::put('/payment-method/{id}/set-default', [App\Http\Controllers\CoOwner\CoOwnerSettingController::class, 'setDefaultPaymentMethod'])->name('payment-method.set-default');
+    Route::put('/advanced', [App\Http\Controllers\CoOwner\CoOwnerSettingController::class, 'updateAdvanced'])->name('advanced.update');
+    Route::get('/export-data', [App\Http\Controllers\CoOwner\CoOwnerSettingController::class, 'exportData'])->name('export-data');
+    Route::post('/deactivate', [App\Http\Controllers\CoOwner\CoOwnerSettingController::class, 'deactivateAccount'])->name('deactivate');
+    Route::delete('/delete', [App\Http\Controllers\CoOwner\CoOwnerSettingController::class, 'deleteAccount'])->name('delete');
+});
     /*
     |--------------------------------------------------------------------------
     | ROUTES COPROPRIÉTAIRE - PROTÉGÉES
