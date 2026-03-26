@@ -9,10 +9,11 @@ return new class extends Migration
 {
   public function up(): void
 {
-    DB::statement("ALTER TABLE property_modification_audits
-                  MODIFY COLUMN status
-                  ENUM('modified', 'pending_approval', 'approved', 'rejected')
-                  NOT NULL DEFAULT 'modified'");
+    Schema::table('property_modification_audits', function (Blueprint $table) {
+        $table->enum('status', ['modified', 'pending_approval', 'approved', 'rejected'])
+              ->default('modified')
+              ->change();
+    });
 
     // Ajouter la colonne seulement si elle n'existe pas
     if (!Schema::hasColumn('property_modification_audits', 'notification_sent_at')) {

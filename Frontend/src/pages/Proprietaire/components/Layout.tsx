@@ -233,24 +233,24 @@ const NavItem: React.FC<{
         onMouseLeave={() => setHovered(false)}
         className="w-full relative flex items-center gap-3 px-6 py-3 transition-all duration-300 group"
         style={{
-          background: (isActive || isChildActive) ? 'linear-gradient(90deg, rgba(255, 213, 124, 0.87) 0%, #FFFFFF 100%)' : 'transparent',
+          background: isActive ? 'linear-gradient(90deg, rgba(255, 213, 124, 0.87) 0%, #FFFFFF 100%)' : 'transparent',
           border: 'none',
           cursor: 'pointer',
           borderRadius: '12px',
           marginBottom: '2px',
         }}
       >
-        {(isActive || isChildActive) && (
+        {isActive && (
           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[5px] h-[30px] bg-[#FFB300] rounded-r-full shadow-[0px_0px_10px_rgba(255,179,0,0.4)]" />
         )}
 
-        <div className={`transition-all duration-300 ${(isActive || isChildActive || hovered) ? 'scale-110' : 'scale-100 opacity-60'}`}>
-          {Ico ? <Ico c={item.isLogout ? (hovered ? "#e53935" : "#aaa") : (isActive || isChildActive) ? TEXT_GREEN : "#888"} /> : null}
+        <div className={`transition-all duration-300 ${(isActive || hovered) ? 'scale-110' : 'scale-100 opacity-60'}`}>
+          {Ico ? <Ico c={item.isLogout ? (hovered ? "#e53935" : "#aaa") : (isActive) ? TEXT_GREEN : "#888"} /> : null}
         </div>
 
         <span
           className="text-[0.9rem] font-bold whitespace-nowrap transition-colors duration-300 text-gray-500"
-          style={{ color: ((isActive || isChildActive || hovered) && !item.isLogout) ? TEXT_GREEN : undefined, fontFamily: "'Manrope', sans-serif" }}
+          style={{ color: ((isActive || hovered) && !item.isLogout) ? TEXT_GREEN : undefined, fontFamily: "'Manrope', sans-serif" }}
         >
           {item.label}
         </span>

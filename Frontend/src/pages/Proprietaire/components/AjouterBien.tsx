@@ -580,13 +580,22 @@ export const AjouterBien = ({
           .ab-actions-top { justify-content: flex-end; }
           .ab-fields { grid-template-columns: 1fr; }
         }
+
+        /* Hide number input spinners */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
       `}</style>
 
       <div className="ab-page">
         {/* ── Top bar ── */}
         <div className="ab-topbar">
           <button className="ab-btn-back" onClick={() => navigate("/proprietaire/dashboard")}>
-            <ArrowLeft size={15} />
             Retour au tableau de bord
           </button>
           <div className="ab-actions-top">

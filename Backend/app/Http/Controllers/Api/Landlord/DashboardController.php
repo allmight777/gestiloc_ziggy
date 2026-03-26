@@ -101,12 +101,17 @@ class DashboardController extends Controller
     // Helper pour générer des données de graphique sur 6 mois
     private function getRevenueTrend($landlordId)
     {
+        $driver = DB::connection()->getDriverName();
+        $monthExpr = $driver === 'sqlite'
+            ? "strftime('%Y-%m', due_date) as month"
+            : "DATE_FORMAT(due_date, '%Y-%m') as month";
+
         return Invoice::whereHas('lease.property', function ($q) use ($landlordId) {
             $q->where('landlord_id', $landlordId);
         })
             ->where('due_date', '>=', Carbon::now()->subMonths(6))
             ->select(
-                DB::raw("DATE_FORMAT(due_date, '%Y-%m') as month"),
+                DB::raw($monthExpr),
                 DB::raw('SUM(amount_paid) as total_paid'),
                 DB::raw('SUM(amount_total) as total_expected')
             )

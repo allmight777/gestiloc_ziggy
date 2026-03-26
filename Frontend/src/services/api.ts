@@ -1731,6 +1731,7 @@ export const landlordService = {
     phone?: string;
     address?: string;
     company_name?: string;
+    birth_date?: string;
   }) => {
     try {
       // Enlever '/landlord' du chemin

@@ -55,46 +55,26 @@ if (typeof document !== "undefined") {
 export function Footer() {
   return (
     <footer className="relative bg-white pt-24 md:pt-32 pb-12 overflow-hidden">
-      {/* Fond vert en forme de maison */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 top-12 md:top-16">
-        {/* Toit de la maison */}
-        <div
-          className="absolute inset-x-0 top-0 w-full h-0"
-          style={{
-            zIndex: 0,
-            borderLeft: "50vw solid transparent",
-            borderRight: "50vw solid transparent",
-            borderBottom: "200px solid #D4E4CC",
-          }}
-        />
+      {/* Fond vert en forme de maison — SVG optimisé pour proportions constantes */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 top-0 z-0 overflow-hidden">
+        <svg
+          viewBox="0 0 1000 500"
+          preserveAspectRatio="none"
+          className="w-full h-full"
+          fill="#D4E4CC"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          {/* Silhouette de la maison avec cheminée intégrée pour qu'elle ne "vole" plus */}
+          <path 
+            d="M0 500 V220 Q0 160 80 145 L500 0 L750 105 V40 Q750 35 755 35 H805 Q810 35 810 40 V120 L940 165 Q1000 180 1000 230 V500 Z" 
+          />
+        </svg>
 
-        {/* Corps de la maison - FIX Zoom : chevauchement de 4px pour éviter le trait blanc */}
+        {/* Fumées — repositionnées sur la nouvelle cheminée */}
         <div
-          className="absolute inset-x-0 bottom-0 bg-[#D4E4CC]"
+          className="absolute right-[19%] md:right-[21%]"
           style={{
-            zIndex: 0,
-            backgroundColor: "#D4E4CC",
-            top: "196px",
-          }}
-        />
-
-        {/* Cheminée */}
-        <div
-          className="absolute right-[15%] md:right-[20%] w-8 h-20 md:w-10 md:h-24 bg-[#D4E4CC]"
-          style={{
-            top: "80px",
-            clipPath: "polygon(0 0, 100% 0, 80% 100%, 20% 100%)",
-            transform: "rotate(5deg)",
-            zIndex: 1,
-            boxShadow: "0 0 8px rgba(0,0,0,0.1)",
-          }}
-        />
-
-        {/* Fumées */}
-        <div
-          className="absolute right-[15%] md:right-[20%]"
-          style={{
-            top: "60px",
+            top: "15px",
             width: "32px",
             height: "150px",
             zIndex: 50,
@@ -121,7 +101,7 @@ export function Footer() {
         </div>
 
         {/* CTA Section */}
-        <section className="max-w-3xl mx-auto px-4 text-center mt-20 md:mt-20">
+        <section className="max-w-3xl mx-auto px-4 text-center mt-12 md:mt-16">
           <div className="mb-8">
             <img
               src="/Ressource_gestiloc/footer_buildings.png"
@@ -138,17 +118,35 @@ export function Footer() {
             Gérer vos biens en location n'a jamais été aussi facile !
           </h2>
 
-
-
-
           <div className="px-2">
             <Button
               asChild
               size="lg"
-              className="w-full sm:w-auto bg-[#A8E063] hover:bg-[#92C753] text-gray-900 font-bold"
+              className="w-full sm:w-auto bg-[#1A1A1A] hover:bg-black text-white font-bold px-8 py-6 text-lg rounded-md transition-all shadow-md group"
             >
-              <Link to="/register">Ouvrir un compte gratuit</Link>
+              <Link to="/register" className="flex items-center justify-center gap-2">
+                Ouvrir un compte gratuit
+                <span className="text-xl group-hover:translate-x-1 transition-transform">»</span>
+              </Link>
             </Button>
+          </div>
+
+          {/* Checklist de réassurance — Badges plus prononcés (fond blanc opaque) */}
+          <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 mt-10 text-sm text-gray-800 font-bold">
+            <div className="flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow-sm">
+              <Check className="h-4 w-4 text-[#529D21]" strokeWidth={4} />
+              <span>Commencer gratuitement</span>
+            </div>
+            
+            <div className="flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow-sm">
+              <Check className="h-4 w-4 text-[#529D21]" strokeWidth={4} />
+              <span>Pas d'engagement</span>
+            </div>
+
+            <div className="flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow-sm">
+              <Check className="h-4 w-4 text-[#529D21]" strokeWidth={4} />
+              <span>Démarré en 3 minutes</span>
+            </div>
           </div>
         </section>
 
@@ -189,7 +187,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-gray-700">
               <li><Link to="/about" className="hover:text-gray-900">Qui sommes nous ?</Link></li>
               <li><Link to="/contact" className="hover:text-gray-900">Nous contacter</Link></li>
-              <li><Link to="/privacy" className="hover:text-gray-900">Confidentialités et cookies</Link></li>
+              <li><Link to="/legal/privacy" className="hover:text-gray-900">Confidentialités et cookies</Link></li>
             </ul>
           </div>
 
@@ -198,7 +196,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-gray-700">
               <li><Link to="/help" className="hover:text-gray-900">Centre d'aide</Link></li>
               <li><Link to="/faq" className="hover:text-gray-900">FAQ</Link></li>
-              <li><Link to="/terms" className="hover:text-gray-900">Conditions d'utilisation</Link></li>
+              <li><Link to="/legal/terms" className="hover:text-gray-900">Conditions d'utilisation</Link></li>
             </ul>
           </div>
 

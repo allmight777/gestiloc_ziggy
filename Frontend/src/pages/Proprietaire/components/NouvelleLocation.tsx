@@ -58,6 +58,7 @@ const NouvelleLocation = () => {
   const [jourPaiement, setJourPaiement] = useState("5");
   const [periodicite, setPeriodicite] = useState("monthly");
   const [modePaiement, setModePaiement] = useState("Espèce");
+  const [autoRenew, setAutoRenew] = useState(true);
   const [details, setDetails] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -776,6 +777,22 @@ const NouvelleLocation = () => {
                 <option>Chèque</option>
                 <option>Mobile Money</option>
               </select>
+            </div>
+
+            {/* Reconduction automatique */}
+            <div style={{...styles.fieldGroup, ...styles.fullWidth, marginTop: "28px"}}>
+              <label style={styles.radioLabel}>
+                <input
+                  type="checkbox"
+                  checked={autoRenew}
+                  onChange={e => setAutoRenew(e.target.checked)}
+                  style={{ width: '18px', height: '18px', accentColor: "#16a34a" }}
+                />
+                <span style={{ fontSize: '14px', fontWeight: 700 }}>Reconduire le bail automatiquement</span>
+              </label>
+              <div style={{...styles.helpText, marginLeft: '26px'}}>
+                À la fin du bail, celui-ci sera reconduit pour la même durée sans intervention manuelle.
+              </div>
             </div>
 
             {/* Conditions particulières */}

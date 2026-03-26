@@ -31,105 +31,106 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [formData, setFormData] = useState<any>({});
     const [activeTab, setActiveTab] = useState<'personal' | 'professional' | 'account'>('personal');
+    const [formData, setFormData] = useState<any>({});
 
-    // Charger les données
+    const [prenom, setPrenom] = useState('');
+    const [nom, setNom] = useState('');
+    const [email, setEmail] = useState('');
+    const [tel, setTel] = useState('');
+    const [adresse, setAdresse] = useState('');
+    const [companyName, setCompanyName] = useState('');
+    const [birthDate, setBirthDate] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Récupérer les données du localStorage au chargement
     useEffect(() => {
-        fetchProfile();
+        const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
+        setPrenom(savedUser.first_name || '');
+        setNom(savedUser.last_name || '');
+        setEmail(savedUser.email || '');
+        setTel(savedUser.phone || '');
+        setAdresse(savedUser.address || '');
+        setCompanyName(savedUser.company_name || '');
+        setBirthDate(savedUser.birth_date || '');
+        setIsLoading(false);
     }, []);
 
-    const fetchProfile = async () => {
-        try {
-            setLoading(true);
-            console.log('📁 Chargement du profil propriétaire...');
-            
-            const data = await landlordService.getSettings();
-            console.log('Données reçues:', data);
-            
-            setProfile(data);
-            setFormData({
-                first_name: data.user?.first_name || '',
-                last_name: data.user?.last_name || '',
-                email: data.user?.email || '',
-                phone: data.user?.phone || '',
-                address: data.user?.address || '',
-                company_name: data.user?.company_name || '',
-                date_of_birth: data.user?.date_of_birth || '',
-                id_number: data.user?.id_number || '',
-                license_number: data.user?.license_number || '',
-                ifu: data.user?.ifu || '',
-                rccm: data.user?.rccm || '',
-                vat_number: data.user?.vat_number || '',
-                address_billing: data.user?.address_billing || '',
-            });
-            
-            // Mettre à jour le localStorage
-            const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
-            const updatedUser = { 
-                ...savedUser, 
-                first_name: data.user?.first_name,
-                last_name: data.user?.last_name,
-                phone: data.user?.phone,
-                address: data.user?.address
-            };
-            localStorage.setItem('user', JSON.stringify(updatedUser));
-        } catch (err) {
-            console.error('❌ Erreur lors du chargement du profil:', err);
-            notify('Erreur lors du chargement du profil', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
+    // Charger les dernières données depuis l'API au montage
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                setIsLoading(true);
+                const data = await landlordService.getSettings();
+                console.log('Données reçues:', data);
+                
+                if (data.user) {
+                    const u = data.user;
+                    setPrenom(u.first_name || '');
+                    setNom(u.last_name || '');
+                    setEmail(u.email || '');
+                    setTel(u.phone || '');
+                    setAdresse(u.address || '');
+                    setCompanyName(u.company_name || '');
+                    setBirthDate(u.birth_date || '');
+                    
+                    // Mettre à jour le localStorage
+                    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+                    const updatedUser = { ...currentUser, ...u };
+                    localStorage.setItem('user', JSON.stringify(updatedUser));
+                    setProfile(data);
+                }
+            } catch (err) {
+                console.error('Erreur lors du chargement des paramètres:', err);
+                // On garde les données du localStorage
+                const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
+                setProfile({ user: savedUser });
+            } finally {
+                setIsLoading(false);
+                setLoading(false);
+            }
+        };
+        fetchSettings();
+    }, []);
 
     const handleSave = async () => {
+        setSaving(true);
         try {
-            setSaving(true);
-            console.log('💾 Sauvegarde du profil...');
+            const response = await landlordService.updateProfile({
+                first_name: prenom,
+                last_name: nom,
+                phone: tel,
+                address: adresse,
+                company_name: companyName,
+                birth_date: birthDate
+            });
             
-            // ✅ CORRECTION : Envoyer null au lieu de chaîne vide
-            const profileData: any = {};
+            // Mettre à jour le localStorage avec TOUTES les informations
+            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+            const updatedUser = { 
+                ...currentUser, 
+                first_name: prenom, 
+                last_name: nom, 
+                phone: tel,
+                address: adresse,
+                company_name: companyName,
+                birth_date: birthDate
+            };
+            localStorage.setItem('user', JSON.stringify(updatedUser));
             
-            if (formData.first_name !== profile?.user?.first_name) {
-                profileData.first_name = formData.first_name;
-            }
-            if (formData.last_name !== profile?.user?.last_name) {
-                profileData.last_name = formData.last_name;
-            }
-            if (formData.phone !== profile?.user?.phone) {
-                profileData.phone = formData.phone;
-            }
-            if (formData.address !== profile?.user?.address) {
-                // Si l'adresse est vide, envoyer null
-                profileData.address = formData.address === '' ? null : formData.address;
-            }
-            if (formData.company_name !== profile?.user?.company_name) {
-                // Si le nom de l'entreprise est vide, envoyer null
-                profileData.company_name = formData.company_name === '' ? null : formData.company_name;
-            }
-            
-            console.log('Données envoyées:', profileData);
-            
-            const response = await landlordService.updateProfile(profileData);
-            
-            console.log('✅ Profil sauvegardé:', response);
-            
-            // Mettre à jour le profil local
-            setProfile((prev: any) => ({
+            // Mettre à jour le profile state
+            setProfile(prev => ({
                 ...prev,
                 user: {
                     ...prev?.user,
-                    ...profileData
+                    first_name: prenom,
+                    last_name: nom,
+                    phone: tel,
+                    address: adresse,
+                    company_name: companyName,
+                    birth_date: birthDate
                 }
             }));
-            
-            // Mettre à jour le localStorage
-            const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
-            const updatedUser = { 
-                ...savedUser, 
-                ...profileData
-            };
-            localStorage.setItem('user', JSON.stringify(updatedUser));
             
             setIsEditing(false);
             notify('Profil mis à jour avec succès', 'success');
@@ -159,22 +160,15 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
     };
 
     const handleCancel = () => {
-        // Réinitialiser avec les données du profil
-        setFormData({
-            first_name: profile?.user?.first_name || '',
-            last_name: profile?.user?.last_name || '',
-            email: profile?.user?.email || '',
-            phone: profile?.user?.phone || '',
-            address: profile?.user?.address || '',
-            company_name: profile?.user?.company_name || '',
-            date_of_birth: profile?.user?.date_of_birth || '',
-            id_number: profile?.user?.id_number || '',
-            license_number: profile?.user?.license_number || '',
-            ifu: profile?.user?.ifu || '',
-            rccm: profile?.user?.rccm || '',
-            vat_number: profile?.user?.vat_number || '',
-            address_billing: profile?.user?.address_billing || '',
-        });
+        // Recharger les données depuis le localStorage
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        setPrenom(user.first_name || '');
+        setNom(user.last_name || '');
+        setEmail(user.email || '');
+        setTel(user.phone || '');
+        setAdresse(user.address || '');
+        setCompanyName(user.company_name || '');
+        setBirthDate(user.birth_date || '');
         setIsEditing(false);
         notify('Modifications annulées', 'info');
     };
@@ -204,7 +198,7 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
     const isAgency = profile?.user?.co_owner_type === 'agency';
     const isSimpleUser = !isProfessional && !isAgency;
 
-    if (loading) {
+    if (loading || isLoading) {
         return (
             <div className="space-y-6 animate-fade-in p-6 max-w-7xl mx-auto">
                 <div className="flex items-center justify-between">
@@ -243,62 +237,399 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
                 <p className="text-gray-600 animate-slide-up delay-75">
                     Impossible de charger les informations du profil.
                 </p>
-                <button 
-                    onClick={fetchProfile} 
-                    className="mt-6 px-6 py-3 bg-gradient-to-r from-[#70AE48] to-[#8BC34A] hover:from-[#5d8f3a] hover:to-[#70AE48] text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 font-medium"
-                >
-                    Réessayer
-                </button>
             </div>
         );
     }
 
     return (
-        <div className="space-y-8 animate-fade-in p-6 max-w-7xl mx-auto">
-            {/* Header avec boutons d'action */}
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                        Mon compte
-                    </h1>
-                    <p className="text-gray-500 text-sm mt-1">
-                        Gérez vos informations personnelles et professionnelles
-                    </p>
-                </div>
-                <div className="flex gap-3">
-                    {!isEditing ? (
-                        <button
-                            onClick={() => setIsEditing(true)}
-                            className="flex items-center gap-2 px-6 py-3 bg-[#70AE48] hover:bg-[#5d8f3a] text-white rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 font-medium"
-                        >
-                            <Edit2 className="w-4 h-4" />
-                            Modifier le profil
-                        </button>
-                    ) : (
-                        <div className="flex gap-3 animate-slide-up">
-                            <button
-                                onClick={handleCancel}
-                                disabled={saving}
-                                className="flex items-center gap-2 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-xl border border-gray-300 shadow-sm hover:shadow-md transition-all duration-200 font-medium"
-                            >
-                                <X className="w-4 h-4" />
-                                Annuler
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                disabled={saving}
-                                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#70AE48] to-[#8BC34A] hover:from-[#5d8f3a] hover:to-[#70AE48] text-white rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 font-medium"
-                            >
-                                <Save className="w-4 h-4" />
-                                {saving ? 'Enregistrement...' : 'Enregistrer'}
-                            </button>
+        <div className="max-w-7xl mx-auto p-4 sm:p-6">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Manrope:wght@400;500;600;700;800&display=swap');
+                
+                @keyframes spin { 
+                    to { transform: rotate(360deg); } 
+                }
+                
+                .mc-page { 
+                    padding: 1.5rem 1rem 3rem; 
+                    font-family: 'Manrope', sans-serif; 
+                    color: #1a1a1a; 
+                    width: 100%; 
+                    box-sizing: border-box; 
+                }
+                
+                .mc-card { 
+                    background: #fff; 
+                    border: 1.5px solid #e5e7eb; 
+                    border-radius: 14px; 
+                    padding: 1.5rem 2rem; 
+                }
+                
+                .mc-title { 
+                    font-family: 'Merriweather', serif; 
+                    font-size: 1.5rem; 
+                    font-weight: 800; 
+                    margin: 0 0 4px 0; 
+                    color: #1a1a1a;
+                }
+                
+                .mc-subtitle { 
+                    font-size: 0.9rem; 
+                    color: #6b7280; 
+                    margin: 0 0 24px 0; 
+                }
+                
+                .mc-photo-row { 
+                    display: flex; 
+                    align-items: center; 
+                    gap: 20px; 
+                    padding-bottom: 24px; 
+                    border-bottom: 1px solid #f3f4f6; 
+                    margin-bottom: 20px; 
+                }
+                
+                .mc-avatar { 
+                    width: 70px; 
+                    height: 70px; 
+                    border-radius: 50%; 
+                    background: #70AE48; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    color: #fff; 
+                    font-size: 1.8rem; 
+                    font-weight: 800; 
+                    flex-shrink: 0; 
+                }
+                
+                .mc-photo-info { 
+                    flex: 1; 
+                }
+                
+                .mc-photo-label { 
+                    font-size: 1rem; 
+                    font-weight: 700; 
+                    margin: 0 0 2px 0; 
+                }
+                
+                .mc-photo-desc { 
+                    font-size: 0.85rem; 
+                    color: #9ca3af; 
+                    margin: 0; 
+                }
+                
+                .mc-photo-btns { 
+                    display: flex; 
+                    gap: 10px; 
+                }
+                
+                .mc-btn-outline { 
+                    background: #fff; 
+                    border: 1.5px solid #d1d5db; 
+                    border-radius: 8px; 
+                    padding: 8px 20px; 
+                    font-family: 'Manrope', sans-serif; 
+                    font-size: 0.85rem; 
+                    font-weight: 600; 
+                    color: #374151; 
+                    cursor: pointer; 
+                    transition: all 0.2s;
+                }
+                
+                .mc-btn-outline:hover { 
+                    background: #f9fafb; 
+                    border-color: #9ca3af;
+                }
+                
+                .mc-btn-red { 
+                    background: #fef2f2; 
+                    border: 1.5px solid #fecaca; 
+                    border-radius: 8px; 
+                    padding: 8px 20px; 
+                    font-family: 'Manrope', sans-serif; 
+                    font-size: 0.85rem; 
+                    font-weight: 600; 
+                    color: #ef4444; 
+                    cursor: pointer; 
+                    transition: all 0.2s;
+                }
+                
+                .mc-btn-red:hover { 
+                    background: #fee2e2; 
+                    border-color: #f87171;
+                }
+                
+                .mc-field { 
+                    padding: 20px 0; 
+                    border-bottom: 1px solid #f3f4f6; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: space-between; 
+                }
+                
+                .mc-field:last-of-type { 
+                    border-bottom: none; 
+                }
+                
+                .mc-field-left { 
+                    flex: 1; 
+                }
+                
+                .mc-field-label { 
+                    font-size: 0.95rem; 
+                    font-weight: 700; 
+                    margin: 0 0 2px 0; 
+                }
+                
+                .mc-field-desc { 
+                    font-size: 0.8rem; 
+                    color: #9ca3af; 
+                    margin: 0; 
+                }
+                
+                .mc-input { 
+                    padding: 0.6rem 1rem; 
+                    border: 1.5px solid #d1d5db; 
+                    border-radius: 8px; 
+                    font-size: 0.9rem; 
+                    font-family: 'Manrope', sans-serif; 
+                    font-weight: 500; 
+                    color: #1a1a1a; 
+                    outline: none; 
+                    min-width: 300px; 
+                    background: #fff; 
+                    box-sizing: border-box; 
+                    transition: all 0.2s;
+                }
+                
+                .mc-input:focus { 
+                    border-color: #70AE48; 
+                    box-shadow: 0 0 0 3px rgba(112, 174, 72, 0.1);
+                }
+                
+                .mc-input:read-only { 
+                    background-color: #f9fafb; 
+                    cursor: not-allowed; 
+                }
+                
+                .mc-actions { 
+                    display: flex; 
+                    justify-content: flex-end; 
+                    gap: 12px; 
+                    margin-top: 24px; 
+                    padding-top: 20px; 
+                    border-top: 1px solid #f3f4f6; 
+                }
+                
+                .mc-btn-cancel { 
+                    background: #fff; 
+                    border: 1.5px solid #d1d5db; 
+                    border-radius: 8px; 
+                    padding: 10px 30px; 
+                    font-family: 'Manrope', sans-serif; 
+                    font-size: 0.9rem; 
+                    font-weight: 600; 
+                    color: #374151; 
+                    cursor: pointer; 
+                    transition: all 0.2s;
+                }
+                
+                .mc-btn-cancel:hover { 
+                    background: #f9fafb; 
+                }
+                
+                .mc-btn-save { 
+                    background: #70AE48; 
+                    border: none; 
+                    border-radius: 8px; 
+                    padding: 10px 30px; 
+                    font-family: 'Manrope', sans-serif; 
+                    font-size: 0.9rem; 
+                    font-weight: 600; 
+                    color: #fff; 
+                    cursor: pointer; 
+                    transition: all 0.2s;
+                }
+                
+                .mc-btn-save:hover { 
+                    background: #5a8f3a; 
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(112, 174, 72, 0.3);
+                }
+                
+                .mc-btn-save:disabled { 
+                    background: #e5e7eb; 
+                    color: #9ca3af; 
+                    cursor: not-allowed; 
+                    transform: none;
+                    box-shadow: none;
+                }
+                
+                @media (max-width: 768px) {
+                    .mc-photo-row { 
+                        flex-direction: column; 
+                        text-align: center; 
+                    }
+                    .mc-photo-btns { 
+                        justify-content: center; 
+                    }
+                    .mc-field { 
+                        flex-direction: column; 
+                        align-items: flex-start; 
+                        gap: 10px; 
+                    }
+                    .mc-input { 
+                        min-width: 100%; 
+                        width: 100%; 
+                    }
+                    .mc-actions { 
+                        flex-direction: column; 
+                    }
+                    .mc-btn-cancel, 
+                    .mc-btn-save { 
+                        width: 100%; 
+                        text-align: center; 
+                    }
+                    .mc-card { 
+                        padding: 1rem; 
+                    }
+                }
+                
+                @media (max-width: 480px) {
+                    .mc-page { 
+                        padding: 1rem 0.5rem 2rem; 
+                    }
+                }
+            `}</style>
+            
+            <div className="mc-page">
+                <div className="mc-card">
+                    <h2 className="mc-title">Mon compte</h2>
+                    <p className="mc-subtitle">Gérez vos informations personnelles et vos préférences</p>
+
+                    <div className="mc-photo-row">
+                        <div className="mc-avatar">
+                            {prenom ? prenom.charAt(0).toUpperCase() : (email ? email.charAt(0).toUpperCase() : 'U')}
                         </div>
-                    )}
+                        <div className="mc-photo-info">
+                            <p className="mc-photo-label">Photo de profil</p>
+                            <p className="mc-photo-desc">Format JPG, PNG ou GIF (max 2MB)</p>
+                        </div>
+                    </div>
+
+                    <div className="mc-field">
+                        <div className="mc-field-left">
+                            <p className="mc-field-label">Prénom</p>
+                            <p className="mc-field-desc">Votre prénom</p>
+                        </div>
+                        <input 
+                            className="mc-input" 
+                            value={prenom} 
+                            onChange={e => setPrenom(e.target.value)} 
+                            placeholder="Votre prénom"
+                        />
+                    </div>
+                    
+                    <div className="mc-field">
+                        <div className="mc-field-left">
+                            <p className="mc-field-label">Nom</p>
+                            <p className="mc-field-desc">Votre nom de famille</p>
+                        </div>
+                        <input 
+                            className="mc-input" 
+                            value={nom} 
+                            onChange={e => setNom(e.target.value)} 
+                            placeholder="Votre nom"
+                        />
+                    </div>
+                    
+                    <div className="mc-field">
+                        <div className="mc-field-left">
+                            <p className="mc-field-label">Adresse email</p>
+                            <p className="mc-field-desc">Utilisée pour la connexion et les notifications</p>
+                        </div>
+                        <input 
+                            className="mc-input" 
+                            type="email" 
+                            value={email} 
+                            readOnly 
+                        />
+                    </div>
+                    
+                    <div className="mc-field">
+                        <div className="mc-field-left">
+                            <p className="mc-field-label">Date de naissance</p>
+                            <p className="mc-field-desc">Pour attester de votre majorité</p>
+                        </div>
+                        <input 
+                            className="mc-input" 
+                            type="date" 
+                            value={birthDate} 
+                            onChange={e => setBirthDate(e.target.value)} 
+                        />
+                    </div>
+                    
+                    <div className="mc-field">
+                        <div className="mc-field-left">
+                            <p className="mc-field-label">Téléphone</p>
+                            <p className="mc-field-desc">Pour les notifications importantes</p>
+                        </div>
+                        <input 
+                            className="mc-input" 
+                            type="tel" 
+                            value={tel} 
+                            onChange={e => setTel(e.target.value)} 
+                            placeholder="Votre numéro de téléphone"
+                        />
+                    </div>
+                    
+                    <div className="mc-field">
+                        <div className="mc-field-left">
+                            <p className="mc-field-label">Adresse</p>
+                            <p className="mc-field-desc">Votre adresse principale</p>
+                        </div>
+                        <input 
+                            className="mc-input" 
+                            value={adresse} 
+                            onChange={e => setAdresse(e.target.value)} 
+                            placeholder="Votre adresse"
+                        />
+                    </div>
+                    
+                    <div className="mc-field">
+                        <div className="mc-field-left">
+                            <p className="mc-field-label">Nom de l'entreprise</p>
+                            <p className="mc-field-desc">Si vous gérez en tant que professionnel</p>
+                        </div>
+                        <input 
+                            className="mc-input" 
+                            value={companyName} 
+                            onChange={e => setCompanyName(e.target.value)} 
+                            placeholder="Nom de l'entreprise (optionnel)"
+                        />
+                    </div>
+
+                    <div className="mc-actions">
+                        <button 
+                            className="mc-btn-cancel" 
+                            onClick={handleCancel}
+                            disabled={saving}
+                        >
+                            Annuler
+                        </button>
+                        <button
+                            onClick={handleSave}
+                            disabled={saving}
+                            className="mc-btn-save"
+                        >
+                            {saving ? 'Enregistrement...' : 'Enregistrer'}
+                        </button>
+                    </div>
                 </div>
             </div>
 
             {/* Onglets de navigation */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 mt-6">
                 <div className="flex border-b border-gray-200">
                     <button
                         onClick={() => setActiveTab('personal')}
@@ -356,38 +687,18 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                                 Prénom
                                             </label>
-                                            {isEditing ? (
-                                                <input
-                                                    type="text"
-                                                    value={formData.first_name || ''}
-                                                    onChange={(e) => handleInputChange('first_name', e.target.value)}
-                                                    className="w-full px-4 py-2.5 bg-white text-gray-900 border border-green-300 rounded-xl focus:ring-2 focus:ring-[#70AE48] focus:border-[#70AE48] transition-all duration-200"
-                                                    placeholder="Votre prénom"
-                                                />
-                                            ) : (
-                                                <div className="p-3 bg-white border border-gray-200 rounded-xl">
-                                                    <p className="text-gray-900 font-medium">{profile.user?.first_name || '—'}</p>
-                                                </div>
-                                            )}
+                                            <div className="p-3 bg-white border border-gray-200 rounded-xl">
+                                                <p className="text-gray-900 font-medium">{prenom || '—'}</p>
+                                            </div>
                                         </div>
 
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                                 Nom
                                             </label>
-                                            {isEditing ? (
-                                                <input
-                                                    type="text"
-                                                    value={formData.last_name || ''}
-                                                    onChange={(e) => handleInputChange('last_name', e.target.value)}
-                                                    className="w-full px-4 py-2.5 bg-white text-gray-900 border border-green-300 rounded-xl focus:ring-2 focus:ring-[#70AE48] focus:border-[#70AE48] transition-all duration-200"
-                                                    placeholder="Votre nom"
-                                                />
-                                            ) : (
-                                                <div className="p-3 bg-white border border-gray-200 rounded-xl">
-                                                    <p className="text-gray-900 font-medium">{profile.user?.last_name || '—'}</p>
-                                                </div>
-                                            )}
+                                            <div className="p-3 bg-white border border-gray-200 rounded-xl">
+                                                <p className="text-gray-900 font-medium">{nom || '—'}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -401,19 +712,10 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Date de naissance
                                         </label>
-                                        {isEditing ? (
-                                            <input
-                                                type="date"
-                                                value={formData.date_of_birth || ''}
-                                                onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
-                                                className="w-full px-4 py-2.5 bg-white text-gray-900 border border-green-300 rounded-xl focus:ring-2 focus:ring-[#70AE48] focus:border-[#70AE48] transition-all duration-200"
-                                            />
-                                        ) : (
-                                            <div className="p-3 bg-white border border-gray-200 rounded-xl flex items-center gap-3">
-                                                <Calendar className="w-4 h-4 text-gray-400" />
-                                                <p className="text-gray-900">{formatDate(profile.user?.date_of_birth)}</p>
-                                            </div>
-                                        )}
+                                        <div className="p-3 bg-white border border-gray-200 rounded-xl flex items-center gap-3">
+                                            <Calendar className="w-4 h-4 text-gray-400" />
+                                            <p className="text-gray-900">{formatDate(birthDate)}</p>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -426,19 +728,9 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Numéro d'identité
                                         </label>
-                                        {isEditing ? (
-                                            <input
-                                                type="text"
-                                                value={formData.id_number || ''}
-                                                onChange={(e) => handleInputChange('id_number', e.target.value)}
-                                                className="w-full px-4 py-2.5 bg-white text-gray-900 border border-green-300 rounded-xl focus:ring-2 focus:ring-[#70AE48] focus:border-[#70AE48] transition-all duration-200"
-                                                placeholder="Numéro de carte d'identité"
-                                            />
-                                        ) : (
-                                            <div className="p-3 bg-white border border-gray-200 rounded-xl">
-                                                <p className="text-gray-900">{profile.user?.id_number || '—'}</p>
-                                            </div>
-                                        )}
+                                        <div className="p-3 bg-white border border-gray-200 rounded-xl">
+                                            <p className="text-gray-900">{profile.user?.id_number || '—'}</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -456,7 +748,7 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
                                             </label>
                                             <div className="p-3 bg-white border border-gray-200 rounded-xl flex items-center gap-3">
                                                 <Mail className="w-4 h-4 text-gray-400" />
-                                                <p className="text-gray-900 font-medium">{profile.user?.email || '—'}</p>
+                                                <p className="text-gray-900 font-medium">{email || '—'}</p>
                                             </div>
                                             <p className="text-xs text-gray-500 mt-1">L'email ne peut pas être modifié</p>
                                         </div>
@@ -465,40 +757,20 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                                 Téléphone
                                             </label>
-                                            {isEditing ? (
-                                                <input
-                                                    type="tel"
-                                                    value={formData.phone || ''}
-                                                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                                                    className="w-full px-4 py-2.5 bg-white text-gray-900 border border-green-300 rounded-xl focus:ring-2 focus:ring-[#70AE48] focus:border-[#70AE48] transition-all duration-200"
-                                                    placeholder="+229 XX XX XX XX"
-                                                />
-                                            ) : (
-                                                <div className="p-3 bg-white border border-gray-200 rounded-xl flex items-center gap-3">
-                                                    <Phone className="w-4 h-4 text-gray-400" />
-                                                    <p className="text-gray-900 font-medium">{profile.user?.phone || '—'}</p>
-                                                </div>
-                                            )}
+                                            <div className="p-3 bg-white border border-gray-200 rounded-xl flex items-center gap-3">
+                                                <Phone className="w-4 h-4 text-gray-400" />
+                                                <p className="text-gray-900 font-medium">{tel || '—'}</p>
+                                            </div>
                                         </div>
 
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                                 Adresse
                                             </label>
-                                            {isEditing ? (
-                                                <input
-                                                    type="text"
-                                                    value={formData.address || ''}
-                                                    onChange={(e) => handleInputChange('address', e.target.value)}
-                                                    className="w-full px-4 py-2.5 bg-white text-gray-900 border border-green-300 rounded-xl focus:ring-2 focus:ring-[#70AE48] focus:border-[#70AE48] transition-all duration-200"
-                                                    placeholder="Votre adresse complète"
-                                                />
-                                            ) : (
-                                                <div className="p-3 bg-white border border-gray-200 rounded-xl flex items-center gap-3">
-                                                    <MapPin className="w-4 h-4 text-gray-400" />
-                                                    <p className="text-gray-900">{profile.user?.address || '—'}</p>
-                                                </div>
-                                            )}
+                                            <div className="p-3 bg-white border border-gray-200 rounded-xl flex items-center gap-3">
+                                                <MapPin className="w-4 h-4 text-gray-400" />
+                                                <p className="text-gray-900">{adresse || '—'}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -530,7 +802,7 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
                                     )}
                                 </div>
                                 
-                                {isSimpleUser && isEditing && (
+                                {isSimpleUser && (
                                     <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
                                         <div className="flex items-start gap-3">
                                             <AlertCircle className="w-5 h-5 text-[#70AE48] mt-0.5" />
@@ -551,114 +823,54 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Nom de l'entreprise
                                         </label>
-                                        {isEditing && (isAgency || isProfessional) ? (
-                                            <input
-                                                type="text"
-                                                value={formData.company_name || ''}
-                                                onChange={(e) => handleInputChange('company_name', e.target.value)}
-                                                className="w-full px-4 py-2.5 bg-white text-gray-900 border border-green-300 rounded-xl focus:ring-2 focus:ring-[#70AE48] focus:border-[#70AE48] transition-all duration-200"
-                                                placeholder="Nom de l'entreprise"
-                                            />
-                                        ) : (
-                                            <div className={`p-3 border border-gray-200 rounded-xl ${isSimpleUser && !isEditing ? 'bg-gray-50' : 'bg-white'}`}>
-                                                <p className="text-gray-900">{profile.user?.company_name || '—'}</p>
-                                            </div>
-                                        )}
+                                        <div className={`p-3 border border-gray-200 rounded-xl ${isSimpleUser ? 'bg-gray-50' : 'bg-white'}`}>
+                                            <p className="text-gray-900">{companyName || '—'}</p>
+                                        </div>
                                     </div>
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Adresse de facturation
                                         </label>
-                                        {isEditing && (isAgency || isProfessional) ? (
-                                            <input
-                                                type="text"
-                                                value={formData.address_billing || ''}
-                                                onChange={(e) => handleInputChange('address_billing', e.target.value)}
-                                                className="w-full px-4 py-2.5 bg-white text-gray-900 border border-green-300 rounded-xl focus:ring-2 focus:ring-[#70AE48] focus:border-[#70AE48] transition-all duration-200"
-                                                placeholder="Adresse de facturation"
-                                            />
-                                        ) : (
-                                            <div className={`p-3 border border-gray-200 rounded-xl ${isSimpleUser && !isEditing ? 'bg-gray-50' : 'bg-white'}`}>
-                                                <p className="text-gray-900">{profile.user?.address_billing || '—'}</p>
-                                            </div>
-                                        )}
+                                        <div className={`p-3 border border-gray-200 rounded-xl ${isSimpleUser ? 'bg-gray-50' : 'bg-white'}`}>
+                                            <p className="text-gray-900">{profile.user?.address_billing || '—'}</p>
+                                        </div>
                                     </div>
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Numéro de licence
                                         </label>
-                                        {isEditing && (isAgency || isProfessional) ? (
-                                            <input
-                                                type="text"
-                                                value={formData.license_number || ''}
-                                                onChange={(e) => handleInputChange('license_number', e.target.value)}
-                                                className="w-full px-4 py-2.5 bg-white text-gray-900 border border-green-300 rounded-xl focus:ring-2 focus:ring-[#70AE48] focus:border-[#70AE48] transition-all duration-200"
-                                                placeholder="Numéro de licence"
-                                            />
-                                        ) : (
-                                            <div className={`p-3 border border-gray-200 rounded-xl ${isSimpleUser && !isEditing ? 'bg-gray-50' : 'bg-white'}`}>
-                                                <p className="text-gray-900">{profile.user?.license_number || '—'}</p>
-                                            </div>
-                                        )}
+                                        <div className={`p-3 border border-gray-200 rounded-xl ${isSimpleUser ? 'bg-gray-50' : 'bg-white'}`}>
+                                            <p className="text-gray-900">{profile.user?.license_number || '—'}</p>
+                                        </div>
                                     </div>
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             IFU
                                         </label>
-                                        {isEditing && (isAgency || isProfessional) ? (
-                                            <input
-                                                type="text"
-                                                value={formData.ifu || ''}
-                                                onChange={(e) => handleInputChange('ifu', e.target.value)}
-                                                className="w-full px-4 py-2.5 bg-white text-gray-900 border border-green-300 rounded-xl focus:ring-2 focus:ring-[#70AE48] focus:border-[#70AE48] transition-all duration-200"
-                                                placeholder="Numéro IFU"
-                                            />
-                                        ) : (
-                                            <div className={`p-3 border border-gray-200 rounded-xl ${isSimpleUser && !isEditing ? 'bg-gray-50' : 'bg-white'}`}>
-                                                <p className="text-gray-900">{profile.user?.ifu || '—'}</p>
-                                            </div>
-                                        )}
+                                        <div className={`p-3 border border-gray-200 rounded-xl ${isSimpleUser ? 'bg-gray-50' : 'bg-white'}`}>
+                                            <p className="text-gray-900">{profile.user?.ifu || '—'}</p>
+                                        </div>
                                     </div>
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             RCCM
                                         </label>
-                                        {isEditing && (isAgency || isProfessional) ? (
-                                            <input
-                                                type="text"
-                                                value={formData.rccm || ''}
-                                                onChange={(e) => handleInputChange('rccm', e.target.value)}
-                                                className="w-full px-4 py-2.5 bg-white text-gray-900 border border-green-300 rounded-xl focus:ring-2 focus:ring-[#70AE48] focus:border-[#70AE48] transition-all duration-200"
-                                                placeholder="Numéro RCCM"
-                                            />
-                                        ) : (
-                                            <div className={`p-3 border border-gray-200 rounded-xl ${isSimpleUser && !isEditing ? 'bg-gray-50' : 'bg-white'}`}>
-                                                <p className="text-gray-900">{profile.user?.rccm || '—'}</p>
-                                            </div>
-                                        )}
+                                        <div className={`p-3 border border-gray-200 rounded-xl ${isSimpleUser ? 'bg-gray-50' : 'bg-white'}`}>
+                                            <p className="text-gray-900">{profile.user?.rccm || '—'}</p>
+                                        </div>
                                     </div>
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Numéro TVA
                                         </label>
-                                        {isEditing && (isAgency || isProfessional) ? (
-                                            <input
-                                                type="text"
-                                                value={formData.vat_number || ''}
-                                                onChange={(e) => handleInputChange('vat_number', e.target.value)}
-                                                className="w-full px-4 py-2.5 bg-white text-gray-900 border border-green-300 rounded-xl focus:ring-2 focus:ring-[#70AE48] focus:border-[#70AE48] transition-all duration-200"
-                                                placeholder="Numéro TVA"
-                                            />
-                                        ) : (
-                                            <div className={`p-3 border border-gray-200 rounded-xl ${isSimpleUser && !isEditing ? 'bg-gray-50' : 'bg-white'}`}>
-                                                <p className="text-gray-900">{profile.user?.vat_number || '—'}</p>
-                                            </div>
-                                        )}
+                                        <div className={`p-3 border border-gray-200 rounded-xl ${isSimpleUser ? 'bg-gray-50' : 'bg-white'}`}>
+                                            <p className="text-gray-900">{profile.user?.vat_number || '—'}</p>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -697,7 +909,7 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
                                         <p className="text-sm text-gray-600 mb-2">Email</p>
                                         <div className="flex items-center gap-3">
                                             <Mail className="w-4 h-4 text-gray-400" />
-                                            <p className="text-gray-900 font-medium">{profile.user?.email || '—'}</p>
+                                            <p className="text-gray-900 font-medium">{email || '—'}</p>
                                         </div>
                                     </div>
 
@@ -759,19 +971,6 @@ const MonCompte: React.FC<MonCompteProps> = ({ notify }) => {
                     )}
                 </div>
             </div>
-
-            {/* Message d'état en édition */}
-            {isEditing && (
-                <div className="fixed bottom-6 right-6 animate-slide-up z-50">
-                    <div className="bg-gradient-to-r from-[#70AE48] to-[#8BC34A] text-white px-6 py-4 rounded-xl shadow-xl flex items-center gap-3">
-                        <Edit2 className="w-5 h-5 animate-pulse" />
-                        <div>
-                            <p className="font-medium text-white">Mode édition activé</p>
-                            <p className="text-sm text-green-100">N'oubliez pas d'enregistrer vos modifications</p>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

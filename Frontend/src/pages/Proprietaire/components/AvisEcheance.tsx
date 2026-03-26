@@ -57,7 +57,7 @@ interface PreavisListProps {
     notify?: (msg: string, type: 'success' | 'info' | 'error') => void;
 }
 
-const PreavisList: React.FC<PreavisListProps> = ({ notify = () => {} }) => {
+const AvisEcheance: React.FC<PreavisListProps> = ({ notify = () => {} }) => {
     const navigate = useNavigate();
     
     // États pour les données
@@ -298,7 +298,7 @@ const PreavisList: React.FC<PreavisListProps> = ({ notify = () => {} }) => {
                             color: '#1F2937', 
                             margin: '0 0 0.5rem 0' 
                         }}>
-                            Préavis de départ
+                            Avis d’échéance
                         </h1>
                         <p style={{ 
                             color: '#6B7280', 
@@ -306,32 +306,59 @@ const PreavisList: React.FC<PreavisListProps> = ({ notify = () => {} }) => {
                             margin: 0, 
                             maxWidth: '600px' 
                         }}>
-                            Gérez les préavis de départ pour les locataires de vos biens délégués.<br />
-                            Envoyez les préavis aux locataires et suivez leur statut.
+                            Gérez les avis d’échéance pour les locataires de vos biens.<br />
+                            <strong>Système automatique :</strong> 10 jours avant la date du loyer, l’avis d’échéance est envoyé par email avec lien de paiement.
                         </p>
                     </div>
 
-                    <button
-                        onClick={handleCreateClick}
-                        className="btn-create"
-                        style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            padding: '12px 24px',
-                            background: '#70AE48',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '10px',
-                            fontWeight: 600,
-                            fontSize: '0.9rem',
-                            boxShadow: '0 2px 4px rgba(112, 174, 72, 0.3)',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        <Plus size={18} />
-                        <span>Créer un préavis</span>
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                        <button
+                            onClick={() => {
+                                // Simulation de génération manuelle
+                                notify("Génération manuelle demandée. Choisissez un locataire.", "info");
+                            }}
+                            className="btn-create"
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                padding: '12px 24px',
+                                background: '#3B82F6', // Bleu pour distinguer
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '10px',
+                                fontWeight: 600,
+                                fontSize: '0.9rem',
+                                boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <Calendar size={18} />
+                            <span>Générer manuellement</span>
+                        </button>
+
+                        <button
+                            onClick={handleCreateClick}
+                            className="btn-create"
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                padding: '12px 24px',
+                                background: '#70AE48',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '10px',
+                                fontWeight: 600,
+                                fontSize: '0.9rem',
+                                boxShadow: '0 2px 4px rgba(112, 174, 72, 0.3)',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <Plus size={18} />
+                            <span>Programmer un avis</span>
+                        </button>
+                    </div>
                 </div>
 
                 {/* Statistiques */}
@@ -1109,4 +1136,4 @@ const PreavisList: React.FC<PreavisListProps> = ({ notify = () => {} }) => {
     );
 };
 
-export default PreavisList;
+export default AvisEcheance;

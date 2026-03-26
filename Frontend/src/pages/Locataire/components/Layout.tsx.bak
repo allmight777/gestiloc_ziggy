@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+ï»¿import React, { useState, useEffect } from 'react';
 import {
   Menu,
   X,
@@ -66,23 +66,23 @@ interface LayoutProps {
   notify: (message: string, type: 'success' | 'error' | 'info') => void;
 }
 
-// ─── COMPOSANTS ET CONSTANTES DU DESIGN HARMONISÉ ───────────────────
+// âââ¬âââ¬âââ¬ COMPOSANTS ET CONSTANTES DU DESIGN HARMONISÃâ° âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
 const ic = (c: string) => ({ stroke: c, fill: "none", strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const });
 
 const Icons = {
   Dashboard: () => <img src="/Ressource_gestiloc/tb_locataire.png" alt="Tableau de bord" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   LocationImg: () => <img src="/Ressource_gestiloc/Ma_location.png" alt="Ma location" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   LocationCategoryImg: () => <img src="/Ressource_gestiloc/Ma_location.png" alt="Location" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
-  ProprioImg: () => <img src="/Ressource_gestiloc/Home.png" alt="Mon propriétaire" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
+  ProprioImg: () => <img src="/Ressource_gestiloc/Home.png" alt="Mon propriÃÂ©taire" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   QuittancesImg: () => <img src="/Ressource_gestiloc/Mes_quittances.png" alt="Mes quittances" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   DocumentsImg: () => <img src="/Ressource_gestiloc/document.png" alt="Documents" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   DocumentsCategoryImg: () => <img src="/Ressource_gestiloc/Document%20In%20Folder.png" alt="Documents" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   InterventionsImg: () => <img src="/Ressource_gestiloc/Tools.png" alt="Mes interventions" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
-  TasksImg: () => <img src="/Ressource_gestiloc/Nouvelles_taches.png" alt="Mes tâches" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
+  TasksImg: () => <img src="/Ressource_gestiloc/Nouvelles_taches.png" alt="Mes tÃÂ¢ches" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   NotesImg: () => <img src="/Ressource_gestiloc/Edit%20Property.png" alt="Mes notes" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
-  PreavisImg: () => <img src="/Ressource_gestiloc/preavis.png" alt="Préavis" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
+  PreavisImg: () => <img src="/Ressource_gestiloc/preavis.png" alt="PrÃÂ©avis" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   PaiementsImg: () => <img src="/Ressource_gestiloc/paiement.png" alt="Paiements" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
-  ParametresImg: () => <img src="/Ressource_gestiloc/parametre_loc.png" alt="Paramètres" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
+  ParametresImg: () => <img src="/Ressource_gestiloc/parametre_loc.png" alt="ParamÃÂ¨tres" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   ConfigurationCategoryImg: () => <img src="/Ressource_gestiloc/Tools.png" alt="Configuration" className="w-[18px] h-[18px] object-contain transition-transform group-hover:scale-110" />,
   LogOut: ({ c }: { c: string }) => (
     <svg viewBox="0 0 24 24" width={18} height={18} {...ic(c || "#aaa")}>
@@ -90,6 +90,7 @@ const Icons = {
       <polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
     </svg>
   ),
+  // Category Icons (kept for Services)
   ToolsIcon: ({ c }: { c: string }) => (
     <svg viewBox="0 0 24 24" width={18} height={18} {...ic(c)}>
       <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 1 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
@@ -126,9 +127,9 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
         categoryIcon: "LocationCategoryImg",
         children: [
           { id: 'location', label: 'Ma location', icon: "LocationImg" },
-          { id: 'landlord', label: 'Mon propriétaire', icon: "ProprioImg" },
+          { id: 'landlord', label: 'Mon propriÃÂ©taire', icon: "ProprioImg" },
           { id: 'payments', label: 'Paiements', icon: "PaiementsImg" },
-          { id: 'notice', label: 'Préavis', icon: "PreavisImg" },
+          { id: 'notice', label: 'PrÃÂ©avis', icon: "PreavisImg" },
         ]
       },
       { 
@@ -149,7 +150,7 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
         categoryIcon: "ToolsIcon",
         children: [
           { id: 'interventions', label: 'Mes interventions', icon: "InterventionsImg" },
-          { id: 'tasks', label: 'Mes tâches', icon: "TasksImg" },
+          { id: 'tasks', label: 'Mes tÃÂ¢ches', icon: "TasksImg" },
         ]
       },
       { 
@@ -158,15 +159,15 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
         icon: "ConfigurationCategoryImg",
         categoryIcon: "ConfigurationCategoryImg",
         children: [
-          { id: 'settings', label: 'Paramètres', icon: "ParametresImg" },
-          { id: 'logout', label: 'Déconnexion', icon: "LogOut", isLogout: true },
+          { id: 'settings', label: 'ParamÃÂ¨tres', icon: "ParametresImg" },
+          { id: 'logout', label: 'DÃÂ©connexion', icon: "LogOut", isLogout: true },
         ]
       },
     ]
   }
 ];
 
-// ─── NAV ITEM COMPONENT ────────────
+// âââ¬âââ¬âââ¬ NAV ITEM COMPONENT âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
 const NavItem: React.FC<{
   item: MenuItem,
   activeTab: Tab,
@@ -220,10 +221,7 @@ const NavItem: React.FC<{
           {Ico ? <Ico c={item.isLogout ? (hovered ? "#e53935" : "#aaa") : (isActive || isChildActive) ? TEXT_GREEN : iconColors[item.icon] || "#888"} /> : null}
         </div>
 
-        <span className="text-[0.9rem] font-bold whitespace-nowrap transition-colors duration-300 text-gray-500" style={{ 
-          color: ((isActive || isChildActive || hovered) && !item.isLogout) ? TEXT_GREEN : undefined,
-          fontFamily: "'Manrope', sans-serif"
-        }}>
+        <span className="text-[0.9rem] font-bold whitespace-nowrap transition-colors duration-300 text-gray-500" style={{ color: ((isActive || isChildActive || hovered) && !item.isLogout) ? TEXT_GREEN : undefined }}>
           {item.label}
         </span>
 
@@ -254,7 +252,7 @@ const NavItem: React.FC<{
   );
 };
 
-// ─── SIDEBAR CONTENT ────────────
+// âââ¬âââ¬âââ¬ SIDEBAR COMPONENT âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬âââ¬
 const SidebarContent: React.FC<{
   activeTab: Tab,
   onNavigate: (tab: Tab) => void,
@@ -287,15 +285,15 @@ const SidebarContent: React.FC<{
           <div key={section.title || "main-menu-top"} className={section.title ? "mb-4" : "mb-2"}>
             {section.title && (
               <div style={{
-                fontSize: '9.5px',
-                fontWeight: 600,
-                color: '#9CA3AF',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
+                fontSize: '0.55rem',
+                fontWeight: 800,
+                letterSpacing: '0.08em',
+                color: '#BDBDBD',
                 padding: '1.2rem 1.4rem 0.6rem',
                 textAlign: 'left',
-                fontFamily: "'Manrope', sans-serif",
+                fontFamily: "'Merriweather', serif",
                 whiteSpace: 'nowrap',
+                textTransform: 'uppercase'
               }}>
                 {section.title}
               </div>
@@ -373,7 +371,7 @@ export const Layout: React.FC<LayoutProps> = ({
       await api.post('/tenant/notifications/read-all');
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
       setUnreadCount(0);
-      notify('Toutes les notifications ont été marquées comme lues', 'success');
+      notify('Toutes les notifications ont ÃÂ©tÃÂ© marquÃÂ©es comme lues', 'success');
     } catch (error) {
       console.error('Erreur mark all as read:', error);
     }
@@ -382,8 +380,6 @@ export const Layout: React.FC<LayoutProps> = ({
   const handleNavigate = (tab: Tab) => {
     onNavigate(tab);
     setIsMobileMenuOpen(false);
-    setShowNotifications(false);
-    setShowHelp(false);
   };
 
   useEffect(() => {
@@ -394,6 +390,7 @@ export const Layout: React.FC<LayoutProps> = ({
     }
   }, [isMobileMenuOpen]);
 
+  // Helpers notification
   const getNotificationIcon = (type: string, iconName?: string) => {
     const iconClass = "w-4 h-4";
     switch (type) {
@@ -404,7 +401,7 @@ export const Layout: React.FC<LayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen h-screen w-screen overflow-hidden flex flex-col" style={{ background: "#fff", fontFamily: "'Merriweather', serif" }}>
+    <div className="min-h-screen bg-white h-screen w-screen overflow-hidden flex flex-col transition-all duration-300" style={{ background: "#fff", fontFamily: "'Merriweather', serif" }}>
       {/* HEADER */}
       <header className="fixed top-0 left-0 right-0 z-[100] h-[72px] flex items-center justify-between px-6 sm:px-12" style={{
         background: GRADIENT_GREEN,
@@ -555,7 +552,7 @@ export const Layout: React.FC<LayoutProps> = ({
         ))}
       </div>
 
-      {/* NOTIFICATIONS DROPDOWN */}
+      {/* âââ¬âââ¬ NOTIFICATIONS DROPDOWN âââ¬âââ¬ */}
       {showNotifications && (
         <div className="fixed inset-0 sm:inset-auto sm:top-20 sm:right-6 sm:w-96 bg-white sm:rounded-xl shadow-2xl border-t sm:border border-gray-200 z-[110] flex flex-col h-full sm:h-auto max-h-[600px]">
           <div className="p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
@@ -598,7 +595,7 @@ export const Layout: React.FC<LayoutProps> = ({
                       </p>
                       {notif.pdf_url && (
                         <a href={notif.pdf_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800" onClick={(e) => e.stopPropagation()}>
-                          <Download size={12} /> Télécharger document
+                          <Download size={12} /> TÃÂ©lÃÂ©charger document
                         </a>
                       )}
                     </div>
@@ -615,39 +612,39 @@ export const Layout: React.FC<LayoutProps> = ({
         </div>
       )}
 
-      {/* AIDE DROPDOWN */}
-      {showHelp && (
-        <div className="fixed inset-0 sm:inset-auto sm:top-20 sm:right-6 sm:w-96 bg-white sm:rounded-xl shadow-2xl border-t sm:border border-gray-200 z-[110] flex flex-col h-full sm:h-auto">
-          <div className="p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
-            <h3 className="text-lg font-bold text-gray-900" style={{ fontFamily: "'Merriweather', serif" }}>
-              Aide & Support
-            </h3>
-            <button onClick={() => setShowHelp(false)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-              <X size={20} className="text-gray-500" />
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto p-2">
-            {[
-              { title: 'Guide de démarrage locataire', desc: 'Apprenez les bases de GestiLoc', color: 'bg-green-500', route: 'help' },
-              { title: 'Gérer ses incidents', desc: 'Déclarer ou suivre une intervention', color: 'bg-blue-500', route: 'interventions' },
-              { title: 'Nous contacter', desc: 'Une question ?', color: 'bg-purple-500', route: 'help' },
-            ].map((help, idx) => (
-              <div key={idx} onClick={() => handleNavigate(help.route as Tab)} className="p-4 m-1 hover:bg-gray-50 rounded-xl transition-all cursor-pointer border border-transparent hover:border-gray-100">
-                <div className="flex items-start gap-4">
-                  <div className={`w-3 h-3 ${help.color} rounded-full mt-2 flex-shrink-0 shadow-lg`} />
-                  <div className="flex-1">
-                    <p className="text-[0.95rem] font-bold text-gray-900">{help.title}</p>
-                    <p className="text-[0.85rem] text-gray-600 mt-1">{help.desc}</p>
+      {/* âââ¬âââ¬ AIDE DROPDOWN âââ¬âââ¬ */}
+      {
+        showHelp && (
+          <div className="fixed inset-0 sm:inset-auto sm:top-20 sm:right-6 sm:w-96 bg-white sm:rounded-xl shadow-2xl border-t sm:border border-gray-200 z-[110] flex flex-col h-full sm:h-auto">
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+              <h3 className="text-lg font-bold text-gray-900" style={{ fontFamily: "'Merriweather', serif" }}>
+                Aide & Support
+              </h3>
+              <button onClick={() => setShowHelp(false)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                <X size={20} className="text-gray-500" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-2">
+              {[
+                { title: 'Guide de dÃÂ©marrage locataire', desc: 'Apprenez les bases de GestiLoc', color: 'bg-green-500', route: 'help' },
+                { title: 'GÃÂ©rer ses incidents', desc: 'DÃÂ©clarer ou suivre une intervention', color: 'bg-blue-500', route: 'interventions' },
+                { title: 'Nous contacter', desc: 'Une question ?', color: 'bg-purple-500', route: 'help' },
+              ].map((help, idx) => (
+                <div key={idx} onClick={() => handleNavigate(help.route as Tab)} className="p-4 m-1 hover:bg-gray-50 rounded-xl transition-all cursor-pointer border border-transparent hover:border-gray-100">
+                  <div className="flex items-start gap-4">
+                    <div className={`w-3 h-3 ${help.color} rounded-full mt-2 flex-shrink-0 shadow-lg`} />
+                    <div className="flex-1">
+                      <p className="text-[0.95rem] font-bold text-gray-900">{help.title}</p>
+                      <p className="text-[0.85rem] text-gray-600 mt-1">{help.desc}</p>
+                    </div>
+                    <ChevronRight size={18} className="text-gray-300 mt-1" />
                   </div>
-                  <ChevronRight size={18} className="text-gray-300 mt-1" />
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
     </div>
   );
 };
-
-export default Layout;

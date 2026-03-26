@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import {
   FileText,
   Plus,
@@ -17,6 +17,30 @@ import {
   X,
   MessageCircle,
   Building,
+  Loader,
+  AlertCircle,
+  Info,
+  Calendar,
+  CreditCard,
+  MapPin,
+  Phone,
+  Mail,
+  CheckCircle,
+  TrendingUp,
+  ChevronLeft,
+  ChevronRight as ChevronRightIcon,
+  ChevronsLeft,
+  ChevronsRight,
+  RefreshCw,
+  Users,
+  Briefcase,
+  Crown,
+  Copy,
+  Check,
+  ArrowLeft,
+  Wallet,
+  Clock,
+  AlertTriangle
 } from "lucide-react";
 
 import { Button } from "./ui/Button";
@@ -368,6 +392,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [copiedText, setCopiedText] = useState<string | null>(null);
 
   // Derived date keys
   const currentYM = useMemo(() => monthKey(new Date()), []);
@@ -398,7 +423,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
       setError(null);
 
       try {
-        // Appel à l'API Laravel - endpoint dashboard
         const response = await api.get('/tenant/dashboard');
 
         if (cancelled) return;
@@ -409,7 +433,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
       } catch (err: any) {
         console.error('[DASH] Erreur chargement données:', err);
         if (!cancelled) {
-          // En cas d'erreur d'authentification, utiliser les données fictives
           if (err.response?.status === 401) {
             setIsAuthenticated(false);
             setDashboardData(mockDashboardData);
@@ -457,7 +480,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const lastReceipt = useMemo(() => receiptsSorted[0] || null, [receiptsSorted]);
 
-  // Statistiques depuis l'API ou calculées
   const locationCount = useMemo(() => leases.length || 0, [leases]);
 
   const openIncidents = useMemo(
@@ -476,23 +498,29 @@ export const Dashboard: React.FC<DashboardProps> = ({
   );
 
   const latePayments = useMemo(() => {
-    // Calculer les paiements en retard
     return payments.filter((p: Payment) =>
       p.status === 'pending' || p.status === 'initiated'
     ).length;
   }, [payments]);
+
+  const copyToClipboard = (text: string, type: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedText(type);
+    setTimeout(() => setCopiedText(null), 2000);
+    notify(`${type === 'email' ? 'Email' : 'Téléphone'} copié !`, 'success');
+  };
 
   // Afficher le contenu selon l'onglet actif
   const renderContent = () => {
     if (loading) {
       return (
         <div className="space-y-6">
-          <Skeleton className="h-40 w-full" />
+          <div className="h-40 w-full bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl animate-pulse" />
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-40 w-full" />)}
+            {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-40 w-full bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl animate-pulse" />)}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-64 w-full" />)}
+            {[1, 2, 3, 4].map(i => <div key={i} className="h-64 w-full bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl animate-pulse" />)}
           </div>
         </div>
       );
@@ -500,9 +528,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     if (error) {
       return (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <Button onClick={() => window.location.reload()} variant="secondary">
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center animate-fadeIn">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle size={32} className="text-red-500" />
+          </div>
+          <p className="text-red-600 mb-4 font-medium">{error}</p>
+          <Button onClick={() => window.location.reload()} variant="secondary" className="bg-white border-red-200 text-red-600 hover:bg-red-50">
             Réessayer
           </Button>
         </div>
@@ -513,7 +544,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       case 'home':
         return (
           <>
-            {/* Styles injectés pour l'harmonisation */}
+            {/* Styles injectés */}
             <style>{`
               @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Manrope:wght@400;500;600;700;800&display=swap');
               .font-merriweather { font-family: 'Merriweather', serif; }
@@ -523,12 +554,22 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 50% { transform: translateY(-10px); }
               }
               .animate-float { animation: float 3s ease-in-out infinite; }
+              @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+              }
+              .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+              @keyframes slideUp {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+              }
+              .animate-slideUp { animation: slideUp 0.4s ease-out; }
             `}</style>
 
             {/* Bannière mode démo si non authentifié */}
             {!isAuthenticated && (
               <div className="bg-gradient-to-r from-amber-400 to-amber-500 rounded-2xl p-4 mb-6 text-white shadow-lg animate-fadeIn">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-4">
                   <div className="flex items-center gap-3">
                     <div className="bg-white/20 p-2 rounded-lg">
                       <HelpCircle size={20} />
@@ -549,7 +590,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             )}
 
             {/* Welcome Banner */}
-            <div className="relative overflow-hidden rounded-[2rem] p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-8 md:min-h-[200px] mb-8 transition-all duration-500 hover:shadow-2xl hover:shadow-green-500/10"
+            <div className="relative overflow-hidden rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-8 mb-8 transition-all duration-500 hover:shadow-2xl hover:shadow-green-500/10 animate-fadeIn"
               style={{ background: 'linear-gradient(135deg, #8CCC63 0%, #529D21 100%)' }}>
               <div className="z-10 text-center md:text-left max-w-xl">
                 <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-black mb-4 font-merriweather leading-tight">
@@ -575,7 +616,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 sm:gap-8 mb-12">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6 mb-12 animate-slideUp">
               {[
                 { id: 'receipts', label: 'Mes quittances', icon: '/Ressource_gestiloc/Mes_quittances.png' },
                 { id: 'interventions', label: 'Nouvelle intervention', icon: '/Ressource_gestiloc/Tools.png' },
@@ -586,31 +627,31 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <button
                   key={action.id}
                   onClick={() => onNavigate?.(action.id as Tab)}
-                  className="flex flex-col items-center justify-center gap-4 group cursor-pointer bg-white p-6 transition-all hover:shadow-2xl hover:shadow-green-500/10 hover:-translate-y-2 active:scale-[0.98] w-full aspect-square md:aspect-auto md:h-[180px]"
-                  style={{ borderRadius: '2.5rem', boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)' }}
+                  className="flex flex-col items-center justify-center gap-3 group cursor-pointer bg-white p-5 transition-all hover:shadow-2xl hover:shadow-green-500/10 hover:-translate-y-2 active:scale-[0.98] w-full aspect-square md:aspect-auto md:h-[160px] rounded-2xl border border-gray-100"
+                  style={{ boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)' }}
                 >
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[1.8rem] bg-gray-50 flex items-center justify-center p-4 group-hover:bg-green-50 transition-colors shadow-inner">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gray-50 flex items-center justify-center p-3 group-hover:bg-green-50 transition-colors">
                     <img src={action.icon} alt={action.label} className="w-full h-full object-contain filter group-hover:scale-110 transition-transform duration-500" />
                   </div>
-                  <span className="text-sm font-extrabold text-gray-900 text-center font-manrope group-hover:text-green-600 transition-colors leading-tight px-2">{action.label}</span>
+                  <span className="text-xs sm:text-sm font-extrabold text-gray-900 text-center font-manrope group-hover:text-green-600 transition-colors leading-tight px-1">{action.label}</span>
                 </button>
               ))}
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6 sm:gap-8 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6 mb-12 animate-slideUp">
               {/* Locations Card */}
-              <div className="bg-white rounded-[2rem] border border-gray-100 p-8 flex flex-col h-[300px] relative shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg sm:text-xl font-black text-gray-900 font-merriweather">Locations</h3>
-                  <img src="/Ressource_gestiloc/parametre_loc.png" alt="Settings" className="w-6 h-6 opacity-40 hover:opacity-100 cursor-pointer transition-opacity" />
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col h-[280px] relative shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-black text-gray-900 font-merriweather">Locations</h3>
+                  <img src="/Ressource_gestiloc/parametre_loc.png" alt="Settings" className="w-5 h-5 opacity-40 hover:opacity-100 cursor-pointer transition-opacity" />
                 </div>
-                <div className="flex-1 flex flex-col items-center justify-center -mt-2">
-                  <div className="flex items-center gap-8">
-                    <img src="/Ressource_gestiloc/Key Security.png" alt="Key" className="w-24 h-24 sm:w-28 sm:h-28 object-contain" />
+                <div className="flex-1 flex flex-col items-center justify-center">
+                  <div className="flex items-center gap-6">
+                    <img src="/Ressource_gestiloc/Key Security.png" alt="Key" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" />
                     <div className="text-center">
-                      <p className="text-6xl sm:text-7xl font-black text-green-600 font-merriweather leading-none drop-shadow-sm">{locationCount}</p>
-                      <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-2 flex font-manrope justify-center">
+                      <p className="text-5xl sm:text-6xl font-black text-green-600 font-merriweather leading-none drop-shadow-sm">{locationCount}</p>
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-2 font-manrope">
                         {locationCount > 1 ? 'Locations' : 'Location'}
                       </p>
                     </div>
@@ -618,24 +659,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </div>
                 <button
                   onClick={() => onNavigate?.('location')}
-                  className="absolute bottom-6 right-8 text-sm font-bold text-green-600 hover:text-green-700 font-manrope flex items-center gap-1 group"
+                  className="absolute bottom-5 right-6 text-sm font-bold text-green-600 hover:text-green-700 font-manrope flex items-center gap-1 group"
                 >
-                  Tout afficher <ChevronRight size={16} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
+                  Tout afficher <ChevronRightIcon size={16} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
 
               {/* Loyers en retard Card */}
-              <div className="bg-white rounded-[2rem] border border-gray-100 p-8 flex flex-col h-[300px] relative shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg sm:text-xl font-black text-gray-900 font-merriweather">Loyers en retard</h3>
-                  <img src="/Ressource_gestiloc/parametre_loc.png" alt="Settings" className="w-6 h-6 opacity-40 hover:opacity-100 cursor-pointer transition-opacity" />
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col h-[280px] relative shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-black text-gray-900 font-merriweather">Loyers en retard</h3>
+                  <img src="/Ressource_gestiloc/parametre_loc.png" alt="Settings" className="w-5 h-5 opacity-40 hover:opacity-100 cursor-pointer transition-opacity" />
                 </div>
-                <div className="flex-1 flex flex-col items-center justify-center -mt-2">
-                  <div className="flex items-center gap-8">
-                    <img src="/Ressource_gestiloc/Dollar Bag.png" alt="Money" className="w-24 h-24 sm:w-28 sm:h-28 object-contain" />
+                <div className="flex-1 flex flex-col items-center justify-center">
+                  <div className="flex items-center gap-6">
+                    <img src="/Ressource_gestiloc/Dollar Bag.png" alt="Money" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" />
                     <div className="text-center">
-                      <p className="text-6xl sm:text-7xl font-black text-orange-500 font-merriweather leading-none drop-shadow-sm">{latePayments}</p>
-                      <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-2 flex font-manrope justify-center">
+                      <p className="text-5xl sm:text-6xl font-black text-orange-500 font-merriweather leading-none drop-shadow-sm">{latePayments}</p>
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-2 font-manrope">
                         {latePayments > 1 ? 'Retards' : 'Retard'}
                       </p>
                     </div>
@@ -643,71 +684,71 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </div>
                 <button
                   onClick={() => onNavigate?.('payments')}
-                  className="absolute bottom-6 right-8 text-sm font-bold text-green-600 hover:text-green-700 font-manrope flex items-center gap-1 group"
+                  className="absolute bottom-5 right-6 text-sm font-bold text-green-600 hover:text-green-700 font-manrope flex items-center gap-1 group"
                 >
-                  Tout afficher <ChevronRight size={16} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
+                  Tout afficher <ChevronRightIcon size={16} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
 
               {/* Interventions Card */}
-              <div className="bg-white rounded-[2rem] border border-gray-100 p-8 flex flex-col h-[300px] relative shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg sm:text-xl font-black text-gray-900 font-merriweather">Interventions</h3>
-                  <img src="/Ressource_gestiloc/parametre_loc.png" alt="Settings" className="w-6 h-6 opacity-40 hover:opacity-100 cursor-pointer transition-opacity" />
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col h-[280px] relative shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-black text-gray-900 font-merriweather">Interventions</h3>
+                  <img src="/Ressource_gestiloc/parametre_loc.png" alt="Settings" className="w-5 h-5 opacity-40 hover:opacity-100 cursor-pointer transition-opacity" />
                 </div>
-                <div className="flex-1 flex flex-col items-center justify-center -mt-2">
-                  <div className="flex items-center gap-6 w-full">
-                    <img src="/Ressource_gestiloc/Tools.png" alt="Tools" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" />
+                <div className="flex-1 flex flex-col items-center justify-center">
+                  <div className="flex items-center gap-4 w-full">
+                    <img src="/Ressource_gestiloc/Tools.png" alt="Tools" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" />
                     <div className="flex flex-1 justify-around">
                       <div className="text-center">
-                        <p className="text-4xl sm:text-5xl font-black text-gray-900 font-merriweather leading-none">{openIncidents}</p>
-                        <p className="text-[0.65rem] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mt-2 font-manrope">Ouvertes</p>
+                        <p className="text-3xl sm:text-4xl font-black text-gray-900 font-merriweather leading-none">{openIncidents}</p>
+                        <p className="text-[0.6rem] font-bold text-gray-400 uppercase tracking-widest mt-1 font-manrope">Ouvertes</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-4xl sm:text-5xl font-black text-orange-500 font-merriweather leading-none">0</p>
-                        <p className="text-[0.65rem] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mt-2 font-manrope">En retard</p>
+                        <p className="text-3xl sm:text-4xl font-black text-orange-500 font-merriweather leading-none">0</p>
+                        <p className="text-[0.6rem] font-bold text-gray-400 uppercase tracking-widest mt-1 font-manrope">En retard</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-4xl sm:text-5xl font-black text-green-500 font-merriweather leading-none">{inProgressIncidents}</p>
-                        <p className="text-[0.65rem] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mt-2 font-manrope">En cours</p>
+                        <p className="text-3xl sm:text-4xl font-black text-green-500 font-merriweather leading-none">{inProgressIncidents}</p>
+                        <p className="text-[0.6rem] font-bold text-gray-400 uppercase tracking-widest mt-1 font-manrope">En cours</p>
                       </div>
                     </div>
                   </div>
                 </div>
                 <button
                   onClick={() => onNavigate?.('interventions')}
-                  className="absolute bottom-6 right-8 text-sm font-bold text-green-600 hover:text-green-700 font-manrope flex items-center gap-1 group"
+                  className="absolute bottom-5 right-6 text-sm font-bold text-green-600 hover:text-green-700 font-manrope flex items-center gap-1 group"
                 >
-                  Tout afficher <ChevronRight size={16} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
+                  Tout afficher <ChevronRightIcon size={16} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
 
               {/* Tâches Card */}
-              <div className="bg-white rounded-[2rem] border border-gray-100 p-8 flex flex-col h-[300px] relative shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg sm:text-xl font-black text-gray-900 font-merriweather">Tâches</h3>
-                  <img src="/Ressource_gestiloc/parametre_loc.png" alt="Settings" className="w-6 h-6 opacity-40 hover:opacity-100 cursor-pointer transition-opacity" />
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col h-[280px] relative shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-black text-gray-900 font-merriweather">Tâches</h3>
+                  <img src="/Ressource_gestiloc/parametre_loc.png" alt="Settings" className="w-5 h-5 opacity-40 hover:opacity-100 cursor-pointer transition-opacity" />
                 </div>
-                <div className="flex-1 flex flex-col items-center justify-center -mt-2">
-                  <div className="flex items-center gap-8 w-full">
-                    <img src="/Ressource_gestiloc/Inspection.png" alt="Tasks" className="w-20 h-20 sm:w-24 sm:h-24 object-contain" />
+                <div className="flex-1 flex flex-col items-center justify-center">
+                  <div className="flex items-center gap-6 w-full">
+                    <img src="/Ressource_gestiloc/Inspection.png" alt="Tasks" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" />
                     <div className="flex flex-1 justify-around gap-4">
                       <div className="text-center">
-                        <p className="text-4xl sm:text-5xl font-black text-gray-900 font-merriweather leading-none">0</p>
-                        <p className="text-[0.65rem] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mt-2 font-manrope">Ouvertes</p>
+                        <p className="text-3xl sm:text-4xl font-black text-gray-900 font-merriweather leading-none">0</p>
+                        <p className="text-[0.6rem] font-bold text-gray-400 uppercase tracking-widest mt-1 font-manrope">Ouvertes</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-4xl sm:text-5xl font-black text-orange-500 font-merriweather leading-none">0</p>
-                        <p className="text-[0.65rem] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mt-2 font-manrope">En retard</p>
+                        <p className="text-3xl sm:text-4xl font-black text-orange-500 font-merriweather leading-none">0</p>
+                        <p className="text-[0.6rem] font-bold text-gray-400 uppercase tracking-widest mt-1 font-manrope">En retard</p>
                       </div>
                     </div>
                   </div>
                 </div>
                 <button
                   onClick={() => onNavigate?.('tasks')}
-                  className="absolute bottom-6 right-8 text-sm font-bold text-green-600 hover:text-green-700 font-manrope flex items-center gap-1 group"
+                  className="absolute bottom-5 right-6 text-sm font-bold text-green-600 hover:text-green-700 font-manrope flex items-center gap-1 group"
                 >
-                  Tout afficher <ChevronRight size={16} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
+                  Tout afficher <ChevronRightIcon size={16} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
             </div>
@@ -716,60 +757,95 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       case 'location':
         return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Ma Location</h2>
+          <div className="space-y-6 animate-fadeIn">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900 font-merriweather">Ma Location</h2>
+              <button
+                onClick={() => onNavigate?.('home')}
+                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-green-600 transition-colors font-manrope"
+              >
+                <ArrowLeft size={18} /> Retour
+              </button>
+            </div>
             {activeLease ? (
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold mb-4">{activeLease.property?.name || 'Détails du logement'}</h3>
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-merriweather">{activeLease.property?.name || 'Détails du logement'}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-500">Adresse</p>
-                    <p className="font-medium">
+                  <div className="p-3 bg-gray-50 rounded-xl">
+                    <p className="text-xs text-gray-500 font-manrope">Adresse</p>
+                    <p className="font-medium text-gray-900 font-manrope">
                       {activeLease.property?.address || 'Non spécifiée'}
                       {activeLease.property?.city ? `, ${activeLease.property.city}` : ''}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Loyer mensuel</p>
-                    <p className="font-medium">{fmtMoney(activeLease.rent_amount || 0)}</p>
+                  <div className="p-3 bg-gray-50 rounded-xl">
+                    <p className="text-xs text-gray-500 font-manrope">Loyer mensuel</p>
+                    <p className="font-medium text-gray-900 font-manrope">{fmtMoney(activeLease.rent_amount || 0)}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Charges</p>
-                    <p className="font-medium">{fmtMoney(activeLease.charges_amount || 0)}</p>
+                  <div className="p-3 bg-gray-50 rounded-xl">
+                    <p className="text-xs text-gray-500 font-manrope">Charges</p>
+                    <p className="font-medium text-gray-900 font-manrope">{fmtMoney(activeLease.charges_amount || 0)}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Total mensuel</p>
-                    <p className="font-medium">{fmtMoney(totalMonthly)}</p>
+                  <div className="p-3 bg-gray-50 rounded-xl">
+                    <p className="text-xs text-gray-500 font-manrope">Total mensuel</p>
+                    <p className="font-medium text-green-600 font-manrope font-bold">{fmtMoney(totalMonthly)}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Date de début</p>
-                    <p className="font-medium">{new Date(activeLease.start_date).toLocaleDateString('fr-FR')}</p>
+                  <div className="p-3 bg-gray-50 rounded-xl">
+                    <p className="text-xs text-gray-500 font-manrope">Date de début</p>
+                    <p className="font-medium text-gray-900 font-manrope">{new Date(activeLease.start_date).toLocaleDateString('fr-FR')}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Date de fin</p>
-                    <p className="font-medium">
+                  <div className="p-3 bg-gray-50 rounded-xl">
+                    <p className="text-xs text-gray-500 font-manrope">Date de fin</p>
+                    <p className="font-medium text-gray-900 font-manrope">
                       {activeLease.end_date
                         ? new Date(activeLease.end_date).toLocaleDateString('fr-FR')
                         : 'Non spécifiée'}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Type de bail</p>
-                    <p className="font-medium">
+                  <div className="p-3 bg-gray-50 rounded-xl">
+                    <p className="text-xs text-gray-500 font-manrope">Type de bail</p>
+                    <p className="font-medium text-gray-900 font-manrope">
                       {activeLease.type === 'nu' ? 'Location nue' : 'Location meublée'}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Numéro de bail</p>
-                    <p className="font-medium">{activeLease.lease_number}</p>
+                  <div className="p-3 bg-gray-50 rounded-xl">
+                    <p className="text-xs text-gray-500 font-manrope">Numéro de bail</p>
+                    <p className="font-medium text-gray-900 font-manrope font-mono text-sm">{activeLease.lease_number}</p>
                   </div>
                 </div>
+
+                {/* Propriétaire */}
+                {activeLease.landlord && (
+                  <div className="mt-6 pt-6 border-t border-gray-100">
+                    <h4 className="text-md font-semibold text-gray-900 mb-3 font-merriweather">Propriétaire</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-3 bg-gray-50 rounded-xl flex items-center gap-2">
+                        <User size={16} className="text-gray-400" />
+                        <span className="text-gray-900 font-manrope">{activeLease.landlord.first_name} {activeLease.landlord.last_name}</span>
+                      </div>
+                      <div className="p-3 bg-gray-50 rounded-xl flex items-center gap-2">
+                        <Mail size={16} className="text-gray-400" />
+                        <span className="text-gray-900 font-manrope">{activeLease.landlord.email}</span>
+                        <button onClick={() => copyToClipboard(activeLease.landlord?.email || '', 'email')} className="ml-auto p-1 hover:bg-gray-200 rounded transition-colors">
+                          {copiedText === 'email' ? <Check size={14} className="text-green-600" /> : <Copy size={14} className="text-gray-400" />}
+                        </button>
+                      </div>
+                      <div className="p-3 bg-gray-50 rounded-xl flex items-center gap-2">
+                        <Phone size={16} className="text-gray-400" />
+                        <span className="text-gray-900 font-manrope">{activeLease.landlord.phone}</span>
+                        <button onClick={() => copyToClipboard(activeLease.landlord?.phone || '', 'phone')} className="ml-auto p-1 hover:bg-gray-200 rounded transition-colors">
+                          {copiedText === 'phone' ? <Check size={14} className="text-green-600" /> : <Copy size={14} className="text-gray-400" />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
-              <div className="bg-white rounded-lg shadow p-8 text-center">
+              <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
                 <img src="/Ressource_gestiloc/Key Security.png" alt="No lease" className="w-24 h-24 mx-auto mb-4 opacity-50" />
-                <p className="text-gray-500 mb-4">Aucune location active</p>
-                <p className="text-sm text-gray-400">Vous n'avez pas encore de bail actif.</p>
+                <p className="text-gray-500 font-manrope mb-2">Aucune location active</p>
+                <p className="text-sm text-gray-400 font-manrope">Vous n'avez pas encore de bail actif.</p>
               </div>
             )}
           </div>
@@ -777,36 +853,43 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       case 'receipts':
         return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Mes Quittances</h2>
-            <div className="bg-white rounded-lg shadow">
+          <div className="space-y-6 animate-fadeIn">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900 font-merriweather">Mes Quittances</h2>
+              <button
+                onClick={() => onNavigate?.('home')}
+                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-green-600 transition-colors font-manrope"
+              >
+                <ArrowLeft size={18} /> Retour
+              </button>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
               <div className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Historique des quittances</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-merriweather">Historique des quittances</h3>
                 {receipts && receipts.length > 0 ? (
                   <div className="space-y-3">
                     {receipts.map((receipt: Receipt) => (
-                      <div key={receipt.id} className="flex justify-between items-center p-3 border rounded hover:bg-gray-50">
+                      <div key={receipt.id} className="flex justify-between items-center p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
                         <div>
-                          <p className="font-medium">Mois: {receipt.paid_month}</p>
-                          <p className="text-sm text-gray-500">
+                          <p className="font-medium text-gray-900 font-manrope">Mois: {receipt.paid_month}</p>
+                          <p className="text-sm text-gray-500 font-manrope">
                             Émis le: {new Date(receipt.issued_date).toLocaleDateString('fr-FR')}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-gray-500 font-manrope">
                             {receipt.property?.name && `Bien: ${receipt.property.name}`}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold">{fmtMoney(receipt.amount || 0)}</p>
-                          <span className={`text-xs px-2 py-1 rounded ${receipt.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                            }`}>
-                            {receipt.status === 'paid' ? 'Payé' : 'En attente'}
+                          <p className="font-semibold text-gray-900 font-manrope">{fmtMoney(receipt.amount || 0)}</p>
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                            <CheckCircle size={10} /> Payé
                           </span>
                           {receipt.pdf_url && (
                             <a
                               href={receipt.pdf_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="ml-2 text-xs text-blue-600 hover:underline"
+                              className="ml-2 text-xs text-green-600 hover:underline font-manrope"
                             >
                               Télécharger
                             </a>
@@ -816,9 +899,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8">
+                  <div className="text-center py-12">
                     <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                    <p className="text-gray-500">Aucune quittance disponible</p>
+                    <p className="text-gray-500 font-manrope">Aucune quittance disponible</p>
                   </div>
                 )}
               </div>
@@ -828,131 +911,114 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       case 'interventions':
         return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Mes Interventions</h2>
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold mb-4">Historique des interventions</h3>
-              {incidents && incidents.length > 0 ? (
-                <div className="space-y-3">
-                  {incidents.map((incident: Incident) => (
-                    <div key={incident.id} className="flex justify-between items-center p-3 border rounded hover:bg-gray-50">
-                      <div>
-                        <p className="font-medium">{incident.title}</p>
-                        <p className="text-sm text-gray-500">{incident.description.substring(0, 100)}...</p>
-                        <p className="text-xs text-gray-400">
-                          {new Date(incident.created_at).toLocaleDateString('fr-FR')}
-                          {incident.property?.name && ` • ${incident.property.name}`}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <span className={`text-xs px-2 py-1 rounded ${incident.status === 'open' ? 'bg-red-100 text-red-800' :
-                            incident.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-green-100 text-green-800'
+          <div className="space-y-6 animate-fadeIn">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900 font-merriweather">Mes Interventions</h2>
+              <button
+                onClick={() => onNavigate?.('home')}
+                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-green-600 transition-colors font-manrope"
+              >
+                <ArrowLeft size={18} /> Retour
+              </button>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-merriweather">Historique des interventions</h3>
+                {incidents && incidents.length > 0 ? (
+                  <div className="space-y-3">
+                    {incidents.map((incident: Incident) => (
+                      <div key={incident.id} className="flex justify-between items-center p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 font-manrope">{incident.title}</p>
+                          <p className="text-sm text-gray-500 font-manrope">{incident.description.substring(0, 100)}...</p>
+                          <p className="text-xs text-gray-400 font-manrope mt-1">
+                            {new Date(incident.created_at).toLocaleDateString('fr-FR')}
+                            {incident.property?.name && ` • ${incident.property.name}`}
+                          </p>
+                        </div>
+                        <div className="ml-4">
+                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                            incident.status === 'open' ? 'bg-red-100 text-red-700' :
+                            incident.status === 'in_progress' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-green-100 text-green-700'
                           }`}>
-                          {incident.status === 'open' ? 'Ouvert' :
-                            incident.status === 'in_progress' ? 'En cours' :
-                              'Résolu'}
-                        </span>
+                            {incident.status === 'open' ? 'Ouvert' :
+                              incident.status === 'in_progress' ? 'En cours' :
+                                'Résolu'}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Wrench className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <p className="text-gray-500">Aucune intervention en cours</p>
-                </div>
-              )}
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Wrench className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <p className="text-gray-500 font-manrope">Aucune intervention en cours</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         );
 
       case 'payments':
         return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Paiements</h2>
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold mb-4">Historique des paiements</h3>
-              {payments && payments.length > 0 ? (
-                <div className="space-y-3">
-                  {payments.map((payment: Payment) => (
-                    <div key={payment.id} className="flex justify-between items-center p-3 border rounded hover:bg-gray-50">
-                      <div>
-                        <p className="font-medium">
-                          {payment.payment_method === 'card' ? 'Paiement par carte' :
-                            payment.payment_method === 'mobile_money' ? 'Mobile Money' :
-                              payment.payment_method === 'virement' ? 'Virement' :
-                                payment.payment_method === 'especes' ? 'Espèces' :
-                                  payment.payment_method === 'cheque' ? 'Chèque' : 'Paiement'}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Date: {payment.paid_at ? new Date(payment.paid_at).toLocaleDateString('fr-FR') : 'N/A'}
-                        </p>
-                        {payment.property?.name && (
-                          <p className="text-sm text-gray-500">Bien: {payment.property.name}</p>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold">{fmtMoney(payment.amount)}</p>
-                        <span className={`text-xs px-2 py-1 rounded ${payment.status === 'approved' ? 'bg-green-100 text-green-800' :
-                            payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
-                          }`}>
-                          {payment.status === 'approved' ? 'Approuvé' :
-                            payment.status === 'pending' ? 'En attente' :
-                              payment.status === 'initiated' ? 'Initiatié' :
-                                payment.status === 'cancelled' ? 'Annulé' :
-                                  payment.status === 'failed' ? 'Échoué' : payment.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <DollarSign className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <p className="text-gray-500">Aucun paiement enregistré</p>
-                </div>
-              )}
+          <div className="space-y-6 animate-fadeIn">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900 font-merriweather">Paiements</h2>
+              <button
+                onClick={() => onNavigate?.('home')}
+                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-green-600 transition-colors font-manrope"
+              >
+                <ArrowLeft size={18} /> Retour
+              </button>
             </div>
-          </div>
-        );
-
-      case 'notice':
-        return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Préavis</h2>
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold mb-4">Gestion du préavis</h3>
-              {notices && notices.length > 0 ? (
-                <div className="space-y-3">
-                  {notices.map((notice: Notice) => (
-                    <div key={notice.id} className="flex justify-between items-center p-3 border rounded">
-                      <div>
-                        <p className="font-medium">Préavis de départ #{notice.notice_number}</p>
-                        <p className="text-sm text-gray-500">
-                          Date: {new Date(notice.notice_date).toLocaleDateString('fr-FR')}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Effectif le: {notice.effective_date ? new Date(notice.effective_date).toLocaleDateString('fr-FR') : 'Non défini'}
-                        </p>
-                        {notice.reason && (
-                          <p className="text-sm text-gray-500">Motif: {notice.reason}</p>
-                        )}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-merriweather">Historique des paiements</h3>
+                {payments && payments.length > 0 ? (
+                  <div className="space-y-3">
+                    {payments.map((payment: Payment) => (
+                      <div key={payment.id} className="flex justify-between items-center p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                        <div>
+                          <p className="font-medium text-gray-900 font-manrope">
+                            {payment.payment_method === 'card' ? 'Paiement par carte' :
+                              payment.payment_method === 'mobile_money' ? 'Mobile Money' :
+                                payment.payment_method === 'virement' ? 'Virement' :
+                                  payment.payment_method === 'especes' ? 'Espèces' :
+                                    payment.payment_method === 'cheque' ? 'Chèque' : 'Paiement'}
+                          </p>
+                          <p className="text-sm text-gray-500 font-manrope">
+                            Date: {payment.paid_at ? new Date(payment.paid_at).toLocaleDateString('fr-FR') : 'N/A'}
+                          </p>
+                          {payment.property?.name && (
+                            <p className="text-sm text-gray-500 font-manrope">Bien: {payment.property.name}</p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-gray-900 font-manrope">{fmtMoney(payment.amount)}</p>
+                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                            payment.status === 'approved' ? 'bg-green-100 text-green-700' :
+                            payment.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-red-100 text-red-700'
+                          }`}>
+                            {payment.status === 'approved' ? 'Approuvé' :
+                              payment.status === 'pending' ? 'En attente' :
+                                payment.status === 'initiated' ? 'Initialisé' :
+                                  payment.status === 'cancelled' ? 'Annulé' :
+                                    payment.status === 'failed' ? 'Échoué' : payment.status}
+                          </span>
+                        </div>
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded ${notice.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
-                        }`}>
-                        {notice.status === 'pending' ? 'En attente' : 'Confirmé'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <File className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <p className="text-gray-500">Aucun préavis en cours</p>
-                </div>
-              )}
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <DollarSign className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <p className="text-gray-500 font-manrope">Aucun paiement enregistré</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -960,7 +1026,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       default:
         return (
           <div className="text-center py-12">
-            <p className="text-gray-500">Onglet non trouvé</p>
+            <p className="text-gray-500 font-manrope">Onglet non trouvé</p>
           </div>
         );
     }
@@ -983,3 +1049,5 @@ export const Dashboard: React.FC<DashboardProps> = ({
     </>
   );
 };
+
+export default Dashboard;
