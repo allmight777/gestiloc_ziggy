@@ -449,10 +449,10 @@ const NouvelleLocation = () => {
         {/* Top Action Bar */}
         <div style={styles.topBar}>
           <button
-            style={styles.backBtn}
+           
             onClick={() => navigate("/proprietaire/dashboard")}
           >
-            Retour au tableau de bord
+           
           </button>
           <div style={styles.topActions}>
             <button

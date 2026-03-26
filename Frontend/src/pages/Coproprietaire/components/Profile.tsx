@@ -48,21 +48,22 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate, notify }) => {
     try {
       setLoading(true);
       const data = await coOwnerApi.getProfile();
+      console.log('📁 Profil chargé:', data);
       setProfile(data);
       setFormData({
-        first_name: data.first_name,
-        last_name: data.last_name,
-        email: data.email,
-        phone: data.phone,
-        address: data.address,
-        date_of_birth: data.date_of_birth,
-        id_number: data.id_number,
-        company_name: data.company_name,
-        address_billing: data.address_billing,
-        license_number: data.license_number,
-        ifu: data.ifu,
-        rccm: data.rccm,
-        vat_number: data.vat_number,
+        first_name: data.first_name || '',
+        last_name: data.last_name || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        address: data.address || '',
+        date_of_birth: data.date_of_birth || '',
+        id_number: data.id_number || '',
+        company_name: data.company_name || '',
+        address_billing: data.address_billing || '',
+        license_number: data.license_number || '',
+        ifu: data.ifu || '',
+        rccm: data.rccm || '',
+        vat_number: data.vat_number || '',
       });
     } catch (error: any) {
       console.error('Error fetching profile:', error);
@@ -72,22 +73,134 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate, notify }) => {
     }
   };
 
+  // ✅ FONCTION CORRIGÉE - Traite TOUS les champs avec logs de débogage
   const handleSave = async () => {
     try {
       setSaving(true);
-      const updatedProfile = await coOwnerApi.updateProfile(formData);
+      
+      const updatedData: any = {};
+      
+      console.log('🔍 Comparaison des données:');
+      console.log('formData.address:', formData.address);
+      console.log('profile.address:', profile.address);
+      console.log('formData.date_of_birth:', formData.date_of_birth);
+      console.log('profile.date_of_birth:', profile.date_of_birth);
+      
+      // === INFORMATIONS PERSONNELLES ===
+      if (formData.first_name !== profile.first_name) {
+        updatedData.first_name = formData.first_name;
+        console.log('✅ first_name changé:', formData.first_name);
+      }
+      if (formData.last_name !== profile.last_name) {
+        updatedData.last_name = formData.last_name;
+        console.log('✅ last_name changé:', formData.last_name);
+      }
+      if (formData.email !== profile.email) {
+        updatedData.email = formData.email;
+        console.log('✅ email changé:', formData.email);
+      }
+      if (formData.phone !== profile.phone) {
+        updatedData.phone = formData.phone;
+        console.log('✅ phone changé:', formData.phone);
+      }
+      if (formData.address !== profile.address) {
+        updatedData.address = formData.address === '' ? null : formData.address;
+        console.log('✅ address changé:', updatedData.address);
+      }
+      if (formData.date_of_birth !== profile.date_of_birth) {
+        updatedData.date_of_birth = formData.date_of_birth === '' ? null : formData.date_of_birth;
+        console.log('✅ date_of_birth changé:', updatedData.date_of_birth);
+      }
+      if (formData.id_number !== profile.id_number) {
+        updatedData.id_number = formData.id_number === '' ? null : formData.id_number;
+        console.log('✅ id_number changé:', updatedData.id_number);
+      }
+      
+      // === INFORMATIONS PROFESSIONNELLES ===
+      const canEditProfessional = profile?.is_professional || profile?.co_owner_type === 'agency';
+      console.log('canEditProfessional:', canEditProfessional);
+      
+      if (canEditProfessional) {
+        if (formData.company_name !== profile.company_name) {
+          updatedData.company_name = formData.company_name === '' ? null : formData.company_name;
+          console.log('✅ company_name changé:', updatedData.company_name);
+        }
+        if (formData.address_billing !== profile.address_billing) {
+          updatedData.address_billing = formData.address_billing === '' ? null : formData.address_billing;
+          console.log('✅ address_billing changé:', updatedData.address_billing);
+        }
+        if (formData.license_number !== profile.license_number) {
+          updatedData.license_number = formData.license_number === '' ? null : formData.license_number;
+          console.log('✅ license_number changé:', updatedData.license_number);
+        }
+        if (formData.ifu !== profile.ifu) {
+          updatedData.ifu = formData.ifu === '' ? null : formData.ifu;
+          console.log('✅ ifu changé:', updatedData.ifu);
+        }
+        if (formData.rccm !== profile.rccm) {
+          updatedData.rccm = formData.rccm === '' ? null : formData.rccm;
+          console.log('✅ rccm changé:', updatedData.rccm);
+        }
+        if (formData.vat_number !== profile.vat_number) {
+          updatedData.vat_number = formData.vat_number === '' ? null : formData.vat_number;
+          console.log('✅ vat_number changé:', updatedData.vat_number);
+        }
+      }
+      
+      // Vérifier si des modifications ont été faites
+      if (Object.keys(updatedData).length === 0) {
+        console.log('⚠️ Aucune modification détectée');
+        setIsEditing(false);
+        notify('Aucune modification détectée', 'info');
+        setSaving(false);
+        return;
+      }
+      
+      console.log('📤 Données envoyées au serveur:', updatedData);
+      
+      const updatedProfile = await coOwnerApi.updateProfile(updatedData);
+      
+      console.log('✅ Réponse du serveur:', updatedProfile);
+      
       setProfile(updatedProfile);
+      
+      // Mettre à jour formData avec les nouvelles valeurs
+      setFormData({
+        first_name: updatedProfile.first_name || '',
+        last_name: updatedProfile.last_name || '',
+        email: updatedProfile.email || '',
+        phone: updatedProfile.phone || '',
+        address: updatedProfile.address || '',
+        date_of_birth: updatedProfile.date_of_birth || '',
+        id_number: updatedProfile.id_number || '',
+        company_name: updatedProfile.company_name || '',
+        address_billing: updatedProfile.address_billing || '',
+        license_number: updatedProfile.license_number || '',
+        ifu: updatedProfile.ifu || '',
+        rccm: updatedProfile.rccm || '',
+        vat_number: updatedProfile.vat_number || '',
+      });
+      
       setIsEditing(false);
       notify('Profil mis à jour avec succès', 'success');
     } catch (error: any) {
-      console.error('Error updating profile:', error);
-      notify('Erreur lors de la mise à jour du profil', 'error');
+      console.error('❌ Erreur mise à jour profil:', error);
+      
+      if (error.response?.data?.message) {
+        notify(`Erreur: ${error.response.data.message}`, 'error');
+      } else if (error.response?.data?.errors) {
+        const errors = Object.values(error.response.data.errors).flat();
+        notify(errors.join(', '), 'error');
+      } else {
+        notify('Erreur lors de la mise à jour du profil', 'error');
+      }
     } finally {
       setSaving(false);
     }
   };
 
   const handleInputChange = (field: string, value: string) => {
+    console.log(`✏️ Champ modifié: ${field} = ${value}`);
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -96,11 +209,15 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate, notify }) => {
 
   const formatDate = (dateString: string) => {
     if (!dateString) return 'Non spécifié';
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
+    try {
+      return new Date(dateString).toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    } catch {
+      return 'Non spécifié';
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -116,6 +233,7 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate, notify }) => {
   const isAgency = profile?.co_owner_type === 'agency';
   const isProfessional = profile?.is_professional;
   const isSimpleCoOwner = !isAgency && !isProfessional;
+  const canEditProfessional = isAgency || isProfessional;
 
   if (loading) {
     return (
@@ -202,19 +320,19 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate, notify }) => {
               onClick={() => {
                 setIsEditing(false);
                 setFormData({
-                  first_name: profile.first_name,
-                  last_name: profile.last_name,
-                  email: profile.email,
-                  phone: profile.phone,
-                  address: profile.address,
-                  date_of_birth: profile.date_of_birth,
-                  id_number: profile.id_number,
-                  company_name: profile.company_name,
-                  address_billing: profile.address_billing,
-                  license_number: profile.license_number,
-                  ifu: profile.ifu,
-                  rccm: profile.rccm,
-                  vat_number: profile.vat_number,
+                  first_name: profile.first_name || '',
+                  last_name: profile.last_name || '',
+                  email: profile.email || '',
+                  phone: profile.phone || '',
+                  address: profile.address || '',
+                  date_of_birth: profile.date_of_birth || '',
+                  id_number: profile.id_number || '',
+                  company_name: profile.company_name || '',
+                  address_billing: profile.address_billing || '',
+                  license_number: profile.license_number || '',
+                  ifu: profile.ifu || '',
+                  rccm: profile.rccm || '',
+                  vat_number: profile.vat_number || '',
                 });
               }}
               disabled={saving}
@@ -501,7 +619,7 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate, notify }) => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Nom de l'entreprise
                     </label>
-                    {isEditing && (isAgency || isProfessional) ? (
+                    {isEditing && canEditProfessional ? (
                       <input
                         type="text"
                         value={formData.company_name || ''}
@@ -520,7 +638,7 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate, notify }) => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Adresse de facturation
                     </label>
-                    {isEditing && (isAgency || isProfessional) ? (
+                    {isEditing && canEditProfessional ? (
                       <input
                         type="text"
                         value={formData.address_billing || ''}
@@ -539,7 +657,7 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate, notify }) => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Numéro de licence
                     </label>
-                    {isEditing && (isAgency || isProfessional) ? (
+                    {isEditing && canEditProfessional ? (
                       <input
                         type="text"
                         value={formData.license_number || ''}
@@ -558,7 +676,7 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate, notify }) => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       IFU
                     </label>
-                    {isEditing && (isAgency || isProfessional) ? (
+                    {isEditing && canEditProfessional ? (
                       <input
                         type="text"
                         value={formData.ifu || ''}
@@ -577,7 +695,7 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate, notify }) => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       RCCM
                     </label>
-                    {isEditing && (isAgency || isProfessional) ? (
+                    {isEditing && canEditProfessional ? (
                       <input
                         type="text"
                         value={formData.rccm || ''}
@@ -596,7 +714,7 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate, notify }) => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Numéro TVA
                     </label>
-                    {isEditing && (isAgency || isProfessional) ? (
+                    {isEditing && canEditProfessional ? (
                       <input
                         type="text"
                         value={formData.vat_number || ''}

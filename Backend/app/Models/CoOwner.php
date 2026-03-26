@@ -11,17 +11,20 @@ class CoOwner extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
+   protected $fillable = [
         'user_id',
         'landlord_id',
         'first_name',
         'last_name',
         'company_name',
+        'address',              // ✅ AJOUTER
         'address_billing',
         'phone',
+        'date_of_birth',        // ✅ AJOUTER
+        'id_number',            // ✅ AJOUTER
         'license_number',
         'is_professional',
-         'co_owner_type', 
+        'co_owner_type',
         'ifu',
         'rccm',
         'vat_number',
@@ -33,6 +36,7 @@ class CoOwner extends Model
 
     protected $casts = [
         'is_professional' => 'boolean',
+        'date_of_birth' => 'date',      // ✅ AJOUTER pour le casting
         'meta' => 'array',
         'joined_at' => 'datetime',
     ];

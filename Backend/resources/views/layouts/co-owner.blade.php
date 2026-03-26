@@ -1284,22 +1284,62 @@
         function markActiveMenu() {
             const currentPath = window.location.pathname;
 
-            // Items simples
-            document.querySelectorAll('.menu-item[data-path]').forEach(item => {
-                const path = item.dataset.path;
-                if (currentPath === path || (path !== '/' && currentPath.startsWith(path + '/'))) {
-                    item.classList.add('active');
-                }
+            // 1. Réinitialiser tous les états actifs
+            document.querySelectorAll('.menu-item.active, .menu-item.active-parent').forEach(item => {
+                item.classList.remove('active', 'active-parent');
+            });
+            document.querySelectorAll('.submenu-item.active').forEach(item => {
+                item.classList.remove('active');
             });
 
-            // Sous-items
-            document.querySelectorAll('.submenu-item[data-path]').forEach(item => {
-                const path = item.dataset.path;
-                if (currentPath === path || (path !== '/' && currentPath.startsWith(path))) {
-                    item.classList.add('active');
+            // Fermer tous les sous-menus
+            document.querySelectorAll('.submenu.open').forEach(sub => {
+                sub.classList.remove('open');
+                const chevron = sub.previousElementSibling?.querySelector('.menu-item-chevron svg');
+                if (chevron) chevron.style.transform = 'rotate(0deg)';
+            });
 
-                    // Ouvrir le parent
-                    const parentSub = item.closest('.submenu');
+            let bestMatch = null;
+            let bestMatchType = ''; // 'exact', 'startsWith'
+            let bestMatchLength = 0;
+
+            // 2. Collecter tous les items avec data-path
+            const allItems = [
+                ...document.querySelectorAll('.menu-item[data-path]'),
+                ...document.querySelectorAll('.submenu-item[data-path]')
+            ];
+
+            // 3. Trouver le meilleur match unique
+            for (const item of allItems) {
+                const path = item.dataset.path;
+                if (!path) continue;
+
+                // Match exact (priorité maximale)
+                if (currentPath === path) {
+                    if (bestMatchType !== 'exact' || path.length > bestMatchLength) {
+                        bestMatch = item;
+                        bestMatchType = 'exact';
+                        bestMatchLength = path.length;
+                    }
+                }
+                // Match par début de chemin (uniquement si pas de match exact trouvé)
+                else if (bestMatchType !== 'exact' && path !== '/' && currentPath.startsWith(path + '/')) {
+                    // Choisir le chemin le plus long (plus spécifique)
+                    if (path.length > bestMatchLength) {
+                        bestMatch = item;
+                        bestMatchType = 'startsWith';
+                        bestMatchLength = path.length;
+                    }
+                }
+            }
+
+            // 4. Appliquer la classe active uniquement au meilleur match
+            if (bestMatch) {
+                bestMatch.classList.add('active');
+
+                // Si c'est un sous-menu item, ouvrir son parent
+                if (bestMatch.classList.contains('submenu-item')) {
+                    const parentSub = bestMatch.closest('.submenu');
                     if (parentSub) {
                         parentSub.classList.add('open');
                         const parentBtn = parentSub.previousElementSibling;
@@ -1312,7 +1352,7 @@
                         }
                     }
                 }
-            });
+            }
         }
 
         // ─── RESPONSIVE ───

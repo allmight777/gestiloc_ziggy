@@ -303,168 +303,172 @@ class CoOwnerMeController extends Controller
     /**
      * Mettre à jour le profil du co-propriétaire
      */
-    public function updateProfile(Request $request): JsonResponse
-    {
-        $user = $request->user();
+public function updateProfile(Request $request): JsonResponse
+{
+    $user = $request->user();
 
-        Log::info('CoOwnerMeController::updateProfile - Début', [
-            'user_id' => $user?->id,
-            'user_email' => $user?->email,
-            'user_phone' => $user?->phone,
-            'request_data' => $request->all()
-        ]);
+    Log::info('CoOwnerMeController::updateProfile - Début', [
+        'user_id' => $user?->id,
+        'user_email' => $user?->email,
+        'user_phone' => $user?->phone,
+        'request_data' => $request->all()
+    ]);
 
-        if (!$user || !$user->hasRole('co_owner')) {
-            Log::warning('CoOwnerMeController::updateProfile - Accès refusé');
-            return response()->json(['message' => 'Forbidden - User is not a co-owner'], 403);
-        }
+    if (!$user || !$user->hasRole('co_owner')) {
+        Log::warning('CoOwnerMeController::updateProfile - Accès refusé');
+        return response()->json(['message' => 'Forbidden - User is not a co-owner'], 403);
+    }
 
-        $coOwner = CoOwner::where('user_id', $user->id)->first();
-        if (!$coOwner) {
-            Log::info('CoOwnerMeController::updateProfile - Création du profil co-owner');
-            $coOwner = CoOwner::create([
-                'user_id' => $user->id,
-                'first_name' => $user->first_name ?? '',
-                'last_name' => $user->last_name ?? '',
-                'email' => $user->email,
-                'phone' => $user->phone ?? '',
-                'status' => 'active',
-                'is_professional' => false,
-                'co_owner_type' => 'simple',
-            ]);
-        }
-
-        try {
-            $validated = $request->validate([
-                'first_name' => 'sometimes|nullable|string|max:255',
-                'last_name' => 'sometimes|nullable|string|max:255',
-                'phone' => 'sometimes|nullable|string|max:20',
-                'address' => 'sometimes|nullable|string|max:255',
-                'date_of_birth' => 'sometimes|nullable|date|before:today',
-                'id_number' => 'sometimes|nullable|string|max:50',
-                'company_name' => 'sometimes|nullable|string|max:255',
-                'address_billing' => 'sometimes|nullable|string|max:255',
-                'license_number' => 'sometimes|nullable|string|max:100',
-                'ifu' => 'sometimes|nullable|string|max:50',
-                'rccm' => 'sometimes|nullable|string|max:50',
-                'vat_number' => 'sometimes|nullable|string|max:50',
-                'is_professional' => 'sometimes|boolean',
-            ]);
-
-            Log::info('CoOwnerMeController::updateProfile - Données validées', ['validated' => $validated]);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error('CoOwnerMeController::updateProfile - Erreur de validation', [
-                'errors' => $e->errors(),
-                'request_data' => $request->all()
-            ]);
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-        }
-
-        foreach ($validated as $key => $value) {
-            if ($value === '' || $value === null) {
-                $validated[$key] = null;
-            }
-        }
-
-        if (isset($validated['phone']) && $validated['phone'] !== $user->phone) {
-            $user->update(['phone' => $validated['phone']]);
-            Log::info('CoOwnerMeController::updateProfile - Téléphone mis à jour dans users', [
-                'old_phone' => $user->phone,
-                'new_phone' => $validated['phone']
-            ]);
-        }
-
-        if (isset($validated['is_professional'])) {
-            $coOwner->is_professional = (bool) $validated['is_professional'];
-            if ($validated['is_professional'] && !empty($validated['company_name'])) {
-                $coOwner->co_owner_type = 'agency';
-            } elseif ($validated['is_professional']) {
-                $coOwner->co_owner_type = 'professional';
-            } else {
-                $coOwner->co_owner_type = 'simple';
-            }
-            unset($validated['is_professional']);
-        }
-
-        $coOwner->update($validated);
-
-        if ($request->has('email') && $request->email !== $user->email) {
-            try {
-                $request->validate(['email' => 'required|email|unique:users,email,' . $user->id]);
-                $user->update(['email' => $request->email]);
-                $coOwner->update(['email' => $request->email]);
-                Log::info('CoOwnerMeController::updateProfile - Email mis à jour', [
-                    'old_email' => $user->email,
-                    'new_email' => $request->email
-                ]);
-            } catch (\Illuminate\Validation\ValidationException $e) {
-                Log::error('CoOwnerMeController::updateProfile - Erreur validation email', [
-                    'errors' => $e->errors()
-                ]);
-                $validated['email'] = $user->email;
-            }
-        }
-
-        $userUpdates = [];
-        if (isset($validated['first_name']) && $validated['first_name'] !== $user->first_name) {
-            $userUpdates['first_name'] = $validated['first_name'];
-        }
-        if (isset($validated['last_name']) && $validated['last_name'] !== $user->last_name) {
-            $userUpdates['last_name'] = $validated['last_name'];
-        }
-
-        if (!empty($userUpdates)) {
-            $user->update($userUpdates);
-            Log::info('CoOwnerMeController::updateProfile - Nom utilisateur mis à jour', $userUpdates);
-        }
-
-        $coOwner->refresh();
-        $user->refresh();
-
-        $coOwnerType = $coOwner->co_owner_type;
-        if (!$coOwnerType) {
-            if ($coOwner->is_professional) {
-                $coOwnerType = !empty($coOwner->company_name) ? 'agency' : 'professional';
-            } else {
-                $coOwnerType = 'simple';
-            }
-        }
-
-        Log::info('CoOwnerMeController::updateProfile - Profil mis à jour avec succès', [
-            'co_owner_id' => $coOwner->id,
-            'co_owner_type' => $coOwnerType,
-            'phone' => $coOwner->phone
-        ]);
-
-        return response()->json([
-            'message' => 'Profile updated successfully',
-            'data' => [
-                'id' => $coOwner->id,
-                'user_id' => $coOwner->user_id,
-                'first_name' => $coOwner->first_name,
-                'last_name' => $coOwner->last_name,
-                'email' => $user->email,
-                'phone' => $coOwner->phone ?? $user->phone,
-                'address' => $coOwner->address,
-                'date_of_birth' => $coOwner->date_of_birth,
-                'id_number' => $coOwner->id_number,
-                'company_name' => $coOwner->company_name,
-                'address_billing' => $coOwner->address_billing,
-                'license_number' => $coOwner->license_number,
-                'is_professional' => (bool) $coOwner->is_professional,
-                'co_owner_type' => $coOwnerType,
-                'ifu' => $coOwner->ifu,
-                'rccm' => $coOwner->rccm,
-                'vat_number' => $coOwner->vat_number,
-                'status' => $coOwner->status,
-                'joined_at' => $coOwner->created_at,
-            ]
+    $coOwner = CoOwner::where('user_id', $user->id)->first();
+    if (!$coOwner) {
+        Log::info('CoOwnerMeController::updateProfile - Création du profil co-owner');
+        $coOwner = CoOwner::create([
+            'user_id' => $user->id,
+            'first_name' => $user->first_name ?? '',
+            'last_name' => $user->last_name ?? '',
+            'email' => $user->email,
+            'phone' => $user->phone ?? '',
+            'status' => 'active',
+            'is_professional' => false,
+            'co_owner_type' => 'simple',
         ]);
     }
+
+    try {
+        $validated = $request->validate([
+            'first_name' => 'sometimes|nullable|string|max:255',
+            'last_name' => 'sometimes|nullable|string|max:255',
+            'phone' => 'sometimes|nullable|string|max:20',
+            'address' => 'sometimes|nullable|string|max:255',
+            'date_of_birth' => 'sometimes|nullable|date|before:today',
+            'id_number' => 'sometimes|nullable|string|max:50',
+            'company_name' => 'sometimes|nullable|string|max:255',
+            'address_billing' => 'sometimes|nullable|string|max:255',
+            'license_number' => 'sometimes|nullable|string|max:100',
+            'ifu' => 'sometimes|nullable|string|max:50',
+            'rccm' => 'sometimes|nullable|string|max:50',
+            'vat_number' => 'sometimes|nullable|string|max:50',
+            'is_professional' => 'sometimes|boolean',
+        ]);
+
+        Log::info('CoOwnerMeController::updateProfile - Données validées', ['validated' => $validated]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        Log::error('CoOwnerMeController::updateProfile - Erreur de validation', [
+            'errors' => $e->errors(),
+            'request_data' => $request->all()
+        ]);
+        return response()->json([
+            'message' => 'Validation failed',
+            'errors' => $e->errors()
+        ], 422);
+    }
+
+    foreach ($validated as $key => $value) {
+        if ($value === '' || $value === null) {
+            $validated[$key] = null;
+        }
+    }
+
+    if (isset($validated['phone']) && $validated['phone'] !== $user->phone) {
+        $user->update(['phone' => $validated['phone']]);
+        Log::info('CoOwnerMeController::updateProfile - Téléphone mis à jour dans users', [
+            'old_phone' => $user->phone,
+            'new_phone' => $validated['phone']
+        ]);
+    }
+
+    if (isset($validated['is_professional'])) {
+        $coOwner->is_professional = (bool) $validated['is_professional'];
+        if ($validated['is_professional'] && !empty($validated['company_name'])) {
+            $coOwner->co_owner_type = 'agency';
+        } elseif ($validated['is_professional']) {
+            $coOwner->co_owner_type = 'professional';
+        } else {
+            $coOwner->co_owner_type = 'simple';
+        }
+        unset($validated['is_professional']);
+    }
+
+    $coOwner->update($validated);
+
+    if ($request->has('email') && $request->email !== $user->email) {
+        try {
+            $request->validate(['email' => 'required|email|unique:users,email,' . $user->id]);
+            $user->update(['email' => $request->email]);
+            $coOwner->update(['email' => $request->email]);
+            Log::info('CoOwnerMeController::updateProfile - Email mis à jour', [
+                'old_email' => $user->email,
+                'new_email' => $request->email
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('CoOwnerMeController::updateProfile - Erreur validation email', [
+                'errors' => $e->errors()
+            ]);
+            $validated['email'] = $user->email;
+        }
+    }
+
+    $userUpdates = [];
+    if (isset($validated['first_name']) && $validated['first_name'] !== $user->first_name) {
+        $userUpdates['first_name'] = $validated['first_name'];
+    }
+    if (isset($validated['last_name']) && $validated['last_name'] !== $user->last_name) {
+        $userUpdates['last_name'] = $validated['last_name'];
+    }
+
+    if (!empty($userUpdates)) {
+        $user->update($userUpdates);
+        Log::info('CoOwnerMeController::updateProfile - Nom utilisateur mis à jour', $userUpdates);
+    }
+
+    $coOwner->refresh();
+    $user->refresh();
+
+    $coOwnerType = $coOwner->co_owner_type;
+    if (!$coOwnerType) {
+        if ($coOwner->is_professional) {
+            $coOwnerType = !empty($coOwner->company_name) ? 'agency' : 'professional';
+        } else {
+            $coOwnerType = 'simple';
+        }
+    }
+
+    Log::info('CoOwnerMeController::updateProfile - Profil mis à jour avec succès', [
+        'co_owner_id' => $coOwner->id,
+        'co_owner_type' => $coOwnerType,
+        'phone' => $coOwner->phone,
+        'address' => $coOwner->address,      // ✅ AJOUTÉ
+        'date_of_birth' => $coOwner->date_of_birth, // ✅ AJOUTÉ
+        'id_number' => $coOwner->id_number   // ✅ AJOUTÉ
+    ]);
+
+    return response()->json([
+        'message' => 'Profile updated successfully',
+        'data' => [
+            'id' => $coOwner->id,
+            'user_id' => $coOwner->user_id,
+            'first_name' => $coOwner->first_name,
+            'last_name' => $coOwner->last_name,
+            'email' => $user->email,
+            'phone' => $coOwner->phone ?? $user->phone,
+            'address' => $coOwner->address,              // ✅ AJOUTÉ
+            'date_of_birth' => $coOwner->date_of_birth,  // ✅ AJOUTÉ
+            'id_number' => $coOwner->id_number,          // ✅ AJOUTÉ
+            'company_name' => $coOwner->company_name,
+            'address_billing' => $coOwner->address_billing,
+            'license_number' => $coOwner->license_number,
+            'is_professional' => (bool) $coOwner->is_professional,
+            'co_owner_type' => $coOwnerType,
+            'ifu' => $coOwner->ifu,
+            'rccm' => $coOwner->rccm,
+            'vat_number' => $coOwner->vat_number,
+            'status' => $coOwner->status,
+            'joined_at' => $coOwner->created_at,
+            'updated_at' => $coOwner->updated_at,
+        ]
+    ]);
+}
 
     /**
      * Récupérer les propriétés déléguées au co-propriétaire connecté
@@ -1261,10 +1265,10 @@ class CoOwnerMeController extends Controller
 
             foreach ($recentPayments as $payment) {
                 $propertyName = $payment->lease->property->name ?? 'Inconnu';
-                $tenantName = $payment->lease->tenant 
+                $tenantName = $payment->lease->tenant
                     ? ($payment->lease->tenant->first_name . ' ' . $payment->lease->tenant->last_name)
                     : 'Un locataire';
-                
+
                 $notifications[] = [
                     'id' => 'payment_received_' . $payment->id,
                     'type' => 'info',
@@ -1273,7 +1277,7 @@ class CoOwnerMeController extends Controller
                     'subtext' => 'Transaction confirmée',
                     'is_read' => false,
                     'created_at' => $payment->paid_at,
-                    'link' => '/coproprietaire/paiements', 
+                    'link' => '/coproprietaire/paiements',
                     'icon' => 'payment',
                 ];
             }

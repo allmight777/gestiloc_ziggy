@@ -568,12 +568,7 @@
     <!-- Header avec bouton retour et actions -->
     <div class="page-header">
         <div class="header-left">
-            <a href="{{ route('co-owner.tenants.index') }}" class="btn-back">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 12H5M12 19l-7-7 7-7"/>
-                </svg>
-                <span> Retour au tableau de bord</span>
-            </a>
+      
 
             <h1 class="page-title">Nouveau contrat de location</h1>
             <p class="page-subtitle">Créez un nouveau contrat entre un bien et un locataire</p>
