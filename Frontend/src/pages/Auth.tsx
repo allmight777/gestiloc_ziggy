@@ -820,19 +820,16 @@ export default function Auth() {
                               />
                             )}
                           />
-                          <Label
-                            htmlFor="terms"
-                            className="text-xs font-normal leading-relaxed cursor-pointer text-slate-600"
-                          >
-                            ☑ J'accepte les{" "}
-                            <a href="/terms" className="font-medium hover:underline" style={linkStyle}>
-                              Conditions d'utilisation
-                            </a>{" "}
-                            et la{" "}
-                            <a href="/privacy" className="font-medium hover:underline" style={linkStyle}>
-                              Politique de Confidentialité
+                          <p className="text-center text-sm mt-6 text-gray-500 font-medium">
+                            En continuant, vous acceptez nos{' '}
+                            <a href="/legal/terms" className="font-medium hover:underline" style={linkStyle}>
+                              Conditions
                             </a>
-                          </Label>
+                            {' '}et notre{' '}
+                            <a href="/legal/privacy" className="font-medium hover:underline" style={linkStyle}>
+                              Politique de confidentialité
+                            </a>
+                          </p>
                         </div>
                         {registerForm.formState.errors.acceptTerms && (
                           <p className="text-xs text-red-600">{registerForm.formState.errors.acceptTerms.message}</p>

@@ -187,7 +187,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-gray-700">
               <li><Link to="/about" className="hover:text-gray-900">Qui sommes nous ?</Link></li>
               <li><Link to="/contact" className="hover:text-gray-900">Nous contacter</Link></li>
-              <li><Link to="/privacy" className="hover:text-gray-900">Confidentialités et cookies</Link></li>
+              <li><Link to="/legal/privacy" className="hover:text-gray-900">Confidentialités et cookies</Link></li>
             </ul>
           </div>
 
@@ -196,7 +196,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-gray-700">
               <li><Link to="/help" className="hover:text-gray-900">Centre d'aide</Link></li>
               <li><Link to="/faq" className="hover:text-gray-900">FAQ</Link></li>
-              <li><Link to="/terms" className="hover:text-gray-900">Conditions d'utilisation</Link></li>
+              <li><Link to="/legal/terms" className="hover:text-gray-900">Conditions d'utilisation</Link></li>
             </ul>
           </div>
 

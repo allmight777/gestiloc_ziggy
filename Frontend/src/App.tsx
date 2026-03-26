@@ -341,7 +341,7 @@ const AppContent = () => {
         }
       />
       <Route
-        path="/terms"
+        path="/legal/terms"
         element={
           <AppShell>
             <Terms />
@@ -349,7 +349,7 @@ const AppContent = () => {
         }
       />
       <Route
-        path="/privacy"
+        path="/legal/privacy"
         element={
           <AppShell>
             <Privacy />

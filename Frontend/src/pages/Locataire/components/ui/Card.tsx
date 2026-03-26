@@ -5,11 +5,12 @@ interface CardProps {
   className?: string;
   title?: string;
   action?: React.ReactNode;
+  style?: React.CSSProperties;
 }
 
-export const Card: React.FC<CardProps> = ({ children, className = '', title, action }) => {
+export const Card: React.FC<CardProps> = ({ children, className = '', title, action, style }) => {
   return (
-    <div className={`bg-white rounded-3xl shadow-md hover:shadow-lg border border-blue-200 transition-all duration-300 ${className}`}>
+    <div className={`bg-white rounded-3xl shadow-md hover:shadow-lg border border-blue-200 transition-all duration-300 ${className}`} style={style}>
       {(title || action) && (
         <div className="px-6 py-5 border-b border-blue-100 flex justify-between items-center">
           {title && <h3 className="font-bold text-black tracking-tight">{title}</h3>}
