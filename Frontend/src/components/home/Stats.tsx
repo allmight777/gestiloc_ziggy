@@ -68,7 +68,7 @@ const cards: WhyCard[] = [
     kind: "stat",
     percent: "83%",
     bigText:
-      "de nos clients affirment que GestiLoc les aide à mieux suivre loyers, charges et quittances.",
+      "de nos clients affirment que Imona les aide à mieux suivre loyers, charges et quittances.",
     bgColor: "#A855F7",      // purple-400
     textColor: "#FFFFFF",    // texte blanc
     rotationClass: "rotate-5",
@@ -81,7 +81,7 @@ const cards: WhyCard[] = [
     id: "c5",
     kind: "stat",
     percent: "67%",
-    bigText: "de nos clients recommandent GestiLoc à leur entourage.",
+    bigText: "de nos clients recommandent Imona à leur entourage.",
     bgColor: "#047857",      // emerald-700
     textColor: "#ECFDF5",    // texte clair
     rotationClass: "-rotate-4",
@@ -208,7 +208,7 @@ export function Stats() {
         <div className="max-w-3xl mx-auto text-center mb-14 space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700">
             <MessageCircle className="h-4 w-4" />
-            <span>Pourquoi choisir GestiLoc ?</span>
+            <span>Pourquoi choisir Imona ?</span>
           </div>
 
           <h2 className="text-3xl md:text-4xl font-bold">

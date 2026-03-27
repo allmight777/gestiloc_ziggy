@@ -56,7 +56,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onNavigate, notify }) =>
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-2">
-            Bienvenue sur GestiLoc !
+            Bienvenue sur IMONA !
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-400 mb-6">
             Pour démarrer, c'est simple comme 1, 2, 3...
@@ -158,7 +158,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onNavigate, notify }) =>
                 <div className="text-center">
                   <Building className="w-16 h-16 text-primary/50 dark:text-primary-light/50 mx-auto mb-3" />
                   <p className="text-slate-500 dark:text-slate-400">
-                    Capture d'écran GestiLoc
+                    Capture d'écran IMONA
                   </p>
                 </div>
               </div>

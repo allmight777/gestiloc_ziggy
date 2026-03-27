@@ -36,7 +36,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({ isOpen, onClose,
           <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="Partager">
             <Share2 size={20} />
           </button>
-          <Button variant="primary" size="sm" icon={<Download size={16} />} onClick={handleDownload}>
+          <Button variant="default" size="sm" icon={<Download size={16} />} onClick={handleDownload}>
             Télécharger
           </Button>
         </div>
@@ -78,7 +78,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({ isOpen, onClose,
               </div>
 
               <div className="mt-auto pt-6 border-t border-gray-100 text-center text-xs text-gray-400">
-                Généré numériquement par GestiLoc App - Page 1/3
+                Généré numériquement par Imona App - Page 1/3
               </div>
             </div>
           )}

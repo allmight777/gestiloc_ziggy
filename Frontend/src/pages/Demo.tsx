@@ -95,7 +95,7 @@ export default function Demo() {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-4">
             <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              GestiLoc
+              Imona
             </span>
             <Badge variant="secondary">Mode démo</Badge>
           </div>
@@ -216,7 +216,7 @@ export default function Demo() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold mb-1">
-                  Cette démo présente les fonctionnalités principales de GestiLoc
+                  Cette démo présente les fonctionnalités principales de Imona
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   Créez un compte gratuit pour accéder à toutes les fonctionnalités

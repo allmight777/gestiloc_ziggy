@@ -5,7 +5,7 @@
 ### 1️⃣ Accès rapide (PLUS FACILE)
 
 ```bash
-cd "c:\Users\abatt\Desktop\Projet Innovtech\gestiloc-marketing-kit"
+cd "c:\Users\abatt\Desktop\Projet Innovtech\imona-marketing-kit"
 bun run dev
 ```
 
@@ -25,7 +25,7 @@ Si vous avez besoin de configurer l'API :
 ```bash
 # Créer un fichier .env.local
 VITE_API_URL=http://localhost:3000/api
-VITE_APP_NAME=GestiLoc
+VITE_APP_NAME=Imona
 ```
 
 ---

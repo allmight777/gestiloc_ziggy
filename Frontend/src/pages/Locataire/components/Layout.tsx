@@ -175,7 +175,7 @@ const NavItem: React.FC<{
 }> = ({ item, activeTab, onNavigate, onLogout }) => {
   const [hovered, setHovered] = useState(false);
   const hasChildren = item.children && item.children.length > 0;
-  const isChildActive = hasChildren && item.children.some(child => child.id === activeTab);
+  const isChildActive = hasChildren && item.children?.some(child => child.id === activeTab);
   const [isExpanded, setIsExpanded] = useState(isChildActive);
   
   useEffect(() => {
@@ -245,7 +245,7 @@ const NavItem: React.FC<{
       {/* Dropdown Children */}
       {hasChildren && isExpanded && (
         <div className="pl-4 space-y-1 border-l-2 border-gray-200 ml-6 mt-1">
-          {item.children.map((child) => (
+          {item.children?.map((child) => (
             <NavItem key={child.id} item={child} activeTab={activeTab} onNavigate={onNavigate} onLogout={onLogout} />
           ))}
         </div>
@@ -416,15 +416,7 @@ export const Layout: React.FC<LayoutProps> = ({
           >
             <Menu size={24} className="text-white" />
           </button>
-          <span style={{
-            fontFamily: "'Merriweather', serif",
-            fontWeight: 900,
-            fontSize: '1.85rem',
-            color: '#fff',
-            letterSpacing: '-0.01em',
-          }}>
-            Gestiloc
-          </span>
+          <img src="/Ressource_gestiloc/IMONA.png" alt="IMONA" className="h-12 w-auto" />
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
@@ -628,7 +620,7 @@ export const Layout: React.FC<LayoutProps> = ({
           </div>
           <div className="flex-1 overflow-y-auto p-2">
             {[
-              { title: 'Guide de démarrage locataire', desc: 'Apprenez les bases de GestiLoc', color: 'bg-green-500', route: 'help' },
+              { title: 'Guide de démarrage locataire', desc: 'Apprenez les bases de Imona', color: 'bg-green-500', route: 'help' },
               { title: 'Gérer ses incidents', desc: 'Déclarer ou suivre une intervention', color: 'bg-blue-500', route: 'interventions' },
               { title: 'Nous contacter', desc: 'Une question ?', color: 'bg-purple-500', route: 'help' },
             ].map((help, idx) => (

@@ -121,6 +121,8 @@ export interface CreatePropertyPayload {
   charges_amount?: number | null;
   status: string;
   reference_code?: string | null;
+  caution?: number | null;
+  floor?: number | null;
   amenities?: string[] | null;
   photos?: string[] | null;
   meta?: {
@@ -128,7 +130,6 @@ export interface CreatePropertyPayload {
     balcony?: boolean;
     garden?: boolean;
     parking?: boolean;
-    floor?: number;
     elevator?: boolean;
     furnished?: boolean;
     heating_type?: string;
@@ -514,10 +515,12 @@ export const propertyService = {
 
 export const uploadService = {
   uploadPhoto: async (
-    file: File
+    file: File,
+    type: 'property_photo' | 'document' | 'ticket_image' | 'avatar' = 'property_photo'
   ): Promise<{ path: string; url: string }> => {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('type', type);
 
     try {
       const response = await api.post<{ path: string; url: string }>(
@@ -535,6 +538,29 @@ export const uploadService = {
       console.error('Erreur API uploadPhoto:', apiError.response?.data || error);
       throw error;
     }
+  },
+
+  uploadMultiple: async (
+    files: File[],
+    type: 'property_photo' | 'document' | 'ticket_image' | 'avatar' = 'property_photo'
+  ): Promise<string[]> => {
+    const uploadedPaths: string[] = [];
+    
+    // On upload les fichiers un par un pour l'instant car le contrôleur backend semble conçu pour un seul fichier à la fois
+    // (UploadController@store s'attend à 'file' au singulier)
+    for (const file of files) {
+      try {
+        const res = await uploadService.uploadPhoto(file, type);
+        uploadedPaths.push(res.path);
+      } catch (error) {
+        console.error(`Erreur lors de l'upload d'un des fichiers (type: ${type}):`, error);
+        // On continue pour les autres ou on s'arrête selon le besoin. 
+        // Ici on propage l'erreur car si un upload échoue, le bien risque d'être corrompu ou incomplet
+        throw error;
+      }
+    }
+    
+    return uploadedPaths;
   },
 };
 

@@ -1,6 +1,6 @@
 {
-  "name": "GestiLoc - Gestion Locative Simplifiée",
-  "short_name": "GestiLoc",
+  "name": "IMONA - Gestion Locative Simplifiée",
+  "short_name": "IMONA",
   "description": "Centralisez baux, loyers, quittances, comptabilité et échanges locataires dans une interface claire.",
   "start_url": "/",
   "display": "standalone",

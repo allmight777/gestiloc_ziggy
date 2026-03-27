@@ -183,7 +183,9 @@ export function Footer() {
         {/* Liens Footer */}
         <div className="grid gap-8 md:grid-cols-3 mb-12 mt-20">
           <div className="text-center md:text-left">
-            <h3 className="font-bold text-[#529D21] mb-4 italic" style={{ fontFamily: 'Merriweather' }}>Gestiloc</h3>
+            <div className="mb-4">
+              <img src="/Ressource_gestiloc/IMONA.png" alt="IMONA" className="h-10 w-auto mx-auto md:mx-0" />
+            </div>
             <ul className="space-y-2 text-sm text-gray-700">
               <li><Link to="/about" className="hover:text-gray-900">Qui sommes nous ?</Link></li>
               <li><Link to="/contact" className="hover:text-gray-900">Nous contacter</Link></li>
@@ -205,7 +207,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm text-gray-700">
               <li className="flex items-center gap-2 justify-center md:justify-start">
                 <Mail className="h-4 w-4 text-green-700" />
-                <a href="mailto:contact@gestiloc.bj">contact@gestiloc.bj</a>
+                <a href="mailto:contact@imona.bj">contact@imona.bj</a>
               </li>
               <li className="flex items-center gap-2 justify-center md:justify-start">
                 <Phone className="h-4 w-4 text-green-700" />
@@ -225,7 +227,7 @@ export function Footer() {
             <a href="#" className="h-10 w-10 rounded-full border-2 border-gray-400 flex items-center justify-center text-green-700 hover:bg-gray-50"><Instagram size={20} /></a>
           </div>
           <p className="text-xs text-gray-600 text-center">
-            ©2026 GestiLoc. Tous droits réservés. Designé et Développé par <span className="text-green-700 font-medium">Innovtech</span>
+            ©2026 IMONA. Tous droits réservés. Designé et Développé par <span className="text-green-700 font-medium">Innovtech</span>
           </p>
         </div>
       </div>

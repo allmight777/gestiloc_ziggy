@@ -1,4 +1,4 @@
-# 🏠 Module Propriétaire - GestiLoc
+# 🏠 Module Propriétaire - Imona
 
 ## 📋 Vue d'ensemble
 

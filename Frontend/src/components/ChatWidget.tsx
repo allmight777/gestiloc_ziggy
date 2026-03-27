@@ -18,7 +18,7 @@ export function ChatWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
-      text: "Bonjour ! Bienvenue sur GestiLoc. Notre équipe Innovtech est là pour vous aider. Comment puis-je vous assister aujourd'hui ?",
+      text: "Bonjour ! Bienvenue sur Imona. Notre équipe Innovtech est là pour vous aider. Comment puis-je vous assister aujourd'hui ?",
       sender: "support",
       timestamp: new Date(),
     },
@@ -44,7 +44,7 @@ export function ChatWidget() {
       
       // Salutations
       if (userQuestion.match(/^(bonjour|salut|bonsoir|hello|hey|hi|coucou)$/)) {
-        responseText = "Bonjour ! 👋 Comment puis-je vous aider avec GestiLoc aujourd'hui ?";
+        responseText = "Bonjour ! 👋 Comment puis-je vous aider avec Imona aujourd'hui ?";
       }
       // Remerciements
       else if (userQuestion.match(/merci|thanks|thank you/)) {
@@ -52,11 +52,11 @@ export function ChatWidget() {
       }
       // Questions sur les fonctionnalités générales
       else if (userQuestion.match(/comment ça marche|comment ça fonctionne|fonctionnalit|que fait|qu'est-ce que|c'est quoi/)) {
-        responseText = "GestiLoc simplifie la gestion locative au Bénin : suivi des loyers, gestion des locataires et biens, paiements Mobile Money, relances automatiques. Consultez notre page 'Fonctionnalités' pour en savoir plus !";
+        responseText = "Imona simplifie la gestion locative au Bénin : suivi des loyers, gestion des locataires et biens, paiements Mobile Money, relances automatiques. Consultez notre page 'Fonctionnalités' pour en savoir plus !";
       }
       // Compte et inscription
       else if (userQuestion.match(/compte|inscription|s'inscrire|créer un compte|enregistr|sign up/)) {
-        responseText = "Pour créer un compte sur GestiLoc, cliquez sur 'Inscription' en haut à droite. En tant que propriétaire, vous pourrez ensuite ajouter vos locataires. Consultez notre Centre d'aide > Comptes & Profils pour plus de détails.";
+        responseText = "Pour créer un compte sur Imona, cliquez sur 'Inscription' en haut à droite. En tant que propriétaire, vous pourrez ensuite ajouter vos locataires. Consultez notre Centre d'aide > Comptes & Profils pour plus de détails.";
       }
       // Connexion
       else if (userQuestion.match(/connexion|connecter|se connecter|login|mot de passe oublié/)) {
@@ -64,7 +64,7 @@ export function ChatWidget() {
       }
       // Paiements et Mobile Money
       else if (userQuestion.match(/paiement|payer|mobile money|mtn|moov|transaction|fcfa|argent/)) {
-        responseText = "GestiLoc supporte les paiements Mobile Money (MTN, Moov) pour enregistrer facilement les loyers de vos locataires. Consultez notre Centre d'aide > Paiements & Loyers pour savoir comment enregistrer un paiement.";
+        responseText = "Imona supporte les paiements Mobile Money (MTN, Moov) pour enregistrer facilement les loyers de vos locataires. Consultez notre Centre d'aide > Paiements & Loyers pour savoir comment enregistrer un paiement.";
       }
       // Biens et propriétés
       else if (userQuestion.match(/bien|propriété|maison|appartement|ajouter un bien|mes biens|immeuble/)) {
@@ -76,11 +76,11 @@ export function ChatWidget() {
       }
       // Prix et tarifs
       else if (userQuestion.match(/prix|tarif|coût|combien|abonnement|gratuit|essai/)) {
-        responseText = "GestiLoc propose plusieurs formules adaptées à vos besoins. Consultez notre page 'Tarifs' pour découvrir les détails de chaque offre. Un essai gratuit est disponible !";
+        responseText = "Imona propose plusieurs formules adaptées à vos besoins. Consultez notre page 'Tarifs' pour découvrir les détails de chaque offre. Un essai gratuit est disponible !";
       }
       // Innovtech
       else if (userQuestion.match(/innovtech|qui a créé|développeur|créateur|qui êtes-vous|entreprise/)) {
-        responseText = "GestiLoc est développé avec passion par Innovtech, votre partenaire technologique pour la gestion locative au Bénin. Nous sommes là pour moderniser et simplifier votre gestion. 🚀";
+        responseText = "Imona est développé avec passion par Innovtech, votre partenaire technologique pour la gestion locative au Bénin. Nous sommes là pour moderniser et simplifier votre gestion. 🚀";
       }
       // Contact
       else if (userQuestion.match(/contact|téléphone|email|adresse|joindre|appeler/)) {
@@ -88,11 +88,11 @@ export function ChatWidget() {
       }
       // Aide et support
       else if (userQuestion.match(/aide|help|support|assistance|question|problème|bug|erreur/)) {
-        responseText = "Notre Centre d'aide regroupe des articles détaillés sur toutes les fonctionnalités de GestiLoc. Vous pouvez aussi poser vos questions ici, l'équipe support Innovtech vous répond sous 5 minutes ! 💬";
+        responseText = "Notre Centre d'aide regroupe des articles détaillés sur toutes les fonctionnalités de Imona. Vous pouvez aussi poser vos questions ici, l'équipe support Innovtech vous répond sous 5 minutes ! 💬";
       }
       // Démo
       else if (userQuestion.match(/démo|demo|essayer|tester|voir|exemple/)) {
-        responseText = "Vous pouvez tester GestiLoc gratuitement ! Consultez notre page 'Démo' pour découvrir l'interface en action, ou créez un compte pour un essai complet.";
+        responseText = "Vous pouvez tester Imona gratuitement ! Consultez notre page 'Démo' pour découvrir l'interface en action, ou créez un compte pour un essai complet.";
       }
       // FAQ
       else if (userQuestion.match(/faq|questions fréquentes|questions courantes/)) {
@@ -100,7 +100,7 @@ export function ChatWidget() {
       }
       // Default response
       else {
-        responseText = "Merci pour votre message ! Je peux vous renseigner sur les fonctionnalités de GestiLoc, les tarifs, la création de compte, les paiements Mobile Money, etc. Quelle information recherchez-vous ? 🤔";
+        responseText = "Merci pour votre message ! Je peux vous renseigner sur les fonctionnalités de Imona, les tarifs, la création de compte, les paiements Mobile Money, etc. Quelle information recherchez-vous ? 🤔";
       }
       
       const supportMessage: Message = {
@@ -130,7 +130,7 @@ export function ChatWidget() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-primary-foreground">
-                  Support GestiLoc
+                  Support Imona
                 </h3>
                 <p className="text-xs text-primary-foreground/80">Innovtech • En ligne</p>
               </div>

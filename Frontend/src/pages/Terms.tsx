@@ -24,7 +24,7 @@ export default function Terms() {
               <h2 className="text-2xl font-bold mb-4 text-primary">1. Objet</h2>
               <p className="text-foreground leading-relaxed">
                 Les présentes Conditions Générales d'Utilisation (CGU) définissent les conditions 
-                d'accès et d'utilisation de la plateforme GestiLoc. En accédant et en utilisant 
+                d'accès et d'utilisation de la plateforme Imona. En accédant et en utilisant 
                 nos services, vous acceptez sans réserve les présentes CGU.
               </p>
             </section>
@@ -34,7 +34,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-primary">2. Accès au service</h2>
               <p className="text-foreground leading-relaxed">
-                GestiLoc est accessible 24h/24 et 7j/7, sauf interruption, programmée ou non, 
+                Imona est accessible 24h/24 et 7j/7, sauf interruption, programmée ou non, 
                 pour les besoins de maintenance ou en cas de force majeure. L'accès à certaines 
                 fonctionnalités peut nécessiter la création d'un compte utilisateur.
               </p>
@@ -56,7 +56,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-primary">4. Utilisation du service</h2>
               <p className="text-foreground leading-relaxed">
-                Vous vous engagez à utiliser GestiLoc conformément à sa destination et aux lois 
+                Vous vous engagez à utiliser Imona conformément à sa destination et aux lois 
                 en vigueur. Toute utilisation frauduleuse ou abusive entraînera la suspension 
                 immédiate de votre compte.
               </p>
@@ -67,7 +67,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-primary">5. Propriété intellectuelle</h2>
               <p className="text-foreground leading-relaxed">
-                L'ensemble du contenu présent sur GestiLoc (textes, images, logos, code) est 
+                L'ensemble du contenu présent sur Imona (textes, images, logos, code) est 
                 protégé par les droits de propriété intellectuelle. Toute reproduction non 
                 autorisée est interdite.
               </p>
@@ -78,7 +78,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-primary">6. Responsabilité</h2>
               <p className="text-foreground leading-relaxed">
-                GestiLoc met tout en œuvre pour fournir un service fiable et sécurisé. Toutefois, 
+                Imona met tout en œuvre pour fournir un service fiable et sécurisé. Toutefois, 
                 nous ne pouvons garantir l'absence totale d'erreurs, d'interruptions ou de pertes 
                 de données. L'utilisateur est seul responsable de ses décisions prises sur la base 
                 des informations disponibles sur la plateforme.
@@ -101,7 +101,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-primary">8. Résiliation</h2>
               <p className="text-foreground leading-relaxed">
-                Vous pouvez résilier votre compte à tout moment depuis vos paramètres. GestiLoc 
+                Vous pouvez résilier votre compte à tout moment depuis vos paramètres. Imona 
                 se réserve le droit de suspendre ou résilier tout compte en cas de violation 
                 des présentes CGU.
               </p>
@@ -112,7 +112,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-primary">9. Modifications des CGU</h2>
               <p className="text-foreground leading-relaxed">
-                GestiLoc se réserve le droit de modifier les présentes CGU à tout moment. Les 
+                Imona se réserve le droit de modifier les présentes CGU à tout moment. Les 
                 utilisateurs seront informés de toute modification substantielle par email ou 
                 notification dans l'application.
               </p>
@@ -134,8 +134,8 @@ export default function Terms() {
               <h2 className="text-2xl font-bold mb-4 text-primary">Contact</h2>
               <p className="text-foreground leading-relaxed">
                 Pour toute question concernant ces CGU, vous pouvez nous contacter à l'adresse : 
-                <a href="mailto:legal@gestiloc.bj" className="text-primary hover:underline ml-1">
-                  legal@gestiloc.bj
+                <a href="mailto:legal@imona.bj" className="text-primary hover:underline ml-1">
+                  legal@imona.bj
                 </a>
               </p>
             </section>

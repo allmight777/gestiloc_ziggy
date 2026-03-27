@@ -77,7 +77,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({ notify }) => {
       {/* Welcome Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Bienvenue sur GestiLoc!</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Bienvenue sur IMONA !</h2>
           <p className="text-slate-600 mt-2">
             Merci de vous être inscrit ! Nous sommes heureux de vous avoir à bord ! Dites nous un peu plus sur vous afin de compléter votre profil.
           </p>

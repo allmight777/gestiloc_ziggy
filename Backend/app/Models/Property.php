@@ -28,7 +28,8 @@ class Property extends Model
         'uuid', 'landlord_id', 'user_id', 'type', 'name', 'description', 'reference_code',
         'address', 'district', 'city', 'state', 'zip_code', 'latitude', 'longitude',
         'surface', 'room_count', 'bedroom_count', 'bathroom_count',
-        'rent_amount', 'charges_amount', 'status', 'amenities', 'photos', 'meta', 'caution'
+        'rent_amount', 'charges_amount', 'status', 'amenities', 'photos', 'meta', 'caution',
+        'floor', 'wc_count', 'construction_year', 'total_floors'
     ];
 
     protected $casts = [

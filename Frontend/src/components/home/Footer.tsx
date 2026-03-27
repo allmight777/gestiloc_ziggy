@@ -42,15 +42,15 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-12 mb-8 md:mb-12">
           {/* Brand Info */}
           <div className="col-span-1 sm:col-span-2 lg:col-span-1">
-            <h3 className="text-xl md:text-2xl font-bold text-green-400 mb-3 md:mb-4">GestiLoc</h3>
+            <h3 className="text-xl md:text-2xl font-bold text-green-400 mb-3 md:mb-4">Imona</h3>
             <p className="text-gray-400 text-sm md:text-base mb-4 md:mb-6">
               La plateforme de gestion immobilière #1 en Afrique de l'Ouest
             </p>
             <div className="space-y-2 md:space-y-3 text-sm md:text-base">
               <div className="flex items-center text-gray-400">
                 <Mail className="h-4 md:h-5 w-4 md:w-5 mr-2 md:mr-3 flex-shrink-0" />
-                <a href="mailto:support@gestiloc.com" className="hover:text-green-400 transition-colors">
-                  support@gestiloc.com
+                <a href="mailto:support@imona.bj" className="hover:text-green-400 transition-colors">
+                  support@imona.bj
                 </a>
               </div>
               <div className="flex items-center text-gray-400">
@@ -110,7 +110,7 @@ export default function Footer() {
           {/* Copyright */}
           <div className="border-t border-gray-800 pt-6 md:pt-8 text-center">
             <p className="text-gray-400 text-xs md:text-sm">
-              © {currentYear} GestiLoc. Tous les droits réservés. 
+              © {currentYear} Imona. Tous les droits réservés. 
             </p>
             <p className="text-gray-500 text-xs mt-2">
               Plateforme de gestion immobilière créée avec ❤️ pour l'Afrique de l'Ouest

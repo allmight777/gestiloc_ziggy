@@ -156,7 +156,7 @@ const translations = {
     two_factor_subdesc: 'Ajoutez une couche de sécurité supplémentaire à votre compte',
     last_password_change: 'Dernier changement de mot de passe',
     preferences: 'Préférences',
-    preferences_desc: 'Personnalisez votre expérience Gestiloc',
+    preferences_desc: 'Personnalisez votre expérience Imona',
     language: 'Langue',
     timezone: 'Fuseau horaire',
     date_format: 'Format de date',
@@ -180,7 +180,7 @@ const translations = {
     privacy_data: 'Confidentialité et données',
     privacy_data_desc: 'Gérez vos données et votre confidentialité',
     data_sharing: 'Partage des données d\'utilisation',
-    data_sharing_desc: 'Aidez-nous à améliorer Gestiloc en partageant des données anonymes',
+    data_sharing_desc: 'Aidez-nous à améliorer Imona en partageant des données anonymes',
     data_management: 'Gestion des données',
     download_data: 'Télécharger mes données',
     download_data_desc: 'Téléchargez une copie de toutes vos données personnelles',
@@ -221,7 +221,7 @@ const translations = {
     two_factor_subdesc: 'Add an extra layer of security to your account',
     last_password_change: 'Last password change',
     preferences: 'Preferences',
-    preferences_desc: 'Customize your Gestiloc experience',
+    preferences_desc: 'Customize your Imona experience',
     language: 'Language',
     timezone: 'Timezone',
     date_format: 'Date format',
@@ -245,7 +245,7 @@ const translations = {
     privacy_data: 'Privacy & Data',
     privacy_data_desc: 'Manage your data and privacy',
     data_sharing: 'Usage data sharing',
-    data_sharing_desc: 'Help us improve Gestiloc by sharing anonymous data',
+    data_sharing_desc: 'Help us improve Imona by sharing anonymous data',
     data_management: 'Data management',
     download_data: 'Download my data',
     download_data_desc: 'Download a copy of all your personal data',
@@ -286,7 +286,7 @@ const translations = {
     two_factor_subdesc: 'Agregue una capa adicional de seguridad a su cuenta',
     last_password_change: 'Último cambio de contraseña',
     preferences: 'Preferencias',
-    preferences_desc: 'Personalice su experiencia en Gestiloc',
+    preferences_desc: 'Personalice su experiencia en Imona',
     language: 'Idioma',
     timezone: 'Zona horaria',
     date_format: 'Formato de fecha',
@@ -310,7 +310,7 @@ const translations = {
     privacy_data: 'Privacidad y datos',
     privacy_data_desc: 'Administre sus datos y privacidad',
     data_sharing: 'Compartir datos de uso',
-    data_sharing_desc: 'Ayúdenos a mejorar Gestiloc compartiendo datos anónimos',
+    data_sharing_desc: 'Ayúdenos a mejorar Imona compartiendo datos anónimos',
     data_management: 'Gestión de datos',
     download_data: 'Descargar mis datos',
     download_data_desc: 'Descargue una copia de todos sus datos personales',
@@ -342,7 +342,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<UserSettings>({
-    user: { id: 0, email: 'locataire@gestiloc.com', phone: null, created_at: new Date().toISOString() },
+    user: { id: 0, email: 'locataire@imona.bj', phone: null, created_at: new Date().toISOString() },
     security: { two_factor_enabled: false, last_password_change: null, last_login_at: null, last_login_ip: null },
     preferences: { language: 'fr', timezone: 'UTC', date_format: 'DD/MM/YYYY', currency: 'FCFA', dark_mode: false },
     notifications: { owner_messages: true, payment_reminders: true, receipts_available: true, interventions: true, browser_notifications: true },
@@ -392,7 +392,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
       console.warn('Silent fail for settings - using empty state');
       // Fallback state to prevent error screen
       setSettings({
-        user: { id: 0, email: 'locataire@gestiloc.com', phone: null, created_at: new Date().toISOString() },
+        user: { id: 0, email: 'locataire@imona.bj', phone: null, created_at: new Date().toISOString() },
         security: { two_factor_enabled: false, last_password_change: null, last_login_at: null, last_login_ip: null },
         preferences: { language: 'fr', timezone: 'UTC', date_format: 'DD/MM/YYYY', currency: 'FCFA', dark_mode: false },
         notifications: { owner_messages: true, payment_reminders: true, receipts_available: true, interventions: true, browser_notifications: true },
@@ -570,7 +570,7 @@ export const Settings: React.FC<SettingsProps> = ({ notify }) => {
       const dataStr = JSON.stringify(response.data, null, 2);
       const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
 
-      const exportFileDefaultName = `gestiloc-data-${new Date().toISOString().slice(0, 10)}.json`;
+      const exportFileDefaultName = `imona-data-${new Date().toISOString().slice(0, 10)}.json`;
 
       const linkElement = document.createElement('a');
       linkElement.setAttribute('href', dataUri);

@@ -10,7 +10,7 @@
 ## Démarrer immédiatement
 
 ```bash
-cd "c:\Users\abatt\Desktop\Projet Innovtech\gestiloc-marketing-kit"
+cd "c:\Users\abatt\Desktop\Projet Innovtech\imona-marketing-kit"
 bun run dev
 ```
 

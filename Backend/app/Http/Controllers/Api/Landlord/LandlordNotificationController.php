@@ -31,6 +31,9 @@ class LandlordNotificationController extends Controller
             }
 
             $landlord = $user->landlord;
+            if (!$landlord) {
+                return response()->json(['notifications' => [], 'unread_count' => 0]);
+            }
             $landlordId = $landlord->id;
 
             $notifications = [];
@@ -125,18 +128,14 @@ class LandlordNotificationController extends Controller
             }
 
             // 4. Invitations de locataires acceptées récemment
-            $recentInvitations = TenantInvitation::whereHas('lease.property', function($q) use ($landlordId) {
-                    $q->where('landlord_id', $landlordId);
-                })
+            $recentInvitations = TenantInvitation::where('landlord_id', $landlordId)
                 ->where('accepted_at', '>=', now()->subDays(7))
-                ->with(['lease.property', 'lease.tenant'])
+                ->with(['tenantUser'])
                 ->get();
 
             foreach ($recentInvitations as $invitation) {
-                $propertyName = $invitation->lease->property->name ?? 'Inconnu';
-                $tenantName = $invitation->lease->tenant 
-                    ? ($invitation->lease->tenant->first_name . ' ' . $invitation->lease->tenant->last_name)
-                    : $invitation->email;
+                $propertyName = 'Confirmation inscription';
+                $tenantName = $invitation->name ?? $invitation->email;
 
                 $notifications[] = [
                     'id' => 'invitation_accepted_' . $invitation->id,
@@ -239,19 +238,17 @@ class LandlordNotificationController extends Controller
             }
 
             // 8. Préavis reçus
-            $recentNotices = Notice::whereHas('lease.property', function($q) use ($landlordId) {
-                    $q->where('landlord_id', $landlordId);
-                })
+            $recentNotices = Notice::where('landlord_id', $landlordId)
                 ->where('created_at', '>=', now()->subDays(7))
-                ->with(['lease.property', 'lease.tenant'])
+                ->with(['property', 'tenant'])
                 ->get();
 
             foreach ($recentNotices as $notice) {
-                $propertyName = $notice->lease->property->name ?? 'Inconnu';
-                $tenantName = $notice->lease->tenant 
-                    ? ($notice->lease->tenant->first_name . ' ' . $notice->lease->tenant->last_name)
+                $propertyName = $notice->property->name ?? 'Inconnu';
+                $tenantName = $notice->tenant 
+                    ? ($notice->tenant->first_name . ' ' . $notice->tenant->last_name)
                     : 'Inconnu';
-                $effectiveDate = Carbon::parse($notice->effective_date)->format('d/m/Y');
+                $effectiveDate = Carbon::parse($notice->end_date)->format('d/m/Y');
 
                 $notifications[] = [
                     'id' => 'notice_' . $notice->id,

@@ -139,7 +139,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
             </p>
             <div className="flex gap-2 justify-center">
               <button
-                onClick={() => window.location.href = 'mailto:support@gestiloc.com'}
+                onClick={() => window.location.href = 'mailto:support@imona.bj'}
                 className="px-4 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors flex items-center gap-1.5"
               >
                 <Mail className="w-3.5 h-3.5" />

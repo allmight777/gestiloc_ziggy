@@ -371,7 +371,7 @@ export default function Auth() {
           transition={{ duration: 0.5 }}
         >
           <h1 className="text-4xl font-bold mb-2" style={{ color: PRIMARY_COLOR }}>
-            Gestiloc
+            Imona
           </h1>
           <p className="text-sm text-slate-600 max-w-xs mx-auto">
             Créer de meilleures relations entre les propriétaires et les locataires !

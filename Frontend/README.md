@@ -1,9 +1,9 @@
-# GestiLoc – Kit marketing & espace locataire "GestiLoc"
+# Imona – Kit marketing & espace locataire "Imona"
 
 Ce dépôt contient une application front-end de démonstration pour la gestion locative :
 
 - un site marketing (pages d’atterrissage, présentation, tarification, etc.) ;
-- un **espace locataire** immersif appelé *GestiLoc*, qui simule l’interface d’un locataire dans un immeuble géré avec GestiLoc.
+- un **espace locataire** immersif appelé *Imona*, qui simule l’interface d’un locataire dans un immeuble géré avec Imona.
 
 L’objectif est de disposer d’un support visuel réaliste pour des démonstrations commerciales, des tests UX et de la communication produit.
 
@@ -122,7 +122,7 @@ L’objectif est de disposer d’un support visuel réaliste pour des démonstra
 
 10. **Site marketing (pages publiques dans `src/pages`)**
     - Pages : Accueil, Tarifs, Démo, FAQ, Blog & article, Contact, CGU/CGV, Politique de confidentialité, etc.
-    - Objectif : présenter la solution GestiLoc / GestiLoc et rediriger vers des démonstrations.
+    - Objectif : présenter la solution Imona / Imona et rediriger vers des démonstrations.
 
 > **Remarque importante** : toutes les données sont actuellement **mockées côté front** (pas de connexion API ni base de données). Le but est une démo UX/UI, pas encore un produit en production.
 
@@ -181,7 +181,7 @@ npm run lint
 - `src/main.tsx` : point d’entrée React + routing.
 - `src/App.tsx` : shell global de l’application.
 - `src/pages/` : pages publiques (Home, Pricing, FAQ, Blog, etc.).
-- `src/pages/Locataire/` : espace locataire *GestiLoc*.
+- `src/pages/Locataire/` : espace locataire *Imona*.
   - `App.tsx` : gestion des onglets et du système de toasts.
   - `components/Layout.tsx` : navigation, sidebar, header, notifications.
   - `components/*.tsx` : modules fonctionnels (Dashboard, Payments, Messages, Interventions, Documents, Lease, Property, Profile…).

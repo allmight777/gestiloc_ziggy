@@ -68,7 +68,7 @@ interface Contact { id, name, role, unreadCount, avatar? }
 ```bash
 # 1. Ouvrir le terminal
 # 2. Naviguer vers le dossier du projet
-cd "c:\Users\abatt\Desktop\Projet Innovtech\gestiloc-marketing-kit"
+cd "c:\Users\abatt\Desktop\Projet Innovtech\imona-marketing-kit"
 
 # 3. Démarrer le serveur
 bun run dev

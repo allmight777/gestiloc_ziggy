@@ -1,10 +1,10 @@
-# GestiLoc Marketing Kit - Module Locataire
+# Imona Marketing Kit - Module Locataire
 
 ## 🚀 Démarrage rapide
 
 ```bash
 # 1. Démarrer le serveur de développement
-cd "c:\Users\abatt\Desktop\Projet Innovtech\gestiloc-marketing-kit"
+cd "c:\Users\abatt\Desktop\Projet Innovtech\imona-marketing-kit"
 bun run dev
 
 # 2. Ouvrir dans le navigateur
@@ -46,7 +46,7 @@ bun run build   # ✅ Build réussie
 ## 📂 Structure du projet
 
 ```
-gestiloc-marketing-kit/
+imona-marketing-kit/
 │
 ├── src/pages/Locataire/          ← 🎯 MODULE PRINCIPAL
 │   ├── App.tsx                   ← Cœur de l'application
@@ -420,7 +420,7 @@ bun run lint
 
 ## 📄 Licence
 
-Ce projet fait partie de **GestiLoc Marketing Kit**
+Ce projet fait partie de **Imona Marketing Kit**
 
 ---
 

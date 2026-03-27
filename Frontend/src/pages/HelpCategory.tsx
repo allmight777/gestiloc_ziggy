@@ -11,7 +11,7 @@ const categoryArticles: Record<string, { title: string; description: string; art
       {
         title: "Comment créer un compte propriétaire",
         slug: "creer-compte-proprietaire",
-        content: "Pour créer un compte propriétaire sur GestiLoc, cliquez sur 'Inscription' en haut à droite. Remplissez le formulaire avec vos informations personnelles : nom, prénom, email et mot de passe sécurisé. Validez votre email via le lien de confirmation reçu par mail."
+        content: "Pour créer un compte propriétaire sur Imona, cliquez sur 'Inscription' en haut à droite. Remplissez le formulaire avec vos informations personnelles : nom, prénom, email et mot de passe sécurisé. Validez votre email via le lien de confirmation reçu par mail."
       },
       {
         title: "Réinitialiser mon mot de passe",
@@ -202,7 +202,7 @@ const categoryArticles: Record<string, { title: string; description: string; art
       {
         title: "Préparer ma déclaration fiscale",
         slug: "declaration-fiscale",
-        content: "GestiLoc génère un récapitulatif annuel de vos revenus fonciers avec toutes les informations nécessaires pour votre déclaration d'impôts. Consultez 'Fiscalité' puis 'Récapitulatif annuel'."
+        content: "Imona génère un récapitulatif annuel de vos revenus fonciers avec toutes les informations nécessaires pour votre déclaration d'impôts. Consultez 'Fiscalité' puis 'Récapitulatif annuel'."
       },
     ]
   },

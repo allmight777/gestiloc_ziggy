@@ -112,7 +112,7 @@ export default function TestimonialsStats() {
             background: "#529D21"
           }}>
             <div className="ts-percent">67%</div>
-            <div className="ts-stat-desc">de nos clients recommandent GestiLoc à leur entourage.</div>
+            <div className="ts-stat-desc">de nos clients recommandent Imona à leur entourage.</div>
           </div>
 
           <div className="ts-quote-card" style={{ top: 0, left: 830 }}>
@@ -137,7 +137,7 @@ export default function TestimonialsStats() {
             background: "#9747FF"
           }}>
             <div className="ts-percent">83%</div>
-            <div className="ts-stat-desc">de nos clients affirment que GestiLoc les aide à mieux suivre les loyers, charges et quittances.</div>
+            <div className="ts-stat-desc">de nos clients affirment que Imona les aide à mieux suivre les loyers, charges et quittances.</div>
           </div>
         </div>
       </div>

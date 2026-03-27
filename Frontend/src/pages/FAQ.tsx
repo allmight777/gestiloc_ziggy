@@ -7,8 +7,8 @@ import {
 
 const faqs = [
   {
-    question: "GestiLoc est-il adapté aux particuliers et aux professionnels ?",
-    answer: "Oui, GestiLoc s'adresse aussi bien aux particuliers possédant un ou plusieurs biens qu'aux professionnels de l'immobilier (agences, administrateurs de biens, investisseurs). Nos plans tarifaires s'adaptent à vos besoins.",
+    question: "Imona est-il adapté aux particuliers et aux professionnels ?",
+    answer: "Oui, Imona s'adresse aussi bien aux particuliers possédant un ou plusieurs biens qu'aux professionnels de l'immobilier (agences, administrateurs de biens, investisseurs). Nos plans tarifaires s'adaptent à vos besoins.",
   },
   {
     question: "Mes données sont-elles sécurisées ?",
@@ -32,7 +32,7 @@ const faqs = [
   },
   {
     question: "Puis-je gérer des locations saisonnières ?",
-    answer: "Oui, GestiLoc intègre un module dédié aux locations saisonnières avec calendrier, synchronisation iCal (Airbnb, Booking.com...), gestion des réservations et tarifs variables selon les périodes.",
+    answer: "Oui, Imona intègre un module dédié aux locations saisonnières avec calendrier, synchronisation iCal (Airbnb, Booking.com...), gestion des réservations et tarifs variables selon les périodes.",
   },
   {
     question: "Y a-t-il une application mobile ?",

@@ -545,21 +545,32 @@ const EditPropertyModal: React.FC<{
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
+    if (!files || files.length === 0) return;
 
     const fileArray = Array.from(files);
-    const maxPhotos = 8 - photos.length - newPhotos.length;
+    const totalExisting = photos.length + newPhotos.length;
+    const maxAllowed = 8;
+    const remainingSlots = maxAllowed - totalExisting;
 
-    if (fileArray.length > maxPhotos) {
-      notify?.(`Maximum ${maxPhotos} photos supplémentaires autorisées`, "error");
+    if (remainingSlots <= 0) {
+      notify?.(`Vous avez atteint la limite de ${maxAllowed} photos`, "error");
+      e.target.value = ""; // Reset input
       return;
     }
 
-    const newFiles = fileArray.slice(0, maxPhotos);
+    const newFiles = fileArray.slice(0, remainingSlots);
+    
+    if (fileArray.length > remainingSlots) {
+      notify?.(`Seulement ${remainingSlots} photo(s) ajoutée(s) sur ${fileArray.length} sélectionnée(s)`, "info");
+    }
+
     setNewPhotos(prev => [...prev, ...newFiles]);
 
     const newPreviews = newFiles.map(file => URL.createObjectURL(file));
     setPhotoPreviews(prev => [...prev, ...newPreviews]);
+
+    // Reset input so same file can be selected again
+    e.target.value = "";
   };
 
   const handleRemovePhoto = (index: number, isNew: boolean) => {
@@ -634,16 +645,25 @@ const EditPropertyModal: React.FC<{
         floor: formData.floor ? parseInt(formData.floor) : null,
       };
 
+
+      // Calculer quelles photos originales ont été gardées
+      // photos[] contient les resolved URLs (absolues). property.photos contient les chemins relatifs.
+      // On reconstruit la liste des chemins relatifs à conserver.
+      const keepRelativePaths = (property.photos || []).filter((relativePath: string) => {
+        // Vérifier si l'URL résolue correspondant à ce chemin relatif est encore dans photos[]
+        const resolvedUrl = resolvePhotoUrl(relativePath);
+        return resolvedUrl !== null && photos.includes(resolvedUrl);
+      });
+
       // Upload des nouvelles photos si nécessaire
+      let newUploadedPaths: string[] = [];
       if (newPhotos.length > 0) {
-        const formDataPhotos = new FormData();
-        newPhotos.forEach(file => {
-          formDataPhotos.append('photos[]', file);
-        });
-        // Ici, appelez votre service d'upload
-        // const uploadRes = await uploadService.uploadMultiple(formDataPhotos);
-        // payload.photos = uploadRes.paths;
+        newUploadedPaths = await uploadService.uploadMultiple(newPhotos, 'property_photo');
       }
+
+      // Fusionner: anciennes photos conservées + nouvelles uploadées
+      const finalPhotosPaths = [...keepRelativePaths, ...newUploadedPaths];
+      payload.photos = finalPhotosPaths.length > 0 ? finalPhotosPaths : [];
 
       // Appeler l'API pour mettre à jour
       await propertyService.updateProperty(property.id, payload);
@@ -758,7 +778,13 @@ const EditPropertyModal: React.FC<{
                 justifyContent: "center",
               }}
             >
-              {photos.length > 0 ? (
+              {photoPreviews.length > 0 ? (
+                <img
+                  src={photoPreviews[0]}
+                  alt="Nouvelle photo"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : photos.length > 0 ? (
                 <img
                   src={photos[0]}
                   alt="Photo principale"
@@ -766,23 +792,23 @@ const EditPropertyModal: React.FC<{
                   onError={(e) => {
                     const img = e.currentTarget;
                     img.style.display = "none";
+                    const parent = img.parentElement;
+                    if (parent) {
+                      const fallback = parent.querySelector('.photo-fallback') as HTMLElement;
+                      if (fallback) fallback.style.display = "flex";
+                    }
                   }}
                 />
-              ) : photoPreviews.length > 0 ? (
-                <img
-                  src={photoPreviews[0]}
-                  alt="Nouvelle photo"
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              ) : (
-                <>
-                  <Building2 size={48} color="#b0b5c0" />
-                  <div className="absolute inset-0 bg-gray-100 flex flex-col items-center justify-center">
-                    <ImageIcon size={32} color="#9ca3af" />
-                    <p className="text-xs text-gray-400 mt-2">Aucune photo</p>
-                  </div>
-                </>
-              )}
+              ) : null}
+              
+              {/* Fallback when no photo or broken image */}
+              <div 
+                className="photo-fallback absolute inset-0 bg-gray-100"
+                style={{ display: (photos.length === 0 && photoPreviews.length === 0) ? 'flex' : 'none', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <ImageIcon size={32} color="#9ca3af" />
+                <p className="text-xs text-gray-400 mt-2">Aucune photo</p>
+              </div>
 
               <span
                 style={{
@@ -1287,19 +1313,34 @@ const EditPropertyModal: React.FC<{
             </div>
 
             {/* Photos supplémentaires */}
-            {(photos.length > 1 || photoPreviews.length > 0) && (
+            {(photos.length > 0 || photoPreviews.length > 0) && (
               <div style={{ marginTop: 20 }}>
                 <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#70AE48", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 8px" }}>
-                  AUTRES PHOTOS
+                  PHOTOS ({photos.length + photoPreviews.length} / 8)
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-                  {/* Photos existantes (sauf la première) */}
-                  {photos.slice(1).map((src, index) => (
-                    <div key={`existing-${index}`} style={{ position: "relative", width: 100, height: 80, borderRadius: 8, overflow: "hidden" }}>
-                      <img src={src} alt={`Photo ${index + 2}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  {/* Toutes les photos existantes */}
+                  {photos.map((src, index) => (
+                    <div key={`existing-${index}`} style={{ position: "relative", width: 100, height: 80, borderRadius: 8, overflow: "hidden", border: index === 0 ? '2.5px solid #70AE48' : 'none' }}>
+                      <img 
+                        src={src} 
+                        alt={`Photo ${index + 1}`} 
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        onError={(e) => {
+                          const img = e.currentTarget;
+                          img.style.display = "none";
+                          const parent = img.parentElement;
+                          if (parent) {
+                            parent.style.background = '#e5e7eb';
+                          }
+                        }}
+                      />
+                      {index === 0 && (
+                        <span style={{ position: 'absolute', bottom: 3, left: 3, fontSize: '0.6rem', fontWeight: 700, color: '#fff', background: 'rgba(112,174,72,0.85)', borderRadius: 4, padding: '1px 5px' }}>Principale</span>
+                      )}
                       <button
                         type="button"
-                        onClick={() => handleRemovePhoto(index + 1, false)}
+                        onClick={() => handleRemovePhoto(index, false)}
                         style={{
                           position: "absolute",
                           top: 4,
@@ -1321,10 +1362,11 @@ const EditPropertyModal: React.FC<{
                     </div>
                   ))}
                   
-                  {/* Nouvelles photos */}
+                  {/* Nouvelles photos (aperçu local) */}
                   {photoPreviews.map((src, index) => (
-                    <div key={`new-${index}`} style={{ position: "relative", width: 100, height: 80, borderRadius: 8, overflow: "hidden" }}>
+                    <div key={`new-${index}`} style={{ position: "relative", width: 100, height: 80, borderRadius: 8, overflow: "hidden", border: '2px dashed #70AE48' }}>
                       <img src={src} alt={`Nouvelle ${index + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <span style={{ position: 'absolute', bottom: 3, left: 3, fontSize: '0.6rem', fontWeight: 700, color: '#fff', background: 'rgba(34,197,94,0.85)', borderRadius: 4, padding: '1px 5px' }}>Nouvelle</span>
                       <button
                         type="button"
                         onClick={() => handleRemovePhoto(index, true)}
@@ -1418,7 +1460,13 @@ const EditPropertyModal: React.FC<{
   );
 };
 
-function BienCard({ bien, onClick }: { bien: any; onClick: () => void }) {
+interface BienCardProps {
+  bien: any;
+  onClick: () => void;
+  handleDelete: (id: number) => void;
+}
+
+function BienCard({ bien, onClick, handleDelete }: BienCardProps) {
   // Fonction pour gérer l'image par défaut
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
@@ -1482,9 +1530,22 @@ function BienCard({ bien, onClick }: { bien: any; onClick: () => void }) {
       </div>
 
       {/* Content */}
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 relative">
+        <div className="absolute top-2 right-2 flex gap-2">
+             <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(bien.id);
+                }}
+                className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                title="Supprimer ce bien"
+             >
+                <X size={16} />
+             </button>
+        </div>
+        
         {/* Header Section */}
-        <div className="p-5 flex flex-col gap-1.5">
+        <div className="p-5 flex flex-col gap-1.5 pr-10">
           <p className="text-xs font-bold text-gray-400 tracking-widest uppercase">
             {bien.type}
           </p>
@@ -1538,6 +1599,23 @@ export default function MesBiens({ notify, currentUser }: MesBiensProps) {
   const [properties, setProperties] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce bien ? Cette action est irréversible.")) {
+      return;
+    }
+    try {
+      setIsLoading(true);
+      await propertyService.deleteProperty(id);
+      notify?.("Bien supprimé avec succès.", "success");
+      fetchProperties();
+    } catch (error) {
+      console.error("Erreur suppression bien:", error);
+      notify?.("Impossible de supprimer le bien.", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const fetchProperties = async () => {
     try {
       setIsLoading(true);
@@ -1550,10 +1628,17 @@ export default function MesBiens({ notify, currentUser }: MesBiensProps) {
         adresse: p.address,
         loyer: p.rent_amount ? parseInt(p.rent_amount).toLocaleString("fr-FR") : "0",
         surface: p.surface || "0",
-        photos: p.photos ? p.photos.length : 0,
+        photos: p.photo_urls ? p.photo_urls.length : (p.photos ? p.photos.length : 0),
         ref: p.reference_code || `REF-${p.id}`,
-        image: p.photos && p.photos.length > 0 ? resolvePhotoUrl(p.photos[0]) : null,
-        raw: p // Garder l'objet original pour l'édition
+        // Utiliser photo_urls (URLs absolues) pour l'affichage
+        image: p.photo_urls && p.photo_urls.length > 0 
+          ? p.photo_urls[0] 
+          : (p.photos && p.photos.length > 0 ? resolvePhotoUrl(p.photos[0]) : null),
+        raw: { 
+          ...p, 
+          // S'assurer que les photos dans le modal sont relatives pour le tracking
+          // mais que photo_urls est disponible pour l'initialisation
+        }
       }));
       setProperties(mappedResults);
     } catch (error) {
@@ -1656,7 +1741,12 @@ export default function MesBiens({ notify, currentUser }: MesBiensProps) {
           </div>
         ) : filtered.length > 0 ? (
           filtered.map((bien) => (
-            <BienCard key={bien.id} bien={bien} onClick={() => setSelectedBien(bien)} />
+            <BienCard 
+              key={bien.id} 
+              bien={bien} 
+              onClick={() => setSelectedBien(bien)} 
+              handleDelete={handleDelete}
+            />
           ))
         ) : (
           <div className="col-span-full bg-white border-2 border-dashed border-gray-200 rounded-3xl py-20 flex flex-col items-center justify-center">

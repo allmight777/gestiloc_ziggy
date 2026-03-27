@@ -119,7 +119,7 @@ export default function Login() {
     const demoUsers: Record<string, any> = {
       locataire: {
         id: 1,
-        email: "demo.locataire@gestiloc.com",
+        email: "demo.locataire@imona.bj",
         first_name: "Jean",
         last_name: "Dupont",
         roles: ["tenant", "locataire"],
@@ -127,7 +127,7 @@ export default function Login() {
       },
       proprietaire: {
         id: 2,
-        email: "demo.proprietaire@gestiloc.com",
+        email: "demo.proprietaire@imona.bj",
         first_name: "Marie",
         last_name: "Martin",
         roles: ["landlord", "proprietaire"],
@@ -135,7 +135,7 @@ export default function Login() {
       },
       coproprietaire: {
         id: 3,
-        email: "demo.copro@gestiloc.com",
+        email: "demo.copro@imona.bj",
         first_name: "Paul",
         last_name: "Bernard",
         roles: ["co_owner", "coproprietaire"],
@@ -143,7 +143,7 @@ export default function Login() {
       },
       admin: {
         id: 4,
-        email: "demo.admin@gestiloc.com",
+        email: "demo.admin@imona.bj",
         first_name: "Admin",
         last_name: "System",
         roles: ["admin"],
@@ -182,7 +182,7 @@ export default function Login() {
         {/* En-tête : logo, titre et sous-titre (aligné Register) */}
         <CardHeader className="space-y-1">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-primary">Gestiloc</h1>
+            <h1 className="text-4xl font-bold text-primary">Imona</h1>
           </div>
           <CardTitle className="text-center text-lg font-semibold text-foreground">
             Connexion à votre compte

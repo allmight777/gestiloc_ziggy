@@ -131,6 +131,8 @@ export const AjouterBien = ({
     setPhotos(merged);
     setPhotoPreviews(merged.map((f) => URL.createObjectURL(f)));
     clearError("photos");
+    // Reset value to allow selecting the same file again
+    e.target.value = "";
   };
 
   const handleRemovePhoto = (index: number) => {
@@ -204,12 +206,11 @@ export const AjouterBien = ({
         charges_amount: formData.charges_amount ? parseFloat(formData.charges_amount) : null,
         status: formData.status,
         reference_code: formData.reference_code || null,
+        caution: formData.deposit_amount ? parseFloat(formData.deposit_amount) : null,
+        floor: formData.floor ? parseInt(formData.floor) : null,
         amenities: [],
         photos: uploadedPhotoUrls.length ? uploadedPhotoUrls : null,
-        meta: {
-          floor: formData.floor ? parseInt(formData.floor) : undefined,
-          deposit_amount: formData.deposit_amount ? parseFloat(formData.deposit_amount) : undefined,
-        },
+        meta: {},
       };
       await propertyService.createProperty(payload);
       pushNotify("✅ Le bien a été ajouté avec succès !", "success");
@@ -670,12 +671,12 @@ export const AjouterBien = ({
                 <label className="ab-label">Surface (m²)</label>
                 <input
                   ref={surfaceRef}
-                  type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  type="text" inputMode="numeric"
                   name="surface"
                   value={formData.surface}
                   onChange={handleChange}
                   placeholder="Ex: 65"
-                  className="ab-input"
+                  className="ab-input [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   min="0"
                   step="0.01"
                 />
@@ -708,24 +709,24 @@ export const AjouterBien = ({
               <div className="ab-field">
                 <label className="ab-label">Étage</label>
                 <input
-                  type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  type="text" inputMode="numeric"
                   name="floor"
                   value={formData.floor}
                   onChange={handleChange}
                   placeholder="Ex: 3"
-                  className="ab-input"
+                  className="ab-input [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   min="0"
                 />
               </div>
               <div className="ab-field">
                 <label className="ab-label">Nombre de chambre (s)</label>
                 <input
-                  type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  type="text" inputMode="numeric"
                   name="bedroom_count"
                   value={formData.bedroom_count}
                   onChange={handleChange}
                   placeholder="Ex: 6"
-                  className="ab-input"
+                  className="ab-input [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   min="0"
                 />
               </div>
@@ -736,24 +737,24 @@ export const AjouterBien = ({
               <div className="ab-field">
                 <label className="ab-label">Salle de bain</label>
                 <input
-                  type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  type="text" inputMode="numeric"
                   name="bathroom_count"
                   value={formData.bathroom_count}
                   onChange={handleChange}
                   placeholder="Ex: 3"
-                  className="ab-input"
+                  className="ab-input [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   min="0"
                 />
               </div>
               <div className="ab-field">
                 <label className="ab-label">Nombre de pièce (s)</label>
                 <input
-                  type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  type="text" inputMode="numeric"
                   name="room_count"
                   value={formData.room_count}
                   onChange={handleChange}
                   placeholder="Ex: 6"
-                  className="ab-input"
+                  className="ab-input [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   min="0"
                 />
               </div>
@@ -842,11 +843,11 @@ export const AjouterBien = ({
                 <div className="ab-field">
                   <label className="ab-label">Loyer hors charges (FCFA)</label>
                   <input
-                    type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    type="text" inputMode="numeric"
                     name="rent_amount"
                     value={formData.rent_amount}
                     onChange={handleChange}
-                    className="ab-input-warm"
+                    className="ab-input-warm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     min="0"
                     step="0.01"
                   />
@@ -858,11 +859,11 @@ export const AjouterBien = ({
                 <div className="ab-field">
                   <label className="ab-label">Charges locatives (FCFA)</label>
                   <input
-                    type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    type="text" inputMode="numeric"
                     name="charges_amount"
                     value={formData.charges_amount}
                     onChange={handleChange}
-                    className="ab-input-warm"
+                    className="ab-input-warm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     min="0"
                     step="0.01"
                   />
@@ -874,11 +875,11 @@ export const AjouterBien = ({
                 <div className="ab-field">
                   <label className="ab-label">Caution / Dépôt de garantie (FCFA)</label>
                   <input
-                    type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    type="text" inputMode="numeric"
                     name="deposit_amount"
                     value={formData.deposit_amount}
                     onChange={handleChange}
-                    className="ab-input-warm"
+                    className="ab-input-warm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     min="0"
                     step="0.01"
                   />

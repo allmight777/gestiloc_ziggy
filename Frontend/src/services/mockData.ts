@@ -3,7 +3,7 @@
 
 export const mockUserData = {
   id: 1,
-  email: 'locataire.demo@gestiloc.bj',
+  email: 'locataire.demo@imona.bj',
   first_name: 'Jean',
   last_name: 'Dupont',
   phone: '+229 90 00 00 01',
@@ -17,7 +17,7 @@ export const mockUserData = {
 export const mockLandlord = {
   id: 101,
   name: 'Amos Batté',
-  email: 'contact@gestiloc.bj',
+  email: 'contact@imona.bj',
   phone: '+229 97 00 00 00',
   address: 'Cotonou, Bénin'
 };
@@ -109,11 +109,11 @@ export const mockNotices: any[] = [];
 export const mockMessages: any[] = [
   {
     id: 1,
-    subject: 'Bienvenue sur GestiLoc',
+    subject: 'Bienvenue sur Imona',
     content: 'Bonjour Jean, bienvenue dans votre espace locataire. Vous pouvez ici payer votre loyer et signaler tout incident.',
     is_read: true,
     created_at: '2026-01-01T10:00:00Z',
-    sender: { id: 0, name: 'Système GestiLoc', type: 'system' }
+    sender: { id: 0, name: 'Système Imona', type: 'system' }
   }
 ];
 

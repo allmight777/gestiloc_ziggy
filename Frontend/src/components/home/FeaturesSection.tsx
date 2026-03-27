@@ -7,7 +7,7 @@ export default function FeaturesSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const totalCards = 12;
 
-  // Autoplay carousel for "Pourquoi choisir GestiLoc?"
+  // Autoplay carousel for "Pourquoi choisir Imona?"
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % totalCards);
@@ -29,7 +29,7 @@ export default function FeaturesSection() {
             transition={{ duration: 0.7, ease: "easeOut" }}
           >
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-[1.1]" style={{ fontFamily: "Merriweather" }}>
-              GestiLoc vous assiste avec votre gestion locative au Bénin
+              Imona vous assiste avec votre gestion locative au Bénin
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed px-2">
               Le site automatise la création de vos quittances et contrats de rotation confirmés à la législation béninoise.
@@ -87,11 +87,11 @@ export default function FeaturesSection() {
         </div>
       </div>
 
-      {/* Pourquoi choisir GestiLoc Section - Image 2 Style */}
+      {/* Pourquoi choisir Imona Section - Image 2 Style */}
       <div className="py-24 md:py-32 bg-white border-t border-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 md:mb-24">
-            <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-6" style={{ fontFamily: "Merriweather", lineHeight: "1.1" }}>Pourquoi choisir GestiLoc ?</h3>
+            <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-6" style={{ fontFamily: "Merriweather", lineHeight: "1.1" }}>Pourquoi choisir Imona ?</h3>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">Nous sommes innovants, modernes et adaptés aux réalités africaines</p>
           </div>
 
@@ -189,7 +189,7 @@ export default function FeaturesSection() {
               {
                 type: "stat",
                 num: "83%",
-                descText: "de nos clients affirment que GestiLoc les aide à apprendre et à mieux gérer.",
+                descText: "de nos clients affirment que Imona les aide à apprendre et à mieux gérer.",
                 descBold: "aide à apprendre et à mieux gérer",
                 bg: "#c9a8e8", color: "#4a1a7a",
                 width: 520, top: 340, left: 740, rotate: 4,
@@ -198,8 +198,8 @@ export default function FeaturesSection() {
               {
                 type: "stat",
                 num: "67%",
-                descText: "de nos clients recommandent GestiLoc à leur entourage !",
-                descBold: "recommandent GestiLoc à leur entourage",
+                descText: "de nos clients recommandent Imona à leur entourage !",
+                descBold: "recommandent Imona à leur entourage",
                 bg: "#4a7a3a", color: "#d4f0b8",
                 width: 520, top: 740, left: 340, rotate: 3,
                 fromX: 70, fromY: 70, delay: 750,
@@ -222,7 +222,7 @@ export default function FeaturesSection() {
               },
               {
                 type: "quote",
-                quote: '"GestiLoc c\'est génial je fais de la pub à tout mon entourage. Merci à toute votre équipe !"',
+                quote: '"Imona c\'est génial je fais de la pub à tout mon entourage. Merci à toute votre équipe !"',
                 authorName: "Luc", authorPlace: "Abomey-Calavi, Bénin",
                 bg: "#eef5eb", border: "1px solid #b0d9a0",
                 width: 520, top: 540, left: 380, rotate: -7,

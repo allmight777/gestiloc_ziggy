@@ -39,8 +39,8 @@ export function Header() {
         {/* Logo - Left */}
         <Link to="/" className="flex-shrink-0 transition-all md:absolute md:left-5 lg:md:left-8">
           <img
-            src="/Ressource_gestiloc/gestiloc-removebg-preview 1.png"
-            alt="GestiLoc"
+            src="/Ressource_gestiloc/IMONA.png"
+            alt="IMONA"
             className={`w-auto transition-all ${!isScrolled ? "h-12" : "h-10"}`}
           />
         </Link>

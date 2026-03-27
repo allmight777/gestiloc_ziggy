@@ -77,7 +77,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({ isOpen, onClose,
                 </div>
 
                 <div className="mt-auto pt-6 border-t border-gray-100 text-center text-xs text-gray-400">
-                    Généré numériquement par GestiLoc App - Page 1/3
+                    Généré numériquement par Imona App - Page 1/3
                 </div>
              </div>
            )}
