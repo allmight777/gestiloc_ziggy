@@ -269,10 +269,7 @@
                     <i data-lucide="wrench" style="width: 90px; height: 90px; color: #cbd5e1;"></i>
                     <h3>Aucune intervention</h3>
                     <p>Vous n'avez pas encore d'interventions pour les biens délégués.</p>
-                    <a href="{{ route('co-owner.maintenance.create') }}" class="btn-create">
-                        <i data-lucide="plus" style="width: 24px; height: 24px;"></i>
-                        Créer une intervention
-                    </a>
+               
                 </div>
             @endforelse
         </div>

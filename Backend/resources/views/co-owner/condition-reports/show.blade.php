@@ -684,10 +684,7 @@
                             </svg>
                             <div class="signature-content">
                                 <div class="signature-title">Document signé</div>
-                                <div class="signature-date">
-                                    Signé par <strong>{{ $report->signed_by_name ?? 'Co-propriétaire' }}</strong><br>
-                                    le {{ \Carbon\Carbon::parse($report->signed_at)->format('d/m/Y à H:i') }}
-                                </div>
+                          
                             </div>
                         </div>
                     @else

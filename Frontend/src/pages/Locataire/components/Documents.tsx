@@ -1,6 +1,6 @@
 // src/pages/Locataire/components/Documents.tsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus, Trash2, ChevronDown, Search, FileText, Calendar, Home, User,
   Upload, X, Loader2, Phone, Image, File, Download, Share2, Users,
@@ -8,7 +8,7 @@ import {
   RefreshCw, MapPin, Briefcase, DollarSign, Globe, Copy, Link2,
   Facebook, Twitter, Check, FileSignature, ClipboardList, Building2,
   Key, DoorOpen, Camera, FileCheck, FileX, UserCheck, UserX,
-  Signature
+  Signature, PenLine
 } from 'lucide-react';
 import { Card } from './ui/Card';
 import api from '@/services/api';
@@ -145,101 +145,200 @@ interface FilterOptions {
   lease_statuses?: Record<string, string>;
 }
 
-// ==================== MODAL CONFIRMATION SIGNATURE EDL ====================
-interface ConditionReportSignatureModalProps {
+// ==================== COMPOSANT CANVAS SIGNATURE (réutilisable) ====================
+interface CanvasSignatureModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
-  report: ConditionReport | null;
+  onConfirm: (signatureDataUrl: string) => Promise<void>;
+  title: string;
+  subtitle?: string;
+  warningText: string;
   isSubmitting: boolean;
 }
 
-const ConditionReportSignatureModal: React.FC<ConditionReportSignatureModalProps> = ({
-  isOpen, onClose, onConfirm, report, isSubmitting
+const CanvasSignatureModal: React.FC<CanvasSignatureModalProps> = ({
+  isOpen, onClose, onConfirm, title, subtitle, warningText, isSubmitting
 }) => {
-  if (!isOpen || !report) return null;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(true);
+  const lastPos = useRef<{ x: number; y: number } | null>(null);
 
-  const typeLabel = report.type === 'entry' ? "d'entrée" : 'de sortie';
+  // ✅ Redimensionner le canvas APRÈS que le modal soit visible (fix display:none → dimensions 0)
+  useEffect(() => {
+    if (!isOpen) return;
+    const timer = setTimeout(() => resizeCanvas(), 60);
+    return () => clearTimeout(timer);
+  }, [isOpen]);
+
+  const resizeCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    const w = canvas.offsetWidth;
+    const h = canvas.offsetHeight;
+    if (w === 0 || h === 0) return;
+    canvas.width = w * ratio;
+    canvas.height = h * ratio;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.scale(ratio, ratio);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, w, h);
+    }
+    setIsEmpty(true);
+  };
+
+  const getPos = (e: React.MouseEvent | React.TouchEvent, canvas: HTMLCanvasElement) => {
+    const rect = canvas.getBoundingClientRect();
+    if ('touches' in e) {
+      const touch = e.touches[0];
+      return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+    }
+    return {
+      x: (e as React.MouseEvent).clientX - rect.left,
+      y: (e as React.MouseEvent).clientY - rect.top,
+    };
+  };
+
+  const startDraw = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    setIsDrawing(true);
+    lastPos.current = getPos(e, canvas);
+  };
+
+  const draw = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx || !lastPos.current) return;
+    const pos = getPos(e, canvas);
+    ctx.beginPath();
+    ctx.moveTo(lastPos.current.x, lastPos.current.y);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.strokeStyle = '#111827';
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+    lastPos.current = pos;
+    setIsEmpty(false);
+  };
+
+  const stopDraw = () => {
+    setIsDrawing(false);
+    lastPos.current = null;
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+    setIsEmpty(true);
+  };
+
+  const handleConfirm = async () => {
+    const canvas = canvasRef.current;
+    if (!canvas || isEmpty) return;
+    await onConfirm(canvas.toDataURL('image/png'));
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all animate-slideUp">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-            <ClipboardList size={20} className="text-[#70AE48]" />
-            Signer l'état des lieux
-          </h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+    <div
+      className="fixed inset-0 bg-black/55 z-[70] flex items-center justify-center p-4"
+      style={{ backdropFilter: 'blur(4px)', animation: 'fadeIn 0.2s ease-out' }}
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
+        style={{ animation: 'slideUp 0.25s ease-out' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-5 border-b border-gray-200">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 bg-[#f0f7eb] rounded-xl flex items-center justify-center flex-shrink-0">
+              <PenLine size={20} className="text-[#70AE48]" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+              {subtitle && <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>}
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            disabled={isSubmitting}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+          >
             <X size={20} className="text-gray-500" />
           </button>
         </div>
 
-        <div className="p-6">
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4 rounded-r-lg">
-            <div className="flex gap-3">
-              <AlertCircle className="h-5 w-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-yellow-700">
-                En signant, vous confirmez avoir pris connaissance de l'état des lieux {typeLabel} et en acceptez le contenu.
-              </p>
-            </div>
-          </div>
+        {/* Avertissement */}
+        <div className="mx-5 mt-4 flex items-start gap-3 bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-r-lg">
+          <AlertCircle size={16} className="text-yellow-500 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-yellow-700 leading-relaxed">{warningText}</p>
+        </div>
 
-          <div className="mb-4 space-y-1">
-            <p className="text-sm text-gray-600">
-              Type : <span className="font-semibold">État des lieux {typeLabel}</span>
-            </p>
-            {report.property && (
-              <p className="text-sm text-gray-600">
-                Bien : <span className="font-semibold">{report.property.name}</span>
-              </p>
-            )}
-            <p className="text-sm text-gray-600">
-              Date : <span className="font-semibold">
-                {new Date(report.report_date).toLocaleDateString('fr-FR')}
-              </span>
-            </p>
-          </div>
+        {/* Label */}
+        <p className="px-5 pt-4 pb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
+          Dessinez votre signature ci-dessous
+        </p>
 
-          <div className="bg-gray-50 rounded-lg p-3 mb-5 space-y-2">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Statut des signatures</p>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Votre signature</span>
-              <span className="text-yellow-600 flex items-center gap-1">
-                <AlertCircle size={14} /> En attente
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Signature propriétaire</span>
-              {report.signature_landlord ? (
-                <span className="text-green-600 flex items-center gap-1">
-                  <CheckCircle size={14} /> Signé
-                </span>
-              ) : (
-                <span className="text-yellow-600 flex items-center gap-1">
-                  <AlertCircle size={14} /> En attente
-                </span>
-              )}
-            </div>
-          </div>
+        {/* Canvas */}
+        <div
+          className="mx-5 border-2 border-dashed border-gray-300 rounded-xl overflow-hidden hover:border-[#70AE48] transition-colors"
+          style={{ cursor: 'crosshair' }}
+        >
+          <canvas
+            ref={canvasRef}
+            style={{ width: '100%', height: 200, display: 'block', background: 'white', touchAction: 'none' }}
+            onMouseDown={startDraw}
+            onMouseMove={draw}
+            onMouseUp={stopDraw}
+            onMouseLeave={stopDraw}
+            onTouchStart={startDraw}
+            onTouchMove={draw}
+            onTouchEnd={stopDraw}
+          />
+        </div>
 
-          <div className="flex gap-3">
+        {/* Actions */}
+        <div className="flex items-center justify-between p-5">
+          <button
+            onClick={clearCanvas}
+            disabled={isSubmitting}
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors border border-gray-200 disabled:opacity-60"
+          >
+            <X size={14} /> Effacer
+          </button>
+          <div className="flex gap-2">
             <button
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-60"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-60"
             >
               Annuler
             </button>
             <button
-              onClick={onConfirm}
-              disabled={isSubmitting}
-              className="flex-1 px-4 py-3 bg-[#70AE48] text-white rounded-xl font-medium hover:bg-[#5a8f3a] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+              onClick={handleConfirm}
+              disabled={isSubmitting || isEmpty}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ backgroundColor: isEmpty || isSubmitting ? '#a3c98a' : '#70AE48' }}
             >
-              {isSubmitting ? (
-                <><Loader2 size={18} className="animate-spin" /> Signature...</>
-              ) : (
-                <><Signature size={18} /> Signer</>
-              )}
+              {isSubmitting
+                ? <><Loader2 size={14} className="animate-spin" /> Signature...</>
+                : <><Check size={14} /> Signer</>
+              }
             </button>
           </div>
         </div>
@@ -264,29 +363,21 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
 }) => {
   if (!isOpen || !lease) return null;
 
-  // ✅ FIX : Un contrat est signé si signed_document existe OU si les deux signatures sont présentes
   const hasSignedDocument = !!(lease.signed_document || lease.has_signed_document);
   const hasTenantSigned = !!lease.tenant_signature;
   const hasLandlordSigned = !!lease.landlord_signature;
-
   const showTenantSigned = hasSignedDocument || hasTenantSigned;
   const showLandlordSigned = hasSignedDocument || hasLandlordSigned;
   const isFullySigned = hasSignedDocument || (hasTenantSigned && hasLandlordSigned);
-
-  // On peut signer seulement si le bail est pending_signature ET pas encore signé
   const canSign = lease.status === 'pending_signature' && !hasTenantSigned && !hasSignedDocument;
-
-  // ✅ FIX : Un bail actif sans document signé = on ne demande pas de signature
   const isActiveWithoutSignature = lease.status === 'active' && !hasSignedDocument && !hasTenantSigned && !hasLandlordSigned;
 
   const formatDate = (d: string) => new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
   const formatMoney = (n: number) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', minimumFractionDigits: 0 }).format(n);
 
   const getStatusBadge = () => {
-    if (isFullySigned) {
-      return <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1"><CheckCircle size={12} /> Contrat signé</span>;
-    }
-    switch(lease.status) {
+    if (isFullySigned) return <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1"><CheckCircle size={12} /> Contrat signé</span>;
+    switch (lease.status) {
       case 'active': return <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Actif</span>;
       case 'pending_signature': return <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">En attente de signature</span>;
       case 'terminated': return <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Résilié</span>;
@@ -299,8 +390,7 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto transform transition-all animate-slideUp">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-xl">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-            <FileSignature size={20} className="text-[#70AE48]" />
-            Contrat de bail
+            <FileSignature size={20} className="text-[#70AE48]" /> Contrat de bail
           </h2>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
             <X size={20} className="text-gray-500" />
@@ -323,35 +413,27 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
             </div>
           </div>
 
-          {/* ✅ FIX : Afficher le bloc signatures seulement si pertinent */}
           {!isActiveWithoutSignature && (
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
               <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                <Signature size={16} className="text-[#70AE48]" />
-                Statut des signatures
+                <Signature size={16} className="text-[#70AE48]" /> Statut des signatures
               </h4>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Votre signature</span>
-                  {showTenantSigned ? (
-                    <span className="text-sm text-green-600 flex items-center gap-1"><CheckCircle size={16} /> Signé</span>
-                  ) : (
-                    <span className="text-sm text-yellow-600 flex items-center gap-1"><AlertCircle size={16} /> En attente</span>
-                  )}
+                  {showTenantSigned
+                    ? <span className="text-sm text-green-600 flex items-center gap-1"><CheckCircle size={16} /> Signé</span>
+                    : <span className="text-sm text-yellow-600 flex items-center gap-1"><AlertCircle size={16} /> En attente</span>}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Signature du propriétaire</span>
-                  {showLandlordSigned ? (
-                    <span className="text-sm text-green-600 flex items-center gap-1"><CheckCircle size={16} /> Signé</span>
-                  ) : (
-                    <span className="text-sm text-yellow-600 flex items-center gap-1"><AlertCircle size={16} /> En attente</span>
-                  )}
+                  {showLandlordSigned
+                    ? <span className="text-sm text-green-600 flex items-center gap-1"><CheckCircle size={16} /> Signé</span>
+                    : <span className="text-sm text-yellow-600 flex items-center gap-1"><AlertCircle size={16} /> En attente</span>}
                 </div>
                 {hasSignedDocument && (
                   <div className="mt-2 pt-2 border-t border-gray-200">
-                    <span className="text-xs text-blue-600 flex items-center gap-1">
-                      <FileCheck size={12} /> Document signé uploadé
-                    </span>
+                    <span className="text-xs text-blue-600 flex items-center gap-1"><FileCheck size={12} /> Document signé uploadé</span>
                   </div>
                 )}
               </div>
@@ -362,60 +444,13 @@ const LeaseViewerModal: React.FC<LeaseViewerModalProps> = ({
             <button onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">Fermer</button>
             {canSign && (
               <button onClick={() => onSignContract?.(lease)} className="px-4 py-2 bg-[#70AE48] text-white rounded-lg hover:bg-[#5a8f3a] transition-colors flex items-center gap-2">
-                <Signature size={18} /> Signer le contrat
+                <PenLine size={18} /> Signer le contrat
               </button>
             )}
-            {lease.signed_document ? (
-              <button onClick={() => onViewSignedContract?.(lease)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-                <Eye size={18} /> Voir le contrat signé
-              </button>
-            ) : (
-              <button onClick={() => onDownloadContract?.(lease)} className="px-4 py-2 bg-[#70AE48] text-white rounded-lg hover:bg-[#5a8f3a] transition-colors flex items-center gap-2">
-                <Download size={18} /> Télécharger le contrat
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ==================== MODAL SIGNATURE BAIL ====================
-interface SignatureModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  lease: Lease | null;
-  isSubmitting: boolean;
-}
-
-const SignatureModal: React.FC<SignatureModalProps> = ({ isOpen, onClose, onConfirm, lease, isSubmitting }) => {
-  if (!isOpen || !lease) return null;
-  return (
-    <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all animate-slideUp">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-            <Signature size={20} className="text-[#70AE48]" /> Signer le contrat
-          </h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20} className="text-gray-500" /></button>
-        </div>
-        <div className="p-6">
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-            <div className="flex gap-3">
-              <AlertCircle className="h-5 w-5 text-yellow-400" />
-              <p className="text-sm text-yellow-700">En signant ce contrat, vous reconnaissez avoir lu et accepté toutes les conditions du bail.</p>
-            </div>
-          </div>
-          <p className="text-sm text-gray-600 mb-4">
-            Bien : <span className="font-semibold">{lease.property?.name}</span>
-          </p>
-          <div className="flex gap-3">
-            <button onClick={onClose} disabled={isSubmitting} className="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-60">Annuler</button>
-            <button onClick={onConfirm} disabled={isSubmitting} className="flex-1 px-4 py-3 bg-[#70AE48] text-white rounded-xl font-medium hover:bg-[#5a8f3a] transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
-              {isSubmitting ? <><Loader2 size={18} className="animate-spin" /> Signature...</> : <><Signature size={18} /> Signer</>}
-            </button>
+            {lease.signed_document
+              ? <button onClick={() => onViewSignedContract?.(lease)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"><Eye size={18} /> Voir le contrat signé</button>
+              : <button onClick={() => onDownloadContract?.(lease)} className="px-4 py-2 bg-[#70AE48] text-white rounded-lg hover:bg-[#5a8f3a] transition-colors flex items-center gap-2"><Download size={18} /> Télécharger le contrat</button>
+            }
           </div>
         </div>
       </div>
@@ -492,13 +527,15 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showLeaseViewer, setShowLeaseViewer] = useState(false);
-  const [showSignatureModal, setShowSignatureModal] = useState(false);
-  const [showConditionReportSignatureModal, setShowConditionReportSignatureModal] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [selectedLease, setSelectedLease] = useState<Lease | null>(null);
   const [selectedConditionReport, setSelectedConditionReport] = useState<ConditionReport | null>(null);
   const [shareUrl, setShareUrl] = useState('');
   const [shareTitle, setShareTitle] = useState('');
+
+  // ✅ Modaux canvas signature
+  const [showLeaseSignatureCanvas, setShowLeaseSignatureCanvas] = useState(false);
+  const [showConditionReportSignatureCanvas, setShowConditionReportSignatureCanvas] = useState(false);
 
   // Filtres
   const [itemsPerPage, setItemsPerPage] = useState('10');
@@ -519,26 +556,11 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
 
   // Dossier form
   const [dossierForm, setDossierForm] = useState({
-    nom: '',
-    prenoms: '',
-    date_naissance: '',
-    a_propos: '',
-    email: '',
-    telephone: '',
-    adresse: '',
-    complement: '',
-    ville: '',
-    pays: '',
-    region: '',
-    type_activite: '',
-    profession: '',
-    revenus_mensuels: '',
-    has_garant: false,
-    garant_type: '',
-    garant_description: '',
-    is_shared: false,
-    shared_with: [] as number[],
-    shared_with_emails: [] as string[],
+    nom: '', prenoms: '', date_naissance: '', a_propos: '', email: '',
+    telephone: '', adresse: '', complement: '', ville: '', pays: '', region: '',
+    type_activite: '', profession: '', revenus_mensuels: '',
+    has_garant: false, garant_type: '', garant_description: '',
+    is_shared: false, shared_with: [] as number[], shared_with_emails: [] as string[],
   });
 
   const PRIMARY_COLOR = '#70AE48';
@@ -554,12 +576,6 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
     { value: 'autre', label: 'Autre' }
   ];
 
-  const activityOptions = [
-    'Salarié CDI', 'Salarié CDD', 'Gérant salarié', 'Non salarié',
-    'Fonctionnaire', 'Etudiant', 'Intermittent du spectacle',
-    'Intérimaire', 'Assistante maternelle', 'Retraité', 'Autre'
-  ];
-
   const paysOptions = ['Bénin', 'France', 'Belgique', 'Suisse', 'Luxembourg', 'Canada', 'Autre'];
 
   const garantTypeOptions = [
@@ -570,13 +586,8 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
   ];
 
   useEffect(() => {
-    fetchDocuments();
-    fetchLeases();
-    fetchConditionReports();
-    fetchTemplates();
-    fetchDossier();
-    fetchFilterOptions();
-    fetchOwnerDocuments();
+    fetchDocuments(); fetchLeases(); fetchConditionReports();
+    fetchTemplates(); fetchDossier(); fetchFilterOptions(); fetchOwnerDocuments();
   }, []);
 
   useEffect(() => {
@@ -610,11 +621,8 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         setActifsCount(response.data.actifs_count || 0);
         setArchivesCount(response.data.archives_count || 0);
       }
-    } catch (error) {
-      console.warn('Silent fail documents');
-    } finally {
-      setLoading(false);
-    }
+    } catch { console.warn('Silent fail documents'); }
+    finally { setLoading(false); }
   };
 
   const fetchOwnerDocuments = async () => {
@@ -625,11 +633,8 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         setOwnerDocuments(response.data.data || []);
         setOwnerDocumentsCount(response.data.total || 0);
       }
-    } catch (error) {
-      console.warn('Silent fail owner docs');
-    } finally {
-      setLoading(false);
-    }
+    } catch { console.warn('Silent fail owner docs'); }
+    finally { setLoading(false); }
   };
 
   const fetchLeases = async () => {
@@ -644,11 +649,8 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         setLeases(response.data.data || []);
         setContratsCount(response.data.total || 0);
       }
-    } catch (error) {
-      console.warn('Silent fail leases');
-    } finally {
-      setLoading(false);
-    }
+    } catch { console.warn('Silent fail leases'); }
+    finally { setLoading(false); }
   };
 
   const fetchConditionReports = async () => {
@@ -664,20 +666,14 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         setConditionReports(response.data.data || []);
         setEtatsLieuxCount(response.data.total || 0);
       }
-    } catch (error) {
-      console.warn('Silent fail condition reports');
-    } finally {
-      setLoading(false);
-    }
+    } catch { console.warn('Silent fail condition reports'); }
+    finally { setLoading(false); }
   };
 
   const fetchTemplates = async () => {
     try {
       const response = await api.get('/tenant/documents/templates');
-      if (response.data.success) {
-        setTemplates(response.data.data || []);
-        setTemplatesCount(response.data.data?.length || 0);
-      }
+      if (response.data.success) { setTemplates(response.data.data || []); setTemplatesCount(response.data.data?.length || 0); }
     } catch (error) { console.error('Erreur templates:', error); }
   };
 
@@ -688,26 +684,14 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         setDossier(response.data.data);
         const d = response.data.data;
         setDossierForm({
-          nom: d.nom || '',
-          prenoms: d.prenoms || '',
-          date_naissance: d.date_naissance || '',
-          a_propos: d.a_propos || '',
-          email: d.email || '',
-          telephone: d.telephone || '',
-          adresse: d.adresse || '',
-          complement: d.complement || '',
-          ville: d.ville || '',
-          pays: d.pays || '',
-          region: d.region || '',
-          type_activite: d.type_activite || '',
-          profession: d.profession || '',
-          revenus_mensuels: d.revenus_mensuels?.toString() || '',
-          has_garant: d.has_garant || false,
-          garant_type: d.garant_type || '',
-          garant_description: d.garant_description || '',
-          is_shared: d.is_shared || false,
-          shared_with: d.shared_with || [],
-          shared_with_emails: d.shared_with_emails || [],
+          nom: d.nom || '', prenoms: d.prenoms || '', date_naissance: d.date_naissance || '',
+          a_propos: d.a_propos || '', email: d.email || '', telephone: d.telephone || '',
+          adresse: d.adresse || '', complement: d.complement || '', ville: d.ville || '',
+          pays: d.pays || '', region: d.region || '', type_activite: d.type_activite || '',
+          profession: d.profession || '', revenus_mensuels: d.revenus_mensuels?.toString() || '',
+          has_garant: d.has_garant || false, garant_type: d.garant_type || '',
+          garant_description: d.garant_description || '', is_shared: d.is_shared || false,
+          shared_with: d.shared_with || [], shared_with_emails: d.shared_with_emails || [],
         });
       }
     } catch (error) { console.error('Erreur dossier:', error); }
@@ -728,7 +712,6 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
     } catch (error) { console.error('Erreur contacts:', error); }
   };
 
-  // Handlers documents
   const handleDeleteClick = (id: number) => { setDocToDelete(id); setShowDeleteConfirm(true); };
 
   const handleConfirmDelete = async () => {
@@ -741,29 +724,18 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         notify?.('Document supprimé avec succès', 'success');
         fetchDocuments();
       }
-    } catch (error) {
-      notify?.('Erreur lors de la suppression', 'error');
-    } finally {
-      setDeleting(false);
-      setShowDeleteConfirm(false);
-      setDocToDelete(null);
-    }
+    } catch { notify?.('Erreur lors de la suppression', 'error'); }
+    finally { setDeleting(false); setShowDeleteConfirm(false); setDocToDelete(null); }
   };
 
   const handleArchive = async (doc: Document) => {
-    try {
-      await api.post(`/tenant/documents/${doc.id}/archive`);
-      notify?.('Document archivé', 'success');
-      fetchDocuments();
-    } catch { notify?.('Erreur archivage', 'error'); }
+    try { await api.post(`/tenant/documents/${doc.id}/archive`); notify?.('Document archivé', 'success'); fetchDocuments(); }
+    catch { notify?.('Erreur archivage', 'error'); }
   };
 
   const handleRestore = async (doc: Document) => {
-    try {
-      await api.post(`/tenant/documents/${doc.id}/restore`);
-      notify?.('Document restauré', 'success');
-      fetchDocuments();
-    } catch { notify?.('Erreur restauration', 'error'); }
+    try { await api.post(`/tenant/documents/${doc.id}/restore`); notify?.('Document restauré', 'success'); fetchDocuments(); }
+    catch { notify?.('Erreur restauration', 'error'); }
   };
 
   const handleDownload = async (doc: Document) => {
@@ -771,10 +743,8 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
       const response = await api.get(`/tenant/documents/${doc.id}/download`, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = window.document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', doc.name);
-      window.document.body.appendChild(link);
-      link.click();
+      link.href = url; link.setAttribute('download', doc.name);
+      window.document.body.appendChild(link); link.click();
       setTimeout(() => { window.document.body.removeChild(link); window.URL.revokeObjectURL(url); }, 100);
       notify?.('Téléchargement réussi', 'success');
     } catch { notify?.('Erreur téléchargement', 'error'); }
@@ -792,16 +762,13 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
     }
   };
 
-  // Handlers baux
   const handleDownloadLeaseContract = async (lease: Lease) => {
     try {
       const response = await api.get(`/tenant/leases/${lease.uuid}/contract`, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = window.document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `contrat_bail_${lease.property?.name || lease.uuid}.pdf`);
-      window.document.body.appendChild(link);
-      link.click();
+      link.href = url; link.setAttribute('download', `contrat_bail_${lease.property?.name || lease.uuid}.pdf`);
+      window.document.body.appendChild(link); link.click();
       setTimeout(() => { window.document.body.removeChild(link); window.URL.revokeObjectURL(url); }, 100);
       notify?.('Contrat téléchargé', 'success');
     } catch { notify?.('Erreur téléchargement contrat', 'error'); }
@@ -816,14 +783,23 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
     } catch { notify?.('Erreur visualisation contrat signé', 'error'); }
   };
 
-  const handleSignLeaseContract = async () => {
+  // ✅ Ouvre le canvas de signature pour le BAIL
+  const handleSignLease = (lease: Lease) => {
+    setSelectedLease(lease);
+    setShowLeaseSignatureCanvas(true);
+  };
+
+  // ✅ Confirme la signature du BAIL avec le canvas
+  const handleConfirmLeaseSignature = async (signatureDataUrl: string) => {
     if (!selectedLease) return;
     setSubmitting(true);
     try {
-      const response = await api.post(`/tenant/leases/${selectedLease.uuid}/sign`);
+      const response = await api.post(`/tenant/leases/${selectedLease.uuid}/sign`, {
+        signature: signatureDataUrl,
+      });
       if (response.data.success) {
         notify?.(response.data.message, 'success');
-        setShowSignatureModal(false);
+        setShowLeaseSignatureCanvas(false);
         setSelectedLease(null);
         fetchLeases();
       }
@@ -834,25 +810,23 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
     }
   };
 
-  const handleSignLease = (lease: Lease) => {
-    setSelectedLease(lease);
-    setShowSignatureModal(true);
-  };
-
-  // Handlers états des lieux
+  // ✅ Ouvre le canvas de signature pour l'ÉTAT DES LIEUX
   const handleSignConditionReport = (report: ConditionReport) => {
     setSelectedConditionReport(report);
-    setShowConditionReportSignatureModal(true);
+    setShowConditionReportSignatureCanvas(true);
   };
 
-  const handleConfirmSignConditionReport = async () => {
+  // ✅ Confirme la signature de l'ÉTAT DES LIEUX avec le canvas
+  const handleConfirmConditionReportSignature = async (signatureDataUrl: string) => {
     if (!selectedConditionReport) return;
     setSubmitting(true);
     try {
-      const response = await api.post(`/tenant/condition-reports/${selectedConditionReport.id}/sign`);
+      const response = await api.post(`/tenant/condition-reports/${selectedConditionReport.id}/sign`, {
+        signature: signatureDataUrl,
+      });
       if (response.data.success) {
         notify?.(response.data.message, 'success');
-        setShowConditionReportSignatureModal(false);
+        setShowConditionReportSignatureCanvas(false);
         setSelectedConditionReport(null);
         fetchConditionReports();
       }
@@ -868,10 +842,8 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
       const response = await api.get(`/tenant/condition-reports/${report.id}/download`, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = window.document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `etat_des_lieux_${report.type}_${report.report_date}.pdf`);
-      window.document.body.appendChild(link);
-      link.click();
+      link.href = url; link.setAttribute('download', `etat_des_lieux_${report.type}_${report.report_date}.pdf`);
+      window.document.body.appendChild(link); link.click();
       setTimeout(() => { window.document.body.removeChild(link); window.URL.revokeObjectURL(url); }, 100);
       notify?.('État des lieux téléchargé', 'success');
     } catch { notify?.('Erreur téléchargement EDL', 'error'); }
@@ -889,16 +861,13 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
     }
   };
 
-  // Handlers dossier
   const handleDownloadDossier = async () => {
     try {
       const response = await api.get('/tenant/dossier/download', { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = window.document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `dossier_${dossierForm.nom}_${dossierForm.prenoms}.pdf`);
-      window.document.body.appendChild(link);
-      link.click();
+      link.href = url; link.setAttribute('download', `dossier_${dossierForm.nom}_${dossierForm.prenoms}.pdf`);
+      window.document.body.appendChild(link); link.click();
       setTimeout(() => { window.document.body.removeChild(link); window.URL.revokeObjectURL(url); }, 100);
       notify?.('Dossier téléchargé', 'success');
     } catch { notify?.('Erreur téléchargement dossier', 'error'); }
@@ -957,7 +926,6 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
     finally { setSubmitting(false); }
   };
 
-  // Helpers UI
   const getFileIcon = (fileType: string) => {
     if (fileType?.startsWith('image/')) return <Image size={20} className="text-blue-600" />;
     if (fileType?.includes('pdf')) return <FileText size={20} className="text-red-600" />;
@@ -987,7 +955,29 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
 
   return (
     <>
-      {/* Modals */}
+      {/* ✅ MODAL CANVAS SIGNATURE - CONTRAT DE BAIL */}
+      <CanvasSignatureModal
+        isOpen={showLeaseSignatureCanvas}
+        onClose={() => { setShowLeaseSignatureCanvas(false); setSelectedLease(null); }}
+        onConfirm={handleConfirmLeaseSignature}
+        title="Signer le contrat de bail"
+        subtitle={selectedLease?.property?.name ? `Bien : ${selectedLease.property.name}` : undefined}
+        warningText="En signant ce contrat, vous reconnaissez avoir lu et accepté toutes les conditions du bail. Cette action est irréversible."
+        isSubmitting={submitting}
+      />
+
+      {/* ✅ MODAL CANVAS SIGNATURE - ÉTAT DES LIEUX */}
+      <CanvasSignatureModal
+        isOpen={showConditionReportSignatureCanvas}
+        onClose={() => { setShowConditionReportSignatureCanvas(false); setSelectedConditionReport(null); }}
+        onConfirm={handleConfirmConditionReportSignature}
+        title={`Signer l'état des lieux ${selectedConditionReport?.type === 'entry' ? "d'entrée" : 'de sortie'}`}
+        subtitle={selectedConditionReport?.property?.name ? `Bien : ${selectedConditionReport.property.name}` : undefined}
+        warningText={`En signant, vous confirmez avoir pris connaissance de l'état des lieux ${selectedConditionReport?.type === 'entry' ? "d'entrée" : 'de sortie'} et en acceptez le contenu.`}
+        isSubmitting={submitting}
+      />
+
+      {/* Suppression */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-fadeIn" onClick={() => { setShowDeleteConfirm(false); setDocToDelete(null); }}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all animate-slideUp" onClick={e => e.stopPropagation()}>
@@ -1036,18 +1026,18 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Type <span className="text-red-500">*</span></label>
-                <select value={newDocument.type || ''} onChange={e => setNewDocument({ ...newDocument, type: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20" style={{ borderColor: `${PRIMARY_COLOR}80` }}>
+                <select value={newDocument.type || ''} onChange={e => setNewDocument({ ...newDocument, type: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none" style={{ borderColor: `${PRIMARY_COLOR}80` }}>
                   <option value="">Sélectionnez un type</option>
                   {typeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Nom du document</label>
-                <input type="text" value={newDocument.name || ''} onChange={e => setNewDocument({ ...newDocument, name: e.target.value })} placeholder="Laissez vide pour utiliser le nom du fichier" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20" style={{ borderColor: `${PRIMARY_COLOR}80` }} />
+                <input type="text" value={newDocument.name || ''} onChange={e => setNewDocument({ ...newDocument, name: e.target.value })} placeholder="Laissez vide pour utiliser le nom du fichier" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none" style={{ borderColor: `${PRIMARY_COLOR}80` }} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                <textarea value={newDocument.description || ''} onChange={e => setNewDocument({ ...newDocument, description: e.target.value })} rows={3} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 resize-none" style={{ borderColor: `${PRIMARY_COLOR}80` }} />
+                <textarea value={newDocument.description || ''} onChange={e => setNewDocument({ ...newDocument, description: e.target.value })} rows={3} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none resize-none" style={{ borderColor: `${PRIMARY_COLOR}80` }} />
               </div>
               <div className="flex justify-end gap-2">
                 <button onClick={() => setShowAddModal(false)} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">Annuler</button>
@@ -1060,9 +1050,15 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
         </div>
       )}
 
-      <SignatureModal isOpen={showSignatureModal} onClose={() => { setShowSignatureModal(false); setSelectedLease(null); }} onConfirm={handleSignLeaseContract} lease={selectedLease} isSubmitting={submitting} />
-      <ConditionReportSignatureModal isOpen={showConditionReportSignatureModal} onClose={() => { setShowConditionReportSignatureModal(false); setSelectedConditionReport(null); }} onConfirm={handleConfirmSignConditionReport} report={selectedConditionReport} isSubmitting={submitting} />
-      <LeaseViewerModal isOpen={showLeaseViewer} onClose={() => setShowLeaseViewer(false)} lease={selectedLease} notify={notify} onDownloadContract={handleDownloadLeaseContract} onSignContract={handleSignLease} onViewSignedContract={handleViewSignedLeaseContract} />
+      <LeaseViewerModal
+        isOpen={showLeaseViewer}
+        onClose={() => setShowLeaseViewer(false)}
+        lease={selectedLease}
+        notify={notify}
+        onDownloadContract={handleDownloadLeaseContract}
+        onSignContract={handleSignLease}
+        onViewSignedContract={handleViewSignedLeaseContract}
+      />
       <ShareModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} shareUrl={shareUrl} title={shareTitle} notify={notify} />
 
       <div className="min-h-screen bg-white p-4 sm:p-6">
@@ -1088,70 +1084,64 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
               </button>
             </div>
 
-            {/* Informations personnelles */}
             <Card className="p-6">
               <div className="mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2"><User size={20} className="text-[#70AE48]" /> Informations personnelles</h3>
                 <p className="text-sm text-gray-500">Vos informations de contact et identité</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Prénom</label><input type="text" value={dossierForm.prenoms} onChange={e => setDossierForm({ ...dossierForm, prenoms: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Jean" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Nom</label><input type="text" value={dossierForm.nom} onChange={e => setDossierForm({ ...dossierForm, nom: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="DUPONT" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Prénom</label><input type="text" value={dossierForm.prenoms} onChange={e => setDossierForm({ ...dossierForm, prenoms: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Jean" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Nom</label><input type="text" value={dossierForm.nom} onChange={e => setDossierForm({ ...dossierForm, nom: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="DUPONT" /></div>
               </div>
               <div className="mb-4"><label className="block text-sm font-medium text-gray-700 mb-1">Email</label><input type="email" value={dossierForm.email} disabled className="w-full px-4 py-2.5 bg-gray-50 text-gray-600 border border-gray-200 rounded-lg text-sm cursor-not-allowed" /><p className="text-xs text-gray-400 mt-1">Utilisé pour la connexion et les notifications</p></div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label><input type="tel" value={dossierForm.telephone} onChange={e => setDossierForm({ ...dossierForm, telephone: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Votre numéro" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Situation familiale</label><select value={dossierForm.garant_type} onChange={e => setDossierForm({ ...dossierForm, garant_type: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }}><option value="">Sélectionnez</option><option value="single">Célibataire</option><option value="married">Marié(e)</option><option value="divorced">Divorcé(e)</option><option value="widowed">Veuf/Veuve</option><option value="pacsed">Pacsé(e)</option></select></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label><input type="tel" value={dossierForm.telephone} onChange={e => setDossierForm({ ...dossierForm, telephone: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Votre numéro" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Situation familiale</label><select value={dossierForm.garant_type} onChange={e => setDossierForm({ ...dossierForm, garant_type: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }}><option value="">Sélectionnez</option><option value="single">Célibataire</option><option value="married">Marié(e)</option><option value="divorced">Divorcé(e)</option><option value="widowed">Veuf/Veuve</option><option value="pacsed">Pacsé(e)</option></select></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Date de naissance</label><div className="relative"><Calendar size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" /><input type="date" value={dossierForm.date_naissance} onChange={e => setDossierForm({ ...dossierForm, date_naissance: e.target.value })} className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} /></div></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Lieu de naissance</label><input type="text" value={dossierForm.region} onChange={e => setDossierForm({ ...dossierForm, region: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Votre lieu de naissance" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Date de naissance</label><div className="relative"><Calendar size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" /><input type="date" value={dossierForm.date_naissance} onChange={e => setDossierForm({ ...dossierForm, date_naissance: e.target.value })} className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} /></div></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Lieu de naissance</label><input type="text" value={dossierForm.region} onChange={e => setDossierForm({ ...dossierForm, region: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Votre lieu de naissance" /></div>
               </div>
-              <div className="md:col-span-2 mt-4"><label className="block text-sm font-medium text-gray-700 mb-1">A propos de vous</label><textarea value={dossierForm.a_propos} onChange={e => setDossierForm({ ...dossierForm, a_propos: e.target.value })} rows={3} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 resize-none bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Parlez de vous..." /></div>
+              <div className="md:col-span-2 mt-4"><label className="block text-sm font-medium text-gray-700 mb-1">A propos de vous</label><textarea value={dossierForm.a_propos} onChange={e => setDossierForm({ ...dossierForm, a_propos: e.target.value })} rows={3} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg resize-none bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Parlez de vous..." /></div>
             </Card>
 
-            {/* Adresse actuelle */}
             <Card className="p-6">
               <div className="mb-4"><h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2"><MapPin size={20} className="text-[#70AE48]" /> Adresse actuelle</h3><p className="text-sm text-gray-500">Votre adresse de résidence</p></div>
               <div className="grid grid-cols-1 gap-4 mb-4">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Adresse</label><input type="text" value={dossierForm.adresse} onChange={e => setDossierForm({ ...dossierForm, adresse: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Votre adresse" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Complément</label><input type="text" value={dossierForm.complement} onChange={e => setDossierForm({ ...dossierForm, complement: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Appartement, étage, etc." /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Adresse</label><input type="text" value={dossierForm.adresse} onChange={e => setDossierForm({ ...dossierForm, adresse: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Votre adresse" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Complément</label><input type="text" value={dossierForm.complement} onChange={e => setDossierForm({ ...dossierForm, complement: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Appartement, étage, etc." /></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Ville</label><input type="text" value={dossierForm.ville} onChange={e => setDossierForm({ ...dossierForm, ville: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Votre ville" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Pays</label><select value={dossierForm.pays} onChange={e => setDossierForm({ ...dossierForm, pays: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }}><option value="">Sélectionnez...</option>{paysOptions.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Ville</label><input type="text" value={dossierForm.ville} onChange={e => setDossierForm({ ...dossierForm, ville: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Votre ville" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Pays</label><select value={dossierForm.pays} onChange={e => setDossierForm({ ...dossierForm, pays: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }}><option value="">Sélectionnez...</option>{paysOptions.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
               </div>
             </Card>
 
-            {/* Informations professionnelles */}
             <Card className="p-6">
               <div className="mb-4"><h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2"><Briefcase size={20} className="text-[#70AE48]" /> Informations professionnelles</h3><p className="text-sm text-gray-500">Votre situation professionnelle</p></div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Profession</label><input type="text" value={dossierForm.profession} onChange={e => setDossierForm({ ...dossierForm, profession: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Votre profession" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Employeur</label><input type="text" value={dossierForm.type_activite} onChange={e => setDossierForm({ ...dossierForm, type_activite: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Nom de l'employeur" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Profession</label><input type="text" value={dossierForm.profession} onChange={e => setDossierForm({ ...dossierForm, profession: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Votre profession" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Employeur</label><input type="text" value={dossierForm.type_activite} onChange={e => setDossierForm({ ...dossierForm, type_activite: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Nom de l'employeur" /></div>
               </div>
-              <div className="mb-4"><label className="block text-sm font-medium text-gray-700 mb-1">Adresse de l'employeur</label><input type="text" value={dossierForm.adresse} onChange={e => setDossierForm({ ...dossierForm, adresse: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Adresse de l'employeur" /></div>
-              <div className="mb-4"><label className="block text-sm font-medium text-gray-700 mb-1">Type de contrat</label><select value={dossierForm.garant_type} onChange={e => setDossierForm({ ...dossierForm, garant_type: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }}><option value="">Sélectionnez</option><option value="cdi">CDI</option><option value="cdd">CDD</option><option value="interim">Intérim</option><option value="freelance">Freelance</option><option value="retired">Retraité</option><option value="unemployed">Sans emploi</option><option value="student">Étudiant</option></select></div>
+              <div className="mb-4"><label className="block text-sm font-medium text-gray-700 mb-1">Type de contrat</label><select value={dossierForm.garant_type} onChange={e => setDossierForm({ ...dossierForm, garant_type: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }}><option value="">Sélectionnez</option><option value="cdi">CDI</option><option value="cdd">CDD</option><option value="interim">Intérim</option><option value="freelance">Freelance</option><option value="retired">Retraité</option><option value="unemployed">Sans emploi</option><option value="student">Étudiant</option></select></div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Revenu annuel (FCFA)</label><div className="relative"><DollarSign size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" /><input type="text" inputMode="numeric" value={dossierForm.revenus_mensuels} onChange={e => setDossierForm({ ...dossierForm, revenus_mensuels: e.target.value })} className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Revenu annuel" /></div></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Revenu mensuel (FCFA)</label><div className="relative"><DollarSign size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" /><input type="text" inputMode="numeric" value={dossierForm.revenus_mensuels} onChange={e => setDossierForm({ ...dossierForm, revenus_mensuels: e.target.value })} className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Revenu mensuel" /></div></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Revenu annuel (FCFA)</label><div className="relative"><DollarSign size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" /><input type="text" inputMode="numeric" value={dossierForm.revenus_mensuels} onChange={e => setDossierForm({ ...dossierForm, revenus_mensuels: e.target.value })} className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Revenu annuel" /></div></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Revenu mensuel (FCFA)</label><div className="relative"><DollarSign size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" /><input type="text" inputMode="numeric" value={dossierForm.revenus_mensuels} onChange={e => setDossierForm({ ...dossierForm, revenus_mensuels: e.target.value })} className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Revenu mensuel" /></div></div>
               </div>
             </Card>
 
-            {/* Contact d'urgence */}
             <Card className="p-6">
               <div className="mb-4"><h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2"><Phone size={20} className="text-[#70AE48]" /> Contact d'urgence</h3><p className="text-sm text-gray-500">Personne à contacter en cas d'urgence</p></div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Nom complet</label><input type="text" value={dossierForm.nom} onChange={e => setDossierForm({ ...dossierForm, nom: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Nom de la personne à contacter" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Lien de parenté</label><input type="text" value={dossierForm.garant_description} onChange={e => setDossierForm({ ...dossierForm, garant_description: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Ex: Époux, Parent, Ami..." /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Nom complet</label><input type="text" value={dossierForm.nom} onChange={e => setDossierForm({ ...dossierForm, nom: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Nom de la personne à contacter" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Lien de parenté</label><input type="text" value={dossierForm.garant_description} onChange={e => setDossierForm({ ...dossierForm, garant_description: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Ex: Époux, Parent, Ami..." /></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label><input type="tel" value={dossierForm.telephone} onChange={e => setDossierForm({ ...dossierForm, telephone: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Numéro de téléphone" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Email</label><input type="email" value={dossierForm.email} onChange={e => setDossierForm({ ...dossierForm, email: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Adresse email" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label><input type="tel" value={dossierForm.telephone} onChange={e => setDossierForm({ ...dossierForm, telephone: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Numéro de téléphone" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Email</label><input type="email" value={dossierForm.email} onChange={e => setDossierForm({ ...dossierForm, email: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} placeholder="Adresse email" /></div>
               </div>
             </Card>
 
-            {/* Garant */}
             <Card className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"><Users size={20} className="text-[#70AE48]" /> Garants</h3>
               <div className="flex items-center justify-center gap-4 mb-4">
@@ -1163,8 +1153,8 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
               </div>
               {dossierForm.has_garant && (
                 <div className="space-y-4 mt-4">
-                  <div><label className="block text-sm font-medium text-gray-700 mb-1">Type de garant</label><select value={dossierForm.garant_type} onChange={e => setDossierForm({ ...dossierForm, garant_type: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }}><option value="">Choisir</option>{garantTypeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
-                  <div><label className="block text-sm font-medium text-gray-700 mb-1">Description</label><textarea value={dossierForm.garant_description} onChange={e => setDossierForm({ ...dossierForm, garant_description: e.target.value })} rows={3} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-20 resize-none bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} /></div>
+                  <div><label className="block text-sm font-medium text-gray-700 mb-1">Type de garant</label><select value={dossierForm.garant_type} onChange={e => setDossierForm({ ...dossierForm, garant_type: e.target.value })} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }}><option value="">Choisir</option>{garantTypeOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
+                  <div><label className="block text-sm font-medium text-gray-700 mb-1">Description</label><textarea value={dossierForm.garant_description} onChange={e => setDossierForm({ ...dossierForm, garant_description: e.target.value })} rows={3} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg resize-none bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} /></div>
                 </div>
               )}
             </Card>
@@ -1208,9 +1198,9 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
                   </button>
                   {showItemsDropdown && (<div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-10">{['10', '25', '50', '100'].map(n => (<button key={n} onClick={() => { setItemsPerPage(n); setShowItemsDropdown(false); }} className="w-full px-3 py-2 text-left hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg text-sm">{n} lignes</button>))}</div>)}
                 </div>
-                {activeFilter === 'etats_lieux' && (<select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-opacity-20 md:w-48 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }}><option value="all">Tous les états des lieux</option><option value="entry">État des lieux d'entrée</option><option value="exit">État des lieux de sortie</option></select>)}
-                <select value={propertyFilter} onChange={e => setPropertyFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-opacity-20 md:w-48 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }}><option value="">Tous les biens</option>{filterOptions.properties.map(p => <option key={p.id} value={p.id.toString()}>{p.name}</option>)}</select>
-                <div className="relative flex-1"><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Search size={14} className="text-gray-400" /></div><input type="text" placeholder="Rechercher..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} /></div>
+                {activeFilter === 'etats_lieux' && (<select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm md:w-48 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }}><option value="all">Tous les états des lieux</option><option value="entry">État des lieux d'entrée</option><option value="exit">État des lieux de sortie</option></select>)}
+                <select value={propertyFilter} onChange={e => setPropertyFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm md:w-48 bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }}><option value="">Tous les biens</option>{filterOptions.properties.map(p => <option key={p.id} value={p.id.toString()}>{p.name}</option>)}</select>
+                <div className="relative flex-1"><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Search size={14} className="text-gray-400" /></div><input type="text" placeholder="Rechercher..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900" style={{ borderColor: `${PRIMARY_COLOR}80` }} /></div>
               </div>
             </Card>
 
@@ -1218,131 +1208,163 @@ export const Documents: React.FC<DocumentsProps> = ({ notify }) => {
               {loading ? (
                 <Card className="p-12 text-center"><Loader2 size={32} className="animate-spin text-[#70AE48] mx-auto mb-3" /><p className="text-gray-500">Chargement...</p></Card>
               ) : activeFilter === 'templates' ? (
-                templates.length === 0 ? (<Card className="p-12 text-center"><div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><FileText size={24} className="text-gray-400" /></div><h3 className="text-lg font-medium text-gray-900 mb-1">Aucun template</h3></Card>) : templates.map(template => (<Card key={template.id} className="p-4 hover:shadow-md transition-all duration-300"><div className="flex items-center justify-between"><div className="flex items-center gap-3">{getFileIcon(template.type)}<div><h3 className="text-sm font-medium text-gray-900">{template.name}</h3><p className="text-xs text-gray-500">{template.description}</p></div></div><a href={template.file_url} download className="p-2 hover:bg-gray-100 rounded-lg transition-colors"><Download size={18} className="text-[#70AE48]" /></a></div></Card>))
+                templates.length === 0
+                  ? <Card className="p-12 text-center"><FileText size={24} className="text-gray-400 mx-auto mb-3" /><h3 className="text-lg font-medium text-gray-900">Aucun template</h3></Card>
+                  : templates.map(template => (<Card key={template.id} className="p-4 hover:shadow-md transition-all duration-300"><div className="flex items-center justify-between"><div className="flex items-center gap-3">{getFileIcon(template.type)}<div><h3 className="text-sm font-medium text-gray-900">{template.name}</h3><p className="text-xs text-gray-500">{template.description}</p></div></div><a href={template.file_url} download className="p-2 hover:bg-gray-100 rounded-lg transition-colors"><Download size={18} className="text-[#70AE48]" /></a></div></Card>))
               ) : activeFilter === 'proprio' ? (
-                ownerDocuments.length === 0 ? (<Card className="p-12 text-center"><div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><Building2 size={24} className="text-gray-400" /></div><h3 className="text-lg font-medium text-gray-900 mb-1">Aucun document du propriétaire</h3><p className="text-sm text-gray-500">Votre propriétaire n'a pas encore partagé de documents avec vous</p></Card>) : ownerDocuments.map(doc => (<Card key={doc.id} className="p-4 hover:shadow-md transition-all duration-300"><div className="flex items-start justify-between gap-3"><div className="flex-1"><div className="flex items-center gap-2 mb-1">{getFileIcon(doc.file_type)}<h3 className="text-base font-semibold text-gray-900">{doc.name}</h3>{doc.created_by_name && <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">{doc.created_by_name}</span>}</div><div className="flex flex-wrap items-center gap-3 mt-2">{doc.property && <div className="flex items-center gap-1 text-xs text-gray-500"><Home size={12} /><span>{doc.property.name}</span></div>}<div className="flex items-center gap-1 text-xs text-gray-500"><Calendar size={12} /><span>{formatDate(doc.created_at)}</span></div><div className="flex items-center gap-1 text-xs text-gray-500"><FileText size={12} /><span>{doc.file_size_formatted}</span></div></div></div><div className="flex items-center gap-1"><button onClick={() => handleViewDocument(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group" title="Voir"><Eye size={16} className="text-gray-500 group-hover:text-blue-600" /></button><button onClick={() => handleDownload(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group" title="Télécharger"><Download size={16} className="text-gray-500 group-hover:text-[#70AE48]" /></button></div></div></Card>))
+                ownerDocuments.length === 0
+                  ? <Card className="p-12 text-center"><Building2 size={24} className="text-gray-400 mx-auto mb-3" /><h3 className="text-lg font-medium text-gray-900">Aucun document du propriétaire</h3><p className="text-sm text-gray-500">Votre propriétaire n'a pas encore partagé de documents avec vous</p></Card>
+                  : ownerDocuments.map(doc => (<Card key={doc.id} className="p-4 hover:shadow-md transition-all duration-300"><div className="flex items-start justify-between gap-3"><div className="flex-1"><div className="flex items-center gap-2 mb-1">{getFileIcon(doc.file_type)}<h3 className="text-base font-semibold text-gray-900">{doc.name}</h3>{doc.created_by_name && <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">{doc.created_by_name}</span>}</div><div className="flex flex-wrap items-center gap-3 mt-2">{doc.property && <div className="flex items-center gap-1 text-xs text-gray-500"><Home size={12} /><span>{doc.property.name}</span></div>}<div className="flex items-center gap-1 text-xs text-gray-500"><Calendar size={12} /><span>{formatDate(doc.created_at)}</span></div><div className="flex items-center gap-1 text-xs text-gray-500"><FileText size={12} /><span>{doc.file_size_formatted}</span></div></div></div><div className="flex items-center gap-1"><button onClick={() => handleViewDocument(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Voir"><Eye size={16} className="text-gray-500" /></button><button onClick={() => handleDownload(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Télécharger"><Download size={16} className="text-gray-500" /></button></div></div></Card>))
               ) : activeFilter === 'contrats' ? (
-                leases.length === 0 ? (<Card className="p-12 text-center"><div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><FileSignature size={24} className="text-gray-400" /></div><h3 className="text-lg font-medium text-gray-900 mb-1">Aucun contrat de bail</h3></Card>) : leases.map(lease => {
-                  // ✅ FIX PRINCIPAL : Vérifier signed_document ET has_signed_document
-                  const hasSignedDocument = !!(lease.signed_document || lease.has_signed_document);
-                  const hasTenantSigned = !!lease.tenant_signature;
-                  const hasLandlordSigned = !!lease.landlord_signature;
+                leases.length === 0
+                  ? <Card className="p-12 text-center"><FileSignature size={24} className="text-gray-400 mx-auto mb-3" /><h3 className="text-lg font-medium text-gray-900">Aucun contrat de bail</h3></Card>
+                  : leases.map(lease => {
+                    const hasSignedDocument = !!(lease.signed_document || lease.has_signed_document);
+                    const hasTenantSigned = !!lease.tenant_signature;
+                    const hasLandlordSigned = !!lease.landlord_signature;
+                    const isFullySigned = hasSignedDocument || (hasTenantSigned && hasLandlordSigned);
+                    const showTenantSigned = hasSignedDocument || hasTenantSigned;
+                    const showLandlordSigned = hasSignedDocument || hasLandlordSigned;
+                    const canSign = lease.status === 'pending_signature' && !hasTenantSigned && !hasSignedDocument;
+                    const isActiveWithoutSignature = lease.status === 'active' && !hasSignedDocument && !hasTenantSigned && !hasLandlordSigned;
+                    let borderColor = '#ef4444';
+                    if (isFullySigned) borderColor = '#10b981';
+                    else if (lease.status === 'active') borderColor = '#10b981';
+                    else if (lease.status === 'pending_signature') borderColor = '#f59e0b';
 
-                  // ✅ Un contrat est "fully signed" si un document signé existe OU si les deux ont signé
-                  const isFullySigned = hasSignedDocument || (hasTenantSigned && hasLandlordSigned);
-
-                  // ✅ Afficher "signé" si signed_document existe OU signature individuelle
-                  const showTenantSigned = hasSignedDocument || hasTenantSigned;
-                  const showLandlordSigned = hasSignedDocument || hasLandlordSigned;
-
-                  // ✅ On peut signer seulement si pending_signature ET pas encore signé
-                  const canSign = lease.status === 'pending_signature' && !hasTenantSigned && !hasSignedDocument;
-
-                  // ✅ Bail actif sans aucune trace de signature = pas besoin d'afficher les indicateurs
-                  const isActiveWithoutSignature = lease.status === 'active' && !hasSignedDocument && !hasTenantSigned && !hasLandlordSigned;
-
-                  // Couleur de la bordure
-                  let borderColor = '#ef4444';
-                  if (isFullySigned) borderColor = '#10b981';
-                  else if (lease.status === 'active') borderColor = '#10b981';
-                  else if (lease.status === 'pending_signature') borderColor = '#f59e0b';
-
-                  return (
-                    <Card key={lease.id} className="p-4 hover:shadow-md transition-all duration-300 border-l-4" style={{ borderLeftColor: borderColor }}>
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            {getLeaseIcon(lease.status, hasSignedDocument, isFullySigned)}
-                            <h3 className="text-base font-semibold text-gray-900">Contrat de bail - {lease.property?.name || 'Bien'}</h3>
-                            {/* ✅ Badge de statut */}
-                            {isFullySigned ? (
-                              <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1"><CheckCircle size={10} /> Contrat signé</span>
-                            ) : lease.status === 'active' ? (
-                              <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">Actif</span>
-                            ) : lease.status === 'pending_signature' ? (
-                              <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">En attente de signature</span>
-                            ) : (
-                              <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">{lease.status}</span>
+                    return (
+                      <Card key={lease.id} className="p-4 hover:shadow-md transition-all duration-300 border-l-4" style={{ borderLeftColor: borderColor }}>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              {getLeaseIcon(lease.status, hasSignedDocument, isFullySigned)}
+                              <h3 className="text-base font-semibold text-gray-900">Contrat de bail - {lease.property?.name || 'Bien'}</h3>
+                              {isFullySigned ? (
+                                <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1"><CheckCircle size={10} /> Contrat signé</span>
+                              ) : lease.status === 'active' ? (
+                                <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">Actif</span>
+                              ) : lease.status === 'pending_signature' ? (
+                                <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">En attente de signature</span>
+                              ) : (
+                                <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">{lease.status}</span>
+                              )}
+                            </div>
+                            <div className="flex flex-wrap items-center gap-3 mt-2">
+                              {lease.property && <div className="flex items-center gap-1 text-xs text-gray-500"><Home size={12} /><span>{lease.property.address || lease.property.name}</span></div>}
+                              <div className="flex items-center gap-1 text-xs text-gray-500"><Calendar size={12} /><span>Début: {formatDate(lease.start_date)}</span></div>
+                              <div className="flex items-center gap-1 text-xs text-gray-500"><Calendar size={12} /><span>Fin: {lease.end_date ? formatDate(lease.end_date) : 'Indéterminée'}</span></div>
+                            </div>
+                            {!isActiveWithoutSignature && (
+                              <div className="flex items-center gap-3 mt-2">
+                                {showTenantSigned
+                                  ? <span className="text-xs text-green-600 flex items-center gap-1"><UserCheck size={12} /> Vous avez signé</span>
+                                  : <span className="text-xs text-yellow-600 flex items-center gap-1"><UserX size={12} /> En attente de votre signature</span>}
+                                {showLandlordSigned
+                                  ? <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle size={12} /> Propriétaire a signé</span>
+                                  : <span className="text-xs text-gray-400 flex items-center gap-1"><AlertCircle size={12} /> Propriétaire n'a pas encore signé</span>}
+                              </div>
                             )}
+                            {hasSignedDocument && <div className="mt-2"><span className="text-xs text-blue-600 flex items-center gap-1"><FileCheck size={10} /> Document signé uploadé</span></div>}
                           </div>
-                          <div className="flex flex-wrap items-center gap-3 mt-2">
-                            {lease.property && <div className="flex items-center gap-1 text-xs text-gray-500"><Home size={12} /><span>{lease.property.address || lease.property.name}</span></div>}
-                            <div className="flex items-center gap-1 text-xs text-gray-500"><Calendar size={12} /><span>Début: {formatDate(lease.start_date)}</span></div>
-                            <div className="flex items-center gap-1 text-xs text-gray-500"><Calendar size={12} /><span>Fin: {lease.end_date ? formatDate(lease.end_date) : 'Indéterminée'}</span></div>
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => { setSelectedLease(lease); setShowLeaseViewer(true); }} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Voir"><Eye size={16} className="text-gray-500" /></button>
+                            {/* ✅ Bouton Signer → ouvre le VRAI canvas */}
+                            {canSign && (
+                              <button
+                                onClick={() => handleSignLease(lease)}
+                                className="p-1.5 bg-[#70AE48] text-white rounded-lg hover:bg-[#5a8f3a] transition-colors flex items-center gap-1"
+                                title="Signer le contrat"
+                              >
+                                <PenLine size={14} /><span className="text-xs">Signer</span>
+                              </button>
+                            )}
+                            {lease.signed_document
+                              ? <button onClick={() => handleViewSignedLeaseContract(lease)} className="p-1.5 hover:bg-blue-100 rounded-lg" title="Voir contrat signé"><FileCheck size={16} className="text-blue-600" /></button>
+                              : <button onClick={() => handleDownloadLeaseContract(lease)} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Télécharger"><Download size={16} className="text-gray-500" /></button>}
                           </div>
-
-                          {/* ✅ FIX : Afficher les indicateurs de signature seulement si pertinent */}
-                          {!isActiveWithoutSignature && (
-                            <div className="flex items-center gap-3 mt-2">
-                              {showTenantSigned ? (
-                                <span className="text-xs text-green-600 flex items-center gap-1"><UserCheck size={12} /> Vous avez signé</span>
-                              ) : (
-                                <span className="text-xs text-yellow-600 flex items-center gap-1"><UserX size={12} /> En attente de votre signature</span>
-                              )}
-                              {showLandlordSigned ? (
-                                <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle size={12} /> Propriétaire a signé</span>
-                              ) : (
-                                <span className="text-xs text-gray-400 flex items-center gap-1"><AlertCircle size={12} /> Propriétaire n'a pas encore signé</span>
-                              )}
-                            </div>
-                          )}
-
-                          {hasSignedDocument && (
-                            <div className="mt-2">
-                              <span className="text-xs text-blue-600 flex items-center gap-1"><FileCheck size={10} /> Document signé uploadé</span>
-                            </div>
-                          )}
                         </div>
-                        <div className="flex items-center gap-1">
-                          <button onClick={() => { setSelectedLease(lease); setShowLeaseViewer(true); }} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group" title="Voir"><Eye size={16} className="text-gray-500 group-hover:text-blue-600" /></button>
-                          {canSign && (
-                            <button onClick={() => handleSignLease(lease)} className="p-1.5 bg-[#70AE48] text-white rounded-lg hover:bg-[#5a8f3a] transition-colors flex items-center gap-1" title="Signer"><Signature size={14} /><span className="text-xs">Signer</span></button>
-                          )}
-                          {lease.signed_document ? (
-                            <button onClick={() => handleViewSignedLeaseContract(lease)} className="p-1.5 hover:bg-blue-100 rounded-lg transition-colors" title="Voir contrat signé"><FileCheck size={16} className="text-blue-600" /></button>
-                          ) : (
-                            <button onClick={() => handleDownloadLeaseContract(lease)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group" title="Télécharger"><Download size={16} className="text-gray-500 group-hover:text-[#70AE48]" /></button>
-                          )}
-                        </div>
-                      </div>
-                    </Card>
-                  );
-                })
+                      </Card>
+                    );
+                  })
               ) : activeFilter === 'etats_lieux' ? (
-                conditionReports.length === 0 ? (<Card className="p-12 text-center"><div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><ClipboardList size={24} className="text-gray-400" /></div><h3 className="text-lg font-medium text-gray-900 mb-1">Aucun état des lieux</h3></Card>) : conditionReports.map(report => {
-                  const canSign = !report.signature_tenant;
-                  const typeLabel = report.type === 'entry' ? "d'entrée" : 'de sortie';
-
-                  return (
-                    <Card key={report.id} className="p-4 hover:shadow-md transition-all duration-300 border-l-4" style={{ borderLeftColor: report.is_signed ? '#10b981' : report.signature_tenant ? '#3b82f6' : '#f59e0b' }}>
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            {getReportIcon(report.type, report.is_signed)}
-                            <h3 className="text-base font-semibold text-gray-900">État des lieux {typeLabel}{report.property && ` - ${report.property.name}`}</h3>
-                            {report.is_signed ? (<span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1"><CheckCircle size={10} /> Validé (2/2 signatures)</span>) : report.signature_tenant ? (<span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">En attente propriétaire</span>) : (<span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">En attente de votre signature</span>)}
+                conditionReports.length === 0
+                  ? <Card className="p-12 text-center"><ClipboardList size={24} className="text-gray-400 mx-auto mb-3" /><h3 className="text-lg font-medium text-gray-900">Aucun état des lieux</h3></Card>
+                  : conditionReports.map(report => {
+                    const canSign = !report.signature_tenant;
+                    const typeLabel = report.type === 'entry' ? "d'entrée" : 'de sortie';
+                    return (
+                      <Card key={report.id} className="p-4 hover:shadow-md transition-all duration-300 border-l-4" style={{ borderLeftColor: report.is_signed ? '#10b981' : report.signature_tenant ? '#3b82f6' : '#f59e0b' }}>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              {getReportIcon(report.type, report.is_signed)}
+                              <h3 className="text-base font-semibold text-gray-900">État des lieux {typeLabel}{report.property && ` - ${report.property.name}`}</h3>
+                              {report.is_signed
+                                ? <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1"><CheckCircle size={10} /> Validé (2/2 signatures)</span>
+                                : report.signature_tenant
+                                  ? <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">En attente propriétaire</span>
+                                  : <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">En attente de votre signature</span>}
+                            </div>
+                            <div className="flex flex-wrap items-center gap-3 mt-2">
+                              {report.property && <div className="flex items-center gap-1 text-xs text-gray-500"><Home size={12} /><span>{report.property.address || report.property.name}</span></div>}
+                              <div className="flex items-center gap-1 text-xs text-gray-500"><Calendar size={12} /><span>{formatDate(report.report_date)}</span></div>
+                              <div className="flex items-center gap-1 text-xs text-gray-500"><User size={12} /><span>{report.created_by_name}</span></div>
+                              {report.photos && <div className="flex items-center gap-1 text-xs text-gray-500"><Camera size={12} /><span>{report.photos.length} photo{report.photos.length > 1 ? 's' : ''}</span></div>}
+                            </div>
+                            <div className="flex items-center gap-3 mt-2">
+                              {report.signature_tenant
+                                ? <span className="text-xs text-green-600 flex items-center gap-1"><UserCheck size={12} /> Vous avez signé{report.tenant_signed_at && <span className="text-gray-400"> ({report.tenant_signed_at})</span>}</span>
+                                : <span className="text-xs text-yellow-600 flex items-center gap-1"><UserX size={12} /> En attente de votre signature</span>}
+                              {report.signature_landlord
+                                ? <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle size={12} /> Propriétaire a signé</span>
+                                : <span className="text-xs text-gray-400 flex items-center gap-1"><AlertCircle size={12} /> Propriétaire n'a pas encore signé</span>}
+                            </div>
                           </div>
-                          <div className="flex flex-wrap items-center gap-3 mt-2">
-                            {report.property && <div className="flex items-center gap-1 text-xs text-gray-500"><Home size={12} /><span>{report.property.address || report.property.name}</span></div>}
-                            <div className="flex items-center gap-1 text-xs text-gray-500"><Calendar size={12} /><span>{formatDate(report.report_date)}</span></div>
-                            <div className="flex items-center gap-1 text-xs text-gray-500"><User size={12} /><span>{report.created_by_name}</span></div>
-                            {report.photos && <div className="flex items-center gap-1 text-xs text-gray-500"><Camera size={12} /><span>{report.photos.length} photo{report.photos.length > 1 ? 's' : ''}</span></div>}
-                          </div>
-                          <div className="flex items-center gap-3 mt-2">
-                            {report.signature_tenant ? (<span className="text-xs text-green-600 flex items-center gap-1"><UserCheck size={12} /> Vous avez signé{report.tenant_signed_at && <span className="text-gray-400">({report.tenant_signed_at})</span>}</span>) : (<span className="text-xs text-yellow-600 flex items-center gap-1"><UserX size={12} /> En attente de votre signature</span>)}
-                            {report.signature_landlord ? (<span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle size={12} /> Propriétaire a signé</span>) : (<span className="text-xs text-gray-400 flex items-center gap-1"><AlertCircle size={12} /> Propriétaire n'a pas encore signé</span>)}
+                          <div className="flex items-center gap-1">
+                            {/* ✅ Bouton Signer → ouvre le VRAI canvas */}
+                            {canSign && (
+                              <button
+                                onClick={() => handleSignConditionReport(report)}
+                                className="p-1.5 bg-[#70AE48] text-white rounded-lg hover:bg-[#5a8f3a] transition-colors flex items-center gap-1"
+                                title="Signer l'état des lieux"
+                              >
+                                <PenLine size={14} /><span className="text-xs">Signer</span>
+                              </button>
+                            )}
+                            {report.file_url
+                              ? <button onClick={() => handleViewConditionReport(report)} className="p-1.5 hover:bg-blue-100 rounded-lg" title="Voir"><FileCheck size={16} className="text-blue-600" /></button>
+                              : <button onClick={() => handleDownloadConditionReport(report)} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Télécharger"><Download size={16} className="text-gray-500" /></button>}
                           </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          {canSign && (<button onClick={() => handleSignConditionReport(report)} className="p-1.5 bg-[#70AE48] text-white rounded-lg hover:bg-[#5a8f3a] transition-colors flex items-center gap-1" title="Signer l'état des lieux"><Signature size={14} /><span className="text-xs">Signer</span></button>)}
-                          {report.file_url ? (<button onClick={() => handleViewConditionReport(report)} className="p-1.5 hover:bg-blue-100 rounded-lg transition-colors" title="Voir le rapport"><FileCheck size={16} className="text-blue-600" /></button>) : (<button onClick={() => handleDownloadConditionReport(report)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group" title="Télécharger"><Download size={16} className="text-gray-500 group-hover:text-[#70AE48]" /></button>)}
-                        </div>
-                      </div>
-                    </Card>
-                  );
-                })
+                      </Card>
+                    );
+                  })
               ) : (
-                paginatedDocuments.length === 0 ? (<Card className="p-12 text-center"><div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><FileText size={24} className="text-gray-400" /></div><h3 className="text-lg font-medium text-gray-900 mb-1">Aucun document trouvé</h3><p className="text-sm text-gray-500 mb-4">Ajoutez votre premier document</p><button onClick={() => setShowAddModal(true)} className="inline-flex items-center gap-2 px-5 py-2.5 text-white text-sm font-medium rounded-xl transition-all hover:opacity-90" style={{ backgroundColor: PRIMARY_COLOR }}><Plus size={16} /> Nouveau document</button></Card>) : paginatedDocuments.map(doc => (<Card key={doc.id} className="p-4 hover:shadow-md transition-all duration-300"><div className="flex items-start justify-between gap-3"><div className="flex-1"><div className="flex items-center gap-2 mb-1">{getFileIcon(doc.file_type)}<h3 className="text-base font-semibold text-gray-900">{doc.name}</h3>{doc.is_shared && <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1"><Share2 size={10} /> Partagé</span>}{doc.status === 'archive' && <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-xs font-medium flex items-center gap-1"><Archive size={10} /> Archivé</span>}</div><div className="flex flex-wrap items-center gap-3 mt-2">{doc.property && <div className="flex items-center gap-1 text-xs text-gray-500"><Home size={12} /><span>{doc.property.name}</span></div>}<div className="flex items-center gap-1 text-xs text-gray-500"><Calendar size={12} /><span>{formatDate(doc.created_at)}</span></div><div className="flex items-center gap-1 text-xs text-gray-500"><FileText size={12} /><span>{doc.file_size_formatted}</span></div></div></div><div className="flex items-center gap-1"><button onClick={() => handleViewDocument(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group" title="Ouvrir"><Eye size={16} className="text-gray-500 group-hover:text-blue-600" /></button><button onClick={() => handleDownload(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group" title="Télécharger"><Download size={16} className="text-gray-500 group-hover:text-[#70AE48]" /></button>{activeFilter === 'actifs' ? (<button onClick={() => handleArchive(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group" title="Archiver"><Archive size={16} className="text-gray-500 group-hover:text-orange-600" /></button>) : (<button onClick={() => handleRestore(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors group" title="Restaurer"><RefreshCw size={16} className="text-gray-500 group-hover:text-green-600" /></button>)}<button onClick={() => handleDeleteClick(doc.id)} className="p-1.5 hover:bg-red-50 rounded-lg transition-colors group" title="Supprimer"><Trash2 size={16} className="text-gray-500 group-hover:text-red-600" /></button></div></div></Card>))
+                paginatedDocuments.length === 0 ? (
+                  <Card className="p-12 text-center">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3"><FileText size={24} className="text-gray-400" /></div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">Aucun document trouvé</h3>
+                    <p className="text-sm text-gray-500 mb-4">Ajoutez votre premier document</p>
+                    <button onClick={() => setShowAddModal(true)} className="inline-flex items-center gap-2 px-5 py-2.5 text-white text-sm font-medium rounded-xl" style={{ backgroundColor: PRIMARY_COLOR }}><Plus size={16} /> Nouveau document</button>
+                  </Card>
+                ) : paginatedDocuments.map(doc => (
+                  <Card key={doc.id} className="p-4 hover:shadow-md transition-all duration-300">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">{getFileIcon(doc.file_type)}<h3 className="text-base font-semibold text-gray-900">{doc.name}</h3>{doc.is_shared && <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1"><Share2 size={10} /> Partagé</span>}{doc.status === 'archive' && <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-xs font-medium flex items-center gap-1"><Archive size={10} /> Archivé</span>}</div>
+                        <div className="flex flex-wrap items-center gap-3 mt-2">{doc.property && <div className="flex items-center gap-1 text-xs text-gray-500"><Home size={12} /><span>{doc.property.name}</span></div>}<div className="flex items-center gap-1 text-xs text-gray-500"><Calendar size={12} /><span>{formatDate(doc.created_at)}</span></div><div className="flex items-center gap-1 text-xs text-gray-500"><FileText size={12} /><span>{doc.file_size_formatted}</span></div></div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => handleViewDocument(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Ouvrir"><Eye size={16} className="text-gray-500" /></button>
+                        <button onClick={() => handleDownload(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Télécharger"><Download size={16} className="text-gray-500" /></button>
+                        {activeFilter === 'actifs'
+                          ? <button onClick={() => handleArchive(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Archiver"><Archive size={16} className="text-gray-500" /></button>
+                          : <button onClick={() => handleRestore(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg" title="Restaurer"><RefreshCw size={16} className="text-gray-500" /></button>}
+                        <button onClick={() => handleDeleteClick(doc.id)} className="p-1.5 hover:bg-red-50 rounded-lg" title="Supprimer"><Trash2 size={16} className="text-gray-500" /></button>
+                      </div>
+                    </div>
+                  </Card>
+                ))
               )}
             </div>
 

@@ -147,15 +147,13 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
   const [taskToDelete, setTaskToDelete] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  // Form state
-  const [newTask, setNewTask] = useState<Partial<Task>>({
-    title: '',
-    description: '',
-    due_date: '',
-    priority: 'medium',
-    property_id: undefined,
-    assigned_to: 'Moi',
-  });
+  // Form state - séparé pour éviter les re-renders
+  const [taskTitle, setTaskTitle] = useState('');
+  const [taskDescription, setTaskDescription] = useState('');
+  const [taskDueDate, setTaskDueDate] = useState('');
+  const [taskPriority, setTaskPriority] = useState<'low' | 'medium' | 'high'>('medium');
+  const [taskPropertyId, setTaskPropertyId] = useState<number | undefined>(undefined);
+  const [taskAssignedTo, setTaskAssignedTo] = useState('Moi');
 
   // Couleur principale
   const PRIMARY_COLOR = '#70AE48';
@@ -167,37 +165,7 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
       setTasks(response.data);
     } catch (error) {
       console.error('Erreur chargement tâches:', error);
-      // Données mockées sans notification d'erreur
-      setTasks([
-        {
-          id: 1,
-          uuid: 'task-1',
-          title: 'Vérifier les installations',
-          description: 'Contrôle mensuel des équipements',
-          due_date: '2025-03-15',
-          completed: false,
-          priority: 'high',
-          assigned_to: 'Propriétaire',
-          property_id: 1,
-          property: { id: 1, name: 'Appartement Paris', address: '123 Rue de Paris', city: 'Paris' },
-          created_at: '2025-02-26',
-          updated_at: '2025-02-26',
-        },
-        {
-          id: 2,
-          uuid: 'task-2',
-          title: 'Maintenance chauffage',
-          description: 'Révision annuelle du chauffage',
-          due_date: '2025-04-10',
-          completed: false,
-          priority: 'medium',
-          assigned_to: 'Propriétaire',
-          property_id: 1,
-          property: { id: 1, name: 'Appartement Paris', address: '123 Rue de Paris', city: 'Paris' },
-          created_at: '2025-02-26',
-          updated_at: '2025-02-26',
-        },
-      ]);
+      setTasks([]);
     } finally {
       setLoading(false);
     }
@@ -265,8 +233,17 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
     setTaskToDelete(null);
   };
 
+  const resetForm = () => {
+    setTaskTitle('');
+    setTaskDescription('');
+    setTaskDueDate('');
+    setTaskPriority('medium');
+    setTaskPropertyId(undefined);
+    setTaskAssignedTo('Moi');
+  };
+
   const handleCreateTask = async () => {
-    if (!newTask.title?.trim()) {
+    if (!taskTitle.trim()) {
       notify?.('Veuillez saisir un titre', 'error');
       return;
     }
@@ -274,23 +251,16 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
     setSubmitting(true);
     try {
       const response = await api.post('/tenant/tasks', {
-        title: newTask.title,
-        description: newTask.description || null,
-        due_date: newTask.due_date || null,
-        priority: newTask.priority || 'medium',
-        property_id: newTask.property_id || null,
-        assigned_to: newTask.assigned_to || 'Moi',
+        title: taskTitle,
+        description: taskDescription || null,
+        due_date: taskDueDate || null,
+        priority: taskPriority || 'medium',
+        property_id: taskPropertyId || null,
+        assigned_to: taskAssignedTo || 'Moi',
       });
 
       setTasks([response.data, ...tasks]);
-      setNewTask({
-        title: '',
-        description: '',
-        due_date: '',
-        priority: 'medium',
-        property_id: undefined,
-        assigned_to: 'Moi',
-      });
+      resetForm();
       setShowCreateForm(false);
       notify?.('Tâche créée avec succès', 'success');
     } catch (error) {
@@ -334,32 +304,6 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
     }
   };
 
-  const getStatusIcon = (completed: boolean) => {
-    return completed ? (
-      <CheckCircle size={20} className="text-green-600" />
-    ) : (
-      <Circle size={20} className="text-gray-400" />
-    );
-  };
-
-  const getPriorityIcon = (priority: string) => {
-    switch (priority) {
-      case 'high': return <Flame size={14} className="text-red-600" />;
-      case 'medium': return <Zap size={14} className="text-yellow-600" />;
-      case 'low': return <Droplet size={14} className="text-blue-600" />;
-      default: return <Flag size={14} className="text-gray-600" />;
-    }
-  };
-
-  const getPriorityLabel = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'Élevée';
-      case 'medium': return 'Moyenne';
-      case 'low': return 'Faible';
-      default: return priority;
-    }
-  };
-
   const filteredTasks = tasks
     .filter(task => {
       if (filterStatus === 'active') return !task.completed;
@@ -384,41 +328,6 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
     return new Date(dueDate) < new Date() && new Date(dueDate).toDateString() !== new Date().toDateString();
   };
 
-  // Empty state illustration component
-  const EmptyStateIllustration = () => (
-    <div className="flex flex-col items-center justify-center py-12">
-      <svg width="200" height="160" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-4">
-        <circle cx="100" cy="80" r="60" fill="#FFF5F5" />
-        <circle cx="70" cy="60" r="8" fill="#FFB6B6" />
-        <circle cx="130" cy="50" r="6" fill="#FFD6D6" />
-        <circle cx="140" cy="90" r="4" fill="#FFE6E6" />
-        <rect x="85" y="40" width="30" height="40" rx="4" fill="#7CB342" opacity="0.8" />
-        <rect x="80" y="50" width="40" height="30" rx="3" fill="#8BC34A" />
-        <rect x="90" y="45" width="20" height="25" rx="2" fill="#AED581" />
-        <circle cx="100" cy="100" r="25" fill="#FFCCBC" opacity="0.6" />
-        <path d="M85 95 Q100 85 115 95" stroke="#8D6E63" strokeWidth="2" fill="none" />
-        <circle cx="92" cy="90" r="3" fill="#5D4037" />
-        <circle cx="108" cy="90" r="3" fill="#5D4037" />
-        <ellipse cx="100" cy="98" rx="4" ry="3" fill="#5D4037" />
-        <rect x="75" y="110" width="12" height="25" rx="6" fill="#FFCCBC" />
-        <rect x="113" y="110" width="12" height="25" rx="6" fill="#FFCCBC" />
-        <rect x="70" y="100" width="15" height="20" rx="7" fill="#FFAB91" />
-        <rect x="115" y="100" width="15" height="20" rx="7" fill="#FFAB91" />
-        <path d="M60 70 Q55 60 65 55" stroke="#8BC34A" strokeWidth="2" fill="none" />
-        <circle cx="65" cy="55" r="3" fill="#8BC34A" />
-        <path d="M140 75 Q145 65 135 60" stroke="#8BC34A" strokeWidth="2" fill="none" />
-        <circle cx="135" cy="60" r="3" fill="#8BC34A" />
-      </svg>
-      <button
-        onClick={() => setShowCreateForm(true)}
-        className="px-6 py-2.5 text-white text-sm font-medium rounded-lg transition-colors hover:opacity-90"
-        style={{ background: 'rgba(82, 157, 33, 1)' }}
-      >
-        Nouvelle tâche
-      </button>
-    </div>
-  );
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return '—';
     return new Date(dateString).toLocaleDateString('fr-FR', {
@@ -428,7 +337,38 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
     });
   };
 
-  // Removed loading indicator as requested by user
+  // Callbacks stabilisés
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  }, []);
+
+  const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTaskTitle(e.target.value);
+  }, []);
+
+  const handleDescriptionChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setTaskDescription(e.target.value);
+  }, []);
+
+  const handleDueDateChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTaskDueDate(e.target.value);
+  }, []);
+
+  const handlePropertyChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setTaskPropertyId(e.target.value ? Number(e.target.value) : undefined);
+  }, []);
+
+  const handleAssignedToChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTaskAssignedTo(e.target.value);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: PRIMARY_COLOR }} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white p-4 sm:p-6">
@@ -484,10 +424,14 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
       )}
 
       {showCreateForm ? (
-        // Formulaire de création centré
+        // Formulaire de création
         <div className="max-w-4xl mx-auto space-y-6">
-          {/* Bouton Retour */}
-          <div className="flex items-center gap-3">
+          {/* En-tête avec Retour à gauche et titre à droite */}
+          <div className="flex items-center justify-between">
+               <div className="text-left">
+              <h1 className="text-3xl font-bold text-gray-900">Nouvelle tâche</h1>
+              <p className="text-sm text-gray-600 mt-1">Créez une nouvelle tâche à accomplir</p>
+            </div>
             <button
               onClick={() => setShowCreateForm(false)}
               className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors text-white hover:opacity-90"
@@ -496,17 +440,12 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
               <ArrowLeft size={20} />
               <span>Retour</span>
             </button>
+         
           </div>
 
-          {/* HEADER */}
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900">Nouvelle tâche</h1>
-            <p className="text-sm text-gray-600 mt-2">Créez une nouvelle tâche à accomplir</p>
-          </div>
-
-          {/* CREATE FORM - Centré */}
+          {/* CREATE FORM - Centré avec fond blanc pour les inputs */}
           <div className="flex justify-center">
-            <Card className="p-8 w-full max-w-2xl">
+            <Card className="p-8 w-full max-w-4xl">
               <div className="space-y-6">
                 {/* Titre */}
                 <div>
@@ -515,12 +454,10 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                   </label>
                   <input
                     type="text"
-                    value={newTask.title}
-                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-20 transition-all"
-                    style={{
-                      borderColor: `${PRIMARY_COLOR}80`,
-                    }}
+                    value={taskTitle}
+                    onChange={handleTitleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-20 transition-all bg-white"
+                    style={{ borderColor: `${PRIMARY_COLOR}80` }}
                     placeholder="Ex: Renouveler l'assurance habitation"
                   />
                 </div>
@@ -531,12 +468,9 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                     Bien concerné
                   </label>
                   <select
-                    value={newTask.property_id || ''}
-                    onChange={(e) => setNewTask({
-                      ...newTask,
-                      property_id: e.target.value ? Number(e.target.value) : undefined
-                    })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-20"
+                    value={taskPropertyId || ''}
+                    onChange={handlePropertyChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white"
                     style={{ borderColor: `${PRIMARY_COLOR}80` }}
                   >
                     <option value="">Sélectionner un bien</option>
@@ -554,9 +488,9 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                     Description
                   </label>
                   <textarea
-                    value={newTask.description}
-                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-20 min-h-[120px]"
+                    value={taskDescription}
+                    onChange={handleDescriptionChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-20 min-h-[120px] bg-white"
                     style={{ borderColor: `${PRIMARY_COLOR}80` }}
                     placeholder="Description détaillée de la tâche..."
                   />
@@ -573,9 +507,9 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                     </div>
                     <input
                       type="date"
-                      value={newTask.due_date}
-                      onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-20"
+                      value={taskDueDate}
+                      onChange={handleDueDateChange}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white"
                       style={{ borderColor: `${PRIMARY_COLOR}80` }}
                     />
                   </div>
@@ -590,12 +524,12 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                       return (
                         <button
                           key={p}
-                          onClick={() => setNewTask({ ...newTask, priority: p })}
-                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all ${newTask.priority === p
+                          onClick={() => setTaskPriority(p)}
+                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all ${taskPriority === p
                             ? 'text-white shadow-md'
                             : `${priorityStyle.bg} ${priorityStyle.text} hover:opacity-80`
                             }`}
-                          style={newTask.priority === p ? { backgroundColor: PRIMARY_COLOR } : {}}
+                          style={taskPriority === p ? { backgroundColor: PRIMARY_COLOR } : {}}
                         >
                           {priorityStyle.icon}
                           {priorityStyle.label}
@@ -616,9 +550,9 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                     </div>
                     <input
                       type="text"
-                      value={newTask.assigned_to}
-                      onChange={(e) => setNewTask({ ...newTask, assigned_to: e.target.value })}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-20"
+                      value={taskAssignedTo}
+                      onChange={handleAssignedToChange}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-opacity-20 bg-white"
                       style={{ borderColor: `${PRIMARY_COLOR}80` }}
                       placeholder="Moi, Copropriétaire, etc."
                     />
@@ -629,14 +563,14 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                 <div className="pt-6 flex justify-end gap-3">
                   <button
                     onClick={() => setShowCreateForm(false)}
-                    className="px-6 py-3 text-gray-700 bg-white rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                    className="px-6 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors font-medium"
                   >
                     Annuler
                   </button>
                   <button
                     onClick={handleCreateTask}
                     disabled={submitting}
-                    className="px-6 py-3 text-white rounded-xl transition-all hover:opacity-90 disabled:bg-white disabled:cursor-not-allowed flex items-center gap-2 font-medium"
+                    className="px-6 py-3 text-white rounded-xl transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium"
                     style={{ backgroundColor: PRIMARY_COLOR }}
                   >
                     {submitting ? (
@@ -805,15 +739,15 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                   type="text"
                   placeholder="Rechercher une tâche..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-opacity-20 text-[#70AE48]"
+                  onChange={handleSearchChange}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-opacity-20"
                   style={{ borderColor: `${PRIMARY_COLOR}80` }}
                 />
               </div>
             </div>
           </Card>
 
-          {/* Liste des tâches - Design amélioré */}
+          {/* Liste des tâches */}
           <div className="space-y-3">
             {paginatedTasks.length === 0 ? (
               <Card className="p-12 text-center">
@@ -872,9 +806,8 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                               </p>
                             )}
 
-                            {/* Métadonnées - Design en badges */}
+                            {/* Métadonnées */}
                             <div className="flex flex-wrap items-center gap-2 mt-3">
-                              {/* Bien */}
                               {task.property && (
                                 <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
                                   <Home size={12} />
@@ -882,7 +815,6 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                                 </div>
                               )}
 
-                              {/* Date d'échéance */}
                               {task.due_date && (
                                 <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${isTaskOverdue
                                   ? 'bg-red-100 text-red-700'
@@ -896,7 +828,6 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                                 </div>
                               )}
 
-                              {/* Assigné à */}
                               {task.assigned_to && (
                                 <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
                                   <User size={12} />
@@ -904,7 +835,6 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
                                 </div>
                               )}
 
-                              {/* Priorité */}
                               <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${priorityStyle.bg} ${priorityStyle.text}`}>
                                 {priorityStyle.icon}
                                 <span>{priorityStyle.label}</span>
@@ -931,22 +861,13 @@ export const Tasks: React.FC<TasksProps> = ({ notify }) => {
             )}
           </div>
 
-          {/* Submit */}
-          <div className="pt-4 flex justify-end gap-3">
-            <button
-              onClick={() => setShowCreateForm(false)}
-              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Annuler
-            </button>
-            <button
-              onClick={handleCreateTask}
-              className="px-4 py-2 text-white rounded-lg transition-colors hover:opacity-90"
-              style={{ background: 'rgba(82, 157, 33, 1)' }}
-            >
-              Créer la tâche
-            </button>
-          </div>
+          {/* Pied de page */}
+          {filteredTasks.length > 0 && (
+            <div className="flex items-center justify-between text-sm text-gray-500">
+              <span>{filteredTasks.length} tâche{filteredTasks.length > 1 ? 's' : ''}</span>
+              <span>Affichage {Math.min(Number(itemsPerPage), filteredTasks.length)} sur {filteredTasks.length}</span>
+            </div>
+          )}
         </div>
       )}
 

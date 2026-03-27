@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Search,
   ChevronDown,
@@ -29,12 +29,12 @@ import {
   FileText,
   Key,
   Shield,
-  Briefcase
-} from 'lucide-react';
-import api from '@/services/api';
+  Briefcase,
+} from "lucide-react";
+import api from "@/services/api";
 
 interface LocationProps {
-  notify?: (message: string, type?: 'success' | 'error' | 'info') => void;
+  notify?: (message: string, type?: "success" | "error" | "info") => void;
 }
 
 interface Location {
@@ -89,31 +89,35 @@ interface LandlordDetails {
 }
 
 export const Location: React.FC<LocationProps> = ({ notify }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [sendingInvite, setSendingInvite] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortField, setSortField] = useState<string>('end_date');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [sortField, setSortField] = useState<string>("end_date");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
+    null,
+  );
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [propertyDetails, setPropertyDetails] = useState<PropertyDetails | null>(null);
-  const [landlordDetails, setLandlordDetails] = useState<LandlordDetails | null>(null);
+  const [propertyDetails, setPropertyDetails] =
+    useState<PropertyDetails | null>(null);
+  const [landlordDetails, setLandlordDetails] =
+    useState<LandlordDetails | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [inviteForm, setInviteForm] = useState({
-    email: '',
-    nom: '',
+    email: "",
+    nom: "",
     message: `Bonjour,
 
 Je voudrais vous faire découvrir Imona, une plateforme de gestion locative.
 
 Vous pouvez créer votre compte gratuitement et gérer votre bien en ligne.
 
-Cordialement`
+Cordialement`,
   });
 
   useEffect(() => {
@@ -123,10 +127,10 @@ Cordialement`
   const fetchLocations = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/tenant/my-leases');
+      const response = await api.get("/tenant/my-leases");
       setLocations(response.data || []);
     } catch (error) {
-      console.warn('Silent fail for locations - backend might be offline');
+      console.warn("Silent fail for locations - backend might be offline");
     } finally {
       setLoading(false);
     }
@@ -142,8 +146,8 @@ Cordialement`
         setLandlordDetails(response.data.landlord || null);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des détails:', error);
-      notify?.('Erreur lors du chargement des détails', 'error');
+      console.error("Erreur lors du chargement des détails:", error);
+      notify?.("Erreur lors du chargement des détails", "error");
     } finally {
       setLoadingDetails(false);
     }
@@ -157,40 +161,43 @@ Cordialement`
 
   const handleSendInvite = async () => {
     if (!inviteForm.email || !inviteForm.nom) {
-      notify?.('Veuillez remplir tous les champs obligatoires', 'error');
+      notify?.("Veuillez remplir tous les champs obligatoires", "error");
       return;
     }
 
     setSendingInvite(true);
     try {
-      const response = await api.post('/tenant/invite-landlord', {
+      const response = await api.post("/tenant/invite-landlord", {
         email: inviteForm.email,
         name: inviteForm.nom,
-        message: inviteForm.message
+        message: inviteForm.message,
       });
 
       if (response.data.success) {
-        notify?.('Invitation envoyée avec succès !', 'success');
+        notify?.("Invitation envoyée avec succès !", "success");
         setShowInviteModal(false);
         setInviteForm({
-          email: '',
-          nom: '',
+          email: "",
+          nom: "",
           message: `Bonjour,
 
 Je voudrais vous faire découvrir Imona, une plateforme de gestion locative.
 
 Vous pouvez créer votre compte gratuitement et gérer votre bien en ligne.
 
-Cordialement`
+Cordialement`,
         });
       } else {
-        notify?.(response.data.message || "Erreur lors de l'envoi", 'error');
+        notify?.(response.data.message || "Erreur lors de l'envoi", "error");
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur lors de l\'envoi de l\'invitation';
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Erreur lors de l'envoi de l'invitation";
       const apiError = error as { response?: { data?: { message?: string } } };
       const apiErrorMessage = apiError?.response?.data?.message;
-      notify?.(apiErrorMessage || errorMessage, 'error');
+      notify?.(apiErrorMessage || errorMessage, "error");
     } finally {
       setSendingInvite(false);
     }
@@ -198,15 +205,15 @@ Cordialement`
 
   const handleSort = (field: string) => {
     if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
-      setSortDirection('asc');
+      setSortDirection("asc");
     }
   };
 
   const calculateDuration = (startDate: string, endDate: string | null) => {
-    if (!endDate) return 'En cours';
+    if (!endDate) return "En cours";
     const start = new Date(startDate);
     const end = new Date(endDate);
     const diffTime = Math.abs(end.getTime() - start.getTime());
@@ -214,52 +221,54 @@ Cordialement`
     const years = Math.floor(diffMonths / 12);
     const months = diffMonths % 12;
     if (years > 0) {
-      return `${years} an${years > 1 ? 's' : ''}${months > 0 ? ` ${months} mois` : ''}`;
+      return `${years} an${years > 1 ? "s" : ""}${months > 0 ? ` ${months} mois` : ""}`;
     }
     return `${diffMonths} mois`;
   };
 
   const formatEndDate = (endDate: string | null) => {
-    if (!endDate) return 'Indéterminée';
-    return new Date(endDate).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
+    if (!endDate) return "Indéterminée";
+    return new Date(endDate).toLocaleDateString("fr-FR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
     });
   };
 
   // Filtrage et tri
   const filteredLocations = locations
-    .filter(loc => {
+    .filter((loc) => {
       const matchesSearch =
         loc.property.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         loc.landlord.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         loc.property.address.toLowerCase().includes(searchQuery.toLowerCase());
 
-      if (filterStatus === 'all') return matchesSearch;
-      if (filterStatus === 'active') return matchesSearch && loc.status === 'active';
-      if (filterStatus === 'terminated') return matchesSearch && loc.status === 'terminated';
-      if (filterStatus === 'late') return matchesSearch && loc.balance > 0;
+      if (filterStatus === "all") return matchesSearch;
+      if (filterStatus === "active")
+        return matchesSearch && loc.status === "active";
+      if (filterStatus === "terminated")
+        return matchesSearch && loc.status === "terminated";
+      if (filterStatus === "late") return matchesSearch && loc.balance > 0;
       return matchesSearch;
     })
     .sort((a, b) => {
-      let aValue: string | number = '';
-      let bValue: string | number = '';
-      if (sortField === 'property') {
+      let aValue: string | number = "";
+      let bValue: string | number = "";
+      if (sortField === "property") {
         aValue = a.property.name;
         bValue = b.property.name;
-      } else if (sortField === 'landlord') {
+      } else if (sortField === "landlord") {
         aValue = a.landlord.name;
         bValue = b.landlord.name;
-      } else if (sortField === 'rent_amount') {
+      } else if (sortField === "rent_amount") {
         aValue = a.rent_amount;
         bValue = b.rent_amount;
-      } else if (sortField === 'end_date') {
-        aValue = a.end_date || '9999-12-31';
-        bValue = b.end_date || '9999-12-31';
+      } else if (sortField === "end_date") {
+        aValue = a.end_date || "9999-12-31";
+        bValue = b.end_date || "9999-12-31";
       }
-      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
       return 0;
     });
 
@@ -267,44 +276,46 @@ Cordialement`
   const totalPages = Math.ceil(filteredLocations.length / rowsPerPage);
   const paginatedLocations = filteredLocations.slice(
     (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
+    currentPage * rowsPerPage,
   );
 
   const formatMoney = (amount: number) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'XOF',
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: "XOF",
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount).replace('XOF', 'FCFA');
+      maximumFractionDigits: 0,
+    })
+      .format(amount)
+      .replace("XOF", "FCFA");
   };
 
   const getStatusBadge = (status: string, balance: number) => {
     if (balance > 0) {
       return {
-        label: 'En retard',
-        color: 'bg-red-100 text-red-800 border-red-200',
-        icon: <AlertCircle size={14} className="text-red-600" />
+        label: "En retard",
+        color: "bg-red-100 text-red-800 border-red-200",
+        icon: <AlertCircle size={14} className="text-red-600" />,
       };
     }
-    if (status === 'active') {
+    if (status === "active") {
       return {
-        label: 'Actif',
-        color: 'bg-green-100 text-green-800 border-green-200',
-        icon: <CheckCircle size={14} className="text-green-600" />
+        label: "Actif",
+        color: "bg-green-100 text-green-800 border-green-200",
+        icon: <CheckCircle size={14} className="text-green-600" />,
       };
     }
-    if (status === 'terminated') {
+    if (status === "terminated") {
       return {
-        label: 'Terminé',
-        color: 'bg-gray-100 text-gray-800 border-gray-200',
-        icon: <Clock size={14} className="text-gray-600" />
+        label: "Terminé",
+        color: "bg-gray-100 text-gray-800 border-gray-200",
+        icon: <Clock size={14} className="text-gray-600" />,
       };
     }
     return {
       label: status,
-      color: 'bg-gray-100 text-gray-800 border-gray-200',
-      icon: <Info size={14} className="text-gray-600" />
+      color: "bg-gray-100 text-gray-800 border-gray-200",
+      icon: <Info size={14} className="text-gray-600" />,
     };
   };
 
@@ -318,7 +329,9 @@ Cordialement`
               <div className="w-8 h-8 bg-white rounded-full"></div>
             </div>
           </div>
-          <p className="text-gray-600 font-medium">Chargement de vos locations...</p>
+          <p className="text-gray-600 font-medium">
+            Chargement de vos locations...
+          </p>
           <p className="text-sm text-gray-400 mt-2">Veuillez patienter</p>
         </div>
       </div>
@@ -330,10 +343,15 @@ Cordialement`
       {/* ── EN-TÊTE ── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Ma location</h1>
-          <p className="text-sm text-gray-400 mt-1 font-medium">Consultez les détails de votre location</p>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+            Ma location
+          </h1>
+          <p className="text-sm text-gray-400 mt-1 font-medium">
+            Consultez les détails de votre location
+          </p>
         </div>
       </div>
+      <br />
 
       {/* Modal Détails du bien et du propriétaire */}
       {showDetailsModal && selectedLocation && (
@@ -364,7 +382,9 @@ Cordialement`
               {loadingDetails ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader className="w-8 h-8 text-[#529D21] animate-spin" />
-                  <span className="ml-3 text-gray-600">Chargement des détails...</span>
+                  <span className="ml-3 text-gray-600">
+                    Chargement des détails...
+                  </span>
                 </div>
               ) : (
                 <div className="space-y-8">
@@ -377,40 +397,61 @@ Cordialement`
                     <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Nom du bien</p>
-                          <p className="font-medium text-gray-900">{propertyDetails?.name || selectedLocation.property.name}</p>
+                          <p className="text-xs text-gray-500 mb-1">
+                            Nom du bien
+                          </p>
+                          <p className="font-medium text-gray-900">
+                            {propertyDetails?.name ||
+                              selectedLocation.property.name}
+                          </p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Adresse complète</p>
+                          <p className="text-xs text-gray-500 mb-1">
+                            Adresse complète
+                          </p>
                           <p className="font-medium text-gray-900">
-                            {propertyDetails?.address || selectedLocation.property.address}
-                            {propertyDetails?.city && `, ${propertyDetails.city}`}
-                            {propertyDetails?.postal_code && ` ${propertyDetails.postal_code}`}
-                            {propertyDetails?.country && `, ${propertyDetails.country}`}
+                            {propertyDetails?.address ||
+                              selectedLocation.property.address}
+                            {propertyDetails?.city &&
+                              `, ${propertyDetails.city}`}
+                            {propertyDetails?.postal_code &&
+                              ` ${propertyDetails.postal_code}`}
+                            {propertyDetails?.country &&
+                              `, ${propertyDetails.country}`}
                           </p>
                         </div>
                         {propertyDetails?.type && (
                           <div>
                             <p className="text-xs text-gray-500 mb-1">Type</p>
-                            <p className="font-medium text-gray-900">{propertyDetails.type}</p>
+                            <p className="font-medium text-gray-900">
+                              {propertyDetails.type}
+                            </p>
                           </div>
                         )}
                         {propertyDetails?.surface && (
                           <div>
-                            <p className="text-xs text-gray-500 mb-1">Surface</p>
-                            <p className="font-medium text-gray-900">{propertyDetails.surface} m²</p>
+                            <p className="text-xs text-gray-500 mb-1">
+                              Surface
+                            </p>
+                            <p className="font-medium text-gray-900">
+                              {propertyDetails.surface} m²
+                            </p>
                           </div>
                         )}
                         {propertyDetails?.rooms && (
                           <div>
                             <p className="text-xs text-gray-500 mb-1">Pièces</p>
-                            <p className="font-medium text-gray-900">{propertyDetails.rooms}</p>
+                            <p className="font-medium text-gray-900">
+                              {propertyDetails.rooms}
+                            </p>
                           </div>
                         )}
                         {propertyDetails?.floor && (
                           <div>
                             <p className="text-xs text-gray-500 mb-1">Étage</p>
-                            <p className="font-medium text-gray-900">{propertyDetails.floor}</p>
+                            <p className="font-medium text-gray-900">
+                              {propertyDetails.floor}
+                            </p>
                           </div>
                         )}
                       </div>
@@ -426,15 +467,17 @@ Cordialement`
                     <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                       <div className="flex items-start gap-4 mb-4">
                         <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#529D21] to-[#F5A623] flex items-center justify-center text-white font-bold text-2xl">
-                          {landlordDetails?.first_name?.[0]}{landlordDetails?.last_name?.[0] || selectedLocation.landlord.name[0]}
+                          {landlordDetails?.first_name?.[0]}
+                          {landlordDetails?.last_name?.[0] ||
+                            selectedLocation.landlord.name[0]}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <h4 className="text-xl font-bold text-gray-900">
-                              {landlordDetails ? 
-                                `${landlordDetails.first_name || ''} ${landlordDetails.last_name || ''}`.trim() || selectedLocation.landlord.name
-                                : selectedLocation.landlord.name
-                              }
+                              {landlordDetails
+                                ? `${landlordDetails.first_name || ""} ${landlordDetails.last_name || ""}`.trim() ||
+                                  selectedLocation.landlord.name
+                                : selectedLocation.landlord.name}
                             </h4>
                             {landlordDetails?.is_professional && (
                               <span className="px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-medium flex items-center gap-1">
@@ -444,7 +487,9 @@ Cordialement`
                             )}
                           </div>
                           {landlordDetails?.company_name && (
-                            <p className="text-sm text-gray-600 mt-1">{landlordDetails.company_name}</p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {landlordDetails.company_name}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -456,16 +501,22 @@ Cordialement`
                             <span className="text-xs font-medium">Email</span>
                           </div>
                           <p className="text-sm text-gray-900 break-all">
-                            {landlordDetails?.email || selectedLocation.landlord.email || '-'}
+                            {landlordDetails?.email ||
+                              selectedLocation.landlord.email ||
+                              "-"}
                           </p>
                         </div>
                         <div className="bg-white rounded-lg p-3 border border-gray-100">
                           <div className="flex items-center gap-2 text-[#529D21] mb-2">
                             <Phone size={14} />
-                            <span className="text-xs font-medium">Téléphone</span>
+                            <span className="text-xs font-medium">
+                              Téléphone
+                            </span>
                           </div>
                           <p className="text-sm text-gray-900">
-                            {landlordDetails?.phone || selectedLocation.landlord.phone || '-'}
+                            {landlordDetails?.phone ||
+                              selectedLocation.landlord.phone ||
+                              "-"}
                           </p>
                         </div>
                       </div>
@@ -477,10 +528,13 @@ Cordialement`
                             <span className="text-xs font-medium">Adresse</span>
                           </div>
                           <p className="text-sm text-gray-900">
-                            {landlordDetails?.address || ''}
-                            {landlordDetails?.city && `, ${landlordDetails.city}`}
-                            {landlordDetails?.postal_code && ` ${landlordDetails.postal_code}`}
-                            {landlordDetails?.country && `, ${landlordDetails.country}`}
+                            {landlordDetails?.address || ""}
+                            {landlordDetails?.city &&
+                              `, ${landlordDetails.city}`}
+                            {landlordDetails?.postal_code &&
+                              ` ${landlordDetails.postal_code}`}
+                            {landlordDetails?.country &&
+                              `, ${landlordDetails.country}`}
                           </p>
                         </div>
                       )}
@@ -496,51 +550,89 @@ Cordialement`
                     <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="bg-white rounded-lg p-3 border border-gray-100">
-                          <p className="text-xs text-gray-500 mb-1">Loyer mensuel</p>
-                          <p className="font-bold text-gray-900">{formatMoney(selectedLocation.rent_amount)}</p>
-                          {selectedLocation.charges_amount && selectedLocation.charges_amount > 0 && (
-                            <p className="text-xs text-gray-500 mt-1">dont {formatMoney(selectedLocation.charges_amount)} de charges</p>
-                          )}
+                          <p className="text-xs text-gray-500 mb-1">
+                            Loyer mensuel
+                          </p>
+                          <p className="font-bold text-gray-900">
+                            {formatMoney(selectedLocation.rent_amount)}
+                          </p>
+                          {selectedLocation.charges_amount &&
+                            selectedLocation.charges_amount > 0 && (
+                              <p className="text-xs text-gray-500 mt-1">
+                                dont{" "}
+                                {formatMoney(selectedLocation.charges_amount)}{" "}
+                                de charges
+                              </p>
+                            )}
                         </div>
                         <div className="bg-white rounded-lg p-3 border border-gray-100">
-                          <p className="text-xs text-gray-500 mb-1">Dépôt de garantie</p>
-                          <p className="font-bold text-gray-900">{selectedLocation.guarantee_deposit ? formatMoney(selectedLocation.guarantee_deposit) : '-'}</p>
-                        </div>
-                        <div className="bg-white rounded-lg p-3 border border-gray-100">
-                          <p className="text-xs text-gray-500 mb-1">Solde</p>
-                          <p className={`font-bold ${selectedLocation.balance > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                            {selectedLocation.balance > 0 ? formatMoney(selectedLocation.balance) : 'À jour'}
+                          <p className="text-xs text-gray-500 mb-1">
+                            Dépôt de garantie
+                          </p>
+                          <p className="font-bold text-gray-900">
+                            {selectedLocation.guarantee_deposit
+                              ? formatMoney(selectedLocation.guarantee_deposit)
+                              : "-"}
                           </p>
                         </div>
                         <div className="bg-white rounded-lg p-3 border border-gray-100">
-                          <p className="text-xs text-gray-500 mb-1">Date de début</p>
+                          <p className="text-xs text-gray-500 mb-1">Solde</p>
+                          <p
+                            className={`font-bold ${selectedLocation.balance > 0 ? "text-red-600" : "text-green-600"}`}
+                          >
+                            {selectedLocation.balance > 0
+                              ? formatMoney(selectedLocation.balance)
+                              : "À jour"}
+                          </p>
+                        </div>
+                        <div className="bg-white rounded-lg p-3 border border-gray-100">
+                          <p className="text-xs text-gray-500 mb-1">
+                            Date de début
+                          </p>
                           <p className="font-medium text-gray-900">
-                            {new Date(selectedLocation.start_date).toLocaleDateString('fr-FR', {
-                              day: 'numeric',
-                              month: 'long',
-                              year: 'numeric'
+                            {new Date(
+                              selectedLocation.start_date,
+                            ).toLocaleDateString("fr-FR", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
                             })}
                           </p>
                         </div>
                         <div className="bg-white rounded-lg p-3 border border-gray-100">
-                          <p className="text-xs text-gray-500 mb-1">Date de fin</p>
+                          <p className="text-xs text-gray-500 mb-1">
+                            Date de fin
+                          </p>
                           <p className="font-medium text-gray-900">
-                            {selectedLocation.end_date 
-                              ? new Date(selectedLocation.end_date).toLocaleDateString('fr-FR', {
-                                  day: 'numeric',
-                                  month: 'long',
-                                  year: 'numeric'
+                            {selectedLocation.end_date
+                              ? new Date(
+                                  selectedLocation.end_date,
+                                ).toLocaleDateString("fr-FR", {
+                                  day: "numeric",
+                                  month: "long",
+                                  year: "numeric",
                                 })
-                              : 'Indéterminée'
-                            }
+                              : "Indéterminée"}
                           </p>
                         </div>
                         <div className="bg-white rounded-lg p-3 border border-gray-100">
                           <p className="text-xs text-gray-500 mb-1">Statut</p>
                           <div className="flex items-center gap-2">
-                            {getStatusBadge(selectedLocation.status, selectedLocation.balance).icon}
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(selectedLocation.status, selectedLocation.balance).color}`}>
-                              {getStatusBadge(selectedLocation.status, selectedLocation.balance).label}
+                            {
+                              getStatusBadge(
+                                selectedLocation.status,
+                                selectedLocation.balance,
+                              ).icon
+                            }
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(selectedLocation.status, selectedLocation.balance).color}`}
+                            >
+                              {
+                                getStatusBadge(
+                                  selectedLocation.status,
+                                  selectedLocation.balance,
+                                ).label
+                              }
                             </span>
                           </div>
                         </div>
@@ -581,8 +673,10 @@ Cordialement`
             className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slideUp"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sticky top-0 text-white px-6 py-4 flex items-center justify-between"
-              style={{ backgroundColor: "#70AE48" }}>
+            <div
+              className="sticky top-0 text-white px-6 py-4 flex items-center justify-between"
+              style={{ backgroundColor: "#70AE48" }}
+            >
               <h2 className="text-xl font-semibold text-white">
                 Inviter votre propriétaire
               </h2>
@@ -600,7 +694,8 @@ Cordialement`
                 <p className="text-sm text-blue-800">
                   <span className="font-semibold">Information</span>
                   <br />
-                  Faites découvrir Imona à votre bailleur en lui envoyant une invitation par email.
+                  Faites découvrir Imona à votre bailleur en lui envoyant une
+                  invitation par email.
                 </p>
               </div>
 
@@ -609,14 +704,16 @@ Cordialement`
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Email du bailleur <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="email"
-                    value={inviteForm.email}
-                    onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
-                    placeholder="email@exemple.com"
-                    disabled={sendingInvite}
-                  />
+               <input
+  type="email"
+  value={inviteForm.email}
+  onChange={(e) =>
+    setInviteForm({ ...inviteForm, email: e.target.value })
+  }
+  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-white"
+  placeholder="email@exemple.com"
+  disabled={sendingInvite}
+/>
                 </div>
 
                 <div>
@@ -626,8 +723,10 @@ Cordialement`
                   <input
                     type="text"
                     value={inviteForm.nom}
-                    onChange={(e) => setInviteForm({ ...inviteForm, nom: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                    onChange={(e) =>
+                      setInviteForm({ ...inviteForm, nom: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-white"
                     placeholder="Nom du propriétaire"
                     disabled={sendingInvite}
                   />
@@ -639,9 +738,11 @@ Cordialement`
                   </label>
                   <textarea
                     value={inviteForm.message}
-                    onChange={(e) => setInviteForm({ ...inviteForm, message: e.target.value })}
+                    onChange={(e) =>
+                      setInviteForm({ ...inviteForm, message: e.target.value })
+                    }
                     rows={6}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all resize-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all resize-none bg-white"
                     disabled={sendingInvite}
                   />
                 </div>
@@ -662,7 +763,7 @@ Cordialement`
                 className="px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {sendingInvite && <Loader size={16} className="animate-spin" />}
-                {sendingInvite ? 'Envoi...' : 'Envoyer'}
+                {sendingInvite ? "Envoi..." : "Envoyer"}
               </button>
             </div>
           </div>
@@ -678,14 +779,19 @@ Cordialement`
               Filtrer mes locations
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              {filteredLocations.length} location{filteredLocations.length > 1 ? 's' : ''} trouvée{filteredLocations.length > 1 ? 's' : ''}
+              {filteredLocations.length} location
+              {filteredLocations.length > 1 ? "s" : ""} trouvée
+              {filteredLocations.length > 1 ? "s" : ""}
             </p>
           </div>
           <button
             onClick={() => setShowInviteModal(true)}
             className="group relative px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 flex items-center gap-2 text-sm font-medium"
           >
-            <UserPlus size={18} className="group-hover:rotate-12 transition-transform" />
+            <UserPlus
+              size={18}
+              className="group-hover:rotate-12 transition-transform"
+            />
             Inviter un propriétaire
             <div className="absolute inset-0 rounded-xl bg-white opacity-0 group-hover:opacity-10 transition-opacity"></div>
           </button>
@@ -698,8 +804,12 @@ Cordialement`
                 <Home size={20} />
               </div>
               <div>
-                <p className="text-xs text-green-600 font-medium">Total locations</p>
-                <p className="text-2xl font-bold text-gray-900">{locations.length}</p>
+                <p className="text-xs text-green-600 font-medium">
+                  Total locations
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {locations.length}
+                </p>
               </div>
             </div>
           </div>
@@ -712,7 +822,11 @@ Cordialement`
               <div>
                 <p className="text-xs text-blue-600 font-medium">Actives</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {locations.filter(l => l.status === 'active' && l.balance === 0).length}
+                  {
+                    locations.filter(
+                      (l) => l.status === "active" && l.balance === 0,
+                    ).length
+                  }
                 </p>
               </div>
             </div>
@@ -726,7 +840,7 @@ Cordialement`
               <div>
                 <p className="text-xs text-yellow-600 font-medium">En cours</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {locations.filter(l => l.status === 'active').length}
+                  {locations.filter((l) => l.status === "active").length}
                 </p>
               </div>
             </div>
@@ -740,7 +854,7 @@ Cordialement`
               <div>
                 <p className="text-xs text-red-600 font-medium">En retard</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {locations.filter(l => l.balance > 0).length}
+                  {locations.filter((l) => l.balance > 0).length}
                 </p>
               </div>
             </div>
@@ -762,11 +876,17 @@ Cordialement`
               <option value={50}>50 lignes</option>
               <option value={100}>100 lignes</option>
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" size={16} />
+            <ChevronDown
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none"
+              size={16}
+            />
           </div>
 
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <Search
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={18}
+            />
             <input
               type="text"
               placeholder="Rechercher un bien ou un propriétaire..."
@@ -779,7 +899,7 @@ Cordialement`
             />
             {searchQuery && (
               <button
-                onClick={() => setSearchQuery('')}
+                onClick={() => setSearchQuery("")}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 <X size={16} />
@@ -801,7 +921,10 @@ Cordialement`
               <option value="late">En retard</option>
               <option value="terminated">Terminés</option>
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" size={16} />
+            <ChevronDown
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none"
+              size={16}
+            />
           </div>
         </div>
       </div>
@@ -814,37 +937,43 @@ Cordialement`
               <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                 <th
                   className="px-6 py-4 text-left text-sm font-semibold text-gray-700 cursor-pointer hover:text-green-600 transition-colors"
-                  onClick={() => handleSort('property')}
+                  onClick={() => handleSort("property")}
                 >
                   <div className="flex items-center gap-2">
                     <Building size={16} className="text-gray-500" />
                     Bien
-                    {sortField === 'property' && (
-                      <span className="text-green-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    {sortField === "property" && (
+                      <span className="text-green-600">
+                        {sortDirection === "asc" ? "↑" : "↓"}
+                      </span>
                     )}
                   </div>
                 </th>
                 <th
                   className="px-6 py-4 text-left text-sm font-semibold text-gray-700 cursor-pointer hover:text-green-600 transition-colors"
-                  onClick={() => handleSort('landlord')}
+                  onClick={() => handleSort("landlord")}
                 >
                   <div className="flex items-center gap-2">
                     <User size={16} className="text-gray-500" />
                     Propriétaire
-                    {sortField === 'landlord' && (
-                      <span className="text-green-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    {sortField === "landlord" && (
+                      <span className="text-green-600">
+                        {sortDirection === "asc" ? "↑" : "↓"}
+                      </span>
                     )}
                   </div>
                 </th>
                 <th
                   className="px-6 py-4 text-left text-sm font-semibold text-gray-700 cursor-pointer hover:text-green-600 transition-colors"
-                  onClick={() => handleSort('rent_amount')}
+                  onClick={() => handleSort("rent_amount")}
                 >
                   <div className="flex items-center gap-2">
                     <DollarSign size={16} className="text-gray-500" />
                     Loyer
-                    {sortField === 'rent_amount' && (
-                      <span className="text-green-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    {sortField === "rent_amount" && (
+                      <span className="text-green-600">
+                        {sortDirection === "asc" ? "↑" : "↓"}
+                      </span>
                     )}
                   </div>
                 </th>
@@ -856,13 +985,15 @@ Cordialement`
                 </th>
                 <th
                   className="px-6 py-4 text-left text-sm font-semibold text-gray-700 cursor-pointer hover:text-green-600 transition-colors"
-                  onClick={() => handleSort('end_date')}
+                  onClick={() => handleSort("end_date")}
                 >
                   <div className="flex items-center gap-2">
                     <Calendar size={16} className="text-gray-500" />
                     Date de fin
-                    {sortField === 'end_date' && (
-                      <span className="text-green-600">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+                    {sortField === "end_date" && (
+                      <span className="text-green-600">
+                        {sortDirection === "asc" ? "↑" : "↓"}
+                      </span>
                     )}
                   </div>
                 </th>
@@ -877,7 +1008,10 @@ Cordialement`
             <tbody>
               {paginatedLocations.length > 0 ? (
                 paginatedLocations.map((location, index) => {
-                  const status = getStatusBadge(location.status, location.balance);
+                  const status = getStatusBadge(
+                    location.status,
+                    location.balance,
+                  );
                   return (
                     <tr
                       key={location.id}
@@ -890,7 +1024,9 @@ Cordialement`
                             <Building size={18} />
                           </div>
                           <div>
-                            <p className="font-semibold text-gray-900">{location.property.name}</p>
+                            <p className="font-semibold text-gray-900">
+                              {location.property.name}
+                            </p>
                             <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
                               <MapPin size={10} />
                               {location.property.address}
@@ -900,26 +1036,36 @@ Cordialement`
                       </td>
                       <td className="px-6 py-4">
                         <div>
-                          <p className="font-medium text-gray-900">{location.landlord.name}</p>
+                          <p className="font-medium text-gray-900">
+                            {location.landlord.name}
+                          </p>
                           <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
                             <Mail size={10} />
-                            {location.landlord.email || '-'}
+                            {location.landlord.email || "-"}
                           </p>
                           <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
                             <Phone size={10} />
-                            {location.landlord.phone || '-'}
+                            {location.landlord.phone || "-"}
                           </p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="font-bold text-gray-900">{formatMoney(location.rent_amount)}</p>
-                        {location.charges_amount && location.charges_amount > 0 && (
-                          <p className="text-xs text-gray-500">dont {formatMoney(location.charges_amount)} de charges</p>
-                        )}
+                        <p className="font-bold text-gray-900">
+                          {formatMoney(location.rent_amount)}
+                        </p>
+                        {location.charges_amount &&
+                          location.charges_amount > 0 && (
+                            <p className="text-xs text-gray-500">
+                              dont {formatMoney(location.charges_amount)} de
+                              charges
+                            </p>
+                          )}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1 border ${status.color}`}>
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1 border ${status.color}`}
+                          >
                             {status.icon}
                             {status.label}
                           </span>
@@ -936,7 +1082,10 @@ Cordialement`
                           className="p-2.5 bg-gradient-to-r from-[#529D21]/10 to-[#F5A623]/10 rounded-xl hover:from-[#529D21]/20 hover:to-[#F5A623]/20 transition-all group"
                           title="Voir les détails"
                         >
-                          <Eye size={18} className="text-gray-600 group-hover:text-[#529D21] transition-colors" />
+                          <Eye
+                            size={18}
+                            className="text-gray-600 group-hover:text-[#529D21] transition-colors"
+                          />
                         </button>
                       </td>
                     </tr>
@@ -949,12 +1098,16 @@ Cordialement`
                       <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                         <Building size={32} className="text-gray-400" />
                       </div>
-                      <p className="text-gray-500 font-medium">Aucune location trouvée</p>
-                      <p className="text-sm text-gray-400 mt-1">Essayez de modifier vos filtres de recherche</p>
+                      <p className="text-gray-500 font-medium">
+                        Aucune location trouvée
+                      </p>
+                      <p className="text-sm text-gray-400 mt-1">
+                        Essayez de modifier vos filtres de recherche
+                      </p>
                       <button
                         onClick={() => {
-                          setSearchQuery('');
-                          setFilterStatus('all');
+                          setSearchQuery("");
+                          setFilterStatus("all");
                         }}
                         className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                       >
@@ -972,11 +1125,17 @@ Cordialement`
         {filteredLocations.length > 0 && (
           <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-600">
-              Affichage <span className="font-medium">{(currentPage - 1) * rowsPerPage + 1}</span> à{' '}
+              Affichage{" "}
+              <span className="font-medium">
+                {(currentPage - 1) * rowsPerPage + 1}
+              </span>{" "}
+              à{" "}
               <span className="font-medium">
                 {Math.min(currentPage * rowsPerPage, filteredLocations.length)}
-              </span>{' '}
-              sur <span className="font-medium">{filteredLocations.length}</span> résultats
+              </span>{" "}
+              sur{" "}
+              <span className="font-medium">{filteredLocations.length}</span>{" "}
+              résultats
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -987,7 +1146,7 @@ Cordialement`
                 <ChevronsLeft size={16} />
               </button>
               <button
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
                 className="p-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
@@ -997,7 +1156,9 @@ Cordialement`
                 {currentPage} / {totalPages || 1}
               </span>
               <button
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
                 disabled={currentPage === totalPages}
                 className="p-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >

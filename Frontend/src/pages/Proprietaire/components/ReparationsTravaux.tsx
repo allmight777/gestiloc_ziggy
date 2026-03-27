@@ -823,13 +823,13 @@ const ReparationsTravaux: React.FC<RTProps> = ({ notify }) => {
                     <div className="search-row">
                         <div className="search-input-wrapper">
                             <Search size={20} className="search-icon" />
-                            <input
-                                type="text"
-                                className="search-input"
-                                placeholder="Rechercher"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
+                      <input
+  type="text"
+  className="search-input bg-white"
+  placeholder="Rechercher"
+  value={searchQuery}
+  onChange={(e) => setSearchQuery(e.target.value)}
+/>
                         </div>
                     </div>
                 </div>
@@ -853,18 +853,14 @@ const ReparationsTravaux: React.FC<RTProps> = ({ notify }) => {
             {!isLoading && !error && (
                 <div className="interventions-grid">
                     {filteredIncidents.length === 0 ? (
-                        <div className="empty-state">
-                            <Wrench size={64} />
-                            <h3>Aucune intervention</h3>
-                            <p>Vous n'avez pas encore d'interventions pour les biens délégués.</p>
-                            <button 
-                                className="btn-create"
-                                onClick={() => navigate('/proprietaire/incidents/nouveau')}
-                            >
-                                <Plus size={18} />
-                                Créer une intervention
-                            </button>
-                        </div>
+                      <div className="empty-state">
+    <Wrench size={64} />
+    <h3>Aucune intervention</h3>
+    <p>
+      Vous n'avez pas encore d'interventions pour les biens délégués.
+    </p>
+   
+  </div>
                     ) : (
                         filteredIncidents.map((incident) => {
                             const statusInfo = getStatusInfo(incident.status, incident.priority);

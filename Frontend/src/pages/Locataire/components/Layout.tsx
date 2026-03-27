@@ -10,7 +10,11 @@ import {
   Clock,
   CheckCircle,
   Info,
-  Download
+  Download,
+  Calendar,
+  FileText,
+  Edit3,
+  CheckSquare
 } from 'lucide-react';
 import { Tab, ToastMessage } from '../types';
 import { Toast } from './ui/Toast';
@@ -40,6 +44,7 @@ interface NotificationItem {
   link?: string;
   icon?: string;
   pdf_url?: string;
+  source?: 'lease' | 'task' | 'note' | 'document' | 'dossier';
   _uniqueKey?: string;
 }
 
@@ -261,19 +266,6 @@ const SidebarContent: React.FC<{
   onLogout: () => void,
   user: UserData | null
 }> = ({ activeTab, onNavigate, onLogout, user }) => {
-  const userInitials = React.useMemo(() => {
-    if (!user) return "L";
-    const a = (user.first_name?.[0] || user.email?.[0] || "").toUpperCase();
-    const b = (user.last_name?.[0] || "").toUpperCase();
-    return `${a}${b}`.trim() || "L";
-  }, [user]);
-
-  const userName = React.useMemo(() => {
-    if (!user) return "Locataire";
-    const full = `${user.first_name || ""} ${user.last_name || ""}`.trim();
-    return full || user.email || "Locataire";
-  }, [user]);
-
   return (
     <div className="flex flex-col h-full overflow-hidden bg-white">
       <div className="flex-1 overflow-y-auto py-6 px-3 sidebar-scroll scrollbar-hide">
@@ -283,8 +275,8 @@ const SidebarContent: React.FC<{
           .scrollbar-hide::-webkit-scrollbar { display: none; }
           .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         `}</style>
-        {menuSections.map((section) => (
-          <div key={section.title || "main-menu-top"} className={section.title ? "mb-4" : "mb-2"}>
+        {menuSections.map((section, sectionIndex) => (
+          <div key={section.title || `menu-section-${sectionIndex}`} className={section.title ? "mb-4" : "mb-2"}>
             {section.title && (
               <div style={{
                 fontSize: '9.5px',
@@ -336,33 +328,144 @@ export const Layout: React.FC<LayoutProps> = ({
   const [loadingNotifications, setLoadingNotifications] = useState(false);
 
   useEffect(() => {
-    fetchNotifications();
+    fetchAllNotifications();
   }, []);
 
-  const fetchNotifications = async () => {
+  // Récupérer toutes les notifications depuis différents endpoints
+  const fetchAllNotifications = async () => {
     setLoadingNotifications(true);
+    const allNotifications: NotificationItem[] = [];
+    
     try {
-      const response = await api.get('/tenant/notifications');
-      const notificationsData = response.data.notifications || [];
-      const notificationsWithUniqueKeys = notificationsData.map((notif: NotificationItem, index: number) => ({
-        ...notif,
-        _uniqueKey: `notif-${notif.id || 'unknown'}-${index}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-      }));
-      setNotifications(notificationsWithUniqueKeys);
-      setUnreadCount(response.data.unread_count || 0);
+      // 1. Notifications des baux (MyLeaseController)
+      const leaseResponse = await api.get('/tenant/my-lease/notifications');
+      const leaseNotifications = leaseResponse.data.notifications || [];
+      leaseNotifications.forEach((notif: any) => {
+        allNotifications.push({
+          ...notif,
+          source: 'lease',
+          _uniqueKey: `lease-${notif.id}-${Date.now()}-${Math.random()}`
+        });
+      });
     } catch (error) {
-      console.error('Erreur lors du chargement des notifications:', error);
-    } finally {
-      setLoadingNotifications(false);
+      console.log('Erreur chargement notifications baux:', error);
     }
+
+    try {
+      // 2. Tâches en retard ou à faire bientôt
+      const tasksResponse = await api.get('/tenant/tasks');
+      const tasks = tasksResponse.data || [];
+      const now = new Date();
+      
+      tasks.forEach((task: any) => {
+        if (!task.completed && task.due_date) {
+          const dueDate = new Date(task.due_date);
+          const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 3600 * 24));
+          
+          if (daysUntilDue <= 3 && daysUntilDue >= 0) {
+            allNotifications.push({
+              id: `task-${task.id}`,
+              type: daysUntilDue === 0 ? 'critical' : 'important',
+              title: 'Tâche à réaliser',
+              message: task.title,
+              subtext: `À faire dans ${daysUntilDue === 0 ? 'aujourd\'hui' : daysUntilDue + ' jours'}`,
+              is_read: false,
+              created_at: task.created_at,
+              link: '/tasks',
+              source: 'task',
+              _uniqueKey: `task-${task.id}-${Date.now()}-${Math.random()}`
+            });
+          }
+        }
+      });
+    } catch (error) {
+      console.log('Erreur chargement tâches:', error);
+    }
+
+    try {
+      // 3. Notes partagées récentes
+      const notesResponse = await api.get('/tenant/notes?shared=true');
+      const notes = notesResponse.data || [];
+      const recentNotes = notes.filter((note: any) => {
+        const createdDate = new Date(note.created_at);
+        const daysSinceCreation = Math.ceil((now.getTime() - createdDate.getTime()) / (1000 * 3600 * 24));
+        return daysSinceCreation <= 7;
+      });
+      
+      recentNotes.forEach((note: any) => {
+        allNotifications.push({
+          id: `note-${note.id}`,
+          type: 'info',
+          title: 'Nouvelle note partagée',
+          message: note.title,
+          subtext: note.content?.substring(0, 100) || 'Cliquez pour voir le détail',
+          is_read: false,
+          created_at: note.created_at,
+          link: '/notes',
+          source: 'note',
+          _uniqueKey: `note-${note.id}-${Date.now()}-${Math.random()}`
+        });
+      });
+    } catch (error) {
+      console.log('Erreur chargement notes:', error);
+    }
+
+    try {
+      // 4. Documents récents partagés
+      const docsResponse = await api.get('/tenant/documents?shared=true&limit=10');
+      const docs = docsResponse.data?.data || [];
+      const recentDocs = docs.filter((doc: any) => {
+        const createdDate = new Date(doc.created_at);
+        const daysSinceCreation = Math.ceil((now.getTime() - createdDate.getTime()) / (1000 * 3600 * 24));
+        return daysSinceCreation <= 14;
+      });
+      
+      recentDocs.forEach((doc: any) => {
+        allNotifications.push({
+          id: `doc-${doc.id}`,
+          type: 'info',
+          title: 'Nouveau document',
+          message: doc.name,
+          subtext: doc.bien || doc.description || 'Document partagé avec vous',
+          is_read: false,
+          created_at: doc.created_at,
+          link: '/documents',
+          pdf_url: doc.file_url,
+          source: 'document',
+          _uniqueKey: `doc-${doc.id}-${Date.now()}-${Math.random()}`
+        });
+      });
+    } catch (error) {
+      console.log('Erreur chargement documents:', error);
+    }
+
+    // Trier par date (plus récent en premier)
+    allNotifications.sort((a, b) => {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+
+    // Limiter à 50 notifications
+    const limitedNotifications = allNotifications.slice(0, 50);
+    setNotifications(limitedNotifications);
+    setUnreadCount(limitedNotifications.filter(n => !n.is_read).length);
+    setLoadingNotifications(false);
   };
 
-  const markAsRead = async (notificationId: string) => {
+  const markAsRead = async (notificationId: string, source?: string) => {
     try {
-      await api.post(`/tenant/notifications/${notificationId}/read`);
-      setNotifications(prev => prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n));
-      const newUnreadCount = notifications.filter(n => !n.is_read).length - 1;
-      setUnreadCount(Math.max(0, newUnreadCount));
+      // Marquer comme lue selon la source
+      if (source === 'lease') {
+        await api.post(`/tenant/my-lease/notifications/${notificationId.replace('lease-', '')}/read`);
+      }
+      // Pour les autres sources, on marque localement seulement
+      
+      setNotifications(prev => prev.map(n => 
+        n.id === notificationId ? { ...n, is_read: true } : n
+      ));
+      
+      const newUnreadCount = notifications.filter(n => !n.is_read && n.id !== notificationId).length;
+      setUnreadCount(newUnreadCount);
+      
     } catch (error) {
       console.error('Erreur lors du marquage de la notification:', error);
     }
@@ -370,10 +473,14 @@ export const Layout: React.FC<LayoutProps> = ({
 
   const markAllAsRead = async () => {
     try {
-      await api.post('/tenant/notifications/read-all');
+      // Marquer les notifications des baux comme lues
+      await api.post('/tenant/my-lease/notifications/read-all');
+      
+      // Marquer toutes localement
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
       setUnreadCount(0);
       notify('Toutes les notifications ont été marquées comme lues', 'success');
+      
     } catch (error) {
       console.error('Erreur mark all as read:', error);
     }
@@ -394,13 +501,24 @@ export const Layout: React.FC<LayoutProps> = ({
     }
   }, [isMobileMenuOpen]);
 
-  const getNotificationIcon = (type: string, iconName?: string) => {
+  const getNotificationIcon = (notification: NotificationItem) => {
     const iconClass = "w-4 h-4";
-    switch (type) {
-      case 'critical': return <AlertTriangle className={`${iconClass} text-red-500`} />;
-      case 'important': return <Clock className={`${iconClass} text-orange-500`} />;
-      default: return <Info className={`${iconClass} text-blue-500`} />;
+    if (notification.source === 'task') {
+      return <CheckSquare className={`${iconClass} text-purple-500`} />;
     }
+    if (notification.source === 'note') {
+      return <Edit3 className={`${iconClass} text-green-500`} />;
+    }
+    if (notification.source === 'document') {
+      return <FileText className={`${iconClass} text-blue-500`} />;
+    }
+    if (notification.type === 'critical') {
+      return <AlertTriangle className={`${iconClass} text-red-500`} />;
+    }
+    if (notification.type === 'important') {
+      return <Clock className={`${iconClass} text-orange-500`} />;
+    }
+    return <Info className={`${iconClass} text-blue-500`} />;
   };
 
   return (
@@ -570,26 +688,57 @@ export const Layout: React.FC<LayoutProps> = ({
               </div>
             ) : (
               notifications.map((notif: NotificationItem) => (
-                <div key={notif._uniqueKey || notif.id} className="p-4 hover:bg-gray-50 transition-colors cursor-pointer border-b border-gray-100 last:border-0 relative group"
+                <div 
+                  key={notif._uniqueKey || notif.id} 
+                  className="p-4 hover:bg-gray-50 transition-colors cursor-pointer border-b border-gray-100 last:border-0 relative group"
                   onClick={() => {
-                    markAsRead(notif.id);
+                    if (!notif.is_read) {
+                      markAsRead(notif.id, notif.source);
+                    }
                     if (notif.link) {
                       const linkToTab: { [key: string]: Tab } = {
-                        '/payments': 'payments', '/receipts': 'receipts', '/interventions': 'interventions', '/notice': 'notice', '/location': 'location',
+                        '/payments': 'payments', 
+                        '/receipts': 'receipts', 
+                        '/interventions': 'interventions', 
+                        '/notice': 'notice', 
+                        '/location': 'location',
+                        '/tasks': 'tasks',
+                        '/notes': 'notes',
+                        '/documents': 'documents',
                       };
-                      if (linkToTab[notif.link]) handleNavigate(linkToTab[notif.link]);
+                      if (linkToTab[notif.link]) {
+                        handleNavigate(linkToTab[notif.link]);
+                      }
                     }
-                  }}>
+                  }}
+                >
                   <div className="flex items-start gap-4">
-                    <div className={`w-3 h-3 rounded-full mt-1.5 flex-shrink-0 ${notif.is_read ? 'bg-gray-300' : notif.type === 'critical' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)]'}`} />
+                    <div className="flex-shrink-0 mt-1">
+                      {getNotificationIcon(notif)}
+                    </div>
                     <div className="flex-1">
-                      <p className={`text-[0.9rem] leading-tight ${notif.is_read ? 'text-gray-500 font-medium' : 'text-gray-900 font-bold'}`}>{notif.title || notif.message}</p>
-                      <p className="text-[0.85rem] text-gray-600 mt-1">{notif.message || notif.subtext}</p>
-                      <p className="text-[0.75rem] text-gray-400 mt-2 font-medium uppercase tracking-wider flex items-center gap-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className={`w-2 h-2 rounded-full ${notif.is_read ? 'bg-gray-300' : 'bg-green-500'}`} />
+                        <p className={`text-[0.9rem] leading-tight ${notif.is_read ? 'text-gray-500 font-medium' : 'text-gray-900 font-bold'}`}>
+                          {notif.title}
+                        </p>
+                      </div>
+                      <p className="text-[0.85rem] text-gray-600 mt-1">{notif.message}</p>
+                      {notif.subtext && (
+                        <p className="text-[0.75rem] text-gray-400 mt-1">{notif.subtext}</p>
+                      )}
+                      <p className="text-[0.7rem] text-gray-400 mt-2 flex items-center gap-1">
+                        <Calendar size={10} />
                         {new Date(notif.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                       </p>
                       {notif.pdf_url && (
-                        <a href={notif.pdf_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800" onClick={(e) => e.stopPropagation()}>
+                        <a 
+                          href={notif.pdf_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="mt-2 inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800" 
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <Download size={12} /> Télécharger document
                         </a>
                       )}
@@ -600,8 +749,12 @@ export const Layout: React.FC<LayoutProps> = ({
             )}
           </div>
           <div className="p-4 border-t border-gray-200 flex-shrink-0 bg-gray-50">
-            <button onClick={markAllAsRead} className="w-full py-3 bg-white border border-gray-200 rounded-xl text-sm text-gray-600 hover:text-gray-800 font-bold shadow-sm transition-all">
-              Tout marquer lu
+            <button 
+              onClick={markAllAsRead} 
+              className="w-full py-3 bg-white border border-gray-200 rounded-xl text-sm text-gray-600 hover:text-gray-800 font-bold shadow-sm transition-all"
+              disabled={unreadCount === 0}
+            >
+              Tout marquer lu {unreadCount > 0 && `(${unreadCount})`}
             </button>
           </div>
         </div>
@@ -622,7 +775,8 @@ export const Layout: React.FC<LayoutProps> = ({
             {[
               { title: 'Guide de démarrage locataire', desc: 'Apprenez les bases de Imona', color: 'bg-green-500', route: 'help' },
               { title: 'Gérer ses incidents', desc: 'Déclarer ou suivre une intervention', color: 'bg-blue-500', route: 'interventions' },
-              { title: 'Nous contacter', desc: 'Une question ?', color: 'bg-purple-500', route: 'help' },
+              { title: 'Gérer ses tâches', desc: 'Organisez vos tâches à faire', color: 'bg-purple-500', route: 'tasks' },
+              { title: 'Nous contacter', desc: 'Une question ?', color: 'bg-orange-500', route: 'help' },
             ].map((help, idx) => (
               <div key={idx} onClick={() => handleNavigate(help.route as Tab)} className="p-4 m-1 hover:bg-gray-50 rounded-xl transition-all cursor-pointer border border-transparent hover:border-gray-100">
                 <div className="flex items-start gap-4">

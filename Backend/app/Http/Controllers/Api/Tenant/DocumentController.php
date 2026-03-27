@@ -585,91 +585,148 @@ public function getLeases(Request $request)
     /**
      * POST /api/tenant/leases/{uuid}/sign - Signer un contrat de bail
      */
-    public function signLeaseContract(Request $request, $uuid)
-    {
-        try {
-            $tenant = $this->getTenant();
-            $user = auth()->user();
+ /**
+ * Signer un contrat de bail (locataire)
+ */
+public function signLeaseContract(Request $request, $uuid)
+{
+    try {
+        $tenant = $this->getTenant();
+        $user = auth()->user();
 
-            if (!$tenant) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Accès réservé aux locataires'
-                ], 403);
-            }
-
-            $lease = Lease::where('uuid', $uuid)
-                ->where('tenant_id', $tenant->id)
-                ->with(['property', 'property.user'])
-                ->firstOrFail();
-
-            // Vérifier que le bail est en attente de signature
-            if ($lease->status !== 'pending_signature') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Ce contrat n\'est pas en attente de signature'
-                ], 400);
-            }
-
-            // Vérifier que le locataire n'a pas déjà signé
-            if (!empty($lease->tenant_signature)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Vous avez déjà signé ce contrat'
-                ], 400);
-            }
-
-            // Enregistrer la signature du locataire
-            $lease->tenant_signature = json_encode([
-                'signed_at' => now(),
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'user_id' => $user->id,
-                'tenant_id' => $tenant->id
-            ]);
-
-            // Vérifier si le propriétaire a déjà signé
-            if (!empty($lease->landlord_signature)) {
-                $lease->status = 'active';
-                $lease->signed_at = now();
-
-                // Envoyer les notifications d'activation
-                $this->sendContractActivatedNotifications($lease);
-            } else {
-                $lease->status = 'pending_signature';
-
-                // Envoyer une notification au propriétaire que le locataire a signé
-                $this->sendTenantSignedNotification($lease);
-            }
-
-            $lease->save();
-
-            Log::info('Contrat signé par le locataire', [
-                'lease_uuid' => $uuid,
-                'tenant_id' => $tenant->id,
-                'new_status' => $lease->status
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => $lease->status === 'active'
-                    ? 'Contrat signé et activé avec succès'
-                    : 'Signature enregistrée. En attente de la signature du propriétaire.',
-                'data' => [
-                    'status' => $lease->status,
-                    'tenant_signature' => json_decode($lease->tenant_signature),
-                    'landlord_signature' => $lease->landlord_signature ? json_decode($lease->landlord_signature) : null
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Erreur signature contrat: ' . $e->getMessage());
+        if (!$tenant) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors de la signature du contrat'
-            ], 500);
+                'message' => 'Accès réservé aux locataires'
+            ], 403);
         }
+
+        $lease = Lease::where('uuid', $uuid)
+            ->where('tenant_id', $tenant->id)
+            ->with(['property', 'property.user'])
+            ->firstOrFail();
+
+        // Vérifier que le bail est en attente de signature
+        if ($lease->status !== 'pending_signature') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ce contrat n\'est pas en attente de signature'
+            ], 400);
+        }
+
+        // Vérifier que le locataire n'a pas déjà signé
+        if (!empty($lease->tenant_signature)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vous avez déjà signé ce contrat'
+            ], 400);
+        }
+
+        // Récupérer la signature image si fournie
+        $signatureImage = $request->input('signature');
+        $signaturePath = null;
+
+        if ($signatureImage) {
+            try {
+                // Nettoyer et décoder l'image base64
+                $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $signatureImage));
+
+                // Créer le dossier si nécessaire
+                $folder = 'lease-signatures/' . $lease->id;
+
+                // Générer un nom de fichier unique
+                $filename = \Illuminate\Support\Str::uuid() . '.png';
+                $signaturePath = $folder . '/' . $filename;
+
+                // Sauvegarder l'image
+                \Illuminate\Support\Facades\Storage::disk('public')->put($signaturePath, $imageData);
+
+                Log::info('Signature image sauvegardée', [
+                    'lease_id' => $lease->id,
+                    'path' => $signaturePath,
+                    'size' => strlen($imageData)
+                ]);
+
+            } catch (\Exception $e) {
+                Log::error('Erreur lors de la sauvegarde de la signature image', [
+                    'error' => $e->getMessage(),
+                    'lease_id' => $lease->id
+                ]);
+                // On continue même si l'image échoue, on enregistre juste la signature textuelle
+            }
+        }
+
+        // Enregistrer la signature du locataire
+        $lease->tenant_signature = json_encode([
+            'signed_at' => now(),
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'user_id' => $user->id,
+            'tenant_id' => $tenant->id,
+            'signature_path' => $signaturePath, // Chemin de l'image si sauvegardée
+            'has_image' => !is_null($signaturePath)
+        ]);
+
+        // Vérifier si le propriétaire a déjà signé
+        if (!empty($lease->landlord_signature)) {
+            $lease->status = 'active';
+            $lease->signed_at = now();
+
+            // Envoyer les notifications d'activation
+            $this->sendContractActivatedNotifications($lease);
+        } else {
+            $lease->status = 'pending_signature';
+
+            // Envoyer une notification au propriétaire que le locataire a signé
+            $this->sendTenantSignedNotification($lease);
+        }
+
+        $lease->save();
+
+        Log::info('Contrat signé par le locataire', [
+            'lease_uuid' => $uuid,
+            'tenant_id' => $tenant->id,
+            'new_status' => $lease->status,
+            'has_signature_image' => !is_null($signaturePath)
+        ]);
+
+        // Récupérer les signatures pour la réponse
+        $tenantSignature = json_decode($lease->tenant_signature, true);
+        $landlordSignature = $lease->landlord_signature ? json_decode($lease->landlord_signature, true) : null;
+
+        // Ajouter l'URL de l'image si disponible
+        if ($tenantSignature && isset($tenantSignature['signature_path'])) {
+            $tenantSignature['signature_url'] = \Illuminate\Support\Facades\Storage::url($tenantSignature['signature_path']);
+        }
+
+        if ($landlordSignature && isset($landlordSignature['signature_path'])) {
+            $landlordSignature['signature_url'] = \Illuminate\Support\Facades\Storage::url($landlordSignature['signature_path']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $lease->status === 'active'
+                ? 'Contrat signé et activé avec succès'
+                : 'Signature enregistrée. En attente de la signature du propriétaire.',
+            'data' => [
+                'status' => $lease->status,
+                'tenant_signature' => $tenantSignature,
+                'landlord_signature' => $landlordSignature
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Erreur signature contrat: ' . $e->getMessage(), [
+            'trace' => $e->getTraceAsString(),
+            'lease_uuid' => $uuid ?? null
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur lors de la signature du contrat: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * GET /api/tenant/condition-reports/{id}/download - Télécharger l'état des lieux

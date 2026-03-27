@@ -246,10 +246,7 @@ export default function RentReceiptsPage() {
           </div>
         </div>
 
-        {/* Indicateur de résultat (optionnel mais utile) */}
-        <div className="mt-3 text-xs text-gray-500">
-          {filtered.length} quittance{filtered.length > 1 ? 's' : ''} trouvée{filtered.length > 1 ? 's' : ''}
-        </div>
+      
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">

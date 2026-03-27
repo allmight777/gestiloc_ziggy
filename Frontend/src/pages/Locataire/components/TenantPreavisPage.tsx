@@ -724,23 +724,20 @@ export default function TenantPreavisPage({
       />
 
       {/* ── EN-TÊTE ── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Mes préavis</h1>
-          <p className="text-sm text-gray-400 mt-1 font-medium">Signalez et gérez vos préavis de départ</p>
-        </div>
-      </div>
-
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <button
-          onClick={handleCreateClick}
-          className="flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-lg transition-colors hover:opacity-90"
-          style={{ background: 'rgba(82, 157, 33, 1)' }}
-        >
-          <Plus size={18} />
-          Ajouter un préavis
-        </button>
-      </div>
+ <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+  <div>
+    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Mes préavis</h1>
+    <p className="text-sm text-gray-400 mt-1 font-medium">Signalez et gérez vos préavis de départ</p>
+  </div>
+  <button
+    onClick={handleCreateClick}
+    className="flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-lg transition-colors hover:opacity-90"
+    style={{ background: 'rgba(82, 157, 33, 1)' }}
+  >
+    <Plus size={18} />
+    Ajouter un préavis
+  </button>
+</div>
 
       <Card className="p-4">
         <h3 className="text-sm font-medium text-gray-900 mb-4">Filtre</h3>
@@ -788,10 +785,6 @@ export default function TenantPreavisPage({
           </div>
         </div>
 
-        {/* Indicateur de résultat */}
-        <div className="mt-3 text-xs text-gray-500">
-          {filteredNotices.length} préavis trouvé{filteredNotices.length > 1 ? 's' : ''}
-        </div>
       </Card>
 
       <Card className="overflow-hidden">
