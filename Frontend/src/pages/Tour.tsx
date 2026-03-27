@@ -170,7 +170,7 @@ export default function Tour() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            Découvrez comment GestiLoc simplifie chaque aspect de votre gestion locative
+            Découvrez comment Imona simplifie chaque aspect de votre gestion locative
           </motion.p>
         </div>
       </section>

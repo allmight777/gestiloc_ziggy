@@ -5,7 +5,7 @@
 ```bash
 # Étape 1: Ouvrir le terminal PowerShell
 # Étape 2: Taper cette commande
-cd "c:\Users\abatt\Desktop\Projet Innovtech\gestiloc-marketing-kit" ; bun run dev
+cd "c:\Users\abatt\Desktop\Projet Innovtech\imona-marketing-kit" ; bun run dev
 
 # Étape 3: Ouvrir le navigateur
 http://localhost:5173/app/locataire

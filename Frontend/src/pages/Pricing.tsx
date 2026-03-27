@@ -166,7 +166,7 @@ const Pricing = () => {
         },
         {
             question: "Est-ce que mon compte est vraiment sécurisé ?",
-            answer: "La sécurité de vos données est notre priorité absolue. GestiLoc utilise : un chiffrement de niveau bancaire (SSL/TLS 256-bit) pour toutes les données, une authentification forte avec vérification en deux étapes, des sauvegardes automatiques quotidiennes, une infrastructure hébergée dans des centres de données sécurisés avec certifications ISO 27001. Vos données et celles de vos locataires sont protégées conformément au RGPD."
+            answer: "La sécurité de vos données est notre priorité absolue. Imona utilise : un chiffrement de niveau bancaire (SSL/TLS 256-bit) pour toutes les données, une authentification forte avec vérification en deux étapes, des sauvegardes automatiques quotidiennes, une infrastructure hébergée dans des centres de données sécurisés avec certifications ISO 27001. Vos données et celles de vos locataires sont protégées conformément au RGPD."
         }
     ];
 

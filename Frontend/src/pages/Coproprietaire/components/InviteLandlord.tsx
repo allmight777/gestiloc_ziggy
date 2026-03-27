@@ -279,7 +279,7 @@ export const InviteLandlord: React.FC<InviteLandlordProps> = ({ notify }) => {
                       value={formData.company_name}
                       onChange={(e) => handleInputChange('company_name', e.target.value)}
                       className="w-full px-6 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-bold text-gray-900 outline-none focus:ring-4 focus:ring-green-500/10 transition-all font-manrope placeholder:text-gray-300 shadow-sm appearance-none"
-                      placeholder="Ex: GestiLoc Agence"
+                      placeholder="Ex: Imona Agence"
                       required
                     />
                   </div>

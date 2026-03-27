@@ -28,7 +28,7 @@ export const Settings: React.FC = () => {
   
   const [profile, setProfile] = useState({
     name: 'Sophie Martin',
-    email: 'sophie@gestiloc.com',
+    email: 'sophie@imona.bj',
     role: 'Super Admin'
   });
 

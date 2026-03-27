@@ -109,7 +109,7 @@ export const Location: React.FC<LocationProps> = ({ notify }) => {
     nom: '',
     message: `Bonjour,
 
-Je voudrais vous faire découvrir Gestiloc, une plateforme de gestion locative.
+Je voudrais vous faire découvrir Imona, une plateforme de gestion locative.
 
 Vous pouvez créer votre compte gratuitement et gérer votre bien en ligne.
 
@@ -177,7 +177,7 @@ Cordialement`
           nom: '',
           message: `Bonjour,
 
-Je voudrais vous faire découvrir Gestiloc, une plateforme de gestion locative.
+Je voudrais vous faire découvrir Imona, une plateforme de gestion locative.
 
 Vous pouvez créer votre compte gratuitement et gérer votre bien en ligne.
 
@@ -600,7 +600,7 @@ Cordialement`
                 <p className="text-sm text-blue-800">
                   <span className="font-semibold">Information</span>
                   <br />
-                  Faites découvrir Gestiloc à votre bailleur en lui envoyant une invitation par email.
+                  Faites découvrir Imona à votre bailleur en lui envoyant une invitation par email.
                 </p>
               </div>
 

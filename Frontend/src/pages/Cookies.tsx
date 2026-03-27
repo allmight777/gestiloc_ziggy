@@ -139,8 +139,8 @@ export default function Cookies() {
               <h2 className="text-2xl font-bold mb-4 text-primary">8. Contact</h2>
               <p className="text-foreground leading-relaxed">
                 Pour toute question sur l'utilisation des cookies : 
-                <a href="mailto:privacy@gestiloc.bj" className="text-primary hover:underline ml-1">
-                  privacy@gestiloc.bj
+                <a href="mailto:privacy@imona.bj" className="text-primary hover:underline ml-1">
+                  privacy@imona.bj
                 </a>
               </p>
             </section>

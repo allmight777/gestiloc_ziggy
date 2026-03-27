@@ -239,12 +239,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       >
         {/* Zone du logo */}
         <div className="h-20 flex items-center px-8 border-b border-slate-100 dark:border-slate-800">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-violet-600 rounded-lg mr-3 shadow-lg shadow-blue-200 dark:shadow-none animate-pulse-glow flex items-center justify-center">
-            <span className="text-white font-bold text-lg">G</span>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">
-            GESTILOC
-          </h1>
+          <img src="/Ressource_gestiloc/IMONA.png" alt="IMONA" className="h-12 w-auto" />
           <button 
             onClick={onClose} 
             className="ml-auto md:hidden text-slate-400 hover:text-slate-600"

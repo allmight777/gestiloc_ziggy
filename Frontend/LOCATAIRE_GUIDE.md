@@ -45,7 +45,7 @@ src/pages/Locataire/
 
 1. **Démarrer le serveur de développement** :
 ```bash
-cd "c:\Users\abatt\Desktop\Projet Innovtech\gestiloc-marketing-kit"
+cd "c:\Users\abatt\Desktop\Projet Innovtech\imona-marketing-kit"
 bun run dev
 ```
 
@@ -93,7 +93,7 @@ Vous pouvez créer un point d'entrée alternatif pour tester uniquement l'applic
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GestiLoc - Espace Locataire</title>
+    <title>Imona - Espace Locataire</title>
   </head>
   <body>
     <div id="root"></div>

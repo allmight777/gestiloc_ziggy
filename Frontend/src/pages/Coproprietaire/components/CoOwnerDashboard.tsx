@@ -78,7 +78,7 @@ const goToReact = (path: string) => {
 
 // Données fictives pour le mode démo SEULEMENT
 const mockDashboardData = {
-  subscription: { plan: "Premium GestiLoc (Démo)", renewal_date: "15 Juin 2026" },
+  subscription: { plan: "Premium IMONA (Démo)", renewal_date: "15 Juin 2026" },
   rent_data: [
     { month: 'Jan', received: 420000, expected: 500000 },
     { month: 'Fév', received: 380000, expected: 500000 },
@@ -378,7 +378,7 @@ export const CoOwnerDashboard: React.FC<CoOwnerDashboardProps> = ({ onNavigate, 
           <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-black mb-4 font-merriweather leading-tight">
             {isAuthenticated 
               ? `Bonjour, ${profile?.first_name || 'Copropriétaire'} !`
-              : 'Bienvenue sur Gestiloc !'}
+              : 'Bienvenue sur IMONA !'}
           </h1>
           <p className="text-white/95 text-sm sm:text-base leading-relaxed font-manrope font-medium">
             {isAuthenticated

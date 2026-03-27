@@ -1,4 +1,4 @@
-# Démarrage de GestiLoc (Frontend Standalone)
+# Démarrage de Imona (Frontend Standalone)
 
 ## Prérequis
 - Node.js (version 18 ou supérieure)

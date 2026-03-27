@@ -3,7 +3,7 @@
 ## Structure du projet
 
 ```
-gestiloc-marketing-kit/
+imona-marketing-kit/
 │
 ├── src/
 │   ├── App.tsx                          ← Route intégrée ici

@@ -160,7 +160,7 @@ const Features = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          Tout ce que vous pouvez faire avec GestiLoc
+          Tout ce que vous pouvez faire avec Imona
         </motion.h1>
 
         <motion.div
@@ -170,7 +170,7 @@ const Features = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <p className="text-black text-base md:text-lg leading-relaxed font-manrope font-medium text-center">
-            Gestiloc met à votre disposition un outil de gestion locative simple, performant et accessible, conçu pour centraliser l'ensemble de votre activité. En automatisant vos tâches et vos documents, et en facilitant le suivi quotidien, la plateforme rend votre gestion plus fluide, mieux organisée et nettement moins chronophage.
+            Imona met à votre disposition un outil de gestion locative simple, performant et accessible, conçu pour centraliser l'ensemble de votre activité. En automatisant vos tâches et vos documents, et en facilitant le suivi quotidien, la plateforme rend votre gestion plus fluide, mieux organisée et nettement moins chronophage.
           </p>
         </motion.div>
       </div>

@@ -9,7 +9,7 @@ export default function About() {
         <div className="container text-center">
           <div className="page-subtitle text-primary-foreground/80">À propos</div>
           <h1 className="text-4xl font-bold mb-4 md:text-5xl text-primary-foreground">
-            À propos de GestiLoc
+            À propos de Imona
           </h1>
           <p className="text-lg max-w-2xl mx-auto text-primary-foreground/90">
             Une solution innovante développée par Innovtech
@@ -23,12 +23,12 @@ export default function About() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-primary">Notre histoire</h2>
               <p className="text-foreground leading-relaxed mb-4">
-                GestiLoc est une plateforme de gestion locative développée par <strong>Innovtech</strong>, 
+                Imona est une plateforme de gestion locative développée par <strong>Innovtech</strong>, 
                 une entreprise technologique béninoise spécialisée dans la création de solutions digitales 
                 innovantes pour l'Afrique de l'Ouest.
               </p>
               <p className="text-foreground leading-relaxed">
-                Née de la volonté de simplifier la gestion immobilière au Bénin, GestiLoc répond aux 
+                Née de la volonté de simplifier la gestion immobilière au Bénin, Imona répond aux 
                 besoins spécifiques des propriétaires et locataires béninois en proposant une solution 
                 moderne, accessible et adaptée au contexte local.
               </p>
@@ -85,9 +85,9 @@ export default function About() {
             <Separator />
 
             <section>
-              <h2 className="text-2xl font-bold mb-4 text-primary">Notre vision pour GestiLoc</h2>
+              <h2 className="text-2xl font-bold mb-4 text-primary">Notre vision pour Imona</h2>
               <p className="text-foreground leading-relaxed mb-4">
-                Chez Innovtech, nous avons imaginé GestiLoc comme bien plus qu'un simple logiciel de 
+                Chez Innovtech, nous avons imaginé Imona comme bien plus qu'un simple logiciel de 
                 gestion. C'est une plateforme complète qui :
               </p>
               <ul className="list-disc pl-6 space-y-2 text-foreground">

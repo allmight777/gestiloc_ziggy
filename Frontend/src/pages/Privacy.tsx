@@ -22,7 +22,7 @@ export default function Privacy() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-primary">1. Introduction</h2>
               <p className="text-foreground leading-relaxed">
-                GestiLoc accorde une grande importance à la protection de vos données personnelles. 
+                Imona accorde une grande importance à la protection de vos données personnelles. 
                 Cette politique de confidentialité explique quelles données nous collectons, comment 
                 nous les utilisons et quels sont vos droits.
               </p>
@@ -67,7 +67,7 @@ export default function Privacy() {
               <h2 className="text-2xl font-bold mb-4 text-primary">4. Base légale</h2>
               <p className="text-foreground leading-relaxed">
                 Le traitement de vos données repose sur : l'exécution du contrat vous liant à 
-                GestiLoc, votre consentement explicite, nos obligations légales et nos intérêts 
+                Imona, votre consentement explicite, nos obligations légales et nos intérêts 
                 légitimes à améliorer nos services.
               </p>
             </section>
@@ -111,8 +111,8 @@ export default function Privacy() {
               </ul>
               <p className="text-foreground leading-relaxed mt-4">
                 Pour exercer ces droits, contactez-nous à : 
-                <a href="mailto:privacy@gestiloc.bj" className="text-primary hover:underline ml-1">
-                  privacy@gestiloc.bj
+                <a href="mailto:privacy@imona.bj" className="text-primary hover:underline ml-1">
+                  privacy@imona.bj
                 </a>
               </p>
             </section>
@@ -155,8 +155,8 @@ export default function Privacy() {
               <h2 className="text-2xl font-bold mb-4 text-primary">11. Contact</h2>
               <p className="text-foreground leading-relaxed">
                 Pour toute question : 
-                <a href="mailto:privacy@gestiloc.bj" className="text-primary hover:underline ml-1">
-                  privacy@gestiloc.bj
+                <a href="mailto:privacy@imona.bj" className="text-primary hover:underline ml-1">
+                  privacy@imona.bj
                 </a>
               </p>
             </section>

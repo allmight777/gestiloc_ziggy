@@ -313,7 +313,7 @@ export const Finances: React.FC<FinancesProps> = ({ onNavigate, notify }) => {
                     </td>
                     <td className="px-8 py-8 whitespace-nowrap">
                       <p className="text-sm font-black text-gray-900 font-manrope leading-tight group-hover:text-green-700 transition-colors uppercase tracking-tight">{transaction.description}</p>
-                      <p className="text-[10px] font-black text-gray-300 uppercase tracking-[0.1em] font-manrope mt-2">Flux Entrant • GestiLoc</p>
+                      <p className="text-[10px] font-black text-gray-300 uppercase tracking-[0.1em] font-manrope mt-2">Flux Entrant • Imona</p>
                     </td>
                     <td className="px-8 py-8 whitespace-nowrap">
                       <div className="space-y-1">

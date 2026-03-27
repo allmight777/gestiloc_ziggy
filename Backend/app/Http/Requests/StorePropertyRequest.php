@@ -48,14 +48,19 @@ class StorePropertyRequest extends FormRequest
             'longitude' => 'nullable|numeric',
 
             // Caractéristiques
-            'surface'        => 'nullable|numeric|min:0|max:9999.99',
-            'room_count'     => 'nullable|integer|min:0',
-            'bedroom_count'  => 'nullable|integer|min:0',
-            'bathroom_count' => 'nullable|integer|min:0',
+            'surface'           => 'nullable|numeric|min:0',
+            'room_count'        => 'nullable|integer|min:0',
+            'bedroom_count'     => 'nullable|integer|min:0',
+            'bathroom_count'    => 'nullable|integer|min:0',
+            'wc_count'          => 'nullable|integer|min:0',
+            'floor'             => 'nullable|integer',
+            'total_floors'      => 'nullable|integer|min:0',
+            'construction_year' => 'nullable|integer|min:1900|max:' . (date('Y') + 5),
 
             // Financier
-            'rent_amount'    => 'nullable|numeric|min:0|max:999999.99',
-            'charges_amount' => 'nullable|numeric|min:0|max:999999.99',
+            'rent_amount'    => 'nullable|numeric|min:0',
+            'charges_amount' => 'nullable|numeric|min:0',
+            'caution'        => 'nullable|numeric|min:0',
 
             // Statut
             'status' => 'required|in:available,rented,maintenance,off_market',

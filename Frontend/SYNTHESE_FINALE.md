@@ -3,7 +3,7 @@
 ## 📊 Résumé complet de l'analyse
 
 Date: 21 novembre 2025  
-Projet: GestiLoc Marketing Kit  
+Projet: Imona Marketing Kit  
 Module: Locataire (src/pages/Locataire)  
 Status: ✅ **PRÊT POUR PRODUCTION**
 
@@ -350,6 +350,6 @@ Le module **Locataire** est une **application React moderne, complète et prête
 
 ---
 
-**Module Locataire - GestiLoc v1.0**  
+**Module Locataire - Imona v1.0**  
 **Status: ✅ PRODUCTION READY**  
 **Bon développement! 🚀**

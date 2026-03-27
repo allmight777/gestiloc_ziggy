@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   FileText,
   Plus,
@@ -595,10 +595,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <div className="z-10 text-center md:text-left max-w-xl">
                 <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-black mb-4 font-merriweather leading-tight">
                   {!isAuthenticated
-                    ? 'Bienvenue sur Gestiloc !'
+                    ? 'Bienvenue sur IMONA !'
                     : dashboardData?.user?.first_name
                       ? `Bonjour, ${dashboardData.user.first_name} !`
-                      : 'Bienvenue sur Gestiloc !'}
+                      : 'Bienvenue sur IMONA !'}
                 </h1>
                 <p className="text-white/95 text-sm sm:text-base leading-relaxed font-manrope font-medium">
                   {!isAuthenticated

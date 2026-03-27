@@ -227,7 +227,7 @@ const DashboardComponent: React.FC<DashboardProps> = ({ onNavigate, notify }) =>
             Bienvenue {JSON.parse(localStorage.getItem('user') || '{}').first_name || ''} !
           </h1>
           <p className="text-white/95 text-sm sm:text-base leading-relaxed font-manrope font-medium">
-            Merci de vous être inscrit sur Gestiloc ! Nous sommes heureux de vous avoir à bord !
+            Merci de vous être inscrit sur IMONA ! Nous sommes heureux de vous avoir à bord !
             Gérez vos biens et vos locataires en toute simplicité depuis votre nouveau tableau de bord.
           </p>
         </div>

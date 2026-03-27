@@ -204,7 +204,7 @@ const AppContent: React.FC = () => {
 
             <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-1"></div>
             <div className="flex flex-col items-end sm:block cursor-pointer" onClick={() => setCurrentView('settings')}>
-               <span className="text-xs font-bold text-slate-700 dark:text-slate-200">GESTILOC Admin</span>
+               <span className="text-xs font-bold text-slate-700 dark:text-slate-200">IMONA Admin</span>
                <span className="text-[10px] text-emerald-500 font-medium flex items-center">
                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1 animate-pulse"></span>
                  {t('common.online')}

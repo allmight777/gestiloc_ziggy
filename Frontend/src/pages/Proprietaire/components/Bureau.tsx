@@ -278,7 +278,7 @@ export const Bureau: React.FC<DashboardProps> = ({ activeTab = 'home', notify, o
               <div className="flex justify-between items-start md:items-center gap-6">
                 <div className="z-10 flex-1">
                   <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
-                    Bienvenue sur Gestiloc !
+                    Bienvenue sur Imona !
                   </h1>
                   <p className="text-white/90 text-sm md:text-base max-w-md leading-relaxed">
                     Retrouvez ici toutes les informations de location. Gérez vos quittances, contactez votre propriétaire et suivez l'état de votre logement en toute simplicité.
@@ -659,7 +659,7 @@ export const Bureau: React.FC<DashboardProps> = ({ activeTab = 'home', notify, o
               <div className="flex justify-between items-start md:items-center gap-6">
                 <div className="z-10 flex-1">
                   <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
-                    Bienvenue sur Gestiloc !
+                    Bienvenue sur Imona !
                   </h1>
                   <p className="text-white/90 text-sm md:text-base max-w-md leading-relaxed">
                     Retrouvez ici toutes les informations de location. Gérez vos quittances, contactez votre propriétaire et suivez l'état de votre logement en toute simplicité.

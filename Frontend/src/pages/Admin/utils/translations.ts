@@ -3,7 +3,7 @@ export type Language = 'fr' | 'en';
 export const translations = {
   fr: {
     common: {
-      loading: 'Chargement de Gestiloc...',
+      loading: 'Chargement de Imona...',
       search: 'Rechercher...',
       online: 'En ligne',
       viewAll: 'Voir tout',
@@ -181,7 +181,7 @@ export const translations = {
   },
   en: {
     common: {
-      loading: 'Loading Gestiloc...',
+      loading: 'Loading Imona...',
       search: 'Search anything...',
       online: 'Online',
       viewAll: 'View All',

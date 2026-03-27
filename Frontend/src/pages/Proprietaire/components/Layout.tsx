@@ -298,8 +298,8 @@ const SidebarContent: React.FC<{
           .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         `}</style>
 
-        {menuSections.map((section) => (
-          <div key={section.title || "main-menu-top"} className={section.title ? "mb-4" : "mb-2"}>
+        {menuSections.map((section, sectionIndex) => (
+          <div key={section.title || `menu-section-${sectionIndex}`} className={section.title ? "mb-4" : "mb-2"}>
             {section.title && (
               <div style={{
                 fontSize: '9.5px',
@@ -453,15 +453,7 @@ export const Layout: React.FC<LayoutProps> = ({
           >
             <Menu size={24} className="text-white" />
           </button>
-          <span style={{
-            fontFamily: "'Merriweather', serif",
-            fontWeight: 900,
-            fontSize: '1.85rem',
-            color: '#fff',
-            letterSpacing: '-0.01em',
-          }}>
-            Gestiloc
-          </span>
+          <img src="/Ressource_gestiloc/IMONA.png" alt="IMONA" className="h-12 w-auto" />
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
@@ -641,7 +633,7 @@ export const Layout: React.FC<LayoutProps> = ({
           </div>
           <div className="flex-1 overflow-y-auto p-2">
             {[
-              { title: 'Guide de démarrage', desc: 'Apprenez les bases de GestiLoc', color: 'bg-green-500', route: '/help' },
+              { title: 'Guide de démarrage', desc: 'Apprenez les bases de Imona', color: 'bg-green-500', route: '/help' },
               { title: "Centre d'aide complet", desc: 'Accédez à tous nos guides', color: 'bg-blue-500', route: '/help' },
               { title: 'Contactez le support', desc: 'Notre équipe est là pour vous aider', color: 'bg-purple-500', route: '/contact' },
             ].map((help, idx) => (

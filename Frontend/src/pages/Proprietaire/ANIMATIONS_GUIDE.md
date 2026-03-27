@@ -1,6 +1,6 @@
-# Guide d'Animations Fluides - GestiLoc
+# Guide d'Animations Fluides - Imona
 
-Ce guide explique comment utiliser le système d'animations fluides ajouté à l'application GestiLoc.
+Ce guide explique comment utiliser le système d'animations fluides ajouté à l'application Imona.
 
 ## 🎨 Fichiers d'animations
 

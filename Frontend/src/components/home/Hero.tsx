@@ -386,7 +386,7 @@ export function Hero() {
               animate={{ x: 0, opacity: 1 }}
               transition={{ duration: 0.6, delay: 2.5 }}
             >
-              GestiLoc est le meilleur logiciel de gestion locative immobilière en
+              Imona est le meilleur logiciel de gestion locative immobilière en
               ligne. Suivi des loyers et charges, comptabilité, aide à la
               déclaration des revenus fonciers… Toutes les étapes de la vie du
               contrat de location sont couvertes par notre plateforme.

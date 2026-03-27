@@ -50,7 +50,7 @@ export default function HeroSection() {
               textShadow: "0 2px 10px rgba(0,0,0,0.2)"
             }}
           >
-            Tout votre immobilier au même endroit. GestiLoc est le meilleur logiciel de gestion locative immobilière en ligne. Suivi des loyers et charges, comptabilité… Toutes les étapes de la vie du contrat de location sont couvertes par notre plateforme.
+            Tout votre immobilier au même endroit. Imona est le meilleur logiciel de gestion locative immobilière en ligne. Suivi des loyers et charges, comptabilité… Toutes les étapes de la vie du contrat de location sont couvertes par notre plateforme.
           </motion.p>
 
           {/* CTA Buttons - Améliorés */}

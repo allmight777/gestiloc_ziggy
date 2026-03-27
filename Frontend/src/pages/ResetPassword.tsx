@@ -156,7 +156,7 @@ export default function ResetPassword() {
       <Card className="w-full max-w-md rounded-2xl border-2 border-primary/20 shadow-md">
         <CardHeader className="space-y-1 text-center">
           <CardTitle>
-            <h1 className="text-4xl font-bold text-primary">Gestiloc</h1>
+            <h1 className="text-4xl font-bold text-primary">IMONA</h1>
           </CardTitle>
           <CardDescription>Tout votre immobilier au même endroit</CardDescription>
           <h2 className="text-lg font-semibold text-foreground pt-4">

@@ -476,11 +476,6 @@ Route::post('/rent-receipts/{id}/send-email', [RentReceiptController::class, 'se
         Route::get('archives', [DocumentArchiveController::class, 'index']);
         Route::get('archives/stats', [DocumentArchiveController::class, 'stats']);
 
-        // ✅ Notifications du landlord
-        Route::get('notifications', [LandlordNotificationController::class, 'index']);
-        Route::post('notifications/{id}/read', [LandlordNotificationController::class, 'markAsRead']);
-        Route::post('notifications/read-all', [LandlordNotificationController::class, 'markAllAsRead']);
-
         // ✅ Paramètres du landlord
   // ✅ PARAMÈTRES DU LANDLORD - SANS PRÉFIXE SUPPLÉMENTAIRE
     Route::get('settings', [SettingsController::class, 'index']);
@@ -521,6 +516,11 @@ Route::get('/leases/{uuid}/signed', [App\Http\Controllers\Api\Landlord\LeaseCont
     Route::get('/accounting/transactions', [App\Http\Controllers\Api\Landlord\AccountingController::class, 'transactions']);
     Route::get('/accounting/chart-data', [App\Http\Controllers\Api\Landlord\AccountingController::class, 'getChartData']);
     Route::post('/accounting/transactions', [App\Http\Controllers\Api\Landlord\AccountingController::class, 'store']);
+
+            // ✅ Notifications
+            Route::get('notifications', [LandlordNotificationController::class, 'index']);
+            Route::post('notifications/{id}/read', [LandlordNotificationController::class, 'markAsRead']);
+            Route::post('notifications/read-all', [LandlordNotificationController::class, 'markAllAsRead']);
         });
     });
 

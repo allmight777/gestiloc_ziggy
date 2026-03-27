@@ -223,7 +223,7 @@ export const Notes: React.FC<NotesProps> = ({ notify }) => {
         {
           id: 1,
           uuid: 'mock-1',
-          title: 'Bienvenue sur GestiLoc',
+          title: 'Bienvenue sur Imona',
           content: 'Ceci est une note de bienvenue. Vous pouvez ajouter vos propres notes pour suivre vos dossiers.',
           is_shared: false,
           created_at: new Date().toISOString(),

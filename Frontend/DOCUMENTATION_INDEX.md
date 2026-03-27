@@ -117,7 +117,7 @@ Puis ouvrez : `http://localhost:5173/app/locataire`
 ## 📁 Structure du projet
 
 ```
-gestiloc-marketing-kit/
+imona-marketing-kit/
 │
 ├── 📚 DOCUMENTATION (Fichiers créés)
 │   ├── QUICK_START.md              ← Démarrage rapide
