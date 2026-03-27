@@ -194,6 +194,7 @@ export interface CoOwnerProperty {
   status: string;
   amenities: string[] | null;
   photos: string[] | null;
+  photo_urls?: string[]; // AJOUTÉ pour les URLs complètes des photos
   meta: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
@@ -275,6 +276,7 @@ class CoOwnerApiService {
       const response = await axios.get(`${API_BASE_URL}/co-owners/me/delegated-properties`, {
         headers: this.getAuthHeaders(),
       });
+      // La réponse a la structure { data: [...] }
       return response.data.data || [];
     } catch (error: any) {
       if (error.response?.status === 404) {
@@ -609,11 +611,8 @@ class CoOwnerApiService {
       const response = await axios.get(`${API_BASE_URL}/co-owners/me/fedapay`, {
         headers: this.getAuthHeaders(),
       });
-
       console.log("[coOwnerApi.getWithdrawalMethods] response =>", response.data);
-
       const fedapayData = response.data;
-
       if (fedapayData.fedapay_subaccount_id && fedapayData.fedapay_meta && fedapayData.fedapay_meta.account_name) {
         const method = {
           id: 1,
@@ -627,12 +626,8 @@ class CoOwnerApiService {
           fedapay_meta: fedapayData.fedapay_meta,
           is_ready: fedapayData.is_ready || true
         };
-
-        console.log("[coOwnerApi.getWithdrawalMethods] method found =>", method);
         return [method];
       }
-
-      console.log("[coOwnerApi.getWithdrawalMethods] no method found");
       return [];
     } catch (error) {
       console.error('Error fetching withdrawal methods:', error);
@@ -672,14 +667,9 @@ class CoOwnerApiService {
         card_exp_month: data.card_exp_month || null,
         card_exp_year: data.card_exp_year || null,
       };
-
-      console.log("[coOwnerApi.createWithdrawalMethod] payload =>", data);
-      console.log("[coOwnerApi.createWithdrawalMethod] body =>", body);
-
       const response = await axios.post(`${API_BASE_URL}/co-owners/me/fedapay/subaccount`, body, {
         headers: this.getAuthHeaders(),
       });
-      console.log("[coOwnerApi.createWithdrawalMethod] success =>", response.data);
       return response.data;
     } catch (error) {
       console.error('Error creating withdrawal method:', error);
@@ -706,14 +696,9 @@ class CoOwnerApiService {
         card_exp_month: data.card_exp_month || null,
         card_exp_year: data.card_exp_year || null,
       };
-
-      console.log("[coOwnerApi.updateWithdrawalMethod] payload =>", data);
-      console.log("[coOwnerApi.updateWithdrawalMethod] body =>", body);
-
       const response = await axios.post(`${API_BASE_URL}/co-owners/me/fedapay/subaccount`, body, {
         headers: this.getAuthHeaders(),
       });
-      console.log("[coOwnerApi.updateWithdrawalMethod] success =>", response.data);
       return response.data;
     } catch (error) {
       console.error('Error updating withdrawal method:', error);

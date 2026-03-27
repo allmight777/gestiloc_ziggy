@@ -74,25 +74,39 @@ const TYPE_MAP: Record<string, string> = {
   other: "AUTRE",
 };
 
+
+
 const getBackendOrigin = () => {
   const baseURL = (api.defaults.baseURL || "").toString();
-  if (!baseURL) return window.location.origin;
+  if (!baseURL) return 'http://127.0.0.1:8000';
   try {
-    return new URL(baseURL).origin;
+    // Supprimer /api du chemin pour avoir la racine
+    const url = new URL(baseURL);
+    return `${url.protocol}//${url.host}`;
   } catch {
-    try {
-      return new URL(baseURL, window.location.origin).origin;
-    } catch {
-      return window.location.origin;
-    }
+    return 'http://127.0.0.1:8000';
   }
 };
 
 const resolvePhotoUrl = (p?: string | null) => {
   if (!p) return null;
+  
+  // Si c'est déjà une URL complète
   if (p.startsWith("http://") || p.startsWith("https://")) return p;
+  
   const origin = getBackendOrigin();
-  if (p.startsWith("/storage/")) return `${origin}${p}`;
+  
+  // Si le chemin commence déjà par /storage/
+  if (p.startsWith("/storage/")) {
+    return `${origin}${p}`;
+  }
+  
+  // Si le chemin commence par storage/ (sans slash)
+  if (p.startsWith("storage/")) {
+    return `${origin}/${p}`;
+  }
+  
+  // Pour les chemins relatifs normaux (ex: properties/photos/xxx.jpg)
   const normalized = p.replace(/\\/g, "/").replace(/^\/+/, "");
   return `${origin}/storage/${normalized}`;
 };
@@ -601,7 +615,7 @@ const EditPropertyModal: React.FC<{
     return errors;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!property) return;
 
@@ -609,89 +623,95 @@ const EditPropertyModal: React.FC<{
     setFormErrors(errors);
     
     if (Object.keys(errors).length > 0) {
-      const msg = Object.values(errors)[0] || "Veuillez vérifier le formulaire.";
-      notify?.(msg, "error");
-      return;
+        const msg = Object.values(errors)[0] || "Veuillez vérifier le formulaire.";
+        notify?.(msg, "error");
+        return;
     }
 
     setIsLoading(true);
 
     try {
-      // Préparer les données pour l'envoi
-      const payload: any = {
-        type: formData.property_type,
-        title: formData.name.trim(),
-        name: formData.name.trim(),
-        description: formData.description || null,
-        address: formData.address,
-        district: formData.district || null,
-        city: formData.city,
-        state: null,
-        zip_code: formData.zip_code || null,
-        latitude: null,
-        longitude: null,
-        surface: formData.surface ? parseFloat(formData.surface) : null,
-        room_count: formData.room_count ? parseInt(formData.room_count) : null,
-        bedroom_count: formData.bedroom_count ? parseInt(formData.bedroom_count) : null,
-        bathroom_count: formData.bathroom_count ? parseInt(formData.bathroom_count) : null,
-        wc_count: formData.wc_count ? parseInt(formData.wc_count) : null,
-        construction_year: formData.construction_year ? parseInt(formData.construction_year) : null,
-        total_floors: formData.total_floors ? parseInt(formData.total_floors) : null,
-        rent_amount: formData.rent_amount ? parseFloat(formData.rent_amount) : null,
-        charges_amount: formData.charges_amount ? parseFloat(formData.charges_amount) : null,
-        caution: formData.caution ? parseFloat(formData.caution) : null,
-        status: formData.status,
-        reference_code: formData.reference_code || null,
-        floor: formData.floor ? parseInt(formData.floor) : null,
-      };
+        // Récupérer les chemins relatifs des photos existantes conservées
+        const existingPhotoPaths = (property.photos || []);
+        const photosToKeep: string[] = [];
+        
+        // Pour chaque photo existante, vérifier si elle est toujours dans photos[]
+        existingPhotoPaths.forEach((photoPath: string) => {
+            const resolvedUrl = resolvePhotoUrl(photoPath);
+            if (resolvedUrl && photos.includes(resolvedUrl)) {
+                photosToKeep.push(photoPath);
+            }
+        });
 
+        // Utiliser formDataState au lieu de redéclarer formData
+        const payloadData: any = {
+            type: formData.property_type,
+            title: formData.name.trim(),
+            name: formData.name.trim(),
+            description: formData.description || null,
+            address: formData.address,
+            district: formData.district || null,
+            city: formData.city,
+            state: null,
+            zip_code: formData.zip_code || null,
+            latitude: null,
+            longitude: null,
+            surface: formData.surface ? parseFloat(formData.surface) : null,
+            room_count: formData.room_count ? parseInt(formData.room_count) : null,
+            bedroom_count: formData.bedroom_count ? parseInt(formData.bedroom_count) : null,
+            bathroom_count: formData.bathroom_count ? parseInt(formData.bathroom_count) : null,
+            wc_count: formData.wc_count ? parseInt(formData.wc_count) : null,
+            construction_year: formData.construction_year ? parseInt(formData.construction_year) : null,
+            total_floors: formData.total_floors ? parseInt(formData.total_floors) : null,
+            rent_amount: formData.rent_amount ? parseFloat(formData.rent_amount) : null,
+            charges_amount: formData.charges_amount ? parseFloat(formData.charges_amount) : null,
+            caution: formData.caution ? parseFloat(formData.caution) : null,
+            status: formData.status,
+            reference_code: formData.reference_code || null,
+            floor: formData.floor ? parseInt(formData.floor) : null,
+        };
+        
+        payloadData.photos_to_keep = photosToKeep;
 
-      // Calculer quelles photos originales ont été gardées
-      // photos[] contient les resolved URLs (absolues). property.photos contient les chemins relatifs.
-      // On reconstruit la liste des chemins relatifs à conserver.
-      const keepRelativePaths = (property.photos || []).filter((relativePath: string) => {
-        // Vérifier si l'URL résolue correspondant à ce chemin relatif est encore dans photos[]
-        const resolvedUrl = resolvePhotoUrl(relativePath);
-        return resolvedUrl !== null && photos.includes(resolvedUrl);
-      });
+        // Upload des nouvelles photos si nécessaire
+        if (newPhotos.length > 0) {
+            try {
+                const uploadedPaths = await uploadService.uploadMultiple(newPhotos, 'property_photo');
+                payloadData.photos = uploadedPaths;
+            } catch (uploadError) {
+                console.error("Erreur lors de l'upload des photos:", uploadError);
+                notify?.("Erreur lors du téléchargement des photos", "error");
+                setIsLoading(false);
+                return;
+            }
+        }
 
-      // Upload des nouvelles photos si nécessaire
-      let newUploadedPaths: string[] = [];
-      if (newPhotos.length > 0) {
-        newUploadedPaths = await uploadService.uploadMultiple(newPhotos, 'property_photo');
-      }
+        // Appeler l'API pour mettre à jour
+        await propertyService.updateProperty(property.id, payloadData);
 
-      // Fusionner: anciennes photos conservées + nouvelles uploadées
-      const finalPhotosPaths = [...keepRelativePaths, ...newUploadedPaths];
-      payload.photos = finalPhotosPaths.length > 0 ? finalPhotosPaths : [];
-
-      // Appeler l'API pour mettre à jour
-      await propertyService.updateProperty(property.id, payload);
-
-      notify?.("✅ Bien modifié avec succès !", "success");
-      onSuccess();
+        notify?.("✅ Bien modifié avec succès !", "success");
+        onSuccess();
     } catch (error: any) {
-      console.error("Erreur lors de la modification:", error);
-      
-      if (error.response?.status === 422 && error.response?.data?.errors) {
-        const be = error.response.data.errors;
-        const mapped: Record<string, string> = {};
-        if (be.title || be.name) mapped.name = (be.title?.[0] || be.name?.[0]) ?? "Titre invalide.";
-        if (be.surface) mapped.surface = be.surface?.[0] || "Surface invalide.";
-        if (be.address) mapped.address = be.address?.[0] || "Adresse invalide.";
-        if (be.city) mapped.city = be.city?.[0] || "Ville invalide.";
-        if (be.reference_code) mapped.reference_code = be.reference_code?.[0] || "Référence invalide.";
-        if (be.rent_amount) mapped.rent_amount = be.rent_amount?.[0] || "Loyer invalide.";
-        setFormErrors(mapped);
-        notify?.("Certains champs sont invalides.", "error");
-      } else {
-        notify?.(error.response?.data?.message || "Une erreur est survenue", "error");
-      }
+        console.error("Erreur lors de la modification:", error);
+        
+        if (error.response?.status === 422 && error.response?.data?.errors) {
+            const be = error.response.data.errors;
+            const mapped: Record<string, string> = {};
+            if (be.title || be.name) mapped.name = (be.title?.[0] || be.name?.[0]) ?? "Titre invalide.";
+            if (be.surface) mapped.surface = be.surface?.[0] || "Surface invalide.";
+            if (be.address) mapped.address = be.address?.[0] || "Adresse invalide.";
+            if (be.city) mapped.city = be.city?.[0] || "Ville invalide.";
+            if (be.reference_code) mapped.reference_code = be.reference_code?.[0] || "Référence invalide.";
+            if (be.rent_amount) mapped.rent_amount = be.rent_amount?.[0] || "Loyer invalide.";
+            setFormErrors(mapped);
+            notify?.("Certains champs sont invalides.", "error");
+        } else {
+            notify?.(error.response?.data?.message || "Une erreur est survenue", "error");
+        }
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
-  };
-
+};
   return (
     <div
       style={{

@@ -61,7 +61,7 @@ class PropertyController extends Controller
 </head>
 <body style="margin:0;padding:0;background:#f6f7fb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#111827;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f6f7fb;padding:24px 12px;">
-    <tr>
+     <tr>
       <td align="center">
         <table role="presentation" width="640" cellspacing="0" cellpadding="0" style="max-width:640px;width:100%;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 12px 30px rgba(17,24,39,0.08);">
           <tr>
@@ -231,8 +231,8 @@ HTML;
             }
 
             if ($field === 'photos') {
-                $before = is_array($before) ? 'Mis à jour' : ($before ?? '—');
-                $after = is_array($after) ? 'Mis à jour' : ($after ?? '—');
+                $before = is_array($before) ? count($before) . ' photo(s)' : ($before ?? '—');
+                $after = is_array($after) ? count($after) . ' photo(s)' : ($after ?? '—');
             }
 
             $items .= '<li style="margin-bottom:10px;">'
@@ -304,117 +304,98 @@ HTML;
         $this->sendHtmlEmail($to, $subject, $html);
     }
 
-/**
- * Récupère le locataire associé à une propriété
- */
-private function getTenantForProperty($propertyId)
-{
-    $assignment = DB::table('property_user')
-        ->where('property_id', $propertyId)
-        ->first();
+    private function getPhotoUrls(Property $property): array
+    {
+        $photos = $property->photos ?? [];
+        $urls = [];
 
-    if (!$assignment || !$assignment->tenant_id) {
-        return null;
+        foreach ($photos as $photo) {
+            if (filter_var($photo, FILTER_VALIDATE_URL)) {
+                $urls[] = $photo;
+            } else {
+                $urls[] = Storage::url($photo);
+            }
+        }
+
+        return $urls;
     }
 
-    $tenant = DB::table('tenants')
-        ->where('id', $assignment->tenant_id)
-        ->first();
+    public function index(Request $request)
+    {
+        try {
+            $landlord = $this->getLandlord();
 
-    return $tenant;
-}
+            $query = $landlord->properties()->getQuery();
 
-public function index(Request $request)
-{
-    try {
-        $landlord = $this->getLandlord();
-
-        $query = $landlord->properties()->getQuery();
-
-        if ($request->filled('city')) {
-            $query->where('city', 'like', "%{$request->city}%");
-        }
-
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filled('search')) {
-            $term = $request->search;
-            $query->where(function ($q) use ($term) {
-                $q->where('name', 'like', "%{$term}%")
-                    ->orWhere('address', 'like', "%{$term}%")
-                    ->orWhere('reference_code', 'like', "%{$term}%");
-            });
-        }
-
-        // ✅ CHARGER LES BAUX ACTIFS AVEC LES LOCATAIRES
-        $properties = $query->with(['leases' => function($q) {
-            $q->where('status', 'active')
-              ->with('tenant');
-        }])->latest()->paginate(10);
-
-        // 🔍 DEBUG - Voir ce qui est chargé
-        \Log::info('PROPERTIES WITH LEASES:', [
-            'total' => $properties->total(),
-            'first_property' => $properties->first()?->id,
-            'first_property_leases' => $properties->first()?->leases->toArray(),
-            'has_tenant' => $properties->first()?->leases->first()?->tenant ? 'oui' : 'non'
-        ]);
-
-        $transformedItems = [];
-
-        foreach ($properties->items() as $property) {
-            $activeLease = $property->leases->first();
-
-            $propertyArray = $property->toArray();
-
-            if ($activeLease && $activeLease->tenant) {
-                $propertyArray['tenant_id'] = $activeLease->tenant_id;
-                $propertyArray['tenant'] = [
-                    'id' => $activeLease->tenant->id,
-                    'first_name' => $activeLease->tenant->first_name,
-                    'last_name' => $activeLease->tenant->last_name,
-                    'email' => $activeLease->tenant->email ?? null,
-                    'phone' => $activeLease->tenant->phone ?? null,
-                ];
-
-                \Log::info('✅ Tenant ajouté pour propriété ' . $property->id, [
-                    'tenant_id' => $propertyArray['tenant_id']
-                ]);
-            } else {
-                $propertyArray['tenant_id'] = null;
-                $propertyArray['tenant'] = null;
-
-                \Log::info('❌ Pas de tenant pour propriété ' . $property->id, [
-                    'has_lease' => $activeLease ? 'oui' : 'non',
-                    'lease_status' => $activeLease?->status
-                ]);
+            if ($request->filled('city')) {
+                $query->where('city', 'like', "%{$request->city}%");
             }
 
-            $transformedItems[] = $propertyArray;
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+
+            if ($request->filled('search')) {
+                $term = $request->search;
+                $query->where(function ($q) use ($term) {
+                    $q->where('name', 'like', "%{$term}%")
+                        ->orWhere('address', 'like', "%{$term}%")
+                        ->orWhere('reference_code', 'like', "%{$term}%");
+                });
+            }
+
+            $properties = $query->with(['leases' => function($q) {
+                $q->where('status', 'active')->with('tenant');
+            }])->latest()->paginate(10);
+
+            $transformedItems = [];
+
+            foreach ($properties->items() as $property) {
+                $activeLease = $property->leases->first();
+
+                $propertyArray = $property->toArray();
+
+                // Ajouter les URLs complètes des photos
+                $propertyArray['photo_urls'] = $this->getPhotoUrls($property);
+
+                if ($activeLease && $activeLease->tenant) {
+                    $propertyArray['tenant_id'] = $activeLease->tenant_id;
+                    $propertyArray['tenant'] = [
+                        'id' => $activeLease->tenant->id,
+                        'first_name' => $activeLease->tenant->first_name,
+                        'last_name' => $activeLease->tenant->last_name,
+                        'email' => $activeLease->tenant->email ?? null,
+                        'phone' => $activeLease->tenant->phone ?? null,
+                    ];
+                } else {
+                    $propertyArray['tenant_id'] = null;
+                    $propertyArray['tenant'] = null;
+                }
+
+                $transformedItems[] = $propertyArray;
+            }
+
+            return response()->json([
+                'data' => $transformedItems,
+                'current_page' => $properties->currentPage(),
+                'last_page' => $properties->lastPage(),
+                'per_page' => $properties->perPage(),
+                'total' => $properties->total(),
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('ERREUR PropertyController:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'error' => 'Erreur lors du chargement',
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'data' => $transformedItems,
-            'current_page' => $properties->currentPage(),
-            'last_page' => $properties->lastPage(),
-            'per_page' => $properties->perPage(),
-            'total' => $properties->total(),
-        ]);
-
-    } catch (\Exception $e) {
-        \Log::error('ERREUR PropertyController:', [
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-
-        return response()->json([
-            'error' => 'Erreur lors du chargement',
-            'message' => $e->getMessage()
-        ], 500);
     }
-}
+
     public function store(StorePropertyRequest $request)
     {
         $data = $request->validated();
@@ -423,17 +404,23 @@ public function index(Request $request)
             $photos = [];
             foreach ($request->file('photos') as $photo) {
                 $path = $photo->store('properties/photos', 'public');
-                $photos[] = Storage::url($path);
+                $photos[] = $path; // Stocker le chemin relatif
             }
             $data['photos'] = $photos;
         }
 
         $property = $this->getLandlord()->properties()->create($data);
 
-        // ✅ Email confirmation bailleur
         $this->sendPropertyCreatedMail($property);
 
-        return new PropertyResource($property);
+        // Ajouter les URLs complètes des photos dans la réponse
+        $propertyArray = $property->toArray();
+        $propertyArray['photo_urls'] = $this->getPhotoUrls($property);
+
+        return response()->json([
+            'data' => $propertyArray,
+            'message' => 'Bien créé avec succès'
+        ]);
     }
 
     public function show($uuid)
@@ -443,41 +430,67 @@ public function index(Request $request)
             ->with(['leases.tenant'])
             ->firstOrFail();
 
-        return new PropertyResource($property);
+        $propertyArray = $property->toArray();
+        $propertyArray['photo_urls'] = $this->getPhotoUrls($property);
+
+        return response()->json(['data' => $propertyArray]);
     }
 
-    public function update(UpdatePropertyRequest $request, $uuid)
-    {
-        $property = $this->getLandlord()->properties()->where('uuid', $uuid)->firstOrFail();
+ public function update(UpdatePropertyRequest $request, $uuid)
+{
+    $property = $this->getLandlord()->properties()->where('uuid', $uuid)->firstOrFail();
 
-        $data = $request->validated();
+    $data = $request->validated();
 
-        if (isset($data['status']) && $data['status'] === 'maintenance') {
-            if ($property->leases()->where('status', 'active')->exists()) {
-                return response()->json(['message' => 'Impossible de passer en maintenance : un bail est en cours.'], 409);
-            }
-        }
-
-        $before = $property->getOriginal();
-
-        $property->update($data);
-
-        $dirty = array_keys($property->getChanges());
-        $changes = [];
-
-        foreach ($dirty as $field) {
-            $changes[$field] = [
-                'before' => $before[$field] ?? null,
-                'after' => $property->{$field},
-            ];
-        }
-
-        if (!empty($changes)) {
-            $this->sendPropertyUpdatedMail($property, $changes);
-        }
-
-        return new PropertyResource($property);
+    // Gestion des photos existantes à conserver
+    if ($request->has('photos_to_keep')) {
+        $photosToKeep = json_decode($request->input('photos_to_keep'), true);
+        $data['photos'] = $photosToKeep;
     }
+
+    // Gestion des nouvelles photos uploadées
+    if ($request->hasFile('new_photos')) {
+        $newPhotos = [];
+        foreach ($request->file('new_photos') as $photo) {
+            $path = $photo->store('properties/photos', 'public');
+            $newPhotos[] = $path;
+        }
+
+        $existingPhotos = $data['photos'] ?? $property->photos ?? [];
+        $data['photos'] = array_merge($existingPhotos, $newPhotos);
+    }
+
+    if (isset($data['status']) && $data['status'] === 'maintenance') {
+        if ($property->leases()->where('status', 'active')->exists()) {
+            return response()->json(['message' => 'Impossible de passer en maintenance : un bail est en cours.'], 409);
+        }
+    }
+
+    $before = $property->getOriginal();
+    $property->update($data);
+
+    $dirty = array_keys($property->getChanges());
+    $changes = [];
+
+    foreach ($dirty as $field) {
+        $changes[$field] = [
+            'before' => $before[$field] ?? null,
+            'after' => $property->{$field},
+        ];
+    }
+
+    if (!empty($changes)) {
+        $this->sendPropertyUpdatedMail($property, $changes);
+    }
+
+    $propertyArray = $property->toArray();
+    $propertyArray['photo_urls'] = $this->getPhotoUrls($property);
+
+    return response()->json([
+        'data' => $propertyArray,
+        'message' => 'Bien mis à jour avec succès'
+    ]);
+}
 
     public function destroy($uuid)
     {
@@ -491,7 +504,6 @@ public function index(Request $request)
 
         $property->delete();
 
-        // ✅ Email confirmation bailleur
         $this->sendPropertyDeletedMail($property);
 
         return response()->json(['message' => 'Bien archivé avec succès']);

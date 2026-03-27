@@ -612,7 +612,7 @@
     </form>
 </div>
 
-@push('scripts')
+
 <script>
 // Gestion des photos
 let photoFiles = [];
@@ -620,17 +620,76 @@ let photoPreviews = [];
 const MAX_PHOTOS = 8;
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
-document.getElementById('photo-input').addEventListener('change', function(e) {
-    const files = Array.from(e.target.files);
+// Éléments DOM
+const photoInput = document.getElementById('photo-input');
+const photosContainer = document.getElementById('photos-preview');
+const emptyMsg = document.getElementById('photos-empty');
 
-    if (photoFiles.length + files.length > MAX_PHOTOS) {
-        alert(`Vous ne pouvez pas ajouter plus de ${MAX_PHOTOS} photos`);
-        return;
+function updatePhotosRemaining() {
+    const remaining = MAX_PHOTOS - photoFiles.length;
+    const remainingElement = document.getElementById('photos-remaining');
+    if (remainingElement) {
+        remainingElement.textContent = remaining;
     }
+}
+
+function renderPhotos() {
+    if (!photosContainer) return;
+
+    photosContainer.innerHTML = '';
+
+    if (photoPreviews.length === 0) {
+        if (emptyMsg) emptyMsg.style.display = 'block';
+    } else {
+        if (emptyMsg) emptyMsg.style.display = 'none';
+    }
+
+    photoPreviews.forEach((src, index) => {
+        const div = document.createElement('div');
+        div.className = 'ab-thumb';
+        div.innerHTML = `
+            <img src="${src}" alt="Photo ${index + 1}">
+            <button type="button" class="ab-thumb-remove" data-index="${index}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+            </button>
+        `;
+        photosContainer.appendChild(div);
+    });
+
+    // Attacher les événements de suppression
+    document.querySelectorAll('.ab-thumb-remove').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const index = parseInt(this.getAttribute('data-index'));
+            removePhoto(index);
+        });
+    });
+
+    updatePhotosRemaining();
+}
+
+function removePhoto(index) {
+    photoFiles.splice(index, 1);
+    photoPreviews.splice(index, 1);
+    renderPhotos();
+}
+
+function addPhotos(files) {
+    const remainingSlots = MAX_PHOTOS - photoFiles.length;
+
+    if (files.length > remainingSlots) {
+        alert(`Vous ne pouvez ajouter que ${remainingSlots} photo(s) supplémentaire(s). Maximum ${MAX_PHOTOS} photos au total.`);
+        files = files.slice(0, remainingSlots);
+    }
+
+    if (files.length === 0) return;
 
     files.forEach(file => {
         if (file.size > MAX_SIZE) {
-            alert(`Le fichier ${file.name} dépasse 5MB`);
+            alert(`Le fichier ${file.name} dépasse 5MB. Il ne sera pas ajouté.`);
             return;
         }
 
@@ -643,53 +702,46 @@ document.getElementById('photo-input').addEventListener('change', function(e) {
         };
         reader.readAsDataURL(file);
     });
-
-    e.target.value = '';
-    updatePhotosRemaining();
-});
-
-function removePhoto(index) {
-    photoFiles.splice(index, 1);
-    photoPreviews.splice(index, 1);
-    renderPhotos();
-    updatePhotosRemaining();
 }
 
-function updatePhotosRemaining() {
-    const remaining = MAX_PHOTOS - photoFiles.length;
-    const remainingElement = document.getElementById('photos-remaining');
-    if (remainingElement) {
-        remainingElement.textContent = remaining;
-    }
-}
-
-function renderPhotos() {
-    const container = document.getElementById('photos-preview');
-    const emptyMsg = document.getElementById('photos-empty');
-    container.innerHTML = '';
-
-    if (photoPreviews.length === 0) {
-        emptyMsg.style.display = 'block';
-    } else {
-        emptyMsg.style.display = 'none';
-    }
-
-    photoPreviews.forEach((src, index) => {
-        const div = document.createElement('div');
-        div.className = 'ab-thumb';
-        div.innerHTML = `
-            <img src="${src}" alt="Photo ${index + 1}">
-            <button type="button" class="ab-thumb-remove" onclick="removePhoto(${index})">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 6L6 18M6 6l12 12"/>
-                </svg>
-            </button>
-        `;
-        container.appendChild(div);
+// Gestionnaire de changement de fichier
+if (photoInput) {
+    photoInput.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            addPhotos(files);
+        }
+        // Réinitialiser l'input pour permettre de sélectionner à nouveau les mêmes fichiers
+        e.target.value = '';
     });
+}
 
-    // Mettre à jour le compteur
-    updatePhotosRemaining();
+// CRUCIAL: Ajouter les photos au formulaire avant la soumission
+const propertyForm = document.getElementById('property-form');
+if (propertyForm) {
+    propertyForm.addEventListener('submit', function(e) {
+        // Supprimer les anciens champs photos s'ils existent
+        const existingPhotoInputs = document.querySelectorAll('input[name="photos[]"]');
+        existingPhotoInputs.forEach(input => input.remove());
+
+        // Ajouter chaque fichier photo comme un champ séparé
+        photoFiles.forEach((file, index) => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.name = 'photos[]';
+            input.style.display = 'none';
+
+            // Créer un DataTransfer pour ajouter le fichier
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            input.files = dataTransfer.files;
+
+            propertyForm.appendChild(input);
+        });
+
+        // Si aucun fichier, on ne fait rien de spécial
+        console.log(`Soumission du formulaire avec ${photoFiles.length} photos`);
+    });
 }
 
 // Empêcher la soumission du formulaire avec Enter
@@ -702,7 +754,20 @@ document.addEventListener('keypress', function(e) {
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
     updatePhotosRemaining();
+
+    // Si des photos existent déjà (en cas d'erreur de validation)
+    // vous pouvez les charger ici depuis old('photos')
+    const oldPhotos = @json(old('photos'));
+    if (oldPhotos && oldPhotos.length > 0) {
+        // Gérer les anciennes photos si nécessaire
+        console.log('Anciennes photos:', oldPhotos);
+    }
 });
+
+// Fonction pour aller vers React (gardée telle quelle)
+function goToReact(path) {
+    window.location.href = path;
+}
 </script>
-@endpush
+
 @endsection

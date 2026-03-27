@@ -814,7 +814,7 @@
                     <line x1="3" y1="18" x2="21" y2="18"/>
                 </svg>
             </button>
-            <span class="header-logo">Gestiloc</span>
+            <span class="header-logo"></span>
         </div>
 
         <div class="header-right">

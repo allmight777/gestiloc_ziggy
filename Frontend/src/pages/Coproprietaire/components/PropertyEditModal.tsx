@@ -23,6 +23,26 @@ interface PropertyEditModalProps {
   onUpdate: () => void;
 }
 
+const getBackendOrigin = () => {
+  const baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+  if (!baseURL) return 'http://127.0.0.1:8000';
+  try {
+    const url = new URL(baseURL);
+    return `${url.protocol}//${url.host}`;
+  } catch {
+    return 'http://127.0.0.1:8000';
+  }
+};
+
+const resolvePhotoUrl = (p?: string | null) => {
+  if (!p) return null;
+  if (p.startsWith("http://") || p.startsWith("https://")) return p;
+  const origin = getBackendOrigin();
+  if (p.startsWith("/storage/")) return `${origin}${p}`;
+  const normalized = p.replace(/\\/g, "/").replace(/^\/+/, "");
+  return `${origin}/storage/${normalized}`;
+};
+
 const inputStyle: React.CSSProperties = {
   width: "100%",
   padding: "0.65rem 0.85rem",
@@ -72,6 +92,11 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
   useEffect(() => {
     if (property) {
+      console.log('=== PROPERTY REÇUE DANS MODAL ===');
+      console.log('Property:', property);
+      console.log('Property.photos:', property.photos);
+      console.log('Property.photo_urls:', property.photo_urls);
+      
       setFormData({
         type: property.property_type || property.type || "apartment",
         name: property.name || property.title || "",
@@ -92,12 +117,18 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
         floor: property.floor || "",
       });
 
-      // Photos
-      if (property.photos && property.photos.length > 0) {
-        const photoUrls = property.photos.map((photo: string) => 
-          photo.startsWith('http') ? photo : `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'}/storage/${photo}`
-        );
+      // Photos - Utiliser photo_urls d'abord, sinon photos
+      if (property.photo_urls && property.photo_urls.length > 0) {
+        console.log('Utilisation de photo_urls:', property.photo_urls);
+        setPhotos(property.photo_urls);
+      } else if (property.photos && property.photos.length > 0) {
+        console.log('Utilisation de photos (relatives):', property.photos);
+        const photoUrls = property.photos.map((photo: string) => resolvePhotoUrl(photo) || photo);
+        console.log('URLs résolues:', photoUrls);
         setPhotos(photoUrls);
+      } else {
+        console.log('Aucune photo trouvée');
+        setPhotos([]);
       }
     }
   }, [property]);
@@ -129,6 +160,7 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
     }
 
     const newFiles = fileArray.slice(0, maxPhotos);
+    console.log('Nouvelles photos ajoutées:', newFiles.map(f => f.name));
     setNewPhotos(prev => [...prev, ...newFiles]);
 
     const newPreviews = newFiles.map(file => URL.createObjectURL(file));
@@ -167,81 +199,121 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
     e.preventDefault();
     if (!property) return;
 
+    console.log('=== DÉBUT DE LA MODIFICATION ===');
+    console.log('Property ID:', property.id);
+    console.log('Photos actuelles (state):', photos);
+    console.log('Nouvelles photos (files):', newPhotos.map(f => f.name));
+    console.log('FormData actuel:', formData);
+
     const errors = validate();
     setFormErrors(errors);
     
     if (Object.keys(errors).length > 0) {
-      const msg = Object.values(errors)[0] || "Veuillez vérifier le formulaire.";
-      notify(msg, "error");
-      return;
+        const msg = Object.values(errors)[0] || "Veuillez vérifier le formulaire.";
+        notify(msg, "error");
+        return;
     }
 
     setIsLoading(true);
 
     try {
-      // Préparer les données pour l'envoi
-      const payload: any = {
-        type: formData.type,
-        title: formData.name.trim(),
-        name: formData.name.trim(),
-        description: formData.description || null,
-        address: formData.address,
-        district: formData.district || null,
-        city: formData.city,
-        state: null,
-        zip_code: formData.zip_code || null,
-        latitude: null,
-        longitude: null,
-        surface: formData.surface ? parseFloat(formData.surface) : null,
-        room_count: formData.room_count ? parseInt(formData.room_count) : null,
-        bedroom_count: formData.bedroom_count ? parseInt(formData.bedroom_count) : null,
-        bathroom_count: formData.bathroom_count ? parseInt(formData.bathroom_count) : null,
-        rent_amount: formData.rent_amount ? parseFloat(formData.rent_amount) : null,
-        charges_amount: formData.charges_amount ? parseFloat(formData.charges_amount) : null,
-        caution: formData.caution ? parseFloat(formData.caution) : null,
-        status: formData.status,
-        reference_code: formData.reference_code || null,
-        meta: {
-          floor: formData.floor ? parseInt(formData.floor) : undefined,
-        },
-      };
-
-      // Upload des nouvelles photos si nécessaire
-      if (newPhotos.length > 0) {
-        const formDataPhotos = new FormData();
-        newPhotos.forEach(file => {
-          formDataPhotos.append('photos[]', file);
+        // Préparer les données pour l'envoi
+        const formDataToSend = new FormData();
+        
+        // Ajouter les champs texte
+        formDataToSend.append('type', formData.type || 'apartment');
+        formDataToSend.append('title', (formData.name || '').trim());
+        formDataToSend.append('name', (formData.name || '').trim());
+        if (formData.description) formDataToSend.append('description', formData.description);
+        formDataToSend.append('address', formData.address || '');
+        if (formData.district) formDataToSend.append('district', formData.district);
+        formDataToSend.append('city', formData.city || '');
+        if (formData.zip_code) formDataToSend.append('zip_code', formData.zip_code);
+        if (formData.surface) formDataToSend.append('surface', formData.surface);
+        if (formData.floor) formDataToSend.append('floor', formData.floor);
+        if (formData.total_floors) formDataToSend.append('total_floors', formData.total_floors);
+        if (formData.room_count) formDataToSend.append('room_count', formData.room_count);
+        if (formData.bedroom_count) formDataToSend.append('bedroom_count', formData.bedroom_count);
+        if (formData.bathroom_count) formDataToSend.append('bathroom_count', formData.bathroom_count);
+        if (formData.wc_count) formDataToSend.append('wc_count', formData.wc_count);
+        if (formData.construction_year) formDataToSend.append('construction_year', formData.construction_year);
+        if (formData.rent_amount) formDataToSend.append('rent_amount', formData.rent_amount);
+        if (formData.charges_amount) formDataToSend.append('charges_amount', formData.charges_amount);
+        if (formData.caution) formDataToSend.append('caution', formData.caution);
+        formDataToSend.append('status', formData.status || 'available');
+        if (formData.reference_code) formDataToSend.append('reference_code', formData.reference_code);
+        
+        // Ajouter les photos existantes à conserver
+        const existingPhotoPaths = (property.photos || []);
+        const photosToKeep: string[] = [];
+        
+        console.log('Photos existantes dans property:', existingPhotoPaths);
+        console.log('Photos dans le state (URLs):', photos);
+        
+        existingPhotoPaths.forEach((photoPath: string) => {
+            const resolvedUrl = resolvePhotoUrl(photoPath);
+            console.log(`Comparaison: ${resolvedUrl} === ${photos.includes(resolvedUrl)}`);
+            if (resolvedUrl && photos.includes(resolvedUrl)) {
+                photosToKeep.push(photoPath);
+            }
         });
-        // Ici, appelez votre service d'upload
-        // const uploadRes = await uploadService.uploadMultiple(formDataPhotos);
-        // payload.photos = uploadRes.paths;
-      }
+        
+        console.log('Photos à conserver:', photosToKeep);
+        formDataToSend.append('photos_to_keep', JSON.stringify(photosToKeep));
+        
+        // Ajouter les nouvelles photos
+        console.log('Nouvelles photos à uploader:', newPhotos.length);
+        newPhotos.forEach((photo, index) => {
+            console.log(`Ajout photo ${index}:`, photo.name);
+            formDataToSend.append('new_photos[]', photo);
+        });
 
-      // Appeler l'API pour mettre à jour
-      await coOwnerApi.updateProperty(property.id, payload);
+        // Debug: Afficher le contenu du FormData
+        console.log('=== CONTENU DU FORMDATA À ENVOYER ===');
+        for (let pair of formDataToSend.entries()) {
+            if (pair[0] === 'new_photos[]') {
+                console.log(pair[0], 'FILE:', (pair[1] as File).name);
+            } else {
+                console.log(pair[0], pair[1]);
+            }
+        }
 
-      notify("✅ Bien modifié avec succès !", "success");
-      onUpdate();
-      onClose();
+        // Appeler l'API pour mettre à jour avec FormData
+        const token = localStorage.getItem('token');
+        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+        
+        console.log('Envoi de la requête à:', `${API_BASE_URL}/co-owners/me/properties/${property.id}`);
+        
+        const response = await fetch(`${API_BASE_URL}/co-owners/me/properties/${property.id}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json',
+            },
+            body: formDataToSend
+        });
+
+        console.log('Statut de la réponse:', response.status);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Erreur réponse:', errorData);
+            throw new Error(errorData.message || 'Erreur lors de la mise à jour');
+        }
+
+        const result = await response.json();
+        console.log('=== RÉPONSE DU SERVEUR ===');
+        console.log('Réponse complète:', result);
+        console.log('Photo URLs dans la réponse:', result.data?.photo_urls);
+        
+        notify("✅ Bien modifié avec succès !", "success");
+        onUpdate();
+        onClose();
     } catch (error: any) {
-      console.error("Erreur lors de la modification:", error);
-      
-      if (error.response?.status === 422 && error.response?.data?.errors) {
-        const be = error.response.data.errors;
-        const mapped: Record<string, string> = {};
-        if (be.title || be.name) mapped.name = (be.title?.[0] || be.name?.[0]) ?? "Titre invalide.";
-        if (be.surface) mapped.surface = be.surface?.[0] || "Surface invalide.";
-        if (be.address) mapped.address = be.address?.[0] || "Adresse invalide.";
-        if (be.city) mapped.city = be.city?.[0] || "Ville invalide.";
-        if (be.reference_code) mapped.reference_code = be.reference_code?.[0] || "Référence invalide.";
-        if (be.rent_amount) mapped.rent_amount = be.rent_amount?.[0] || "Loyer invalide.";
-        setFormErrors(mapped);
-        notify("Certains champs sont invalides.", "error");
-      } else {
-        notify(error.response?.data?.message || "Une erreur est survenue", "error");
-      }
+        console.error("Erreur lors de la modification:", error);
+        notify(error.message || "Une erreur est survenue", "error");
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
   };
 
@@ -338,7 +410,16 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                   src={photos[0]}
                   alt="Photo principale"
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  onError={() => {}}
+                  onError={(e) => {
+                    console.error('Erreur chargement image:', photos[0]);
+                    const img = e.currentTarget;
+                    img.style.display = "none";
+                    const parent = img.parentElement;
+                    if (parent) {
+                      const fallback = parent.querySelector('.photo-fallback');
+                      if (fallback) fallback.setAttribute('style', 'display: flex');
+                    }
+                  }}
                 />
               ) : photoPreviews.length > 0 ? (
                 <img
@@ -347,8 +428,17 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               ) : (
-                <ImageIcon size={48} color="#b0b5c0" />
+                <div className="photo-fallback flex flex-col items-center justify-center">
+                  <ImageIcon size={48} color="#b0b5c0" />
+                  <p className="text-xs text-gray-400 mt-2">Aucune photo</p>
+                </div>
               )}
+              
+              {/* Fallback when no photo */}
+              <div className="photo-fallback absolute inset-0 bg-gradient-to-br from-green-50 to-green-100 flex flex-col items-center justify-center" style={{ display: photos.length === 0 && photoPreviews.length === 0 ? 'flex' : 'none' }}>
+                <ImageIcon size={48} color="#9ca3af" />
+                <p className="text-xs text-gray-400 mt-2">Aucune photo</p>
+              </div>
 
               <span
                 style={{
@@ -396,12 +486,10 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
               </label>
             </div>
 
-            {/* Grille 2 colonnes */}
+            {/* Le reste du formulaire reste identique */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-
               {/* COLONNE GAUCHE */}
               <div>
-                {/* INFORMATIONS GÉNÉRALES */}
                 <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#70AE48", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 8px" }}>
                   INFORMATIONS GÉNÉRALES
                 </p>
@@ -409,12 +497,7 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
                   <div>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Type</label>
-                    <select
-                      name="type"
-                      value={formData.type}
-                      onChange={handleChange}
-                      style={inputStyle}
-                    >
+                    <select name="type" value={formData.type} onChange={handleChange} style={inputStyle}>
                       <option value="apartment">Appartement</option>
                       <option value="house">Maison</option>
                       <option value="office">Bureau</option>
@@ -425,12 +508,7 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                   </div>
                   <div>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Statut</label>
-                    <select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleChange}
-                      style={inputStyle}
-                    >
+                    <select name="status" value={formData.status} onChange={handleChange} style={inputStyle}>
                       <option value="available">Disponible</option>
                       <option value="rented">Loué</option>
                       <option value="maintenance">En maintenance</option>
@@ -441,157 +519,71 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                 <div style={{ marginBottom: 14 }}>
                   <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Nom du bien</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Ex: Appartement T3 centre-ville"
-                    style={inputStyle}
-                  />
+                  <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Ex: Appartement T3 centre-ville" style={inputStyle} />
                   {formErrors.name && <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "#dc2626", marginTop: 2, display: "block" }}>{formErrors.name}</span>}
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
                   <div>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Surface (m²)</label>
-                    <input
-                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      name="surface"
-                      value={formData.surface}
-                      onChange={handleChange}
-                      placeholder="Ex: 65"
-                      style={inputStyle}
-                      min="0"
-                      step="0.01"
-                    />
+                    <input type="text" inputMode="numeric" name="surface" value={formData.surface} onChange={handleChange} placeholder="Ex: 65" style={inputStyle} min="0" step="0.01" />
                     {formErrors.surface && <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "#dc2626", marginTop: 2, display: "block" }}>{formErrors.surface}</span>}
                   </div>
                   <div>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Référence</label>
-                    <input
-                      type="text"
-                      name="reference_code"
-                      value={formData.reference_code}
-                      onChange={(e) => {
-                        const v = e.target.value.toUpperCase();
-                        setFormData((p: any) => ({ ...p, reference_code: v }));
-                      }}
-                      placeholder="Ex: APP-123"
-                      style={inputStyle}
-                    />
+                    <input type="text" name="reference_code" value={formData.reference_code} onChange={(e) => { const v = e.target.value.toUpperCase(); setFormData((p: any) => ({ ...p, reference_code: v })); }} placeholder="Ex: APP-123" style={inputStyle} />
                   </div>
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
                   <div>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Étage</label>
-                    <input
-                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      name="floor"
-                      value={formData.floor}
-                      onChange={handleChange}
-                      placeholder="Ex: 3"
-                      style={inputStyle}
-                      min="0"
-                    />
+                    <input type="text" inputMode="numeric" name="floor" value={formData.floor} onChange={handleChange} placeholder="Ex: 3" style={inputStyle} min="0" />
                   </div>
                   <div>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Chambres</label>
-                    <input
-                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      name="bedroom_count"
-                      value={formData.bedroom_count}
-                      onChange={handleChange}
-                      placeholder="Ex: 3"
-                      style={inputStyle}
-                      min="0"
-                    />
+                    <input type="text" inputMode="numeric" name="bedroom_count" value={formData.bedroom_count} onChange={handleChange} placeholder="Ex: 3" style={inputStyle} min="0" />
                   </div>
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
                   <div>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Salles de bain</label>
-                    <input
-                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      name="bathroom_count"
-                      value={formData.bathroom_count}
-                      onChange={handleChange}
-                      placeholder="Ex: 2"
-                      style={inputStyle}
-                      min="0"
-                    />
+                    <input type="text" inputMode="numeric" name="bathroom_count" value={formData.bathroom_count} onChange={handleChange} placeholder="Ex: 2" style={inputStyle} min="0" />
                   </div>
                   <div>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Pièces totales</label>
-                    <input
-                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      name="room_count"
-                      value={formData.room_count}
-                      onChange={handleChange}
-                      placeholder="Ex: 4"
-                      style={inputStyle}
-                      min="0"
-                    />
+                    <input type="text" inputMode="numeric" name="room_count" value={formData.room_count} onChange={handleChange} placeholder="Ex: 4" style={inputStyle} min="0" />
                   </div>
                 </div>
 
                 <div style={{ marginBottom: 0 }}>
                   <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Description</label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    placeholder="Décrivez le bien (optionnel)…"
-                    style={{ ...inputStyle, minHeight: 100, resize: "vertical" }}
-                  />
+                  <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Décrivez le bien (optionnel)…" style={{ ...inputStyle, minHeight: 100, resize: "vertical" }} />
                 </div>
               </div>
 
               {/* COLONNE DROITE */}
               <div>
-                {/* ADRESSE */}
                 <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#70AE48", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 8px" }}>
                   ADRESSE
                 </p>
 
                 <div style={{ marginBottom: 14 }}>
                   <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Adresse</label>
-                  <input
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    placeholder="N° et nom de la rue"
-                    style={inputStyle}
-                  />
+                  <input type="text" name="address" value={formData.address} onChange={handleChange} placeholder="N° et nom de la rue" style={inputStyle} />
                   {formErrors.address && <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "#dc2626", marginTop: 2, display: "block" }}>{formErrors.address}</span>}
                 </div>
 
                 <div style={{ marginBottom: 14 }}>
                   <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Ville</label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    placeholder="Ex: Cotonou"
-                    style={inputStyle}
-                  />
+                  <input type="text" name="city" value={formData.city} onChange={handleChange} placeholder="Ex: Cotonou" style={inputStyle} />
                   {formErrors.city && <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "#dc2626", marginTop: 2, display: "block" }}>{formErrors.city}</span>}
                 </div>
 
                 <div style={{ marginBottom: 0 }}>
                   <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Quartier / Arrondissement</label>
-                  <input
-                    type="text"
-                    name="district"
-                    value={formData.district}
-                    onChange={handleChange}
-                    placeholder="Ex: Fidjrossè"
-                    style={inputStyle}
-                  />
+                  <input type="text" name="district" value={formData.district} onChange={handleChange} placeholder="Ex: Fidjrossè" style={inputStyle} />
                 </div>
 
                 {/* FINANCES */}
@@ -611,29 +603,13 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                   <div style={{ marginBottom: 14 }}>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Loyer hors charges (FCFA)</label>
-                    <input
-                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      name="rent_amount"
-                      value={formData.rent_amount}
-                      onChange={handleChange}
-                      style={{ ...inputStyle, border: "1.5px solid #ffcc80" }}
-                      min="0"
-                      step="0.01"
-                    />
+                    <input type="text" inputMode="numeric" name="rent_amount" value={formData.rent_amount} onChange={handleChange} style={{ ...inputStyle, border: "1.5px solid #ffcc80" }} min="0" step="0.01" />
                     {formErrors.rent_amount && <span style={{ fontSize: "0.7rem", fontWeight: 600, color: "#dc2626", marginTop: 2, display: "block" }}>{formErrors.rent_amount}</span>}
                   </div>
 
                   <div style={{ marginBottom: 14 }}>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Charges locatives (FCFA)</label>
-                    <input
-                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      name="charges_amount"
-                      value={formData.charges_amount}
-                      onChange={handleChange}
-                      style={{ ...inputStyle, border: "1.5px solid #ffcc80" }}
-                      min="0"
-                      step="0.01"
-                    />
+                    <input type="text" inputMode="numeric" name="charges_amount" value={formData.charges_amount} onChange={handleChange} style={{ ...inputStyle, border: "1.5px solid #ffcc80" }} min="0" step="0.01" />
                     <span style={{ fontSize: "0.7rem", color: "#9ca3af", fontWeight: 500, fontStyle: "italic", marginTop: 2, display: "block" }}>
                       Charges mensuelles (eau, électricité, entretien...)
                     </span>
@@ -641,15 +617,7 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                   <div>
                     <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", display: "block", marginBottom: 4 }}>Caution / Dépôt de garantie (FCFA)</label>
-                    <input
-                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      name="caution"
-                      value={formData.caution}
-                      onChange={handleChange}
-                      style={{ ...inputStyle, border: "1.5px solid #ffcc80" }}
-                      min="0"
-                      step="0.01"
-                    />
+                    <input type="text" inputMode="numeric" name="caution" value={formData.caution} onChange={handleChange} style={{ ...inputStyle, border: "1.5px solid #ffcc80" }} min="0" step="0.01" />
                     <span style={{ fontSize: "0.7rem", color: "#9ca3af", fontWeight: 500, fontStyle: "italic", marginTop: 2, display: "block" }}>
                       Montant du dépôt de garantie demandé au locataire
                     </span>
@@ -665,57 +633,18 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                   AUTRES PHOTOS
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-                  {/* Photos existantes (sauf la première) */}
                   {photos.slice(1).map((src, index) => (
                     <div key={`existing-${index}`} style={{ position: "relative", width: 100, height: 80, borderRadius: 8, overflow: "hidden" }}>
                       <img src={src} alt={`Photo ${index + 2}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      <button
-                        type="button"
-                        onClick={() => handleRemovePhoto(index + 1, false)}
-                        style={{
-                          position: "absolute",
-                          top: 4,
-                          right: 4,
-                          background: "rgba(239,68,68,0.9)",
-                          border: "none",
-                          borderRadius: "50%",
-                          width: 20,
-                          height: 20,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          cursor: "pointer",
-                          color: "white",
-                        }}
-                      >
+                      <button type="button" onClick={() => handleRemovePhoto(index + 1, false)} style={{ position: "absolute", top: 4, right: 4, background: "rgba(239,68,68,0.9)", border: "none", borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white" }}>
                         <X size={12} />
                       </button>
                     </div>
                   ))}
-                  
-                  {/* Nouvelles photos */}
                   {photoPreviews.map((src, index) => (
                     <div key={`new-${index}`} style={{ position: "relative", width: 100, height: 80, borderRadius: 8, overflow: "hidden" }}>
                       <img src={src} alt={`Nouvelle ${index + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      <button
-                        type="button"
-                        onClick={() => handleRemovePhoto(index, true)}
-                        style={{
-                          position: "absolute",
-                          top: 4,
-                          right: 4,
-                          background: "rgba(239,68,68,0.9)",
-                          border: "none",
-                          borderRadius: "50%",
-                          width: 20,
-                          height: 20,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          cursor: "pointer",
-                          color: "white",
-                        }}
-                      >
+                      <button type="button" onClick={() => handleRemovePhoto(index, true)} style={{ position: "absolute", top: 4, right: 4, background: "rgba(239,68,68,0.9)", border: "none", borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "white" }}>
                         <X size={12} />
                       </button>
                     </div>
@@ -733,43 +662,10 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
               justifyContent: "flex-end",
               gap: 10,
             }}>
-              <button
-                type="button"
-                onClick={onClose}
-                style={{
-                  padding: "10px 22px",
-                  borderRadius: 10,
-                  border: "1.5px solid #d1d5db",
-                  background: "#fff",
-                  fontFamily: "'Manrope', sans-serif",
-                  fontSize: "0.82rem",
-                  fontWeight: 700,
-                  color: "#374151",
-                  cursor: "pointer",
-                }}
-                disabled={isLoading}
-              >
+              <button type="button" onClick={onClose} style={{ padding: "10px 22px", borderRadius: 10, border: "1.5px solid #d1d5db", background: "#fff", fontFamily: "'Manrope', sans-serif", fontSize: "0.82rem", fontWeight: 700, color: "#374151", cursor: "pointer" }} disabled={isLoading}>
                 Annuler
               </button>
-              <button
-                type="submit"
-                style={{
-                  padding: "10px 22px",
-                  borderRadius: 10,
-                  border: "none",
-                  background: "linear-gradient(135deg, #70AE48 0%, #8BC34A 100%)",
-                  fontFamily: "'Manrope', sans-serif",
-                  fontSize: "0.82rem",
-                  fontWeight: 700,
-                  color: "#fff",
-                  cursor: "pointer",
-                  boxShadow: "0 4px 14px rgba(112,174,72,0.25)",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                }}
-                disabled={isLoading}
-              >
+              <button type="submit" style={{ padding: "10px 22px", borderRadius: 10, border: "none", background: "linear-gradient(135deg, #70AE48 0%, #8BC34A 100%)", fontFamily: "'Manrope', sans-serif", fontSize: "0.82rem", fontWeight: 700, color: "#fff", cursor: "pointer", boxShadow: "0 4px 14px rgba(112,174,72,0.25)", display: "flex", alignItems: "center", gap: 6 }} disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 size={14} className="animate-spin" />

@@ -37,16 +37,13 @@ const TYPE_MAP: Record<string, string> = {
 };
 
 const getBackendOrigin = () => {
-  const baseURL = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').toString();
-  if (!baseURL) return window.location.origin;
+  const baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+  if (!baseURL) return 'http://127.0.0.1:8000';
   try {
-    return new URL(baseURL).origin;
+    const url = new URL(baseURL);
+    return `${url.protocol}//${url.host}`;
   } catch {
-    try {
-      return new URL(baseURL, window.location.origin).origin;
-    } catch {
-      return window.location.origin;
-    }
+    return 'http://127.0.0.1:8000';
   }
 };
 
@@ -73,19 +70,20 @@ export const DelegatedProperties: React.FC<DelegatedPropertiesProps> = ({ onNavi
     fetchProperties();
   }, []);
 
-  const fetchProperties = async () => {
+const fetchProperties = async () => {
     try {
-      setLoading(true);
-      const data = await coOwnerApi.getDelegatedProperties();
-      console.log('Propriétés récupérées:', data);
-      setProperties(data);
+        setLoading(true);
+        const data = await coOwnerApi.getDelegatedProperties();
+        console.log('Propriétés récupérées:', data);
+        // Forcer un nouveau tableau pour déclencher le re-render
+        setProperties([...data]);
     } catch (error: any) {
-      console.warn('Error fetching delegated properties (silenced):', error);
-      setProperties([]);
+        console.warn('Error fetching delegated properties (silenced):', error);
+        setProperties([]);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   // Filtrer les propriétés
   const filteredProperties = properties.filter(property => {
@@ -127,6 +125,11 @@ export const DelegatedProperties: React.FC<DelegatedPropertiesProps> = ({ onNavi
   };
 
   const getPropertyImage = (property: CoOwnerProperty) => {
+    // Priorité aux photo_urls (URLs complètes du backend)
+    if (property.photo_urls && property.photo_urls.length > 0) {
+      return property.photo_urls[0];
+    }
+    // Sinon utiliser les photos relatives
     if (property.photos && property.photos.length > 0) {
       const firstPhoto = property.photos[0];
       const url = resolvePhotoUrl(firstPhoto);
@@ -145,10 +148,11 @@ export const DelegatedProperties: React.FC<DelegatedPropertiesProps> = ({ onNavi
     setSelectedEditProperty(null);
   };
 
-  const handlePropertyUpdated = () => {
-    fetchProperties();
-    notify('Modification envoyée au propriétaire pour approbation', 'info');
-  };
+const handlePropertyUpdated = () => {
+    fetchProperties(); // Recharger les propriétés pour voir les changements
+    notify('Bien modifié avec succès !', 'success');
+    // Supprimer le message "Modification envoyée au propriétaire pour approbation"
+};
 
   const BienCard = ({ property }: { property: CoOwnerProperty }) => (
     <div
@@ -164,10 +168,16 @@ export const DelegatedProperties: React.FC<DelegatedPropertiesProps> = ({ onNavi
           onError={(e) => {
             const img = e.currentTarget;
             img.style.display = "none";
+            const parent = img.parentElement;
+            if (parent) {
+              const fallback = parent.querySelector('.fallback-icon') as HTMLElement;
+              if (fallback) fallback.style.display = "flex";
+            }
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-green-100 flex flex-col items-center justify-center -z-10">
+        <div className="fallback-icon absolute inset-0 bg-gradient-to-br from-green-50 to-green-100 flex flex-col items-center justify-center" style={{ display: 'none' }}>
           <Building size={48} className="text-green-300/50" />
+          <p className="text-sm text-gray-400 font-medium mt-2">Aucune photo</p>
         </div>
 
         {/* Status badge */}
