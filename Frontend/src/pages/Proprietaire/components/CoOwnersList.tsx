@@ -472,10 +472,7 @@ export const CoOwnersList: React.FC<CoOwnersListProps> = ({ notify }) => {
                         <button className="co-toggle-btn" onClick={() => toggleExpanded(coOwner.id)}>
                           Détails {svgChevron(isExpanded)}
                         </button>
-                        <button className="co-view-btn" onClick={() => window.location.href = `/proprietaire/coproprietaires/${coOwner.id}`}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M22 12c-2.667 4.667-6 7-10 7s-7.333-2.333-10-7c2.667-4.667 6-7 10-7s7.333 2.333 10 7z"/></svg>
-                          Voir
-                        </button>
+                      
                       </div>
                     </div>
                   </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { X, Home, Calendar, MessageSquare, Shield, AlertCircle, Building2, UserCheck, MapPin, DollarSign, Maximize } from 'lucide-react';
+import { X, Home, Calendar, MessageSquare, Shield, AlertCircle, Building2, UserCheck, MapPin, DollarSign, Maximize, Eye, Edit, FileText, Coins, Wrench, Send, Users, File, Clock } from 'lucide-react';
 import { Button } from './ui/Button';
 import api from '@/services/api';
 
@@ -32,14 +32,14 @@ interface DelegatePropertyModalProps {
 }
 
 const AVAILABLE_PERMISSIONS = [
-  { id: 'view', label: 'Voir', description: 'Peut voir les détails du bien', icon: '👁️' },
-  { id: 'edit', label: 'Modifier', description: 'Peut modifier les informations du bien', icon: '✏️' },
-  { id: 'manage_lease', label: 'Gérer les baux', description: 'Peut gérer les contrats de location', icon: '📝' },
-  { id: 'collect_rent', label: 'Collecter les loyers', description: 'Peut collecter les paiements de loyer', icon: '💰' },
-  { id: 'manage_maintenance', label: 'Gérer la maintenance', description: 'Peut gérer les demandes de maintenance', icon: '🔧' },
-  { id: 'send_invoices', label: 'Envoyer les factures', description: 'Peut envoyer les factures et quittances', icon: '📧' },
-  { id: 'manage_tenants', label: 'Gérer les locataires', description: 'Peut gérer les locataires et les informations', icon: '👥' },
-  { id: 'view_documents', label: 'Voir les documents', description: 'Peut voir les documents du bien', icon: '📄' },
+  { id: 'view', label: 'Voir', description: 'Peut voir les détails du bien', icon: Eye },
+  { id: 'edit', label: 'Modifier', description: 'Peut modifier les informations du bien', icon: Edit },
+  { id: 'manage_lease', label: 'Gérer les baux', description: 'Peut gérer les contrats de location', icon: FileText },
+  { id: 'collect_rent', label: 'Collecter les loyers', description: 'Peut collecter les paiements de loyer', icon: Coins },
+  { id: 'manage_maintenance', label: 'Gérer la maintenance', description: 'Peut gérer les demandes de maintenance', icon: Wrench },
+  { id: 'send_invoices', label: 'Envoyer les factures', description: 'Peut envoyer les factures et quittances', icon: Send },
+  { id: 'manage_tenants', label: 'Gérer les locataires', description: 'Peut gérer les locataires et les informations', icon: Users },
+  { id: 'view_documents', label: 'Voir les documents', description: 'Peut voir les documents du bien', icon: File },
 ];
 
 export const DelegatePropertyModal: React.FC<DelegatePropertyModalProps> = ({
@@ -111,65 +111,61 @@ export const DelegatePropertyModal: React.FC<DelegatePropertyModalProps> = ({
   };
 
   const handlePropertySelect = (propertyId: number, e: React.MouseEvent) => {
-    // Empêche la propagation si on clique sur la case à cocher
     if ((e.target as HTMLElement).closest('input[type="checkbox"]')) {
       return;
     }
-    
     setSelectedPropertyId(propertyId === selectedPropertyId ? null : propertyId);
   };
 
   const handleCheckboxClick = (propertyId: number, e: React.MouseEvent) => {
-    e.stopPropagation(); // IMPORTANT : Stop la propagation
+    e.stopPropagation();
     setSelectedPropertyId(propertyId === selectedPropertyId ? null : propertyId);
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  if (!selectedPropertyId) {
-    notify('Veuillez sélectionner un bien', 'error');
-    return;
-  }
-
-  if (!isAgency && selectedPermissions.length === 0) {
-    notify('Veuillez sélectionner au moins une permission', 'error');
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    const payload: any = {
-      property_id: selectedPropertyId,
-      co_owner_id: coOwner.id,
-      expires_at: expiresAt || null,
-    };
-
-    if (!isAgency) {
-      payload.permissions = selectedPermissions;
-      payload.notes = notes || null;
+    if (!selectedPropertyId) {
+      notify('Veuillez sélectionner un bien', 'error');
+      return;
     }
-    
-    const response = await api.post('/property-delegations', payload);
-    notify('Bien délégué avec succès', 'success');
-    onClose();
-  } catch (error: any) {
-    console.error('❌ Erreur délégation:', error);
-    
-    // Gestion améliorée des erreurs
-    if (error.response?.status === 409) {
-      // Conflit : bien déjà délégué
-      const existingName = error.response?.data?.existing_delegation?.co_owner_name || 'un gestionnaire';
-      notify(`Ce bien est déjà délégué à ${existingName}`, 'error');
-    } else {
-      const message = error.response?.data?.message || 'Erreur lors de la délégation';
-      notify(message, 'error');
+
+    if (!isAgency && selectedPermissions.length === 0) {
+      notify('Veuillez sélectionner au moins une permission', 'error');
+      return;
     }
-  } finally {
-    setLoading(false);
-  }
-};
+
+    try {
+      setLoading(true);
+
+      const payload: any = {
+        property_id: selectedPropertyId,
+        co_owner_id: coOwner.id,
+        expires_at: expiresAt || null,
+      };
+
+      if (!isAgency) {
+        payload.permissions = selectedPermissions;
+        payload.notes = notes || null;
+      }
+      
+      const response = await api.post('/property-delegations', payload);
+      notify('Bien délégué avec succès', 'success');
+      onClose();
+    } catch (error: any) {
+      console.error('❌ Erreur délégation:', error);
+      
+      if (error.response?.status === 409) {
+        const existingName = error.response?.data?.existing_delegation?.co_owner_name || 'un gestionnaire';
+        notify(`Ce bien est déjà délégué à ${existingName}`, 'error');
+      } else {
+        const message = error.response?.data?.message || 'Erreur lors de la délégation';
+        notify(message, 'error');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -207,9 +203,9 @@ const handleSubmit = async (e: React.FormEvent) => {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+        {/* Header - Vert */}
         <div style={{
-          background: 'linear-gradient(to right, #2563eb, #4f46e5)',
+          background: 'linear-gradient(to right, #76B74C, #5c8f3a)',
           padding: '20px 24px',
           display: 'flex',
           alignItems: 'center',
@@ -239,11 +235,13 @@ const handleSubmit = async (e: React.FormEvent) => {
                 Déléguer un bien
               </h2>
               <p style={{
-                fontSize: '14px',
-                color: 'rgba(191, 219, 254, 1)',
-                margin: '4px 0 0 0'
+                fontSize: '18px',
+                fontWeight: '500',
+                color: 'white',
+                margin: '8px 0 0 0',
+                opacity: 0.95
               }}>
-                à {coOwner.first_name} {coOwner.last_name} • {isAgency ? 'Agence immobilière' : 'Copropriétaire'}
+                {coOwner.first_name} {coOwner.last_name} • {isAgency ? 'Agence immobilière' : 'Copropriétaire'}
               </p>
             </div>
           </div>
@@ -273,31 +271,31 @@ const handleSubmit = async (e: React.FormEvent) => {
           flexDirection: 'column'
         }}>
           <div className="p-6 space-y-6">
-            {/* Alerte agence */}
+            {/* Alerte agence - Vert */}
             {isAgency && (
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-5 shadow-sm">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-5 shadow-sm">
                 <div className="flex gap-4">
                   <div className="flex-shrink-0">
-                    <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
-                      <AlertCircle className="w-6 h-6 text-amber-600" />
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <AlertCircle className="w-6 h-6 text-green-600" />
                     </div>
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-bold text-amber-900 mb-2 text-lg">
+                    <h4 className="font-bold text-green-900 mb-2 text-lg">
                       ⚠️ Délégation complète à une agence
                     </h4>
-                    <div className="space-y-2 text-sm text-amber-800">
+                    <div className="space-y-2 text-sm text-green-800">
                       <p className="font-medium">
                         Cette agence aura <span className="font-bold underline">tous les droits de gestion</span> sur ce bien.
                       </p>
                       <p>
                         Vous ne pourrez plus gérer ce bien, uniquement le <strong>consulter en lecture seule</strong>.
                       </p>
-                      <div className="mt-3 pt-3 border-t border-amber-200">
+                      <div className="mt-3 pt-3 border-t border-green-200">
                         <p className="font-semibold mb-1">Permissions automatiques :</p>
                         <div className="flex flex-wrap gap-2">
                           {['Visualisation', 'Modification', 'Baux', 'Loyers', 'Maintenance', 'Factures', 'Locataires', 'Documents'].map(perm => (
-                            <span key={perm} className="px-2 py-1 bg-amber-100 text-amber-900 rounded-md text-xs font-medium">
+                            <span key={perm} className="px-2 py-1 bg-green-100 text-green-900 rounded-md text-xs font-medium">
                               ✓ {perm}
                             </span>
                           ))}
@@ -312,13 +310,13 @@ const handleSubmit = async (e: React.FormEvent) => {
             {/* Sélection du bien */}
             <div>
               <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <Home className="w-5 h-5 text-blue-600" />
+                <Home className="w-5 h-5 text-green-600" />
                 Sélectionner un bien à déléguer *
               </label>
 
               {loadingProperties ? (
                 <div className="p-8 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl text-center border-2 border-dashed border-gray-300">
-                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mx-auto mb-3"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-600 border-t-transparent mx-auto mb-3"></div>
                   <p className="text-sm text-gray-600 font-medium">Chargement des biens disponibles...</p>
                 </div>
               ) : properties.length === 0 ? (
@@ -344,8 +342,8 @@ const handleSubmit = async (e: React.FormEvent) => {
                       className={`
                         p-4 rounded-xl border-2 cursor-pointer transition-all duration-200
                         ${selectedPropertyId === property.id
-                          ? 'border-blue-600 bg-blue-50 shadow-md ring-2 ring-blue-200'
-                          : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                          ? 'border-green-600 bg-green-50 shadow-md ring-2 ring-green-200'
+                          : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
                         }
                       `}
                     >
@@ -354,7 +352,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                           <div className="flex items-center gap-3 mb-2">
                             <div className={`
                               w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0
-                              ${selectedPropertyId === property.id ? 'bg-blue-600' : 'bg-gray-200'}
+                              ${selectedPropertyId === property.id ? 'bg-green-600' : 'bg-gray-200'}
                             `}>
                               <Home className={`w-5 h-5 ${selectedPropertyId === property.id ? 'text-white' : 'text-gray-600'}`} />
                             </div>
@@ -377,7 +375,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                               </span>
                             )}
                             {property.surface && (
-                              <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-lg text-xs font-semibold">
+                              <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-lg text-xs font-semibold">
                                 <Maximize className="w-3 h-3" />
                                 {property.surface} m²
                               </span>
@@ -392,8 +390,8 @@ const handleSubmit = async (e: React.FormEvent) => {
                           <div className={`
                             w-6 h-6 rounded-full border-2 flex items-center justify-center cursor-pointer
                             ${selectedPropertyId === property.id
-                              ? 'border-blue-600 bg-blue-600'
-                              : 'border-gray-300 hover:border-blue-400'
+                              ? 'border-green-600 bg-green-600'
+                              : 'border-gray-300 hover:border-green-400'
                             }
                           `}>
                             {selectedPropertyId === property.id && (
@@ -410,8 +408,8 @@ const handleSubmit = async (e: React.FormEvent) => {
               )}
 
               {selectedProperty && (
-                <div className="mt-4 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
-                  <p className="text-sm font-semibold text-blue-900">
+                <div className="mt-4 p-4 bg-green-50 border-2 border-green-200 rounded-xl">
+                  <p className="text-sm font-semibold text-green-900">
                     ✓ Bien sélectionné : <span className="font-bold">{selectedProperty.name}</span>
                   </p>
                 </div>
@@ -422,37 +420,40 @@ const handleSubmit = async (e: React.FormEvent) => {
             {!isAgency && (
               <div>
                 <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-blue-600" />
+                  <Shield className="w-5 h-5 text-green-600" />
                   Permissions à accorder *
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {AVAILABLE_PERMISSIONS.map((permission) => (
-                    <label
-                      key={permission.id}
-                      className={`
-                        flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200
-                        ${selectedPermissions.includes(permission.id)
-                          ? 'border-blue-600 bg-blue-50 shadow-md'
-                          : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
-                        }
-                      `}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedPermissions.includes(permission.id)}
-                        onChange={() => handleTogglePermission(permission.id)}
-                        className="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 flex-shrink-0"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-bold text-gray-900 flex items-center gap-2">
-                          <span className="text-lg">{permission.icon}</span>
-                          <span className="truncate">{permission.label}</span>
+                  {AVAILABLE_PERMISSIONS.map((permission) => {
+                    const Icon = permission.icon;
+                    return (
+                      <label
+                        key={permission.id}
+                        className={`
+                          flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200
+                          ${selectedPermissions.includes(permission.id)
+                            ? 'border-green-600 bg-green-50 shadow-md'
+                            : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
+                          }
+                        `}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedPermissions.includes(permission.id)}
+                          onChange={() => handleTogglePermission(permission.id)}
+                          className="mt-1 w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-2 focus:ring-green-500 flex-shrink-0"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-gray-900 flex items-center gap-2">
+                            <Icon className="w-4 h-4 text-green-600" />
+                            <span className="truncate">{permission.label}</span>
+                          </div>
+                          <div className="text-xs text-gray-600 mt-1">{permission.description}</div>
                         </div>
-                        <div className="text-xs text-gray-600 mt-1">{permission.description}</div>
-                      </div>
-                    </label>
-                  ))}
+                      </label>
+                    );
+                  })}
                 </div>
                 {selectedPermissions.length === 0 && (
                   <p className="text-sm text-red-600 mt-3 font-medium flex items-center gap-2">
@@ -466,7 +467,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             {/* Date d'expiration */}
             <div>
               <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-blue-600" />
+                <Calendar className="w-5 h-5 text-green-600" />
                 Date d'expiration (optionnel)
               </label>
               <input
@@ -474,10 +475,12 @@ const handleSubmit = async (e: React.FormEvent) => {
                 value={expiresAt}
                 onChange={(e) => setExpiresAt(e.target.value)}
                 min={new Date().toISOString().split('T')[0]}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-white"
+                style={{ backgroundColor: '#ffffff' }}
               />
               <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                💡 Si non renseignée, la délégation n'expirera pas
+                <Clock className="w-3 h-3" />
+                Si non renseignée, la délégation n'expirera pas
               </p>
             </div>
 
@@ -485,7 +488,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             {!isAgency && (
               <div>
                 <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-blue-600" />
+                  <MessageSquare className="w-5 h-5 text-green-600" />
                   Message (optionnel)
                 </label>
                 <textarea
@@ -494,7 +497,8 @@ const handleSubmit = async (e: React.FormEvent) => {
                   rows={4}
                   maxLength={1000}
                   placeholder="Ajoutez une note ou un message pour cette délégation..."
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all resize-none bg-white"
+                  style={{ backgroundColor: '#ffffff' }}
                 />
                 <p className="text-xs text-gray-500 mt-2">
                   {notes.length}/1000 caractères
@@ -511,13 +515,32 @@ const handleSubmit = async (e: React.FormEvent) => {
               onClick={onClose}
               disabled={loading}
               className="px-6"
+              style={{
+                borderColor: '#d1d5db',
+                color: '#374151',
+                backgroundColor: 'white'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#76B74C';
+                e.currentTarget.style.color = '#76B74C';
+                e.currentTarget.style.backgroundColor = '#f0f9e6';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#d1d5db';
+                e.currentTarget.style.color = '#374151';
+                e.currentTarget.style.backgroundColor = 'white';
+              }}
             >
               Annuler
             </Button>
             <Button
               type="submit"
               disabled={loading || !selectedPropertyId || (!isAgency && selectedPermissions.length === 0)}
-              className="px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+              className="px-6"
+              style={{
+                background: 'linear-gradient(to right, #76B74C, #5c8f3a)',
+                color: 'white'
+              }}
             >
               {loading ? (
                 <>

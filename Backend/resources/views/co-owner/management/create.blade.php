@@ -529,25 +529,29 @@
 
     .confirm-row {
         display: flex;
+        flex-direction: column;
         gap: 1rem;
-        flex-wrap: wrap;
         margin-top: 1rem;
     }
 
     .confirm-item {
-        flex: 1;
-        min-width: 180px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
     }
 
     .confirm-item .label {
-        font-size: 0.9rem;
-        color: var(--gray-500);
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .confirm-item .value {
         font-weight: 600;
-        color: var(--gray-800);
-        font-size: 1rem;
+        color: #1f2937;
+        font-size: 0.938rem;
     }
 
     .info-note {
@@ -1102,7 +1106,7 @@ function invitePrevStep() {
 }
 
 // ============================================================
-// MISE À JOUR DE LA CONFIRMATION
+// MISE À JOUR DE LA CONFIRMATION (TÉLÉPHONE EN DESSOUS DE L'EMAIL)
 // ============================================================
 function inviteUpdateConfirmation() {
     var box     = document.getElementById('confirmation-content');
@@ -1130,7 +1134,7 @@ function inviteUpdateConfirmation() {
                 + '</div></div>';
         }
 
-        box.innerHTML = '<div style="font-weight:600; color:#7c3aed; margin-bottom:0.75rem; font-size:1.2rem;">Agence à inviter :</div>'
+        box.innerHTML = '<div style="font-weight:600; color:#7c3aed; margin-bottom:1rem; font-size:1.2rem;">Agence à inviter :</div>'
             + '<div class="confirm-row">'
             + '<div class="confirm-item"><div class="label">Nom complet</div><div class="value">' + escHtml(inviteFormData.first_name) + ' ' + escHtml(inviteFormData.last_name) + '</div></div>'
             + '<div class="confirm-item"><div class="label">Email</div><div class="value">' + escHtml(inviteFormData.email) + '</div></div>'
@@ -1142,7 +1146,7 @@ function inviteUpdateConfirmation() {
         box.className = 'confirm-box coowner-confirm';
         msgEl.textContent = 'Le co-propriétaire pourra créer son compte et commencer à gérer vos biens.';
 
-        box.innerHTML = '<div style="font-weight:600; color:#1d4ed8; margin-bottom:0.75rem; font-size:1.2rem;">Co-propriétaire à inviter :</div>'
+        box.innerHTML = '<div style="font-weight:600; color:#1d4ed8; margin-bottom:1rem; font-size:1.2rem;">Co-propriétaire à inviter :</div>'
             + '<div class="confirm-row">'
             + '<div class="confirm-item"><div class="label">Nom complet</div><div class="value">' + escHtml(inviteFormData.first_name) + ' ' + escHtml(inviteFormData.last_name) + '</div></div>'
             + '<div class="confirm-item"><div class="label">Email</div><div class="value">' + escHtml(inviteFormData.email) + '</div></div>'

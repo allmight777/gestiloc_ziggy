@@ -57,7 +57,7 @@ interface PreavisListProps {
     notify?: (msg: string, type: 'success' | 'info' | 'error') => void;
 }
 
-const AvisEcheance: React.FC<PreavisListProps> = ({ notify = () => {} }) => {
+const PreavisList: React.FC<PreavisListProps> = ({ notify = () => {} }) => {
     const navigate = useNavigate();
     
     // États pour les données
@@ -298,7 +298,7 @@ const AvisEcheance: React.FC<PreavisListProps> = ({ notify = () => {} }) => {
                             color: '#1F2937', 
                             margin: '0 0 0.5rem 0' 
                         }}>
-                            Avis d’échéance
+                            Préavis de départ
                         </h1>
                         <p style={{ 
                             color: '#6B7280', 
@@ -306,59 +306,32 @@ const AvisEcheance: React.FC<PreavisListProps> = ({ notify = () => {} }) => {
                             margin: 0, 
                             maxWidth: '600px' 
                         }}>
-                            Gérez les avis d’échéance pour les locataires de vos biens.<br />
-                            <strong>Système automatique :</strong> 10 jours avant la date du loyer, l’avis d’échéance est envoyé par email avec lien de paiement.
+                            Gérez les préavis de départ pour les locataires de vos biens délégués.<br />
+                            Envoyez les préavis aux locataires et suivez leur statut.
                         </p>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                        <button
-                            onClick={() => {
-                                // Simulation de génération manuelle
-                                notify("Génération manuelle demandée. Choisissez un locataire.", "info");
-                            }}
-                            className="btn-create"
-                            style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                padding: '12px 24px',
-                                background: '#3B82F6', // Bleu pour distinguer
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '10px',
-                                fontWeight: 600,
-                                fontSize: '0.9rem',
-                                boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            <Calendar size={18} />
-                            <span>Générer manuellement</span>
-                        </button>
-
-                        <button
-                            onClick={handleCreateClick}
-                            className="btn-create"
-                            style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                padding: '12px 24px',
-                                background: '#70AE48',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '10px',
-                                fontWeight: 600,
-                                fontSize: '0.9rem',
-                                boxShadow: '0 2px 4px rgba(112, 174, 72, 0.3)',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            <Plus size={18} />
-                            <span>Programmer un avis</span>
-                        </button>
-                    </div>
+                    <button
+                        onClick={handleCreateClick}
+                        className="btn-create"
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '12px 24px',
+                            background: '#70AE48',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '10px',
+                            fontWeight: 600,
+                            fontSize: '0.9rem',
+                            boxShadow: '0 2px 4px rgba(112, 174, 72, 0.3)',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <Plus size={18} />
+                        <span>Créer un préavis</span>
+                    </button>
                 </div>
 
                 {/* Statistiques */}
@@ -487,7 +460,7 @@ const AvisEcheance: React.FC<PreavisListProps> = ({ notify = () => {} }) => {
 
                     {/* Zone de recherche et filtre */}
                     <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem', border: '1px solid #E5E7EB' }}>
-                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
                             <div style={{ flex: 1, minWidth: '200px' }}>
                                 <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem' }}>
                                     FILTRER PAR BIEN
@@ -542,8 +515,8 @@ const AvisEcheance: React.FC<PreavisListProps> = ({ notify = () => {} }) => {
                             </div>
 
                             <div style={{ flex: 2, minWidth: '300px' }}>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'transparent', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem' }}>
-                                    _
+                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem' }}>
+                                    RECHERCHE
                                 </label>
                                 <div style={{ position: 'relative' }}>
                                     <Search 
@@ -556,49 +529,55 @@ const AvisEcheance: React.FC<PreavisListProps> = ({ notify = () => {} }) => {
                                             color: '#9CA3AF' 
                                         }} 
                                     />
-                                    <input
-                                        type="text"
-                                        name="search"
-                                        value={searchTerm}
-                                        onChange={handleSearchChange}
-                                        placeholder="Rechercher locataire, adresse..."
-                                        style={{
-                                            width: '100%',
-                                            padding: '10px 16px 10px 42px',
-                                            border: '1px solid #E5E7EB',
-                                            borderRadius: '8px',
-                                            fontSize: '0.9rem',
-                                            color: '#1F2937',
-                                            outline: 'none'
-                                        }}
-                                    />
+                              <input
+    type="text"
+    name="search"
+    value={searchTerm}
+    onChange={handleSearchChange}
+    placeholder="Rechercher locataire, adresse..."
+    style={{
+        width: '100%',
+        padding: '10px 16px 10px 42px',
+        border: '1px solid #E5E7EB',
+        borderRadius: '8px',
+        fontSize: '0.9rem',
+        color: '#1F2937',
+        backgroundColor: '#FFFFFF',  // ← AJOUTER CETTE LIGNE
+        outline: 'none'
+    }}
+/>
                                 </div>
                             </div>
 
                             <div style={{ flex: '0 0 auto' }}>
-                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'transparent', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '0.5rem' }}>
-                                    _
-                                </label>
-                                <button
-                                    type="submit"
-                                    style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        padding: '10px 20px',
-                                        background: '#70AE48',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        fontWeight: 600,
-                                        fontSize: '0.9rem',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
-                                    <Search size={18} />
-                                    Rechercher
-                                </button>
+                              <button
+    type="submit"
+    style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '10px 24px',
+        background: '#70AE48',
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        fontWeight: 600,
+        fontSize: '0.9rem',
+        cursor: 'pointer',
+        transition: 'all 0.2s'
+    }}
+    onMouseEnter={(e) => {
+        e.currentTarget.style.background = '#5a8f3a';
+        e.currentTarget.style.transform = 'translateY(-1px)';
+    }}
+    onMouseLeave={(e) => {
+        e.currentTarget.style.background = '#70AE48';
+        e.currentTarget.style.transform = 'translateY(0)';
+    }}
+>
+    <Search size={18} />
+    Rechercher
+</button>
                             </div>
                         </div>
                     </div>
@@ -740,7 +719,7 @@ const AvisEcheance: React.FC<PreavisListProps> = ({ notify = () => {} }) => {
                         {/* GRILLE À 2 COLONNES */}
                         <div style={{ 
                             display: 'grid', 
-                            gridTemplateColumns: 'repeat(2, 1fr)', // ← MODIFIÉ DE 3 À 2
+                            gridTemplateColumns: 'repeat(2, 1fr)',
                             gap: '1.5rem' 
                         }}>
                             {notices.map((notice) => (
@@ -1136,4 +1115,4 @@ const AvisEcheance: React.FC<PreavisListProps> = ({ notify = () => {} }) => {
     );
 };
 
-export default AvisEcheance;
+export default PreavisList;

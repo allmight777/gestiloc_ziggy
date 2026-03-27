@@ -138,9 +138,9 @@ export const InviteCoOwner: React.FC<InviteCoOwnerProps> = ({ notify }) => {
     .confirm-box { padding: 1.5rem; border-radius: 1rem; margin-bottom: 1rem; border: 2px solid; }
     .confirm-box.coowner-confirm { background: #eff6ff; border-color: #bfdbfe; }
     .confirm-box.agency-confirm  { background: #faf5ff; border-color: #e9d5ff; }
-    .confirm-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
-    .confirm-item { flex: 1; min-width: 180px; }
-    .confirm-item .label { font-size: 0.8rem; color: #6b7280; }
+    .confirm-row { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
+    .confirm-item { display: flex; flex-direction: column; gap: 0.25rem; }
+    .confirm-item .label { font-size: 0.7rem; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; }
     .confirm-item .value { font-weight: 600; color: #1f2937; font-size: 0.938rem; }
 
     .info-note { padding: 1rem 1.25rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 0.75rem; font-size: 0.875rem; color: #374151; display: flex; align-items: flex-start; gap: 0.75rem; margin-top: 1rem; }
@@ -347,7 +347,7 @@ export const InviteCoOwner: React.FC<InviteCoOwnerProps> = ({ notify }) => {
                 </div>
               )}
 
-              {/* Étape 3 */}
+              {/* Étape 3 - CONFIRMATION AVEC TÉLÉPHONE EN DESSOUS DE L'EMAIL */}
               {currentStep === 3 && (
                 <div className="form-section">
                   <div className="section-title">
@@ -355,21 +355,32 @@ export const InviteCoOwner: React.FC<InviteCoOwnerProps> = ({ notify }) => {
                     Confirmation de l'invitation
                   </div>
                   <div className={`confirm-box ${selectedType === 'agency' ? 'agency-confirm' : 'coowner-confirm'}`}>
-                    <div style={{ fontWeight: 600, color: selectedType === 'agency' ? '#7c3aed' : '#1d4ed8', marginBottom: '0.75rem' }}>
+                    <div style={{ fontWeight: 600, color: selectedType === 'agency' ? '#7c3aed' : '#1d4ed8', marginBottom: '1rem' }}>
                       {selectedType === 'agency' ? 'Agence à inviter :' : 'Co-propriétaire à inviter :'}
                     </div>
                     <div className="confirm-row">
-                      {[
-                        { label: 'Nom complet', value: `${formData.first_name} ${formData.last_name}` },
-                        { label: 'Email', value: formData.email },
-                        ...(formData.phone ? [{ label: 'Téléphone', value: formData.phone }] : []),
-                        { label: 'Type', value: selectedType === 'agency' ? 'Agence Immobilière' : 'Co-propriétaire Particulier' },
-                      ].map(item => (
-                        <div key={item.label} className="confirm-item">
-                          <div className="label">{item.label}</div>
-                          <div className="value">{item.value}</div>
+                      {/* Nom complet */}
+                      <div className="confirm-item">
+                        <div className="label">Nom complet</div>
+                        <div className="value">{`${formData.first_name} ${formData.last_name}`}</div>
+                      </div>
+                      {/* Email - séparé */}
+                      <div className="confirm-item">
+                        <div className="label">Email</div>
+                        <div className="value">{formData.email}</div>
+                      </div>
+                      {/* Téléphone - EN DESSOUS DE L'EMAIL, bien séparé */}
+                      {formData.phone && (
+                        <div className="confirm-item">
+                          <div className="label">Téléphone</div>
+                          <div className="value">{formData.phone}</div>
                         </div>
-                      ))}
+                      )}
+                      {/* Type */}
+                      <div className="confirm-item">
+                        <div className="label">Type</div>
+                        <div className="value">{selectedType === 'agency' ? 'Agence Immobilière' : 'Co-propriétaire Particulier'}</div>
+                      </div>
                     </div>
                     {selectedType === 'agency' && (formData.company_name || formData.ifu || formData.rccm) && (
                       <div style={{ borderTop: '1px solid #e9d5ff', marginTop: '1rem', paddingTop: '1rem' }}>
