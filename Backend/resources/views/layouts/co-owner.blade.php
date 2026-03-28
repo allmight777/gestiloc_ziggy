@@ -541,12 +541,23 @@
         .modal-overlay.active .modal-box { transform: scale(1); }
 
         .logout-icon {
-            width: 5rem; height: 5rem;
+            width: 3.5rem; height: 3.5rem;
             border-radius: 9999px;
-            margin: 0 auto 1.5rem;
             display: flex; align-items: center; justify-content: center;
             background: #fee2e2;
-            border: 3px solid #ef4444;
+            flex-shrink: 0;
+        }
+
+        .logout-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+            width: 100%;
+        }
+
+        .modal-box {
+            text-align: left;
         }
 
         .logout-icon svg {
@@ -713,24 +724,30 @@
     <!-- ─── MODAL DÉCONNEXION (STYLE REACT AVEC ROUGE) ─── -->
     <div class="modal-overlay" id="logoutModal">
         <div class="modal-box">
-            <div class="logout-icon">
-                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-                    <polyline points="16 17 21 12 16 7"/>
-                    <line x1="21" y1="12" x2="9" y2="12"/>
-                </svg>
+            <div class="logout-header">
+                <div class="logout-icon">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                </div>
+                <h3 class="logout-title" style="margin:0;">Déconnexion</h3>
             </div>
-            <h3 class="logout-title">Déconnexion</h3>
-            <div class="logout-message">
-                Êtes-vous sûr de vouloir vous déconnecter ?<br><br>
-                Vous devrez vous reconnecter pour accéder à votre espace personnel.<br>
-                Toutes les modifications non enregistrées seront perdues.
+            <p style="color:#6b7280;margin-bottom:1.5rem;font-family:var(--font-manrope);font-size:0.95rem;">
+                Êtes-vous sûr de vouloir vous déconnecter ?
+            </p>
+            <div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:12px;padding:1rem;margin-bottom:2rem;display:flex;align-items:flex-start;gap:0.75rem;text-align:left;">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <p style="color:#92400e;font-family:var(--font-manrope);font-size:0.9rem;margin:0;line-height:1.5;">
+                    Vous devrez vous reconnecter pour accéder à votre espace personnel. Toutes les modifications non enregistrées seront perdues.
+                </p>
             </div>
             <div class="logout-actions">
                 <button class="logout-btn logout-btn-cancel" onclick="closeLogoutModal()">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
                     Annuler
                 </button>
                 <button class="logout-btn logout-btn-confirm" onclick="confirmLogout()">

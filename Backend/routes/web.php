@@ -56,24 +56,10 @@ Route::get('/logout', function () {
         <html>
         <head>
             <title>Déconnexion - GestiLoc</title>
-            <style>
-                body {
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
-                    margin: 0;
-                }
-
-                @keyframes spin {
-                    to { transform: rotate(360deg); }
-                }
-            </style>
+           
         </head>
         <body>
-            <div class='container'>
-                <div class='spinner'></div>
-                <h2>Déconnexion en cours...</h2>
-                <p>Redirection vers la page de connexion</p>
-            </div>
+           
             <script>
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
