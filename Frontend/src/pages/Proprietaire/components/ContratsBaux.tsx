@@ -424,7 +424,7 @@ const ContratsBaux: React.FC<ContratsBauxProps> = ({ notify }) => {
     const handleViewSigned = (uuid: string) => {
         const token = localStorage.getItem('token');
         if (!token) { window.location.href = '/login'; return; }
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://imona.app/api';
         const baseUrl = apiUrl.replace('/api', '');
         const url = `${baseUrl}/api/landlord/leases/${uuid}/signed`;
         fetch(url, { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/pdf' } })

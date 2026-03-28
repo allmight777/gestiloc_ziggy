@@ -260,8 +260,6 @@ export const EmettrePaiement: React.FC<Props> = ({ onNavigate, notify, onCreated
                   <div className="relative group">
                     <CreditCard className="absolute left-6 top-1/2 -translate-y-1/2 text-green-600 w-5 h-5" />
                     <input
-                      type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      value={amountTotal}
                       onChange={(e) => setAmountTotal(Number(e.target.value))}
                       className="w-full pl-16 pr-24 py-6 bg-gray-50 border-none rounded-[2rem] text-xl font-black text-gray-900 outline-none focus:ring-4 focus:ring-green-500/10 transition-all font-manrope"
                       placeholder="0"

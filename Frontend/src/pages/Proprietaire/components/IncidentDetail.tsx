@@ -778,7 +778,7 @@ const IncidentDetail: React.FC<IncidentDetailProps> = ({ notify }) => {
                                 {incident.photos.map((photo: string, index: number) => {
                                     const photoUrl = photo.startsWith('http') 
                                         ? photo 
-                                        : `http://localhost:8000/storage/${photo.replace(/^\//, '')}`;
+                                        : `https://imona.app/storage/${photo.replace(/^\//, '')}`;
                                     return (
                                         <div key={index} className="photo-item">
                                             <img 
@@ -851,7 +851,6 @@ const IncidentDetail: React.FC<IncidentDetailProps> = ({ notify }) => {
                                     <label className="form-label">Coût estimé (FCFA)</label>
                                     <input 
                                         type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
-                                        className="form-input" 
                                         value={estimatedCost}
                                         onChange={(e) => setEstimatedCost(e.target.value)}
                                     />
@@ -901,7 +900,6 @@ const IncidentDetail: React.FC<IncidentDetailProps> = ({ notify }) => {
                                     <label className="form-label">Coût final (FCFA)</label>
                                     <input 
                                         type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
-                                        className="form-input" 
                                         value={actualCost}
                                         onChange={(e) => setActualCost(e.target.value)}
                                     />

@@ -1685,7 +1685,7 @@ const CreerIntervention: React.FC<CreerInterventionProps> = ({
                     {existingPhotos.map((photo, index) => {
                       const photoUrl = photo.startsWith('http') 
                         ? photo 
-                        : `http://localhost:8000/storage/${photo.replace(/^\//, '')}`;
+                        : `https://imona.app/storage/${photo.replace(/^\//, '')}`;
                       return (
                         <div key={index} style={{
                           position: "relative",

@@ -33,6 +33,20 @@ const CoproprietaireApp: React.FC = () => {
   const laravelRoutes = [
     '/coproprietaire/tenants',
     '/coproprietaire/assign-property',
+    '/coproprietaire/paiements',
+    '/coproprietaire/leases',
+    '/coproprietaire/etats-des-lieux',
+    '/coproprietaire/quittances',
+    '/coproprietaire/gestionnaires',
+    '/coproprietaire/factures',
+    '/coproprietaire/notices',
+    '/coproprietaire/maintenance',
+    '/coproprietaire/comptabilite',
+    '/coproprietaire/avis-echeance',
+    '/coproprietaire/settings',
+    '/coproprietaire/biens/create',
+    '/payment-methods',
+    '/admin',
     '/test-laravel',
     '/test-laravel-page'
   ];

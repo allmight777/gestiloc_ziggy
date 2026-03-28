@@ -729,7 +729,6 @@ const EmitInvoice: React.FC<EmitInvoiceProps> = ({ notify }) => {
               <div className="input-group">
                 <input
                   ref={amountRef}
-                  type="text" inputMode="numeric" className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   name="amount_total"
                   className={`form-input with-prefix ${errors.amount ? 'error' : ''}`}
                   step="0.01"

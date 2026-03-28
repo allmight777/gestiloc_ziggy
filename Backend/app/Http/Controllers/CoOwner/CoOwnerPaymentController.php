@@ -57,7 +57,7 @@ class CoOwnerPaymentController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://imona.app/login');
         }
 
         if (!$user->hasRole('co_owner')) {
@@ -204,7 +204,7 @@ class CoOwnerPaymentController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://imona.app/login');
         }
 
         if (!$user->hasRole('co_owner')) {
@@ -239,7 +239,7 @@ class CoOwnerPaymentController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://imona.app/login');
         }
 
         $validated = $request->validate([
@@ -302,7 +302,7 @@ class CoOwnerPaymentController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://imona.app/login');
         }
 
         $coOwner = $user->coOwner;
@@ -329,7 +329,7 @@ class CoOwnerPaymentController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://imona.app/login');
         }
 
         $coOwner = $user->coOwner;
@@ -363,7 +363,7 @@ class CoOwnerPaymentController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://imona.app/login');
         }
 
         $coOwner = $user->coOwner;
@@ -528,7 +528,7 @@ class CoOwnerPaymentController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://imona.app/login');
         }
 
         $coOwner = $user->coOwner;
@@ -558,7 +558,7 @@ class CoOwnerPaymentController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://imona.app/login');
         }
 
         $coOwner = $user->coOwner;
@@ -596,7 +596,7 @@ class CoOwnerPaymentController extends Controller
         $user = $this->getAuthenticatedUser($request);
 
         if (!$user) {
-            return redirect('http://localhost:8080/login');
+            return redirect('https://imona.app/login');
         }
 
         $coOwner = $user->coOwner;

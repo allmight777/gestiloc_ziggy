@@ -42,7 +42,7 @@ const PRIMARY_COLOR = "#70AE48";
 
 const apiBase =
   import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ||
-  "http://127.0.0.1:8000";
+  "https://imona.app";
 
 const categoryMeta: Record<
   IncidentCategory,

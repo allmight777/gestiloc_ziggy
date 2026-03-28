@@ -447,7 +447,7 @@ class DossierController extends Controller
         try {
             $users = User::whereIn('id', $dossier->shared_with ?? [])->get();
             $tenant = auth()->user()->tenant;
-            $frontendUrl = config('app.frontend_url', 'http://localhost:8080');
+            $frontendUrl = config('app.frontend_url', 'https://imona.app');
 
             foreach ($users as $user) {
                 try {

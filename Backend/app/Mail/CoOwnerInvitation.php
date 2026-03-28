@@ -24,7 +24,7 @@ class CoOwnerInvitation extends Mailable
 public function build()
 {
     // Redirige vers React sur le port 8080 - VERSION CORRIGÉE
-    $acceptUrl = 'http://localhost:8080/activation/coproprietaire?token=' . $this->token . '&email=' . urlencode($this->invitation->email);
+    $acceptUrl = 'https://imona.app/activation/coproprietaire?token=' . $this->token . '&email=' . urlencode($this->invitation->email);
 
     return $this->subject('Invitation à rejoindre ImmoLab en tant que co-propriétaire')
                 ->view('emails.co-owner-invitation')

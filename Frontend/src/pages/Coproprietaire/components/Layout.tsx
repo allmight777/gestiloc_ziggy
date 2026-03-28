@@ -44,8 +44,8 @@ interface LayoutProps {
 }
 
 const CONFIG = {
-  LARAVEL_URL: 'http://localhost:8000',
-  REACT_URL:   'http://localhost:8080',
+  LARAVEL_URL: 'https://imona.app',
+  REACT_URL:   'https://imona.app',
   LOGIN_URL:   '/login',
   LOGOUT_URL:  '/logout',
 };

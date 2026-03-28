@@ -68,7 +68,7 @@ export const leaseService = {
     // ✅ NOUVELLE MÉTHODE - Signature électronique avec canvas
     signContractElectronic: async (uuid: string, signatureDataUrl: string) => {
         const token = localStorage.getItem('token');
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://imona.app/api';
         const baseUrl = apiUrl.replace('/api', '');
         
         const response = await fetch(`${baseUrl}/api/landlord/leases/${uuid}/sign-electronic`, {

@@ -78,13 +78,13 @@ const TYPE_MAP: Record<string, string> = {
 
 const getBackendOrigin = () => {
   const baseURL = (api.defaults.baseURL || "").toString();
-  if (!baseURL) return 'http://127.0.0.1:8000';
+  if (!baseURL) return 'https://imona.app';
   try {
     // Supprimer /api du chemin pour avoir la racine
     const url = new URL(baseURL);
     return `${url.protocol}//${url.host}`;
   } catch {
-    return 'http://127.0.0.1:8000';
+    return 'https://imona.app';
   }
 };
 

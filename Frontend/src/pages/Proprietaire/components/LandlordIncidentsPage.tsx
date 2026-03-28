@@ -28,8 +28,8 @@ const statusLabel: Record<IncidentStatus, string> = {
 
 /**
  * ✅ Base URL backend depuis api.ts (source unique)
- * api.defaults.baseURL = "http://127.0.0.1:8000/api"
- * -> origin "http://127.0.0.1:8000"
+ * api.defaults.baseURL = "https://imona.app/api"
+ * -> origin "https://imona.app"
  */
 const getBackendOrigin = () => {
   const base = api.defaults.baseURL || "";

@@ -30,20 +30,20 @@ Route::get('/dossier-partage/{shareUrl}', function ($shareUrl) {
 
 // Routes de login/logout (publiques)
 Route::get('/login', function () {
-    // Si l'utilisateur a un token valide, rediriger vers le dashboard React
-    if (request()->has('api_token') || request()->cookie('laravel_session')) {
+    $token = request()->get('api_token');
+    if ($token) {
         return "
             <script>
-                const urlParams = new URLSearchParams(window.location.search);
-                const apiToken = urlParams.get('api_token');
-                if (apiToken) {
-                    localStorage.setItem('token', apiToken);
-                }
-                window.location.href = '/coproprietaire/dashboard';
+                localStorage.setItem('token', '{$token}');
+                window.location.href = 'https://imona.app/coproprietaire/dashboard';
             </script>
         ";
     }
-    return view('auth.login');
+    return "
+        <script>
+            window.location.href = 'https://imona.app/login';
+        </script>
+    ";
 })->name('login');
 
 // Route de déconnexion (publique)

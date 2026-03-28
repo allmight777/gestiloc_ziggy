@@ -24,13 +24,13 @@ interface PropertyEditModalProps {
 }
 
 const getBackendOrigin = () => {
-  const baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
-  if (!baseURL) return 'http://127.0.0.1:8000';
+  const baseURL = import.meta.env.VITE_API_URL || 'https://imona.app/api';
+  if (!baseURL) return 'https://imona.app';
   try {
     const url = new URL(baseURL);
     return `${url.protocol}//${url.host}`;
   } catch {
-    return 'http://127.0.0.1:8000';
+    return 'https://imona.app';
   }
 };
 
@@ -280,7 +280,7 @@ export const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
         // Appeler l'API pour mettre à jour avec FormData
         const token = localStorage.getItem('token');
-        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+        const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://imona.app/api';
         
         console.log('Envoi de la requête à:', `${API_BASE_URL}/co-owners/me/properties/${property.id}`);
         
